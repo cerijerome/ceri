@@ -1,6 +1,6 @@
 package ceri.common.except;
 
-import static ceri.common.test.TestUtil.exerciseRecord;
+import static ceri.common.test.Testing.exerciseRecord;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;

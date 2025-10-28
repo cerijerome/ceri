@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.provider;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorHigh() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : Iterables.of(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
+		for (boolean b : Iterables.of(ByteUtil.bitIterator(true, ByteProvider.of(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, true, false, true, false, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -35,7 +34,7 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorLow() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : Iterables.of(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
+		for (boolean b : Iterables.of(ByteUtil.bitIterator(false, ByteProvider.of(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, false, true, false, true, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -198,7 +197,8 @@ public class ByteUtilTest {
 		Assert.equal(ByteUtil.fromNullTerm(ArrayUtil.bytes.of('t', 'e', 's', 't'), UTF_8), "test");
 		Assert.equal(ByteUtil.fromNullTerm(
 			ArrayUtil.bytes.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8), "\t\r\n");
-		Assert.equal(ByteUtil.fromNullTerm(provider('t', 'e', 's', 't', 0, 0), UTF_8), "test");
+		Assert.equal(ByteUtil.fromNullTerm(ByteProvider.of('t', 'e', 's', 't', 0, 0), UTF_8),
+			"test");
 	}
 
 	@Test
@@ -500,5 +500,4 @@ public class ByteUtilTest {
 		Assert.equal(ByteUtil.reverseAsInt(0x96, 7), 0x34); // 10010110 -> 00110100
 		Assert.equal(ByteUtil.reverse(0x96, 33), 0xd2000000L);
 	}
-
 }

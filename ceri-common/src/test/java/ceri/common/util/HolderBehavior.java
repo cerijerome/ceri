@@ -2,7 +2,7 @@ package ceri.common.util;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class HolderBehavior {
 
@@ -22,7 +22,7 @@ public class HolderBehavior {
 		Holder<?> ne1 = Holder.mutable("Test");
 		Holder<?> ne2 = Holder.of();
 		Holder<?> ne3 = Holder.mutable();
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 

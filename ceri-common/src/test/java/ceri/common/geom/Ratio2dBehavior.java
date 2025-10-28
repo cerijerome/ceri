@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class Ratio2dBehavior {
 
@@ -19,7 +19,7 @@ public class Ratio2dBehavior {
 		var ne6 = Ratio2d.of(5, 1);
 		var ne7 = Ratio2d.of(0, 0);
 		var ne8 = Ratio2d.of(1, 1);
-		TestUtil.exerciseEquals(r, eq0);
+		Testing.exerciseEquals(r, eq0);
 		Assert.notEqualAll(r, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8);
 		Assert.equal(r.equals(5, 10), true);
 		Assert.equal(r.equals(6, 10), false);

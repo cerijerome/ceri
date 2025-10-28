@@ -10,7 +10,7 @@ public class TestStyleBehavior {
 	@Test
 	public void shouldGuessStyleFromTargetOrTestClass() {
 		Assert.equal(TestStyle.guessFrom((Class<?>) null), none);
-		Assert.equal(TestStyle.guessFrom(TestUtil.class), test);
+		Assert.equal(TestStyle.guessFrom(TestingTest.class), test);
 		Assert.equal(TestStyle.guessFrom(TestStyle.class), behavior);
 		Assert.equal(TestStyle.guessFrom(TestStyleBehavior.class), behavior);
 		Assert.equal(TestStyle.guessFrom((String) null), none);

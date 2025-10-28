@@ -2,7 +2,7 @@ package ceri.common.reflect;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class CallerBehavior {
 
@@ -22,7 +22,7 @@ public class CallerBehavior {
 		Caller caller3 = new Caller(caller.fullCls, caller.line, "", caller.file);
 		Caller caller4 = new Caller(caller.fullCls, caller.line, caller.method, "");
 		Caller caller5 = new Caller("", caller.line, caller.method, caller.file);
-		TestUtil.exerciseEquals(caller, caller1);
+		Testing.exerciseEquals(caller, caller1);
 		Assert.notEqualAll(caller, caller2, caller3, caller4, caller5);
 	}
 

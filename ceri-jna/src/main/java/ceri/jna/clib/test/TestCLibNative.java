@@ -17,7 +17,7 @@ import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CErrNo;
 import ceri.jna.clib.jna.CFcntl;
@@ -87,7 +87,7 @@ public class TestCLibNative implements CLib.Native {
 	 */
 	public record FdContext(int fd, OpenArgs args, Reflect.ThreadElement origin) {
 		public static FdContext of(int fd, OpenArgs args) {
-			return new FdContext(fd, args, TestUtil.findTest());
+			return new FdContext(fd, args, Testing.findTest());
 		}
 
 		@Override

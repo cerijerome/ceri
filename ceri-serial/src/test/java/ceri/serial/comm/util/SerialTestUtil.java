@@ -7,7 +7,7 @@ import com.sun.jna.Memory;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.serial.comm.SerialParams;
@@ -71,17 +71,17 @@ public class SerialTestUtil {
 
 	public static SimpleExecutor<RuntimeException, ?> execSelfHealing(String path, Integer baud,
 		Consumer<IOException, SelfHealingSerial> consumer) {
-		return TestUtil.threadRun(() -> applySelfHealing(path, baud, consumer));
+		return Testing.threadRun(() -> applySelfHealing(path, baud, consumer));
 	}
 
 	public static SimpleExecutor<RuntimeException, ?> execSerial(String path, Integer baud,
 		Consumer<IOException, SerialPort> consumer) {
-		return TestUtil.threadRun(() -> applySerial(path, baud, consumer));
+		return Testing.threadRun(() -> applySerial(path, baud, consumer));
 	}
 
 	public static SimpleExecutor<RuntimeException, ?> execFd(String path, int baud,
 		IntConsumer<IOException> consumer) {
-		return TestUtil.threadRun(() -> applyFd(path, baud, consumer));
+		return Testing.threadRun(() -> applyFd(path, baud, consumer));
 	}
 
 }

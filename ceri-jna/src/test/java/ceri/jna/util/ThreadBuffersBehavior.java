@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ThreadBuffersBehavior {
 	private ThreadBuffers buffers;
@@ -46,7 +46,7 @@ public class ThreadBuffersBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideBufferPerThread() {
-		var m = TestUtil.threadCall(buffers::get);
+		var m = Testing.threadCall(buffers::get);
 		Assert.notSame(buffers.get(), m);
 	}
 

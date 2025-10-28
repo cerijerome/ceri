@@ -13,7 +13,7 @@ import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConnector;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestOutputStream;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ReplaceableStreamBehavior {
 	private ValueCondition<Exception> sync;
@@ -30,16 +30,16 @@ public class ReplaceableStreamBehavior {
 
 	@After
 	public void after() {
-		in2 = TestUtil.close(in2);
-		in = TestUtil.close(in);
-		tin = TestUtil.close(tin);
-		rin = TestUtil.close(rin);
-		bout2 = TestUtil.close(bout2);
-		bout = TestUtil.close(bout);
-		tout = TestUtil.close(tout);
-		rout = TestUtil.close(rout);
-		tcon = TestUtil.close(tcon);
-		fcon = TestUtil.close(fcon);
+		in2 = Testing.close(in2);
+		in = Testing.close(in);
+		tin = Testing.close(tin);
+		rin = Testing.close(rin);
+		bout2 = Testing.close(bout2);
+		bout = Testing.close(bout);
+		tout = Testing.close(tout);
+		rout = Testing.close(rout);
+		tcon = Testing.close(tcon);
+		fcon = Testing.close(fcon);
 		sync = null;
 	}
 

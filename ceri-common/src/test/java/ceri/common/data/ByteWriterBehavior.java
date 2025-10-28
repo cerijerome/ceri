@@ -10,7 +10,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.util.Validate;
 
 public class ByteWriterBehavior {
@@ -88,7 +88,7 @@ public class ByteWriterBehavior {
 
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
-		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
+		try (InputStream in = Testing.inputStream(1, 2, 3)) {
 			assertBytes(3, w -> Assert.equal(w.transferFrom(in, 2), 2), 1, 2, 0);
 			assertBytes(3, w -> Assert.equal(w.transferFrom(in, 2), 1), 3, 0, 0);
 		}
@@ -96,7 +96,7 @@ public class ByteWriterBehavior {
 
 	@Test
 	public void shouldTransferBufferFromInputStream() throws IOException {
-		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
+		try (InputStream in = Testing.inputStream(1, 2, 3)) {
 			assertBytes(3, w -> Assert.equal(ByteWriter.transferBufferFrom(w, in, 2), 2), 1, 2, 0);
 			assertBytes(3, w -> Assert.equal(ByteWriter.transferBufferFrom(w, in, 2), 1), 3, 0, 0);
 		}

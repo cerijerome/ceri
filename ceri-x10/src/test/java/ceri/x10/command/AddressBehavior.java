@@ -2,7 +2,7 @@ package ceri.x10.command;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class AddressBehavior {
 
@@ -15,7 +15,7 @@ public class AddressBehavior {
 		var ne1 = Address.of(House.E, Unit._14);
 		var ne2 = Address.from("F13");
 		var ne3 = Address.from("E12");
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 

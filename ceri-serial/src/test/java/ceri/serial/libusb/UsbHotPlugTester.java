@@ -14,7 +14,7 @@ import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.io.IoUtil;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CSignal;
 import ceri.log.test.LogModifier;
@@ -53,7 +53,7 @@ public class UsbHotPlugTester {
 				usb.events().handleTimeoutCompleted(Duration.ZERO, null);
 				Concurrent.delay(POLL_MS);
 				showEvents(events);
-				TestUtil.gc();
+				Testing.gc();
 			}
 			logger.info("Done");
 		} finally {
@@ -77,7 +77,7 @@ public class UsbHotPlugTester {
 		hotPlugs.add(usb.hotPlug(callback(events, "ARR+")).arrived().enumerate().register());
 		hotPlugs.add(usb.hotPlug(callback(events, "LEFT")).left().register());
 		hotPlugs.add(usb.hotPlug(callback(events, "ALL")).left().arrived().register());
-		TestUtil.gc();
+		Testing.gc();
 	}
 
 	private static void showEvents(Deque<Event> events) {

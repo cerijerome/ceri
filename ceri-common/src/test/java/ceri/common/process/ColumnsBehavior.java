@@ -3,14 +3,14 @@ package ceri.common.process;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.text.Regex;
 import ceri.common.text.Splitter;
 
 public class ColumnsBehavior {
-	private static final String fixed = TestUtil.resource("column-fixed.txt");
+	private static final String fixed = Testing.resource("column-fixed.txt");
 	private static final List<String> fixedLines = Regex.Split.LINE.list(fixed);
-	private static final String tabs = TestUtil.resource("column-tabs.txt");
+	private static final String tabs = Testing.resource("column-tabs.txt");
 	private static final List<String> tabLines = Regex.Split.LINE.list(tabs);
 
 	@Test

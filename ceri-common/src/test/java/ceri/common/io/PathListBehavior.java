@@ -6,7 +6,7 @@ import org.junit.Test;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class PathListBehavior {
 	private static final Excepts.Predicate<IOException, Object> nullFilter = null;
@@ -14,7 +14,7 @@ public class PathListBehavior {
 
 	@After
 	public void after() {
-		helper = TestUtil.close(helper);
+		helper = Testing.close(helper);
 	}
 
 	@Test

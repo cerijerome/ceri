@@ -7,7 +7,7 @@ import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ColorxsTest {
 
@@ -375,7 +375,7 @@ public class ColorxsTest {
 
 	private static void exerciseCompare(Comparator<Colorx> comparator, long cx, long lt, long eq,
 		long gt) {
-		TestUtil.exerciseCompare(comparator, Colorx.of(cx), Colorx.of(lt), Colorx.of(eq),
+		Testing.exerciseCompare(comparator, Colorx.of(cx), Colorx.of(lt), Colorx.of(eq),
 			Colorx.of(gt));
 	}
 }

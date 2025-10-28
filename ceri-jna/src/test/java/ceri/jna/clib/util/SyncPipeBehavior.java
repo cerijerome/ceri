@@ -7,7 +7,7 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.Poll;
@@ -66,7 +66,7 @@ public class SyncPipeBehavior {
 	public void shouldInterruptPoll() throws IOException {
 		var poll = Poll.of(1);
 		pipe = SyncPipe.of(poll.fd(0));
-		thread = TestUtil.threadRun(pipe::signal);
+		thread = Testing.threadRun(pipe::signal);
 		Assert.equal(poll.poll(), 1);
 		Assert.yes(pipe.verifyPoll());
 		pipe.clear();

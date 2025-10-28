@@ -1,17 +1,18 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.TestUtil.typedProperties;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.Testing;
 import ceri.log.rpc.client.RpcChannel;
 
 public class RpcServerBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcServer.Properties(typedProperties("rpc-server"), "rpc-server").config();
+		var config =
+			new RpcServer.Properties(Testing.properties("rpc-server"), "rpc-server").config();
 		Assert.equal(config.port(), 12345);
 		Assert.equal(config.shutdownTimeoutMs(), 1000);
 	}
@@ -49,7 +50,7 @@ public class RpcServerBehavior {
 	@Test
 	public void shouldNotThrowExceptionOnClose() {
 		var server = TestServer.of();
-		server.awaitTermination.error.setFrom(INX);
+		server.awaitTermination.error.setFrom(ErrorGen.INX);
 		try (RpcServer _ = new RpcServer(server, RpcServer.Config.DEFAULT)) {}
 	}
 }

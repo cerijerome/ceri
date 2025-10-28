@@ -4,7 +4,7 @@ import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class TruncatedRadial3dBehavior {
 	private final Cone c0 = Cone.of(1, 4);
@@ -14,7 +14,7 @@ public class TruncatedRadial3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(t0, TruncatedRadial3d.of(Cone.of(1, 4), 1, 2));
+		Testing.exerciseEquals(t0, TruncatedRadial3d.of(Cone.of(1, 4), 1, 2));
 		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1.1, 4), 1, 2));
 		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1, 3.9), 1, 2));
 		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1, 4), 0.9, 2));

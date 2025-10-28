@@ -1,6 +1,5 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
@@ -101,7 +100,7 @@ public class SmBusDeviceBehavior {
 	@Test
 	public void shouldProcessByteArrayReads() throws IOException {
 		var lib = initI2c();
-		lib.ioctlSmBusBytes.autoResponses(provider(3, 1, 2, 3)); // len, (1, 2, 3)
+		lib.ioctlSmBusBytes.autoResponses(ByteProvider.of(3, 1, 2, 3)); // len, (1, 2, 3)
 		Assert.array(smBus.readBlockData(0x12), 1, 2, 3);
 		Assert.array(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
 		Assert.array(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);

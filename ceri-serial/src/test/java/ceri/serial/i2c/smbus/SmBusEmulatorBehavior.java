@@ -1,9 +1,9 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.test.TestUtil.provider;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cEmulator;
@@ -31,10 +31,10 @@ public class SmBusEmulatorBehavior {
 		smBus.writeByteData(0x12, 0xa5);
 		smBus.writeWordData(0x12, 0xa5b6);
 		dev.write.assertValues( //
-			provider(), //
-			provider(0xa5), //
-			provider(0x12, 0xa5), //
-			provider(0x12, 0xb6, 0xa5));
+			ByteProvider.of(), //
+			ByteProvider.of(0xa5), //
+			ByteProvider.of(0x12, 0xa5), //
+			ByteProvider.of(0x12, 0xb6, 0xa5));
 	}
 
 	@Test
@@ -43,38 +43,39 @@ public class SmBusEmulatorBehavior {
 		smBus.writeBlockData(0x12, 1, 2, 3);
 		smBus.writeI2cBlockData(0x12, 1, 2, 3);
 		dev.write.assertValues( //
-			provider(0x12, 1, 2, 3), //
-			provider(0x12, 1, 2, 3));
+			ByteProvider.of(0x12, 1, 2, 3), //
+			ByteProvider.of(0x12, 1, 2, 3));
 	}
 
 	@Test
 	public void shouldReadNumber() throws IOException {
 		init(address);
-		dev.read.autoResponses(provider(), provider(0xab), provider(0xab), provider(0xab, 0xcd));
+		dev.read.autoResponses(ByteProvider.of(), ByteProvider.of(0xab), ByteProvider.of(0xab),
+			ByteProvider.of(0xab, 0xcd));
 		smBus.writeQuick(true); // actually a read
 		Assert.equal(smBus.readByte(), 0xab);
 		Assert.equal(smBus.readByteData(0x12), 0xab);
 		Assert.equal(smBus.readWordData(0x12), 0xcdab);
 		Assert.equal(smBus.processCall(0x12, 0xa5b6), 0xcdab);
 		dev.read.assertValues( //
-			new Read(provider(), 0), //
-			new Read(provider(), 1), //
-			new Read(provider(0x12), 1), //
-			new Read(provider(0x12), 2), //
-			new Read(provider(0x12, 0xb6, 0xa5), 2));
+			new Read(ByteProvider.of(), 0), //
+			new Read(ByteProvider.of(), 1), //
+			new Read(ByteProvider.of(0x12), 1), //
+			new Read(ByteProvider.of(0x12), 2), //
+			new Read(ByteProvider.of(0x12, 0xb6, 0xa5), 2));
 	}
 
 	@Test
 	public void shouldReadBytes() throws IOException {
 		init(address);
-		dev.read.autoResponses(provider(1, 2, 3));
+		dev.read.autoResponses(ByteProvider.of(1, 2, 3));
 		Assert.array(smBus.readBlockData(0x12), 1, 2, 3);
 		Assert.array(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
 		Assert.array(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
 		dev.read.assertValues( //
-			new Read(provider(0x12), -1), //
-			new Read(provider(0x12, 4, 5, 6), -1), //
-			new Read(provider(0x12), 3));
+			new Read(ByteProvider.of(0x12), -1), //
+			new Read(ByteProvider.of(0x12, 4, 5, 6), -1), //
+			new Read(ByteProvider.of(0x12), 3));
 	}
 
 	private void init(I2cAddress address) {

@@ -10,7 +10,7 @@ import ceri.common.data.IntArray.Immutable;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class IntArrayBehavior {
 	private static final long LMIN = Long.MIN_VALUE;
@@ -35,7 +35,7 @@ public class IntArrayBehavior {
 		var ne0 = Immutable.wrap(1, 2, 4);
 		var ne1 = Immutable.wrap(1, 2, 3, 0);
 		var ne2 = Immutable.wrap();
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
+		Testing.exerciseEquals(t, eq0, eq1, eq2);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 
@@ -78,7 +78,7 @@ public class IntArrayBehavior {
 		var ne0 = Mutable.of(4);
 		var ne1 = Mutable.wrap(0, 0, 1);
 		var ne2 = Mutable.wrap();
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2, eq3);
+		Testing.exerciseEquals(t, eq0, eq1, eq2, eq3);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 

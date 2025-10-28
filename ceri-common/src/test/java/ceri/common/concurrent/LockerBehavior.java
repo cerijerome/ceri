@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class LockerBehavior {
 
@@ -53,7 +53,7 @@ public class LockerBehavior {
 	@Test
 	public void shouldTryToExecuteLockedFunctions() {
 		Locker locker = Locker.of();
-		try (var _ = locker.lock(); var exec = TestUtil.threadRun(() -> {
+		try (var _ = locker.lock(); var exec = Testing.threadRun(() -> {
 			Assert.yes(locker.tryGet(() -> assertLocked(locker, "test")).isEmpty());
 			Assert.yes(locker.tryGetAsInt(() -> assertLocked(locker, 3)).isEmpty());
 			Assert.yes(locker.tryGetAsLong(() -> assertLocked(locker, 5L)).isEmpty());
@@ -67,7 +67,7 @@ public class LockerBehavior {
 	public void shouldCreateCondition() throws InterruptedException {
 		Locker locker = Locker.of();
 		Condition condition = locker.condition();
-		try (var _ = TestUtil.threadRun(() -> signalLoop(locker, condition))) {
+		try (var _ = Testing.threadRun(() -> signalLoop(locker, condition))) {
 			try (var _ = locker.lock()) {
 				condition.await();
 			}

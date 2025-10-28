@@ -4,10 +4,11 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.util.JnaLibrary;
@@ -34,13 +35,13 @@ public class SpiDeviceBehavior {
 		var ne0 = SpiDevice.Config.of(0, 1);
 		var ne1 = SpiDevice.Config.of(1, 0);
 		var ne2 = SpiDevice.Config.of(1, 1, Direction.in);
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 
 	@Test
 	public void shouldCreateConfigFromProperties() {
-		Assert.equal(new SpiDevice.Properties(TestUtil.typedProperties("spi", "spi")).config(),
+		Assert.equal(new SpiDevice.Properties(Testing.properties("spi", "spi")).config(),
 			SpiDevice.Config.of(1, 2, Direction.in));
 	}
 
@@ -105,13 +106,13 @@ public class SpiDeviceBehavior {
 		xfer.execute();
 		Assert.array(xfer.read());
 		lib.ioctlSpiMsg.assertValues(new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1),
-			TestUtil.provider(1, 2, 3, 4, 5), 5, 0, 0, 0, 0, 0, 0));
+			ByteProvider.of(1, 2, 3, 4, 5), 5, 0, 0, 0, 0, 0, 0));
 	}
 
 	@Test
 	public void shouldTransferIn() throws IOException {
 		var lib = initSpi();
-		lib.ioctlSpiMsg.autoResponses(TestUtil.provider(5, 4, 3, 2, 1));
+		lib.ioctlSpiMsg.autoResponses(ByteProvider.of(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.in, 5);
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3)); // ignored
 		xfer.execute();
@@ -123,13 +124,13 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldTransferDuplex() throws IOException {
 		var lib = initSpi();
-		lib.ioctlSpiMsg.autoResponses(TestUtil.provider(5, 4, 3, 2, 1));
+		lib.ioctlSpiMsg.autoResponses(ByteProvider.of(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.duplex, 5);
 		xfer.write(ArrayUtil.bytes.of(5, 6, 7, 8, 9));
 		xfer.execute();
 		Assert.array(xfer.read(), 5, 4, 3, 2, 1);
 		lib.ioctlSpiMsg.assertValues(new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1),
-			TestUtil.provider(5, 6, 7, 8, 9), 5, 0, 0, 0, 0, 0, 0));
+			ByteProvider.of(5, 6, 7, 8, 9), 5, 0, 0, 0, 0, 0, 0));
 	}
 
 	@Test

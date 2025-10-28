@@ -14,7 +14,7 @@ import ceri.common.property.TypedProperties;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 
 public class RegistryServiceBehavior {
@@ -32,7 +32,7 @@ public class RegistryServiceBehavior {
 
 	@Test
 	public void shouldCreateConfigFromProperties() {
-		var config = new RegistryService.Properties(TestUtil.typedProperties("registry", "service"))
+		var config = new RegistryService.Properties(Testing.properties("registry", "service"))
 			.config();
 		Assert.equal(config,
 			new RegistryService.Config("test", Path.of("test/registry.properties"), 100, 200));

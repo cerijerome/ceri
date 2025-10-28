@@ -5,7 +5,7 @@ import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class PathGroupBehavior {
 
@@ -19,7 +19,7 @@ public class PathGroupBehavior {
 		var ne1 = PathGroup.of(l);
 		var ne2 = PathGroup.of(MoveTo.absolute(1, 1), l);
 		var ne3 = PathGroup.of(m, LineTo.relative(2, 0));
-		TestUtil.exerciseEquals(g, eq0);
+		Testing.exerciseEquals(g, eq0);
 		Assert.notEqualAll(g, ne0, ne1, ne2, ne3);
 	}
 

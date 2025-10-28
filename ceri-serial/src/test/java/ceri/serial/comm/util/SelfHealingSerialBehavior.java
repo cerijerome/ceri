@@ -7,7 +7,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaLibrary;
 import ceri.log.io.SelfHealing;
@@ -58,7 +58,7 @@ public class SelfHealingSerialBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() throws IOException {
-		var p = TestUtil.typedProperties("serial");
+		var p = Testing.properties("serial");
 		var conf = new SelfHealingSerial.Properties(p, "serial").config();
 		Assert.equal(conf.portSupplier.get(), "port0");
 		Assert.equal(conf.serial.params.baud, 250000);

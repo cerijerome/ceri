@@ -3,7 +3,7 @@ package ceri.x10.cm11a.protocol;
 import java.util.Set;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -22,7 +22,7 @@ public class EntryBehavior {
 		Entry ne3 = Entry.dim(House.N, FunctionType.dim, 10);
 		Entry ne4 = Entry.function(House.N, FunctionType.on);
 		Entry ne5 = Entry.address(House.N, Unit._10);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 

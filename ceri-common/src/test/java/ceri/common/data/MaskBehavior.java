@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class MaskBehavior {
 
@@ -17,7 +17,7 @@ public class MaskBehavior {
 		Mask m6 = Mask.ofBits(0, 16);
 		Mask m7 = Mask.ofInt(13, 0x1ffff000);
 		Mask m8 = Mask.ofInt(12, 0x1fffe000);
-		TestUtil.exerciseEquals(m0, m1, m2, m3);
+		Testing.exerciseEquals(m0, m1, m2, m3);
 		Assert.notEqualAll(m0, m4, m5, m6, m7, m8);
 	}
 

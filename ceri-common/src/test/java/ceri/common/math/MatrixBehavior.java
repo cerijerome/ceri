@@ -5,7 +5,7 @@ import static ceri.common.math.Matrix.r;
 import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 /**
  * Use https://matrixcalc.org/en/ to test results.
@@ -47,7 +47,7 @@ public class MatrixBehavior {
 		Matrix ne8 = Matrix.ofRow(-1, 1, 0, 1, 0, -1);
 		Matrix ne9 = Matrix.EMPTY;
 		Matrix ne10 = Matrix.I3;
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
+		Testing.exerciseEquals(t, eq0, eq1, eq2);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10);
 	}
 

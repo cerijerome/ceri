@@ -1,6 +1,6 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.TestUtil.randomString;
+import static ceri.common.test.Testing.randomString;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

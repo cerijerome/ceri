@@ -9,7 +9,7 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class UdpChannelBehavior {
 	private UdpChannel udp0 = null;
@@ -17,8 +17,8 @@ public class UdpChannelBehavior {
 
 	@After
 	public void after() {
-		udp1 = TestUtil.close(udp1);
-		udp0 = TestUtil.close(udp0);
+		udp1 = Testing.close(udp1);
+		udp0 = Testing.close(udp0);
 	}
 
 	@Test

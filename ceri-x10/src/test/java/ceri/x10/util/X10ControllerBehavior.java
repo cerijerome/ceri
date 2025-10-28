@@ -3,7 +3,7 @@ package ceri.x10.util;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -13,7 +13,7 @@ public class X10ControllerBehavior {
 
 	@Test
 	public void shouldEnumerateType() {
-		TestUtil.exerciseEnum(X10Controller.Type.class);
+		Testing.exerciseEnum(X10Controller.Type.class);
 	}
 	
 	@Test

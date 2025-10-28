@@ -36,8 +36,8 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.call();
 		err.set(rtx, rix, inx, iox, sqx);
-		Assert.equal(TestUtil.thrown(err::call), rtx);
-		Assert.equal(TestUtil.thrown(err::call), rix);
+		Assert.equal(Testing.thrown(err::call), rtx);
+		Assert.equal(Testing.thrown(err::call), rix);
 		Assert.thrown(RuntimeInterruptedException.class, err::call);
 		Assert.runtime(err::call);
 		Assert.runtime(err::call);
@@ -48,10 +48,10 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.call(ExceptionAdapter.io);
 		err.set(rtx, rix, inx, iox, sqx);
-		Assert.equal(TestUtil.thrown(() -> err.call(ExceptionAdapter.io)), rtx);
-		Assert.equal(TestUtil.thrown(() -> err.call(ExceptionAdapter.io)), rix);
+		Assert.equal(Testing.thrown(() -> err.call(ExceptionAdapter.io)), rtx);
+		Assert.equal(Testing.thrown(() -> err.call(ExceptionAdapter.io)), rix);
 		Assert.thrown(RuntimeInterruptedException.class, () -> err.call(ExceptionAdapter.io));
-		Assert.equal(TestUtil.thrown(() -> err.call(ExceptionAdapter.io)), iox);
+		Assert.equal(Testing.thrown(() -> err.call(ExceptionAdapter.io)), iox);
 		Assert.io(() -> err.call(ExceptionAdapter.io));
 	}
 
@@ -60,8 +60,8 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.callWithInterrupt();
 		err.set(rtx, rix, inx, iox, sqx);
-		Assert.equal(TestUtil.thrown(err::callWithInterrupt), rtx);
-		Assert.equal(TestUtil.thrown(err::callWithInterrupt), rix);
+		Assert.equal(Testing.thrown(err::callWithInterrupt), rtx);
+		Assert.equal(Testing.thrown(err::callWithInterrupt), rix);
 		Assert.thrown(InterruptedException.class, err::callWithInterrupt);
 		Assert.runtime(err::callWithInterrupt);
 		Assert.runtime(err::callWithInterrupt);
@@ -73,10 +73,10 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.callWithInterrupt(ExceptionAdapter.io);
 		err.set(rtx, rix, inx, iox, sqx);
-		Assert.equal(TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rtx);
-		Assert.equal(TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rix);
+		Assert.equal(Testing.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rtx);
+		Assert.equal(Testing.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rix);
 		Assert.thrown(InterruptedException.class, () -> err.callWithInterrupt(ExceptionAdapter.io));
-		Assert.equal(TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), iox);
+		Assert.equal(Testing.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), iox);
 		Assert.io(() -> err.callWithInterrupt(ExceptionAdapter.io));
 	}
 
@@ -85,7 +85,7 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
 		Assert.io(() -> err.callWithInterrupt(ExceptionAdapter.io));
-		var t = TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		var t = Testing.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
 		Assert.throwable(t.getCause(), SQLException.class);
 	}
 

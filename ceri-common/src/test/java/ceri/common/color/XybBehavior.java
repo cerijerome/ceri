@@ -8,7 +8,7 @@ import static ceri.common.color.Colors.color;
 import static ceri.common.color.Xyb.CENTER;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class XybBehavior {
 
@@ -21,7 +21,7 @@ public class XybBehavior {
 		var ne1 = Xyb.of(1.0, 0.6, 0.5, 0.8);
 		var ne2 = Xyb.of(1.0, 0.7, 0.6, 0.8);
 		var ne3 = Xyb.of(1.0, 0.7, 0.5, 0.7);
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 

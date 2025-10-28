@@ -8,7 +8,7 @@ import com.sun.jna.Memory;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
@@ -21,7 +21,7 @@ public class JnaMemoryBehavior {
 
 	@After
 	public void after() {
-		m0 = TestUtil.close(m0);
+		m0 = Testing.close(m0);
 		r = null;
 		w = null;
 		m = null;
@@ -35,7 +35,7 @@ public class JnaMemoryBehavior {
 		var eq1 = JnaMemory.of(m0.share(1), 0, 3);
 		var ne0 = JnaMemory.of(m0, 0, 3);
 		var ne1 = JnaMemory.of(m0, 1, 4);
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1);
 	}
 
@@ -107,7 +107,7 @@ public class JnaMemoryBehavior {
 	@Test
 	public void shouldReadFromInputStream() throws IOException {
 		init(5);
-		Assert.equal(m.readFrom(1, TestUtil.inputStream(0x80, 0xff, 0x7f)), 4);
+		Assert.equal(m.readFrom(1, Testing.inputStream(0x80, 0xff, 0x7f)), 4);
 		Assert.array(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
 	}
 

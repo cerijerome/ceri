@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.type.JnaSize;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.PointerUtil;
@@ -35,7 +35,7 @@ public class LibUsbFinderBehavior {
 		var ne4 = LibUsbFinder.builder().vendor(7).product(9).description("x").build();
 		var ne5 = LibUsbFinder.builder().vendor(7).product(9).serial("x").build();
 		var ne6 = LibUsbFinder.builder().vendor(7).product(9).index(1).build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 

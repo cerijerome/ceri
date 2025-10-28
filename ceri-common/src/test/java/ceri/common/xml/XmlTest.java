@@ -5,11 +5,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class XmlTest {
-	private static final String xml = TestUtil.resource("test.xml");
-	private static final String xmlWithDtd = TestUtil.resource("test-with-dtd.xml");
+	private static final String xml = Testing.resource("test.xml");
+	private static final String xmlWithDtd = Testing.resource("test-with-dtd.xml");
 
 	@Test
 	public void testConstructorIsPrivate() {

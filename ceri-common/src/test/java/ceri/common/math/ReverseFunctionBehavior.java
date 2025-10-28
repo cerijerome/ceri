@@ -3,7 +3,7 @@ package ceri.common.math;
 import static java.lang.Double.NaN;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ReverseFunctionBehavior {
 	private static final ReverseFunction f0 =
@@ -13,7 +13,7 @@ public class ReverseFunctionBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sin));
+		Testing.exerciseEquals(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sin));
 		Assert.equal(f0, ReverseFunction.builder().add(f0.values).build());
 		Assert.notEqual(f0, ReverseFunction.from(0.1, Math.PI / 2, 100, Math::sin));
 		Assert.notEqual(f0, ReverseFunction.from(0, Math.PI / 1.9, 100, Math::sin));

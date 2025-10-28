@@ -1,6 +1,6 @@
 package ceri.common.svg;
 
-import static ceri.common.test.TestUtil.exerciseEnum;
+import static ceri.common.test.Testing.exerciseEnum;
 import org.junit.Test;
 import ceri.common.test.Assert;
 

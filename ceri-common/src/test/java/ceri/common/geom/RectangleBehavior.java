@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class RectangleBehavior {
 	private final Rectangle rt0 = Rectangle.of(0, 0, 200, 100);
@@ -20,7 +20,7 @@ public class RectangleBehavior {
 		var ne3 = Rectangle.of(0, 0, 20, 41);
 		var ne4 = Rectangle.of(0, 0, 0, 0);
 		var ne5 = Rectangle.square(Point2d.ZERO, 20);
-		TestUtil.exerciseEquals(r, eq0);
+		Testing.exerciseEquals(r, eq0);
 		Assert.notEqualAll(r, ne0, ne1, ne2, ne3, ne4, ne5);
 		Assert.equal(r.equals(Point2d.ZERO, Size2d.of(20, 40)), true);
 		Assert.equal(r.equals(Point2d.ZERO, Size2d.of(21, 40)), false);

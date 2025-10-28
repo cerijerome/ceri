@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.TestUtil.exerciseEnum;
+import static ceri.common.test.Testing.exerciseEnum;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.After;

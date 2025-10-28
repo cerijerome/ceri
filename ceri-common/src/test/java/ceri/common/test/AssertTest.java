@@ -47,7 +47,7 @@ public class AssertTest {
 
 	@After
 	public void after() {
-		helper = TestUtil.close(helper);
+		helper = Testing.close(helper);
 	}
 
 	// exceptions
@@ -130,7 +130,7 @@ public class AssertTest {
 
 	@Test
 	public void testPrivateConstructor() {
-		Assert.privateConstructor(TestUtil.class);
+		Assert.privateConstructor(Testing.class);
 		Assert.assertion(() -> Assert.privateConstructor(AssertTest.class));
 		Assert.assertion(() -> Assert.privateConstructor(AssertTest.Uncreatable.class));
 	}
@@ -282,8 +282,8 @@ public class AssertTest {
 
 	@Test
 	public void testArrayForByteProvider() {
-		Assert.array(TestUtil.provider(1, 2, 3), 1, 2, 3);
-		Assert.assertion(() -> Assert.array(TestUtil.provider(1, 2, 3), 1, 2));
+		Assert.array(ByteProvider.of(1, 2, 3), 1, 2, 3);
+		Assert.assertion(() -> Assert.array(ByteProvider.of(1, 2, 3), 1, 2));
 	}
 
 	@Test

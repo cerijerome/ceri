@@ -1,6 +1,6 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.threadCall;
+import static ceri.common.test.Testing.threadCall;
 import org.junit.Test;
 import ceri.common.test.Assert;
 

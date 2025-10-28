@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class Point2dBehavior {
 
@@ -12,7 +12,7 @@ public class Point2dBehavior {
 		var p1 = Point2d.of(5, 10);
 		var p2 = Point2d.of(4.999, 10);
 		var p3 = Point2d.of(5, 10.001);
-		TestUtil.exerciseEquals(p0, p1);
+		Testing.exerciseEquals(p0, p1);
 		Assert.notEqualAll(p0, p2, p3);
 	}
 

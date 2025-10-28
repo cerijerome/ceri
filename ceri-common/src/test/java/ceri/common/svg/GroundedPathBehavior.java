@@ -5,7 +5,7 @@ import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class GroundedPathBehavior {
 
@@ -20,7 +20,7 @@ public class GroundedPathBehavior {
 		var ne2 = GroundedPath.of(Position.relative(1, 1), line);
 		var ne3 = GroundedPath.of(pos, LineTo.relative(-1, -2));
 		var ne4 = GroundedPath.of(pos, LineTo.absolute(-1, -1));
-		TestUtil.exerciseEquals(p, eq0);
+		Testing.exerciseEquals(p, eq0);
 		Assert.notEqualAll(p, ne0, ne1, ne2, ne3, ne4);
 	}
 

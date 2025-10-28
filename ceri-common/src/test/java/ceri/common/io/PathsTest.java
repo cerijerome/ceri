@@ -13,7 +13,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.util.SystemVars;
 
 public class PathsTest {
@@ -22,8 +22,8 @@ public class PathsTest {
 
 	@After
 	public void after() {
-		deleter = TestUtil.close(deleter);
-		helper = TestUtil.close(helper);
+		deleter = Testing.close(deleter);
+		helper = Testing.close(helper);
 	}
 
 	@Test

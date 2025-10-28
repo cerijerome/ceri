@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class CylinderBehavior {
 	private final Cylinder c0 = Cylinder.of(2, 8);
@@ -10,7 +10,7 @@ public class CylinderBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(c0, Cylinder.of(2, 8));
+		Testing.exerciseEquals(c0, Cylinder.of(2, 8));
 		Assert.notEqual(c0, Cylinder.of(1.9, 8));
 		Assert.notEqual(c0, Cylinder.of(2, 8.1));
 	}

@@ -35,7 +35,7 @@ public class TestFutureBehavior {
 	public void shouldGetWithException() {
 		var future = TestFuture.of("test");
 		future.get.error.setFrom(ErrorGen.IOX);
-		var t = TestUtil.thrown(() -> future.get());
+		var t = Testing.thrown(() -> future.get());
 		Assert.throwable(t, ExecutionException.class);
 		Assert.throwable(t.getCause(), IOException.class);
 	}
@@ -44,7 +44,7 @@ public class TestFutureBehavior {
 	public void shouldGetTimeoutWithException() {
 		var future = TestFuture.of("test");
 		future.get.error.setFrom(ErrorGen.IOX);
-		var t = TestUtil.thrown(() -> future.get(1, TimeUnit.MILLISECONDS));
+		var t = Testing.thrown(() -> future.get(1, TimeUnit.MILLISECONDS));
 		Assert.throwable(t, ExecutionException.class);
 		Assert.throwable(t.getCause(), IOException.class);
 	}

@@ -1,6 +1,6 @@
 package ceri.serial.ftdi.test;
 
-import static ceri.common.test.TestUtil.exerciseRecord;
+import static ceri.common.test.Testing.exerciseRecord;
 import java.io.IOException;
 import org.junit.Test;
 import com.sun.jna.Memory;

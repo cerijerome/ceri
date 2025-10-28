@@ -3,7 +3,7 @@ package ceri.common.geom;
 import static java.lang.Double.NaN;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class InvertedRadial3dBehavior {
 	private final Cone c0 = Cone.of(1, 4);
@@ -13,7 +13,7 @@ public class InvertedRadial3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(i0, InvertedRadial3d.of(Cone.of(1, 4)));
+		Testing.exerciseEquals(i0, InvertedRadial3d.of(Cone.of(1, 4)));
 		Assert.notEqual(i0, InvertedRadial3d.of(Cone.of(1.1, 4)));
 		Assert.notEqual(i0, InvertedRadial3d.of(Cone.of(1, 3.9)));
 	}

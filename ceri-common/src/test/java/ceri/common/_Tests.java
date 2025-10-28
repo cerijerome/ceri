@@ -2,7 +2,7 @@ package ceri.common;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-common
@@ -249,7 +249,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.TestStyleBehavior.class, //
 	ceri.common.test.TestTcpSocketBehavior.class, //
 	ceri.common.test.TestTimerBehavior.class, //
-	ceri.common.test.TestUtilTest.class, //
+	ceri.common.test.TestingTest.class, //
 	ceri.common.test.TimeCollectorBehavior.class, //
 	// text
 	ceri.common.text.AnsiEscapeBehavior.class, //
@@ -298,6 +298,6 @@ import ceri.common.test.TestUtil;
 })
 public class _Tests {
 	public static void main(String... args) {
-		TestUtil.exec(_Tests.class);
+		Testing.exec(_Tests.class);
 	}
 }

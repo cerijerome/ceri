@@ -1,9 +1,9 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.TestUtil.typedProperties;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.Testing;
 
 public class RpcChannelBehavior {
 
@@ -17,7 +17,7 @@ public class RpcChannelBehavior {
 	@Test
 	public void shouldBuildFromProperties() {
 		var config =
-			new RpcChannel.Properties(typedProperties("rpc-client"), "rpc-client").config();
+			new RpcChannel.Properties(Testing.properties("rpc-client"), "rpc-client").config();
 		Assert.equal(config.host(), "127.0.0.1");
 		Assert.equal(config.port(), 12345);
 	}
@@ -31,8 +31,8 @@ public class RpcChannelBehavior {
 
 	@Test
 	public void shouldNotInterruptOnClose() {
-		TestManagedChannel mc = TestManagedChannel.of();
-		mc.awaitTermination.error.setFrom(INX);
+		var mc = TestManagedChannel.of();
+		mc.awaitTermination.error.setFrom(ErrorGen.INX);
 		try (RpcChannel _ = RpcChannel.of(mc)) {}
 	}
 }

@@ -2,7 +2,7 @@ package ceri.serial.ftdi;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.serial.ftdi.jna.LibFtdi;
 
 public class FtdiLineParamsBehavior {
@@ -18,7 +18,7 @@ public class FtdiLineParamsBehavior {
 			.parity(LibFtdi.ftdi_parity_type.MARK).build();
 		var ne3 = FtdiLineParams.builder().parity(LibFtdi.ftdi_parity_type.MARK)
 			.breakType(LibFtdi.ftdi_break_type.BREAK_ON).build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 }

@@ -9,14 +9,14 @@ import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class PropertyUtilTest {
 	private FileTestHelper helper;
 
 	@After
 	public void after() {
-		helper = TestUtil.close(helper);
+		helper = Testing.close(helper);
 	}
 
 	@Test

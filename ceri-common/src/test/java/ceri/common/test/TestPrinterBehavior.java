@@ -23,7 +23,7 @@ public class TestPrinterBehavior {
 		TestPrinter.Test test2 = new TestPrinter.Test("testClassName0", "className", "description");
 		TestPrinter.Test test3 = new TestPrinter.Test("testClassName", "className0", "description");
 		TestPrinter.Test test4 = new TestPrinter.Test("testClassName", "className", "description0");
-		TestUtil.exerciseEquals(test, test1);
+		Testing.exerciseEquals(test, test1);
 		Assert.notEqualAll(test, test2, test3, test4);
 	}
 

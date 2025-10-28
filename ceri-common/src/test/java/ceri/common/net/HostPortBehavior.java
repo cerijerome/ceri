@@ -3,7 +3,7 @@ package ceri.common.net;
 import java.net.UnknownHostException;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class HostPortBehavior {
 
@@ -28,7 +28,7 @@ public class HostPortBehavior {
 		var ne1 = HostPort.of("test", 776);
 		var ne2 = HostPort.of("test");
 		var ne3 = HostPort.localhost(777);
-		TestUtil.exerciseEquals(obj, eq0, eq1);
+		Testing.exerciseEquals(obj, eq0, eq1);
 		Assert.notEqualAll(obj, ne0, ne1, ne2, ne3);
 		Assert.notEqual(obj.toString(), ne2.toString());
 	}

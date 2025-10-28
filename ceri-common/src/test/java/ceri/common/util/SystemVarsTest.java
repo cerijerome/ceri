@@ -4,7 +4,7 @@ import java.io.File;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class SystemVarsTest {
 
@@ -38,7 +38,7 @@ public class SystemVarsTest {
 	@Test
 	public void testEnvPath() {
 		Assert.isNull(SystemVars.envPath("?"));
-		var name = TestUtil.firstEnvironmentVariableName();
+		var name = Testing.firstEnvVarName();
 		Assert.path(SystemVars.envPath(name), SystemVars.env(name));
 	}
 
@@ -62,7 +62,7 @@ public class SystemVarsTest {
 
 	@Test
 	public void testGetAllEnvValues() {
-		String name = TestUtil.firstEnvironmentVariableName();
+		String name = Testing.firstEnvVarName();
 		SystemVars.set("!@#$%", "test");
 		var map = SystemVars.env();
 		Assert.equal(map.get(name), System.getenv(name));
@@ -71,7 +71,7 @@ public class SystemVarsTest {
 
 	@Test
 	public void testGetAllSysValues() {
-		String name = TestUtil.firstSystemPropertyName();
+		String name = Testing.firstSysPropName();
 		SystemVars.set("!@#$%", "test");
 		var map = SystemVars.sys();
 		Assert.equal(map.get(name), System.getProperty(name));
@@ -116,7 +116,7 @@ public class SystemVarsTest {
 
 	@Test
 	public void testSetNullToHideVariables() {
-		String name = TestUtil.firstSystemPropertyName();
+		String name = Testing.firstSysPropName();
 		Assert.isNull(SystemVars.set(name, null));
 		Assert.isNull(SystemVars.sys(name));
 		Assert.equal(SystemVars.sys(name, "test"), "test");
@@ -151,13 +151,13 @@ public class SystemVarsTest {
 
 	@Test
 	public void testEnvWithoutOverride() {
-		String name = TestUtil.firstEnvironmentVariableName();
+		String name = Testing.firstEnvVarName();
 		Assert.equal(SystemVars.env(name), System.getenv(name));
 	}
 
 	@Test
 	public void testSysWithoutOverride() {
-		String name = TestUtil.firstSystemPropertyName();
+		String name = Testing.firstSysPropName();
 		Assert.equal(SystemVars.sys(name), System.getProperty(name));
 	}
 

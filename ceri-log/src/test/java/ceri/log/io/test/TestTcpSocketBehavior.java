@@ -8,14 +8,14 @@ import ceri.common.data.ByteStream;
 import ceri.common.net.HostPort;
 import ceri.common.test.Assert;
 import ceri.common.test.TestTcpSocket;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class TestTcpSocketBehavior {
 	private TestTcpSocket s;
 
 	@After
 	public void after() {
-		s = TestUtil.close(s);
+		s = Testing.close(s);
 	}
 
 	@SuppressWarnings("resource")

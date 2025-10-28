@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.Poll;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.util.SyncPipe;
@@ -52,7 +52,7 @@ public class SerialPollTester {
 	private static void runWrite(SyncPipe.Fixed pipe, int fd) throws IOException {
 		for (int i = 0; i < CYCLES; i++) {
 			Concurrent.delay(CYCLE_MS);
-			if (TestUtil.randomBool()) {
+			if (Testing.randomBool()) {
 				logger.info(">>> signal");
 				pipe.signal();
 			} else {

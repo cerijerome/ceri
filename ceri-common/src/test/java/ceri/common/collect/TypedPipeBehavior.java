@@ -1,6 +1,6 @@
 package ceri.common.collect;
 
-import static ceri.common.test.TestUtil.threadRun;
+import static ceri.common.test.Testing.threadRun;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;

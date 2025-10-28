@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.reader;
+import static ceri.common.test.Testing.reader;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;

@@ -15,7 +15,7 @@ import ceri.common.io.IoStream.FilterWrite;
 import ceri.common.io.IoStream.Read;
 import ceri.common.io.IoStream.Write;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class IoStreamTest {
 	private static final Excepts.Function<IOException, InputStream, Integer> nullF = null;
@@ -31,12 +31,12 @@ public class IoStreamTest {
 
 	@After
 	public void after() {
-		in = TestUtil.close(in);
-		out = TestUtil.close(out);
-		bin0 = TestUtil.close(bin0);
-		bin1 = TestUtil.close(bin1);
-		bout0 = TestUtil.close(bout0);
-		bout1 = TestUtil.close(bout1);
+		in = Testing.close(in);
+		out = Testing.close(out);
+		bin0 = Testing.close(bin0);
+		bin1 = Testing.close(bin1);
+		bout0 = Testing.close(bout0);
+		bout1 = Testing.close(bout1);
 	}
 
 	@Test

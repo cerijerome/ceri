@@ -3,10 +3,8 @@ package ceri.common.except;
 import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
@@ -58,13 +56,6 @@ public class ExceptionsTest {
 	@Test
 	public void testIo() {
 		Assert.throwable(Exceptions.io("%d", 123), IOException.class, "123");
-	}
-
-	@Test
-	public void testRteStub() {
-		Assert.instance(new TestUtil.Rte("test"), RuntimeException.class);
-		Excepts.Supplier<TestUtil.Rte, String> supplier = () -> "test";
-		Assert.equal(supplier.get(), "test");
 	}
 
 	@Test

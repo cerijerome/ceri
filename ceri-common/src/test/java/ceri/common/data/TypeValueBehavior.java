@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.text.Format;
 
 public class TypeValueBehavior {
@@ -26,13 +26,13 @@ public class TypeValueBehavior {
 		var ne4 = TypeValue.of(1, E.one, null, 0, Format.HEX_SHORT);
 		var ne5 = TypeValue.of(1, E.one, null, Format.HEX_SHORT);
 		var ne6 = TypeValue.of(1, E.one, null);
-		TestUtil.exerciseEquals(v, eq0, eq1);
+		Testing.exerciseEquals(v, eq0, eq1);
 		Assert.equal(v, eq2);
 		Assert.notEqualAll(v, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 		v = TypeValue.of(1, null, "one", 1, Format.HEX_SHORT);
 		eq0 = TypeValue.of(1, null, "one", 1, Format.HEX_SHORT);
 		ne0 = TypeValue.of(1, null, "One", 1, Format.HEX_SHORT);
-		TestUtil.exerciseEquals(v, eq0);
+		Testing.exerciseEquals(v, eq0);
 		Assert.notEqualAll(v, ne0, ne1);
 	}
 

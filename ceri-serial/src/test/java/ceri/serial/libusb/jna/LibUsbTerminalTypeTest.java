@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.TestUtil.exerciseEnum;
+import static ceri.common.test.Testing.exerciseEnum;
 import org.junit.Test;
 
 public class LibUsbTerminalTypeTest {

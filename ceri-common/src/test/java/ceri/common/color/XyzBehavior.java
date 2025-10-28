@@ -7,7 +7,7 @@ import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class XyzBehavior {
 
@@ -20,7 +20,7 @@ public class XyzBehavior {
 		var ne1 = Xyz.of(1.0, 0.6, 0.8, 0.6);
 		var ne2 = Xyz.of(1.0, 0.5, 0.9, 0.6);
 		var ne3 = Xyz.of(1.0, 0.5, 0.8, 0.7);
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 

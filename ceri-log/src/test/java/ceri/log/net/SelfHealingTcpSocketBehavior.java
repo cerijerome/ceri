@@ -1,9 +1,5 @@
 package ceri.log.net;
 
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.ErrorGen.RIX;
-import static ceri.common.test.ErrorGen.RTX;
-import static ceri.common.test.TestUtil.typedProperties;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
@@ -11,14 +7,15 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestTcpSocket;
+import ceri.common.test.Testing;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
 
@@ -31,8 +28,7 @@ public class SelfHealingTcpSocketBehavior {
 
 	@After
 	public void after() {
-		Closeables.close(shs);
-		shs = null;
+		shs = Testing.close(shs);
 		socket = null;
 		config = null;
 	}
@@ -67,8 +63,8 @@ public class SelfHealingTcpSocketBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() {
-		SelfHealingTcpSocket.Config config =
-			new SelfHealingTcpSocket.Properties(typedProperties("self-healing-tcp-socket"),
+		var config =
+			new SelfHealingTcpSocket.Properties(Testing.properties("self-healing-tcp-socket"),
 				"socket").config();
 		Assert.equal(config.hostPort, HostPort.of("test", 123));
 		Assert.equal(config.options.get(TcpSocketOption.soTimeout), 111);
@@ -131,8 +127,8 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldLogOnNotifyError() {
 		init();
 		LogModifier.run(() -> {
-			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
-			sync.error.setFrom(RTX);
+			var sync = CallSync.<StateChange>consumer(null, true);
+			sync.error.setFrom(ErrorGen.RTX);
 			try (var _ = shs.listeners().enclose(sync::accept)) {
 				shs.broken(); // error logged
 				sync.awaitAuto();
@@ -143,8 +139,8 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldStopOnNotifyInterrupt() {
 		init();
-		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
-		sync.error.setFrom(RIX);
+		var sync = CallSync.<StateChange>consumer(null, true);
+		sync.error.setFrom(ErrorGen.RIX);
 		try (var _ = shs.listeners().enclose(sync::accept)) {
 			Assert.thrown(RuntimeInterruptedException.class, shs::broken);
 			sync.awaitAuto();
@@ -155,7 +151,7 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldFailToOpenIfOptionFails() throws IOException {
 		init();
 		shs.options(TcpSocketOptions.of().set(TcpSocketOption.soKeepAlive, true));
-		socket.optionSync.error.setFrom(IOX, null);
+		socket.optionSync.error.setFrom(ErrorGen.IOX, null);
 		Assert.thrown(shs::open);
 		socket.open.await();
 	}

@@ -4,7 +4,7 @@ import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class PulseCycleBehavior {
 
@@ -25,7 +25,7 @@ public class PulseCycleBehavior {
 		var ne0 = PulseCycle.Std._4_27.cycle.stats(1000000);
 		var ne1 = PulseCycle.Std._5_27.cycle.stats(900000);
 		var ne2 = PulseCycle.Std._5_27.cycle.pulseStats(1000000);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 
@@ -39,7 +39,7 @@ public class PulseCycleBehavior {
 		var ne3 = PulseCycle.of(PulseCycle.Type.nbit, 6, 0, 2, 4);
 		var ne4 = PulseCycle.of(PulseCycle.Type.nbit, 6, 1, 1, 4);
 		var ne5 = PulseCycle.of(PulseCycle.Type.nbit, 6, 1, 2, 3);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 

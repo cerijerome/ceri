@@ -7,14 +7,14 @@ import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class FileTrackerBehavior {
 	private FileTestHelper helper;
 
 	@After
 	public void after() {
-		helper = TestUtil.close(helper);
+		helper = Testing.close(helper);
 	}
 
 	@Test

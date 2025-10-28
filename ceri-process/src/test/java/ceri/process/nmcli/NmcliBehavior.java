@@ -5,7 +5,7 @@ import java.util.Map;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class NmcliBehavior {
 
@@ -23,7 +23,7 @@ public class NmcliBehavior {
 		var ne2 = new Nmcli.Con.Item("name", "", "type", "device");
 		var ne3 = new Nmcli.Con.Item("name", "uuid", "types", "device");
 		var ne4 = new Nmcli.Con.Item("name", "uuid", "type", "dev");
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4);
 	}
 
@@ -47,7 +47,7 @@ public class NmcliBehavior {
 		var eq0 = new Nmcli.Con.IdResult(Map.of("A", "a", "B", "--"));
 		var ne0 = Nmcli.Con.IdResult.NULL;
 		var ne1 = new Nmcli.Con.IdResult(Map.of("A", "a", "B", ""));
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1);
 	}
 
@@ -65,7 +65,7 @@ public class NmcliBehavior {
 
 	@Test
 	public void shouldExecuteNmcliConShow() throws IOException {
-		var p = TestProcess.processor(TestUtil.resource("nmcli-con-show.txt"));
+		var p = TestProcess.processor(Testing.resource("nmcli-con-show.txt"));
 		var output = Nmcli.of(p).con.show();
 		p.assertParameters("nmcli", "con", "show");
 		var results = output.parse();
@@ -79,7 +79,7 @@ public class NmcliBehavior {
 
 	@Test
 	public void shouldExecuteNmcliConShowId() throws IOException {
-		var p = TestProcess.processor(TestUtil.resource("nmcli-con-show-id.txt"));
+		var p = TestProcess.processor(Testing.resource("nmcli-con-show-id.txt"));
 		var output = Nmcli.of(p).con.show("test");
 		p.assertParameters("nmcli", "con", "show", "id", "test");
 		var result = output.parse();

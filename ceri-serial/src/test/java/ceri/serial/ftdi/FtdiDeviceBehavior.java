@@ -1,6 +1,5 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type.BREAK_ON;
@@ -153,8 +152,8 @@ public class FtdiDeviceBehavior {
 		ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3));
 		ftdi.out().write(ArrayUtil.bytes.of(4, 5));
 		lib.transferOut.assertValues( //
-			List.of(0x02, provider(1, 2, 3)), //
-			List.of(0x02, provider(4, 5)));
+			List.of(0x02, ByteProvider.of(1, 2, 3)), //
+			List.of(0x02, ByteProvider.of(4, 5)));
 		lib.transferOut.autoResponses((Integer) null); // set transferred to 0
 		Assert.thrown(() -> ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3))); // incomplete i/o
 	}
@@ -164,10 +163,10 @@ public class FtdiDeviceBehavior {
 	public void shouldReadData() throws IOException {
 		ftdi = open();
 		lib.transferIn.autoResponses( //
-			provider(0, 0, 0xab), // read() => 2B status + 1B data
-			provider(0, 0), // read() => 2B status + 0B data
-			provider(0, 0, 1, 2, 3), // read(3) => 2B status + 3B data
-			provider(0, 0, 4, 5), provider()); // read(3) => 2B status + 2B data
+			ByteProvider.of(0, 0, 0xab), // read() => 2B status + 1B data
+			ByteProvider.of(0, 0), // read() => 2B status + 0B data
+			ByteProvider.of(0, 0, 1, 2, 3), // read(3) => 2B status + 3B data
+			ByteProvider.of(0, 0, 4, 5), ByteProvider.of()); // read(3) => 2B status + 2B data
 		Assert.equal(ftdi.in().read(), 0xab); // R1
 		Assert.equal(ftdi.in().read(), -1); // R2
 		Assert.array(ftdi.in().readNBytes(3), 1, 2, 3); // R3

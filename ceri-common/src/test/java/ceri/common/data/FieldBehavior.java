@@ -2,7 +2,6 @@ package ceri.common.data;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil.Rte;
 
 public class FieldBehavior {
 
@@ -24,14 +23,17 @@ public class FieldBehavior {
 	}
 
 	static class Type {
-		private static final Field<Rte, Type, String> S = Field.of(t -> t.s, (t, v) -> t.s = v);
-		private static final Field.Long<Rte, Type> I = Field.ofUint(t -> t.i, (t, v) -> t.i = v);
-		private static final Field.Long<Rte, Type> L = Field.ofLong(t -> t.l, (t, v) -> t.l = v);
-		private static final Field.Long<Rte, Type> IM = I.bits(8, 16);
-		private static final Field.Types<Rte, Type, Bit> IMT = IM.types(Bit.xcoder);
-		private static final Field.Type<Rte, Type, Bit> IT = I.type(Bit.xcoder);
-		private static final Field.Long<Rte, Type> LM = L.mask(16, 0xffffffff0000L);
-		private static final Field.Types<Rte, Type, Bit> LT = L.types(Bit.xcoder);
+		private static final Field<RuntimeException, Type, String> S =
+			Field.of(t -> t.s, (t, v) -> t.s = v);
+		private static final Field.Long<RuntimeException, Type> I =
+			Field.ofUint(t -> t.i, (t, v) -> t.i = v);
+		private static final Field.Long<RuntimeException, Type> L =
+			Field.ofLong(t -> t.l, (t, v) -> t.l = v);
+		private static final Field.Long<RuntimeException, Type> IM = I.bits(8, 16);
+		private static final Field.Types<RuntimeException, Type, Bit> IMT = IM.types(Bit.xcoder);
+		private static final Field.Type<RuntimeException, Type, Bit> IT = I.type(Bit.xcoder);
+		private static final Field.Long<RuntimeException, Type> LM = L.mask(16, 0xffffffff0000L);
+		private static final Field.Types<RuntimeException, Type, Bit> LT = L.types(Bit.xcoder);
 		String s = null;
 		int i = 0;
 		long l = 0L;
@@ -188,8 +190,8 @@ public class FieldBehavior {
 
 	@Test
 	public void shouldNotSupportMissingAccessors() {
-		var get = Field.<Rte, Type>ofUint(t -> t.i, null);
-		var set = Field.<Rte, Type>ofUint(null, (t, v) -> t.i = v);
+		var get = Field.<RuntimeException, Type>ofUint(t -> t.i, null);
+		var set = Field.<RuntimeException, Type>ofUint(null, (t, v) -> t.i = v);
 		var type = new Type(null, 0x123, 0L);
 		Assert.equal(get.get(type), 0x123L);
 		Assert.unsupportedOp(() -> get.set(type, 0));

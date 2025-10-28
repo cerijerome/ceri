@@ -3,7 +3,7 @@ package ceri.x10.cm11a.protocol;
 import java.time.Month;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.time.Dates;
 import ceri.x10.command.House;
 
@@ -19,13 +19,13 @@ public class ClockBehavior {
 		var ne3 = Clock.builder().date(Dates.UTC_EPOCH).clearBatteryTimer(true).build();
 		var ne4 = Clock.builder().date(Dates.UTC_EPOCH).clearMonitoredStatus(true).build();
 		var ne5 = Clock.builder().date(Dates.UTC_EPOCH).purgeTimer(true).build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
 	@Test
 	public void shouldDecode() {
-		Clock clock = Clock.decode(TestUtil.reader(0x9b, 0, 0, 0, 1, 0x04, 0x57));
+		Clock clock = Clock.decode(Testing.reader(0x9b, 0, 0, 0, 1, 0x04, 0x57));
 		Assert.equal(clock.house, House.G);
 		Assert.equal(clock.date.getMonth(), Month.JANUARY);
 		Assert.equal(clock.date.getDayOfMonth(), 1);

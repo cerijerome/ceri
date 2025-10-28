@@ -3,7 +3,7 @@ package ceri.common.svg;
 import org.junit.Test;
 import ceri.common.geom.Point2d;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class MoveToBehavior {
 
@@ -14,7 +14,7 @@ public class MoveToBehavior {
 		var ne0 = MoveTo.absolute(Point2d.X_UNIT);
 		var ne1 = MoveTo.relative(0, 0);
 		var ne2 = MoveTo.relative(1, 1);
-		TestUtil.exerciseEquals(m, eq0);
+		Testing.exerciseEquals(m, eq0);
 		Assert.notEqualAll(m, ne0, ne1, ne2);
 	}
 

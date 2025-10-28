@@ -1,8 +1,5 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.TestUtil.inputStream;
-import static ceri.common.test.TestUtil.provider;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
@@ -12,6 +9,8 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 import ceri.serial.spi.util.SpiEmulator;
 import ceri.serial.spi.util.SpiEmulator.Responder;
@@ -47,7 +46,7 @@ public class SpiPulseTransmitterBehavior {
 	public void shouldIgnoreEmptyWrites() {
 		init();
 		spix.copyFrom(0, new byte[0]);
-		spix.copyFrom(0, provider());
+		spix.copyFrom(0, ByteProvider.of());
 		spix.fill(0, 0, 0);
 	}
 
@@ -59,7 +58,7 @@ public class SpiPulseTransmitterBehavior {
 		spix.setByte(0, 0x01);
 		spix.setBytes(2, 0x00, 0x80, 0x7f);
 		spix.send();
-		sync.assertCall(provider(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
+		sync.assertCall(ByteProvider.of(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
 			0xcc, 0xcc, 0xcc, 0xcc, // 8 wide
 			0x88, 0x88, 0x88, 0x88, // 8 narrow
 			0xc8, 0x88, 0x88, 0x88, // 1 wide, 7 narrow
@@ -71,10 +70,10 @@ public class SpiPulseTransmitterBehavior {
 	public void shouldCopyDataAsPulses() throws IOException {
 		init();
 		// Setting data to [0x01, 0xff, 0x00, 0x80, 0x7f]
-		spix.copyFrom(0, provider(0x01, 0xff));
-		spix.readFrom(3, inputStream(0x80, 0x7f));
+		spix.copyFrom(0, ByteProvider.of(0x01, 0xff));
+		spix.readFrom(3, Testing.inputStream(0x80, 0x7f));
 		spix.send();
-		sync.assertCall(provider(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
+		sync.assertCall(ByteProvider.of(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
 			0xcc, 0xcc, 0xcc, 0xcc, // 8 wide
 			0x88, 0x88, 0x88, 0x88, // 8 narrow
 			0xc8, 0x88, 0x88, 0x88, // 1 wide, 7 narrow
@@ -85,7 +84,7 @@ public class SpiPulseTransmitterBehavior {
 	public void shouldHandleSpiFailures() {
 		init();
 		LogModifier.run(() -> {
-			sync.error.setFrom(IOX);
+			sync.error.setFrom(ErrorGen.IOX);
 			spix.send();
 			sync.await(); // error
 			spix.send();

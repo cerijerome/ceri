@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.exerciseEnum;
+import static ceri.common.test.Testing.exerciseEnum;
 import org.junit.Test;
 import ceri.common.math.Fraction;
 import ceri.common.test.Assert;

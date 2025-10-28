@@ -2,7 +2,7 @@ package ceri.serial.spi;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class SpiModeBehavior {
 
@@ -23,7 +23,7 @@ public class SpiModeBehavior {
 		var ne9 = SpiMode.builder().chipSelectHigh().spi3Wire().build();
 		var ne10 = SpiMode.builder().chipSelectHigh().txDual().build();
 		var ne11 = SpiMode.builder().chipSelectHigh().txQuad().build();
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10, ne11);
 	}
 

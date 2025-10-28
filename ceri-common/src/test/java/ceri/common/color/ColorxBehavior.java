@@ -5,7 +5,7 @@ import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colors.color;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ColorxBehavior {
 
@@ -19,7 +19,7 @@ public class ColorxBehavior {
 		Colorx ne1 = Colorx.of(color(0x886644), 0x11, 0x22, 0x33, 0x44);
 		Colorx ne2 = Colorx.of(color(0xff886644), 0x11, 0x22, 0x33);
 		Colorx ne3 = Colorx.of(color(0xff886644), 0x11, 0x22, 0x33, 0x55);
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
+		Testing.exerciseEquals(t, eq0, eq1, eq2);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 

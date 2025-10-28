@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class SqlStatementBehavior {
 	private TestConnection con;
@@ -22,9 +22,9 @@ public class SqlStatementBehavior {
 
 	@After
 	public void after() {
-		stmt = TestUtil.close(stmt);
-		ps = TestUtil.close(ps);
-		con = TestUtil.close(con);
+		stmt = Testing.close(stmt);
+		ps = Testing.close(ps);
+		con = Testing.close(con);
 	}
 
 	@SuppressWarnings("resource")

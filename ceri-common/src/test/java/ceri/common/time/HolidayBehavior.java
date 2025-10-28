@@ -1,6 +1,6 @@
 package ceri.common.time;
 
-import static ceri.common.test.TestUtil.exerciseEnum;
+import static ceri.common.test.Testing.exerciseEnum;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;

@@ -7,10 +7,10 @@ import ceri.common.collect.Node;
 import ceri.common.process.Parameters;
 import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ScUtilBehavior {
-	private static final String ncStatsOutput = TestUtil.resource("statistics-output.txt");
+	private static final String ncStatsOutput = Testing.resource("statistics-output.txt");
 
 	@Test
 	public void shouldHaveDefaultProcessor() {
@@ -25,7 +25,7 @@ public class ScUtilBehavior {
 		var eq0 = new ScUtil.Nc.Status(ScUtil.Nc.State.connecting, node0);
 		var ne0 = new ScUtil.Nc.Status(ScUtil.Nc.State.unknown, node0);
 		var ne1 = new ScUtil.Nc.Status(ScUtil.Nc.State.connecting, node1);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1);
 	}
 
@@ -43,7 +43,7 @@ public class ScUtilBehavior {
 		var eq1 = new ScUtil.Nc.Stats(Map.of("BytesIn", 100));
 		var ne0 = new ScUtil.Nc.Stats(Map.of("BytesOut", 100));
 		var ne1 = new ScUtil.Nc.Stats(Map.of("BytesIn", 99));
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1);
 	}
 
@@ -80,7 +80,7 @@ public class ScUtilBehavior {
 		var ne4 = ScUtil.Nc.Item.from("* (Connected)  X P --> E \"N\" [P:T]");
 		var ne5 = ScUtil.Nc.Item.from("* (Connected)  X P --> D \"O\" [P:T]");
 		var ne6 = ScUtil.Nc.Item.from("* (Connected)  X P --> D \"N\" [P:U]");
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 
@@ -106,7 +106,7 @@ public class ScUtilBehavior {
 		var eq0 = new ScUtil.Nc.Show(item0, node0);
 		var ne0 = new ScUtil.Nc.Show(item1, node0);
 		var ne1 = new ScUtil.Nc.Show(item0, node1);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1);
 	}
 
@@ -120,7 +120,7 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcList() throws IOException {
-		var p = TestProcess.processor(TestUtil.resource("list-output.txt"));
+		var p = TestProcess.processor(Testing.resource("list-output.txt"));
 		var result = ScUtil.of(p).nc.list();
 		p.exec.assertAuto(Parameters.of("scutil", "--nc", "list"));
 		Assert.ordered(result.parse(),
@@ -134,7 +134,7 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcStatus() throws IOException {
-		var p = TestProcess.processor(TestUtil.resource("status-output.txt"));
+		var p = TestProcess.processor(Testing.resource("status-output.txt"));
 		var scUtil = ScUtil.of(p);
 		var result = scUtil.nc.status("test");
 		p.assertParameters("scutil", "--nc", "status", "test");
@@ -148,7 +148,7 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcShow() throws IOException {
-		var p = TestProcess.processor(TestUtil.resource("show-output.txt"));
+		var p = TestProcess.processor(Testing.resource("show-output.txt"));
 		var result = ScUtil.of(p).nc.show("test");
 		p.assertParameters("scutil", "--nc", "show", "test");
 		var ns = result.parse();
@@ -164,7 +164,7 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcStatistics() throws IOException {
-		var p = TestProcess.processor(TestUtil.resource("statistics-output.txt"));
+		var p = TestProcess.processor(Testing.resource("statistics-output.txt"));
 		var result = ScUtil.of(p).nc.statistics("test");
 		p.assertParameters("scutil", "--nc", "statistics", "test");
 		var ns = result.parse();

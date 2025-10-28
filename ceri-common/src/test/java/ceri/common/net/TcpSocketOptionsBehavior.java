@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestTcpSocket;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class TcpSocketOptionsBehavior {
 
@@ -16,7 +16,7 @@ public class TcpSocketOptionsBehavior {
 			.set(TcpSocketOption.soReuseAddr, false);
 		var eq1 = t.immutable();
 		TcpSocketOptions ne0 = TcpSocketOptions.of().set(TcpSocketOption.ipTos, 123);
-		TestUtil.exerciseEquals(t);
+		Testing.exerciseEquals(t);
 		Assert.equal(t, eq0);
 		Assert.equal(t, eq1);
 		Assert.notEqualAll(t, ne0);

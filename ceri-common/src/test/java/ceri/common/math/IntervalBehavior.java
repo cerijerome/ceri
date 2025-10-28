@@ -3,7 +3,7 @@ package ceri.common.math;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class IntervalBehavior {
 	private final Interval<Long> maxLong = Interval.inclusive(Long.MIN_VALUE, Long.MAX_VALUE);
@@ -51,7 +51,7 @@ public class IntervalBehavior {
 		Interval<Double> ne2 = Interval.of(Bound.inclusive(-10.0), Bound.exclusive(-1.5));
 		Interval<Double> ne3 = Interval.of(Bound.exclusive(-11.0), Bound.inclusive(-1.5));
 		Interval<Double> ne4 = Interval.of(Bound.exclusive(-10.0), Bound.inclusive(-1.0));
-		TestUtil.exerciseEquals(i, eq0);
+		Testing.exerciseEquals(i, eq0);
 		Assert.notEqualAll(i, ne0, ne1, ne2, ne3, ne4);
 	}
 

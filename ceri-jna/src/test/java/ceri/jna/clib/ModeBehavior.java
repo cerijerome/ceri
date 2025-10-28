@@ -2,7 +2,7 @@ package ceri.jna.clib;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.Mode.Mask;
 
 public class ModeBehavior {
@@ -15,7 +15,7 @@ public class ModeBehavior {
 		var eq2 = Mode.builder().add(Mask.xusr, Mask.wgrp, Mask.rwxo).build();
 		var ne0 = Mode.of(0126);
 		var ne1 = Mode.of(Mask.rwxu, Mask.wgrp, Mask.rwxo);
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
+		Testing.exerciseEquals(t, eq0, eq1, eq2);
 		Assert.notEqualAll(t, ne0, ne1);
 	}
 

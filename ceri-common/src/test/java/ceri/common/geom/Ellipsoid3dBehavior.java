@@ -3,7 +3,7 @@ package ceri.common.geom;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class Ellipsoid3dBehavior {
 	private final Ellipsoid3d e0 = Ellipsoid3d.of(4, 2, 1);
@@ -11,7 +11,7 @@ public class Ellipsoid3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(e0, Ellipsoid3d.of(4, 2, 1));
+		Testing.exerciseEquals(e0, Ellipsoid3d.of(4, 2, 1));
 		Assert.notEqual(e0, Ellipsoid3d.of(4.1, 2, 1));
 		Assert.notEqual(e0, Ellipsoid3d.of(4, 1.9, 1));
 		Assert.notEqual(e0, Ellipsoid3d.of(4, 2, 1.1));

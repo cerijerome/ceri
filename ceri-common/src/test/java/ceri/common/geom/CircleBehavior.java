@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class CircleBehavior {
 	private final Circle c0 = Circle.of(4);
@@ -10,7 +10,7 @@ public class CircleBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(c0, Circle.of(4));
+		Testing.exerciseEquals(c0, Circle.of(4));
 		Assert.notEqual(c0, Circle.of(4.1));
 	}
 

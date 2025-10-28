@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.inputStream;
+import static ceri.common.test.Testing.inputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;

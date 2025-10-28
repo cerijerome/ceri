@@ -2,7 +2,7 @@ package ceri.x10.cm11a.protocol;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -21,7 +21,7 @@ public class EntryBufferBehavior {
 		var ne1 = EntryBuffer.of(Entry.address(House.E, Unit._8),
 			Entry.function(House.E, FunctionType.on));
 		var ne2 = EntryBuffer.of(Entry.address(House.E, Unit._8));
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 

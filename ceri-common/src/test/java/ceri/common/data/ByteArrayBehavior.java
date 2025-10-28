@@ -10,7 +10,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ByteArrayBehavior {
 
@@ -34,7 +34,7 @@ public class ByteArrayBehavior {
 		var ne0 = ByteArray.Immutable.wrap(1, 2, 4);
 		var ne1 = ByteArray.Immutable.wrap(1, 2, 3, 0);
 		var ne2 = ByteArray.Immutable.wrap();
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
+		Testing.exerciseEquals(t, eq0, eq1, eq2);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 
@@ -77,7 +77,7 @@ public class ByteArrayBehavior {
 		var ne0 = ByteArray.Mutable.of(4);
 		var ne1 = ByteArray.Mutable.wrap(0, 0, 1);
 		var ne2 = ByteArray.Mutable.wrap();
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2, eq3);
+		Testing.exerciseEquals(t, eq0, eq1, eq2, eq3);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 

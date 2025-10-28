@@ -10,7 +10,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CTermios;
@@ -41,15 +41,15 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldProvideArgumentTypes() {
-		TestUtil.exerciseRecord(new OpenArgs("test", 111, 222));
-		TestUtil.exerciseRecord(new ReadArgs(111, 222));
-		TestUtil.exerciseRecord(new WriteArgs(111, ByteProvider.of(1, 2, 3)));
-		TestUtil.exerciseRecord(new LseekArgs(111, 222, 333));
-		TestUtil.exerciseRecord(new SignalArgs(111, new Pointer(1)));
+		Testing.exerciseRecord(new OpenArgs("test", 111, 222));
+		Testing.exerciseRecord(new ReadArgs(111, 222));
+		Testing.exerciseRecord(new WriteArgs(111, ByteProvider.of(1, 2, 3)));
+		Testing.exerciseRecord(new LseekArgs(111, 222, 333));
+		Testing.exerciseRecord(new SignalArgs(111, new Pointer(1)));
 		Assert.assertion(() -> new SignalArgs(111, null));
-		TestUtil.exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Set.of()));
-		TestUtil.exerciseRecord(new TcArgs("test", 0, List.of()));
-		TestUtil.exerciseRecord(new CfArgs("test", null, List.of()));
+		Testing.exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Set.of()));
+		Testing.exerciseRecord(new TcArgs("test", 0, List.of()));
+		Testing.exerciseRecord(new CfArgs("test", null, List.of()));
 	}
 
 	@Test

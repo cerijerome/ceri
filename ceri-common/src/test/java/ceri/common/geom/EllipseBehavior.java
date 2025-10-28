@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class EllipseBehavior {
 	private final Ellipse e0 = Ellipse.of(4, 2);
@@ -10,7 +10,7 @@ public class EllipseBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(e0, Ellipse.of(4, 2));
+		Testing.exerciseEquals(e0, Ellipse.of(4, 2));
 		Assert.notEqual(e0, Ellipse.of(4.1, 2));
 		Assert.notEqual(e0, Ellipse.of(4, 1.9));
 	}

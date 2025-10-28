@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.TestUtil.threadCall;
+import static ceri.common.test.Testing.threadCall;
 import java.time.Duration;
 import java.util.List;
 import org.junit.After;

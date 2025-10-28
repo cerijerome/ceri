@@ -2,7 +2,7 @@ package ceri.common.util;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class LatLngBehavior {
 
@@ -38,7 +38,7 @@ public class LatLngBehavior {
 		LatLng eq0 = LatLng.of(77.123456, -23.987654);
 		LatLng ne0 = LatLng.of(77.12345, -23.987654);
 		LatLng ne1 = LatLng.of(77.123456, -23.98765);
-		TestUtil.exerciseEquals(l, eq0);
+		Testing.exerciseEquals(l, eq0);
 		Assert.notEqualAll(l, ne0, ne1);
 	}
 

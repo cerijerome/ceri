@@ -37,11 +37,11 @@ public class ManualTesterBehavior {
 
 	@After
 	public void after() {
-		m = TestUtil.close(m);
-		tin = TestUtil.close(tin);
-		pipe = TestUtil.close(pipe);
-		sysCap = TestUtil.close(sysCap);
-		sys = TestUtil.close(sys);
+		m = Testing.close(m);
+		tin = Testing.close(tin);
+		pipe = Testing.close(pipe);
+		sysCap = Testing.close(sysCap);
+		sys = Testing.close(sys);
 		Closeables.close(fastMode);
 	}
 
@@ -118,7 +118,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldExecuteCommandsFromStdIn() {
 		sys = SystemIo.of();
-		sys.in(TestUtil.inputStream("?;*;-;+;@0;:;~0;!\n"));
+		sys.in(Testing.inputStream("?;*;-;+;@0;:;~0;!\n"));
 		sys.out(IoStream.nullPrint());
 		ManualTester.builderArray("test", 1).promptSgr(null).build().run();
 	}
@@ -128,7 +128,7 @@ public class ManualTesterBehavior {
 	public void shouldBuildAnInstance() {
 		fastMode.close();
 		sys = SystemIo.of();
-		sys.in(TestUtil.inputStream("!\n"));
+		sys.in(Testing.inputStream("!\n"));
 		sys.out(IoStream.nullPrint());
 		ManualTester.builder("test", String::valueOf).in(System.in).out(System.out).err(System.err)
 			.indent("  ").promptSgr(AnsiEscape.csi.sgr().fgColor(BasicColor.cyan, false))
@@ -182,9 +182,9 @@ public class ManualTesterBehavior {
 	public void shouldPrintBytesReadFromInputStream() throws IOException {
 		sysCap = SystemIoCaptor.of();
 		m = ManualTester.builder("test").build();
-		m.readBytes(TestUtil.inputStream());
+		m.readBytes(Testing.inputStream());
 		Assert.yes(sysCap.out.isEmpty());
-		m.readBytes(TestUtil.inputStream(1, -1, 0));
+		m.readBytes(Testing.inputStream(1, -1, 0));
 		Assert.find(sysCap.out, "01 ff 00");
 	}
 

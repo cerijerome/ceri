@@ -7,7 +7,7 @@ import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ColorsTest {
 
@@ -429,7 +429,7 @@ public class ColorsTest {
 
 	private static void exerciseCompare(Comparator<Color> comparator, int c, int lt, int eq,
 		int gt) {
-		TestUtil.exerciseCompare(comparator, Colors.color(c), Colors.color(lt), Colors.color(eq),
+		Testing.exerciseCompare(comparator, Colors.color(c), Colors.color(lt), Colors.color(eq),
 			Colors.color(gt));
 	}
 }

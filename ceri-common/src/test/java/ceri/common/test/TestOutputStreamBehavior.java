@@ -47,7 +47,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldMatchOutputAsText() throws IOException {
-		try (var run = TestUtil.threadRun(() -> {
+		try (var run = Testing.threadRun(() -> {
 			out.awaitMatch("(?s).*\nx");
 		})) {
 			out.write(ByteUtil.toAsciiBytes("test\0"));

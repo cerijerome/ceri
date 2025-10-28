@@ -2,7 +2,7 @@ package ceri.common.math;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class FractionBehavior {
 
@@ -15,7 +15,7 @@ public class FractionBehavior {
 		Fraction eq3 = Fraction.of(13, 41).divide(Fraction.ONE);
 		Fraction ne0 = Fraction.of(12, 41);
 		Fraction ne1 = Fraction.of(13, 42);
-		TestUtil.exerciseEquals(f, eq0, eq1, eq2, eq3);
+		Testing.exerciseEquals(f, eq0, eq1, eq2, eq3);
 		Assert.yes(f.equals(13, 41));
 		Assert.no(f.equals(12, 41));
 		Assert.no(f.equals(13, 42));

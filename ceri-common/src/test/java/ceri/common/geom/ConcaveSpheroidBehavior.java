@@ -4,14 +4,14 @@ import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ConcaveSpheroidBehavior {
 	private final ConcaveSpheroid s0 = ConcaveSpheroid.of(3, 1, 2);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(s0, ConcaveSpheroid.of(3, 1, 2));
+		Testing.exerciseEquals(s0, ConcaveSpheroid.of(3, 1, 2));
 		Assert.notEqual(s0, ConcaveSpheroid.of(3.1, 1, 2));
 		Assert.notEqual(s0, ConcaveSpheroid.of(3, 0.9, 2));
 		Assert.notEqual(s0, ConcaveSpheroid.of(3, 1, 1.9));

@@ -20,7 +20,7 @@ public class TestInputStreamBehavior {
 	@Test
 	public void shouldWaitForFeedToBeEmpty() throws IOException {
 		try (var in = TestInputStream.from(1, 2, 3)) {
-			try (var exec = TestUtil.threadCall(() -> in.readNBytes(3))) {
+			try (var exec = Testing.threadCall(() -> in.readNBytes(3))) {
 				in.awaitFeed();
 				Assert.array(exec.get(), 1, 2, 3);
 			}

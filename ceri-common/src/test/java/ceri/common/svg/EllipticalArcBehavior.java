@@ -6,7 +6,7 @@ import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
 import ceri.common.geom.Size2d;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class EllipticalArcBehavior {
 
@@ -24,7 +24,7 @@ public class EllipticalArcBehavior {
 			Svg.LargeArcFlag.large, Svg.SweepFlag.positive);
 		var ne4 = new EllipticalArc(Position.ABSOLUTE_ZERO, Size2d.of(2, 2), 0.0,
 			Svg.LargeArcFlag.small, Svg.SweepFlag.negative);
-		TestUtil.exerciseEquals(e, eq0, eq1);
+		Testing.exerciseEquals(e, eq0, eq1);
 		Assert.notEqualAll(e, ne0, ne1, ne2, ne3, ne4);
 	}
 

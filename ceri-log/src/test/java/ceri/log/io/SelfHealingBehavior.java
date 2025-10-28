@@ -8,7 +8,7 @@ import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestFixable;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingBehavior {
@@ -53,7 +53,7 @@ public class SelfHealingBehavior {
 	@Test
 	public void shouldCreateFromProperties() {
 		var config =
-			new SelfHealing.Properties(TestUtil.typedProperties("self-healing"), "device").config();
+			new SelfHealing.Properties(Testing.properties("self-healing"), "device").config();
 		Assert.equal(config.fixRetryDelayMs, 123);
 		Assert.equal(config.recoveryDelayMs, 456);
 	}
@@ -64,7 +64,7 @@ public class SelfHealingBehavior {
 		LogModifier.run(() -> {
 			fixable.open.autoResponse(false);
 			fixable.open.error.setFrom(ErrorGen.IOX);
-			try (var exec = TestUtil.threadRun(fixable.open::await)) {
+			try (var exec = Testing.threadRun(fixable.open::await)) {
 				Assert.thrown(device::open);
 				device.open();
 				exec.get();
@@ -79,7 +79,7 @@ public class SelfHealingBehavior {
 		LogModifier.run(() -> {
 			fixable.open.autoResponse(false);
 			fixable.open.error.setFrom(ErrorGen.IOX, ErrorGen.IOX, ErrorGen.IOX, null);
-			try (var exec = TestUtil.threadRun(() -> {
+			try (var exec = Testing.threadRun(() -> {
 				fixable.open.await(); // IOX
 				fixable.open.await(); // IOX
 				fixable.open.await(); // IOX

@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.reader;
+import static ceri.common.test.Testing.reader;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.x10.command.FunctionType;

@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class TimeoutBehavior {
 
@@ -24,7 +24,7 @@ public class TimeoutBehavior {
 		Timeout ne1 = Timeout.of(7, MILLISECONDS);
 		Timeout ne2 = Timeout.NULL;
 		Timeout ne3 = Timeout.ZERO;
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 

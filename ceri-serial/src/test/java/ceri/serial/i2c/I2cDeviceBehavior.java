@@ -1,6 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.jna.test.JnaTestUtil.LEX;
 import static ceri.jna.test.JnaTestUtil.mem;
@@ -12,6 +11,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
@@ -73,10 +73,10 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldRetrieveDeviceId() throws IOException {
 		var lib = initI2c();
-		lib.ioctlI2cBytes.autoResponses(provider(0, 0xa2, 0x6d));
+		lib.ioctlI2cBytes.autoResponses(ByteProvider.of(0, 0xa2, 0x6d));
 		Assert.equal(i2c.deviceId(I2cAddress.of10Bit(0x123)), DeviceId.decode(0xa26d));
-		lib.ioctlI2cBytes.assertAuto(
-			List.of(new Bytes(0x7c, 0, provider(0xf2, 0x23), 2), new Bytes(0x7c, 1, null, 3)));
+		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0x7c, 0, ByteProvider.of(0xf2, 0x23), 2),
+			new Bytes(0x7c, 1, null, 3)));
 	}
 
 	@Test
@@ -94,18 +94,18 @@ public class I2cDeviceBehavior {
 	public void shouldSendSoftwareReset() throws IOException {
 		var lib = initI2c();
 		i2c.softwareReset();
-		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0, 0, provider(0x06), 1)));
+		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0, 0, ByteProvider.of(0x06), 1)));
 	}
 
 	@Test
 	public void shouldReadData() throws IOException {
 		var lib = initI2c();
 		byte[] receive = new byte[3];
-		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
+		lib.ioctlI2cBytes.autoResponses(ByteProvider.of(4, 5, 6));
 		i2c.readData(I2cAddress.of(0x1ab), ArrayUtil.bytes.of(1, 2, 3), receive);
 		Assert.array(receive, 4, 5, 6);
-		lib.ioctlI2cBytes.assertAuto(
-			List.of(new Bytes(0x1ab, 0x10, provider(1, 2, 3), 3), new Bytes(0x1ab, 0x11, null, 3)));
+		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0x1ab, 0x10, ByteProvider.of(1, 2, 3), 3),
+			new Bytes(0x1ab, 0x11, null, 3)));
 	}
 
 	@Test
@@ -113,11 +113,11 @@ public class I2cDeviceBehavior {
 		var lib = initI2c();
 		var out = mem(1, 2, 3);
 		var in = memSize(3);
-		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
+		lib.ioctlI2cBytes.autoResponses(ByteProvider.of(4, 5, 6));
 		i2c.writeRead(I2cAddress.of(0x1ab), out.m, in.m);
 		JnaTestUtil.assertMemory(in.m, 0, 4, 5, 6);
-		lib.ioctlI2cBytes.assertAuto(
-			List.of(new Bytes(0x1ab, 0x10, provider(1, 2, 3), 3), new Bytes(0x1ab, 0x11, null, 3)));
+		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0x1ab, 0x10, ByteProvider.of(1, 2, 3), 3),
+			new Bytes(0x1ab, 0x11, null, 3)));
 	}
 
 	private TestI2cCLibNative initI2c() throws IOException {

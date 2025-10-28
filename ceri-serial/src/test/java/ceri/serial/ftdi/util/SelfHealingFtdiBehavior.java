@@ -17,7 +17,7 @@ import ceri.common.function.Functions;
 import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.test.JnaTestUtil;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
@@ -81,7 +81,7 @@ public class SelfHealingFtdiBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() {
-		var properties = TestUtil.typedProperties("ftdi");
+		var properties = Testing.properties("ftdi");
 		var config1 = new SelfHealingFtdi.Properties(properties, "ftdi.1").config();
 		var config2 = new SelfHealingFtdi.Properties(properties, "ftdi.2").config();
 		Assert.equal(config1.finder, LibUsbFinder.builder().vendor(0x401).build());
@@ -158,7 +158,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldReadPins() throws IOException {
 		connect();
-		lib.transferIn.autoResponses(TestUtil.provider(0xa5));
+		lib.transferIn.autoResponses(ByteProvider.of(0xa5));
 		Assert.equal(con.readPins(), 0xa5);
 		lib.transferIn.assertAuto(List.of(0xc0, 0x0c, 0x0000, 1, 1));
 	}
@@ -166,7 +166,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldPollModemStatus() throws IOException {
 		connect();
-		lib.transferIn.autoResponses(TestUtil.provider(0xe0, 0x8f));
+		lib.transferIn.autoResponses(ByteProvider.of(0xe0, 0x8f));
 		Assert.equal(con.pollModemStatus(), 0x8fe0);
 	}
 
@@ -175,7 +175,7 @@ public class SelfHealingFtdiBehavior {
 		connect();
 		con.latencyTimer(123);
 		lib.transferOut.assertAuto(List.of(0x40, 0x09, 123, 1, ByteProvider.empty()));
-		lib.transferIn.autoResponses(TestUtil.provider(123));
+		lib.transferIn.autoResponses(ByteProvider.of(123));
 		Assert.equal(con.latencyTimer(), 123);
 	}
 
@@ -201,10 +201,10 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldReadBytes() throws IOException {
 		connect();
-		lib.transferIn.autoResponses(TestUtil.provider(1, 2, 3, 4, 5));
+		lib.transferIn.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
 		Assert.array(con.in().readNBytes(3), 3, 4, 5); // 2B status + 3B data
 		lib.transferIn.assertAuto(List.of(0x81, 5));
-		lib.transferIn.autoResponses(TestUtil.provider(6, 7, 8));
+		lib.transferIn.autoResponses(ByteProvider.of(6, 7, 8));
 		Assert.equal(con.in().read(), 8); // 2B status + 1B data
 		lib.transferIn.assertAuto(List.of(0x81, 3));
 	}
@@ -214,7 +214,7 @@ public class SelfHealingFtdiBehavior {
 	public void shouldWriteBytes() throws IOException {
 		connect();
 		con.out().write(ArrayUtil.bytes.of(1, 2, 3));
-		lib.transferOut.assertAuto(List.of(0x02, TestUtil.provider(1, 2, 3)));
+		lib.transferOut.assertAuto(List.of(0x02, ByteProvider.of(1, 2, 3)));
 	}
 
 	@Test

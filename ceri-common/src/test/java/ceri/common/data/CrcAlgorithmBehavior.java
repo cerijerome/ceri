@@ -4,7 +4,7 @@ import static ceri.common.data.CrcBehavior.CRC16_XMODEM;
 import static ceri.common.data.CrcBehavior.CRC8_SMBUS;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class CrcAlgorithmBehavior {
 
@@ -22,7 +22,7 @@ public class CrcAlgorithmBehavior {
 		CrcAlgorithm ne5 = CrcAlgorithm.builder(8).poly(0x7).ref(true, false).build();
 		CrcAlgorithm ne6 = CrcAlgorithm.builder(8).poly(0x7).ref(false, true).build();
 		CrcAlgorithm ne7 = CrcAlgorithm.builder(8).poly(0x7).xorOut(0xff).build();
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
+		Testing.exerciseEquals(t, eq0, eq1, eq2);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
 	}
 

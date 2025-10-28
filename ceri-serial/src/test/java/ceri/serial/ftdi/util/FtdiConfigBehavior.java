@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
@@ -16,7 +16,7 @@ public class FtdiConfigBehavior {
 
 	@After
 	public void after() {
-		ftdi = TestUtil.close(ftdi);
+		ftdi = Testing.close(ftdi);
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public class FtdiConfigBehavior {
 		var ne7 = FtdiConfig.builder(t)
 			.params(FtdiLineParams.builder().parity(LibFtdi.ftdi_parity_type.SPACE).build())
 			.build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
 	}
 

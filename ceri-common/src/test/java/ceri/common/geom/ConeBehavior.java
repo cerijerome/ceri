@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ConeBehavior {
 	private final Cone c0 = Cone.of(2, 8);
@@ -10,7 +10,7 @@ public class ConeBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(c0, Cone.of(2, 8));
+		Testing.exerciseEquals(c0, Cone.of(2, 8));
 		Assert.notEqual(c0, Cone.of(1.9, 8));
 		Assert.notEqual(c0, Cone.of(2, 8.1));
 		Assert.notEqual(c0, Cone.of(2, 0));

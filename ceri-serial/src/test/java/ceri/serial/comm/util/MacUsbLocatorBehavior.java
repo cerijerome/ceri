@@ -4,12 +4,12 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.util.JnaOs;
 import ceri.process.ioreg.Ioreg;
 
 public class MacUsbLocatorBehavior {
-	private static final String IOREG_XML = TestUtil.resource("ioreg.xml");
+	private static final String IOREG_XML = Testing.resource("ioreg.xml");
 
 	@Test
 	public void shouldProvidePortSupplierForMacOnly() {

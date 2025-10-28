@@ -4,14 +4,14 @@ import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class Spheroid3dBehavior {
 	private final Spheroid3d s0 = Spheroid3d.of(2, 3);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(s0, Spheroid3d.of(2, 3));
+		Testing.exerciseEquals(s0, Spheroid3d.of(2, 3));
 		Assert.notEqual(s0, Spheroid3d.of(2.1, 3));
 		Assert.notEqual(s0, Spheroid3d.of(2, 2.9));
 	}

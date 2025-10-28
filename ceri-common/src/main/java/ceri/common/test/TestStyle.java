@@ -16,7 +16,7 @@ public enum TestStyle {
 	behavior("Behavior", "should");
 
 	// List of main class suffixes that are most likely to use test style
-	private static final List<String> testGuessSuffixes = List.of("Util");
+	private static final List<String> testGuessSuffixes = List.of("Util", "s");
 	private static final Pattern REGEX =
 		Regex.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
 	private static final Map<String, TestStyle> lookup = Enums.map(t -> t.suffix, TestStyle.class);

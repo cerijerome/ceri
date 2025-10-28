@@ -14,7 +14,7 @@ import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConnector;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 import ceri.x10.cm11a.protocol.Clock;
 import ceri.x10.cm11a.protocol.Protocol;
@@ -48,7 +48,7 @@ public class Cm11aDeviceBehavior {
 		var ne3 = Cm11aDevice.Config.builder().queueSize(5).readPollMs(1).build();
 		var ne4 = Cm11aDevice.Config.builder().queueSize(5).readTimeoutMs(1).build();
 		var ne5 = Cm11aDevice.Config.builder().queueSize(5).errorDelayMs(1).build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 

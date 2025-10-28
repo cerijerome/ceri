@@ -8,7 +8,7 @@ import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.CFileDescriptor.Opener;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Mode.Mask;
@@ -64,9 +64,9 @@ public class CFileDescriptorBehavior {
 		var ne0 = new Opener("Test", Mode.of(0767), Open.RDWR);
 		var ne1 = new Opener("test", Mode.of(0777), Open.RDWR);
 		var ne2 = new Opener("test", Mode.of(0767), Open.RDONLY);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
-		TestUtil.exerciseRecord(t);
+		Testing.exerciseRecord(t);
 	}
 
 	@SuppressWarnings("resource")
@@ -75,7 +75,7 @@ public class CFileDescriptorBehavior {
 		init();
 		var eq0 = CFileDescriptor.of(fd.fd());
 		var ne0 = CFileDescriptor.of(fd.fd() + 1);
-		TestUtil.exerciseEquals(fd, eq0);
+		Testing.exerciseEquals(fd, eq0);
 		Assert.notEqualAll(fd, ne0);
 	}
 

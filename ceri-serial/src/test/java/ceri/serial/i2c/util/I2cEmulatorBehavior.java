@@ -1,14 +1,12 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.TestUtil.provider;
-import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
+import ceri.common.test.ErrorGen;
 import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cSlaveDeviceEmulator.Read;
@@ -29,7 +27,7 @@ public class I2cEmulatorBehavior {
 	public void shouldWriteToDevice() throws IOException {
 		init(address);
 		i2c.writeData(address, 1, 2, 3);
-		dev.write.assertAuto(provider(1, 2, 3));
+		dev.write.assertAuto(ByteProvider.of(1, 2, 3));
 		i2c.write(address, 0, null);
 		dev.write.assertAuto(ByteProvider.empty());
 	}
@@ -41,7 +39,7 @@ public class I2cEmulatorBehavior {
 		dev2.addTo(i2c);
 		i2c.writeData(I2cAddress.GENERAL_CALL, 0xff); // ignored
 		i2c.writeData(I2cAddress.of(0x07), 1, 2, 3); // ignored
-		i2c.writeData(I2cAddress.GENERAL_CALL, SOFTWARE_RESET, 0); // ignored
+		i2c.writeData(I2cAddress.GENERAL_CALL, I2cUtil.SOFTWARE_RESET, 0); // ignored
 		i2c.softwareReset();
 		dev.softwareReset.awaitAuto();
 		dev2.softwareReset.awaitAuto();
@@ -57,9 +55,9 @@ public class I2cEmulatorBehavior {
 	@Test
 	public void shouldReadFromDevice() throws IOException {
 		init(address);
-		dev.read.autoResponses(provider(4, 5, 6));
+		dev.read.autoResponses(ByteProvider.of(4, 5, 6));
 		i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3);
-		dev.read.assertAuto(new Read(provider(1, 2, 3), 3));
+		dev.read.assertAuto(new Read(ByteProvider.of(1, 2, 3), 3));
 	}
 
 	@Test
@@ -75,7 +73,7 @@ public class I2cEmulatorBehavior {
 	public void shouldFailWriteForBadDevice() {
 		init(address);
 		Assert.thrown(() -> i2c.writeData(badAddress, 1, 2, 3));
-		dev.write.error.setFrom(IOX);
+		dev.write.error.setFrom(ErrorGen.IOX);
 		Assert.thrown(() -> i2c.writeData(address, 1, 2, 3));
 	}
 
@@ -85,10 +83,10 @@ public class I2cEmulatorBehavior {
 		Assert.thrown(() -> i2c.readData(badAddress, ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.autoResponses((ByteProvider) null);
 		Assert.thrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
-		dev.read.autoResponses(provider(1, 2, 3));
+		dev.read.autoResponses(ByteProvider.of(1, 2, 3));
 		Assert.thrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 2));
 		Assert.thrown(() -> i2c.readData(I2cAddress.of(0x05), ArrayUtil.bytes.of(1, 2, 3), 3));
-		dev.read.error.setFrom(IOX);
+		dev.read.error.setFrom(ErrorGen.IOX);
 		Assert.thrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
 	}
 

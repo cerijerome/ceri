@@ -3,7 +3,7 @@ package ceri.serial.i2c;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class I2cAddressBehavior {
 
@@ -15,7 +15,7 @@ public class I2cAddressBehavior {
 		var ne0 = I2cAddress.of(0x6f);
 		var ne1 = I2cAddress.of7Bit(0x6f);
 		var ne2 = I2cAddress.of10Bit(0x6e);
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 

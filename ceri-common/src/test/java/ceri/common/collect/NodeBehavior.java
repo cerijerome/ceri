@@ -3,7 +3,7 @@ package ceri.common.collect;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class NodeBehavior {
 	private static final Node<?> NULL = Node.of();
@@ -42,7 +42,7 @@ public class NodeBehavior {
 		Node<?> ne2 = Node.of("name", 8);
 		Node<?> ne3 = Node.builder(9).name("name").add(Node.builder(null)).build();
 		Node<?> ne4 = Node.of(9);
-		TestUtil.exerciseEquals(t, eq0, eq1);
+		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4);
 	}
 

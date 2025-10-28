@@ -17,7 +17,7 @@ import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.util.Holder;
 
 public class ConcurrentTest {
@@ -26,7 +26,7 @@ public class ConcurrentTest {
 
 	@After
 	public void after() {
-		exec = TestUtil.close(exec);
+		exec = Testing.close(exec);
 		captor = null;
 	}
 
@@ -213,7 +213,7 @@ public class ConcurrentTest {
 		Assert.equal(Concurrent.tryLockedRun(lock, () -> {
 			holder.set("test0");
 			// Cannot get lock in new thread => return false
-			try (var exec = TestUtil
+			try (var exec = Testing
 				.threadCall(() -> Concurrent.tryLockedRun(lock, () -> holder.set("test1")))) {
 				Assert.equal(exec.get(), false);
 			}
@@ -226,7 +226,7 @@ public class ConcurrentTest {
 		var lock = new ReentrantLock();
 		var holder0 = Concurrent.tryLockedGet(lock, () -> {
 			try (var exec =
-				TestUtil.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
+				Testing.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
 				var holder1 = exec.get();
 				Assert.equal(holder1.isEmpty(), true);
 			}

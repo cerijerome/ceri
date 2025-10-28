@@ -3,7 +3,7 @@ package ceri.common.process;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class ParametersBehavior {
 
@@ -17,7 +17,7 @@ public class ParametersBehavior {
 		Parameters ne0 = Parameters.of();
 		Parameters ne1 = Parameters.of(1, "a");
 		Parameters ne2 = Parameters.of(1, "b", 0.1);
-		TestUtil.exerciseEquals(t, eq0, eq1, eq2, eq3);
+		Testing.exerciseEquals(t, eq0, eq1, eq2, eq3);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 

@@ -3,7 +3,7 @@ package ceri.common.geom;
 import org.junit.Test;
 import ceri.common.math.Maths;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class Line2dBehavior {
 	private final Line2d l0 = Line2d.of(Point2d.of(-1, 2), Point2d.of(2, -1));
@@ -33,7 +33,7 @@ public class Line2dBehavior {
 
 	@Test
 	public void shouldNotBreachLineEquationEqualsContract() {
-		TestUtil.exerciseEquals(le0, Line2d.Equation.of(4, -1, 3));
+		Testing.exerciseEquals(le0, Line2d.Equation.of(4, -1, 3));
 		Assert.notEqual(le0, Line2d.Equation.of(3.9, -1, 3));
 		Assert.notEqual(le0, Line2d.Equation.of(4, -0.9, 3));
 		Assert.notEqual(le0, Line2d.Equation.of(4, -1, 3.1));
@@ -100,13 +100,13 @@ public class Line2dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(l0, Line2d.of(-1, 2, 2, -1));
+		Testing.exerciseEquals(l0, Line2d.of(-1, 2, 2, -1));
 		Assert.notEqual(l0, Line2d.of(-1.1, 2, 2, -1));
 		Assert.notEqual(l0, Line2d.of(-1, 1.9, 2, -1));
 		Assert.notEqual(l0, Line2d.of(-1, 2, 2.1, -1));
 		Assert.notEqual(l0, Line2d.of(-1, 2, 2, -0.9));
 		Assert.notEqual(l0, Line2d.of(Point2d.ZERO, Point2d.ZERO));
-		TestUtil.exerciseEquals(l1, Line2d.of(1, 3));
+		Testing.exerciseEquals(l1, Line2d.of(1, 3));
 		Assert.equal(l1.equals(0, 0, 1, 3), true);
 		Assert.equal(l1.equals(1, 0, 1, 3), false);
 		Assert.equal(l1.equals(0, 1, 1, 3), false);

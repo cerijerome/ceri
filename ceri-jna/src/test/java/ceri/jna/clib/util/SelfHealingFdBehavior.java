@@ -11,7 +11,7 @@ import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -30,8 +30,8 @@ public class SelfHealingFdBehavior {
 
 	@After
 	public void after() {
-		shf = TestUtil.close(shf);
-		fd = TestUtil.close(fd);
+		shf = Testing.close(shf);
+		fd = Testing.close(fd);
 		open = null;
 	}
 
@@ -39,7 +39,7 @@ public class SelfHealingFdBehavior {
 	public void shouldCreateFromProperties() throws IOException {
 		try (var enc = TestCLibNative.register()) {
 			var config =
-				new SelfHealingFd.Properties(TestUtil.typedProperties("self-healing-fd"), "fd")
+				new SelfHealingFd.Properties(Testing.properties("self-healing-fd"), "fd")
 					.config();
 			try (var _ = config.open()) {
 				enc.ref.open
@@ -99,7 +99,7 @@ public class SelfHealingFdBehavior {
 		init();
 		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
 		shf.listeners().listen(listener::accept);
-		try (var _ = TestUtil.threadRun(shf::broken)) {
+		try (var _ = Testing.threadRun(shf::broken)) {
 			listener.assertCall(StateChange.broken);
 			listener.assertCall(StateChange.fixed);
 		}
@@ -112,7 +112,7 @@ public class SelfHealingFdBehavior {
 		listener.error.setFrom(ErrorGen.RTX, ErrorGen.RIX);
 		shf.listeners().listen(listener::accept);
 		LogModifier.run(() -> {
-			try (var _ = TestUtil.threadRun(shf::broken)) {
+			try (var _ = Testing.threadRun(shf::broken)) {
 				listener.assertCall(StateChange.broken);
 				listener.assertCall(StateChange.fixed);
 				shf.close();

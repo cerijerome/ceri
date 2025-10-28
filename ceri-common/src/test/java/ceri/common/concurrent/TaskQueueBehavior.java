@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class TaskQueueBehavior {
 
@@ -13,7 +13,7 @@ public class TaskQueueBehavior {
 	public void shouldProcessTasks() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(10);
 		// Start 2 threads and wait for one to generate an error
-		try (var _ = TestUtil.runRepeat(queue::processNext)) {
+		try (var _ = Testing.runRepeat(queue::processNext)) {
 			queue.execute(() -> {});
 			queue.execute(() -> {}, 1000, TimeUnit.MILLISECONDS);
 			Assert.equal(queue.executeGet(() -> "test"), "test");

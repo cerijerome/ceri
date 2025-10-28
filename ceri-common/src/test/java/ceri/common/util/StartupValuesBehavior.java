@@ -1,7 +1,7 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
-import static ceri.common.test.TestUtil.firstSystemPropertyName;
+import static ceri.common.test.Testing.firstEnvVarName;
+import static ceri.common.test.Testing.firstSysPropName;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.test.Assert;
@@ -17,8 +17,8 @@ public class StartupValuesBehavior {
 
 	@Test
 	public void shouldLookupValue() {
-		String sysProp = firstSystemPropertyName();
-		String envVar = firstEnvironmentVariableName();
+		String sysProp = firstSysPropName();
+		String envVar = firstEnvVarName();
 		Assert.equal(StartupValues.lookup(sysProp).get(), SystemVars.sys(sysProp));
 		Assert.equal(StartupValues.lookup(null, envVar).get(), SystemVars.env(envVar));
 		Assert.equal(StartupValues.lookup(sysProp, p -> p.get()), SystemVars.sys(sysProp));
@@ -66,7 +66,7 @@ public class StartupValuesBehavior {
 	@Test
 	public void shouldGetSystemProperties() {
 		StartupValues v = StartupValues.of();
-		String sysProp = firstSystemPropertyName();
+		String sysProp = firstSysPropName();
 		Assert.equal(v.value(sysProp, null, p -> p.get()), SystemVars.sys(sysProp));
 		Assert.equal(v.value(1, sysProp, null, p -> p.get()), SystemVars.sys(sysProp));
 	}
@@ -74,7 +74,7 @@ public class StartupValuesBehavior {
 	@Test
 	public void shouldGetParserSystemProperties() {
 		StartupValues v = StartupValues.of();
-		String sysProp = firstSystemPropertyName();
+		String sysProp = firstSysPropName();
 		Assert.equal(v.value(sysProp, (String) null).get(), SystemVars.sys(sysProp));
 		Assert.equal(v.value(1, sysProp, null).get(), SystemVars.sys(sysProp));
 	}

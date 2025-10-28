@@ -2,7 +2,7 @@ package ceri.x10;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-x10
@@ -43,6 +43,6 @@ import ceri.common.test.TestUtil;
 })
 public class _Tests {
 	public static void main(String... args) {
-		TestUtil.exec(_Tests.class);
+		Testing.exec(_Tests.class);
 	}
 }

@@ -6,7 +6,7 @@ import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
 import ceri.common.geom.Size2d;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class EllipseBehavior {
 
@@ -19,7 +19,7 @@ public class EllipseBehavior {
 		var ne1 = new Ellipse(Position.absolute(0, 1), Size2d.of(1, 1), 0.0);
 		var ne2 = new Ellipse(Position.ABSOLUTE_ZERO, Size2d.of(1, 2), 0.0);
 		var ne3 = new Ellipse(Position.ABSOLUTE_ZERO, Size2d.of(1, 1), 1.0);
-		TestUtil.exerciseEquals(e, eq0, eq1);
+		Testing.exerciseEquals(e, eq0, eq1);
 		Assert.notEqualAll(e, ne0, ne1, ne2, ne3);
 	}
 

@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.text.Splitter.Extraction;
 import ceri.common.text.Splitter.Extractor;
 
@@ -15,7 +15,7 @@ public class SplitterBehavior {
 		Extraction ne0 = Extraction.NULL;
 		Extraction ne1 = Extraction.of("Test", 7);
 		Extraction ne2 = Extraction.of("test", 0);
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 

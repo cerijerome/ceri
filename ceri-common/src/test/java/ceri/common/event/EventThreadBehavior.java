@@ -4,14 +4,14 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class EventThreadBehavior {
 	private EventThread<Object> et;
 
 	@After
 	public void after() {
-		et = TestUtil.close(et);
+		et = Testing.close(et);
 	}
 
 	@Test

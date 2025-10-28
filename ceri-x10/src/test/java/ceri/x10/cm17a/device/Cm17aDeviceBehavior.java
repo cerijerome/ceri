@@ -9,7 +9,7 @@ import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
@@ -38,7 +38,7 @@ public class Cm17aDeviceBehavior {
 		var ne3 = Cm17aDevice.Config.builder().queueSize(5).queuePollTimeoutMs(33).build();
 		var ne4 = Cm17aDevice.Config.builder().queueSize(5).resetIntervalMicros(44).build();
 		var ne5 = Cm17aDevice.Config.builder().queueSize(5).waitIntervalMicros(55).build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 

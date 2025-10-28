@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.threadCall;
-import static ceri.common.test.TestUtil.threadRun;
+import static ceri.common.test.Testing.threadCall;
+import static ceri.common.test.Testing.threadRun;
 import org.junit.Test;
 import ceri.common.test.CallSync.Consumer;
 import ceri.common.test.CallSync.Function;

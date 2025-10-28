@@ -8,7 +8,7 @@ import com.google.protobuf.Empty;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.log.rpc.test.TestStreamObserver;
 import ceri.log.rpc.util.RpcUtil;
 import ceri.log.test.LogModifier;
@@ -23,7 +23,7 @@ public class RpcClientNotifierBehavior {
 
 	@After
 	public void after() {
-		notifier = TestUtil.close(notifier);
+		notifier = Testing.close(notifier);
 		transform = null;
 		serverCall = null;
 		serverControl = null;
@@ -31,7 +31,7 @@ public class RpcClientNotifierBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcClientNotifier.Properties(TestUtil.typedProperties("rpc-client"),
+		var config = new RpcClientNotifier.Properties(Testing.properties("rpc-client"),
 			"rpc-client.notifier").config();
 		Assert.equal(config.resetDelayMs(), 1000);
 	}

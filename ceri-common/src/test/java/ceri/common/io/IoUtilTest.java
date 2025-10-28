@@ -18,7 +18,7 @@ import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestInputStream;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.common.text.Strings;
 import ceri.common.util.SystemVars;
 
@@ -75,7 +75,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testPollString() throws IOException {
-		try (var in = TestUtil.inputStream("test")) {
+		try (var in = Testing.inputStream("test")) {
 			var s = IoUtil.pollString(in);
 			Assert.equal(s, "test");
 		}
@@ -84,7 +84,7 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableChar() throws IOException {
 		try (var sys = SystemIo.of()) {
-			sys.in(TestUtil.inputStream("test"));
+			sys.in(Testing.inputStream("test"));
 			Assert.equal(IoUtil.availableChar(), 't');
 			Assert.equal(IoUtil.availableChar(), 'e');
 			Assert.equal(IoUtil.availableChar(), 's');
@@ -202,7 +202,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testPipe() throws IOException {
-		var in = TestUtil.inputStream(1, 2, 3, 4, 5);
+		var in = Testing.inputStream(1, 2, 3, 4, 5);
 		var out = new ByteArrayOutputStream();
 		IoUtil.pipe(in, out);
 		Assert.array(out.toByteArray(), 1, 2, 3, 4, 5);
@@ -220,13 +220,13 @@ public class IoUtilTest {
 
 	@Test
 	public void testReadString() throws IOException {
-		var in = TestUtil.inputStream("abc\0");
+		var in = Testing.inputStream("abc\0");
 		Assert.equal(IoUtil.readString(in), "abc\0");
 	}
 
 	@Test
 	public void testLines() throws IOException {
-		var in = TestUtil.inputStream("line0\n\nline2\nend");
+		var in = Testing.inputStream("line0\n\nline2\nend");
 		Assert.stream(IoUtil.lines(in), "line0", "", "line2", "end");
 	}
 }

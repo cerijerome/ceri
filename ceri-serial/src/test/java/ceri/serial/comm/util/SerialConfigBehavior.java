@@ -8,7 +8,7 @@ import ceri.common.function.Closeables;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Parity;
@@ -40,7 +40,7 @@ public class SerialConfigBehavior {
 			.inBufferSize(112).outBufferSize(222).build();
 		var ne5 = SerialConfig.builder().params(params).flowControl(FlowControl.rtsCtsIn)
 			.inBufferSize(111).outBufferSize(223).build();
-		TestUtil.exerciseEquals(t, eq0);
+		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 

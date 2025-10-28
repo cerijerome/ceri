@@ -6,7 +6,7 @@ import static ceri.common.math.Maths.PI_BY_2;
 import static java.lang.Math.PI;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestUtil;
+import ceri.common.test.Testing;
 
 public class Polar2dBehavior {
 	private final Polar2d p0 = Polar2d.of(2, PI / 3);
@@ -14,7 +14,7 @@ public class Polar2dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(p0, Polar2d.of(2, PI / 3));
+		Testing.exerciseEquals(p0, Polar2d.of(2, PI / 3));
 		Assert.notEqual(p0, Polar2d.of(2.1, PI / 3));
 		Assert.notEqual(p0, Polar2d.of(2, PI / 3.1));
 		Assert.notEqual(p0, Polar2d.of(0, PI / 3));
