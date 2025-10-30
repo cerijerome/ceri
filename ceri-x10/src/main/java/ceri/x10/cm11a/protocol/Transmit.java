@@ -33,10 +33,10 @@ public class Transmit {
 	public static Entry decode(ByteReader r) {
 		int header = r.readUbyte();
 		int code = r.readUbyte();
-		House house = Data.decodeHouse(code);
-		if (!function(header)) return Entry.address(house, Data.decodeUnit(code));
+		House house = X10Data.decodeHouse(code);
+		if (!function(header)) return Entry.address(house, X10Data.decodeUnit(code));
 		if (extended(header)) return Entry.ext(house, r.readUbyte(), r.readUbyte());
-		FunctionType type = Data.decodeFunctionType(code);
+		FunctionType type = X10Data.decodeFunctionType(code);
 		if (type.group == FunctionGroup.dim) return Entry.dim(house, type, dimPercent(header));
 		return Entry.function(house, type);
 	}
@@ -63,10 +63,10 @@ public class Transmit {
 
 	public static void encode(Entry entry, ByteWriter<?> w) {
 		if (entry.isAddress())
-			w.writeBytes(header(0, false, false), Data.encode(entry.house, entry.unit));
+			w.writeBytes(header(0, false, false), X10Data.encode(entry.house, entry.unit));
 		else if (entry.isGroup(FunctionGroup.ext)) w.writeBytes(header(0, true, true),
-			Data.encode(entry.house, entry.type), entry.data, entry.command);
-		else w.writeBytes(header(entry.data, true, false), Data.encode(entry.house, entry.type));
+			X10Data.encode(entry.house, entry.type), entry.data, entry.command);
+		else w.writeBytes(header(entry.data, true, false), X10Data.encode(entry.house, entry.type));
 	}
 
 	private static int header(int dimPercent, boolean function, boolean extended) {

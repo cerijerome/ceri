@@ -12,8 +12,8 @@ import ceri.common.concurrent.ValueCondition;
 import ceri.common.event.Listenable;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
-import ceri.log.rpc.util.RpcUtil;
-import ceri.log.util.LogUtil;
+import ceri.log.rpc.util.Rpc;
+import ceri.log.util.Logs;
 import io.grpc.stub.StreamObserver;
 
 /**
@@ -64,14 +64,14 @@ public class RpcServiceNotifier<T, V> implements Functions.Closeable {
 	 * has called onNext(EMPTY).
 	 */
 	public StreamObserver<Empty> listen(StreamObserver<V> response) {
-		logger.trace("Listen: {}", LogUtil.hashId(response));
-		return RpcUtil.observer(_ -> add(response), () -> remove(response),
+		logger.trace("Listen: {}", Logs.hashId(response));
+		return Rpc.observer(_ -> add(response), () -> remove(response),
 			t -> error(response, t));
 	}
 
 	@Override
 	public void close() {
-		LogUtil.close(listener);
+		Logs.close(listener);
 		logger.debug("Stopped");
 	}
 
@@ -83,7 +83,7 @@ public class RpcServiceNotifier<T, V> implements Functions.Closeable {
 	}
 
 	private void add(StreamObserver<V> response) {
-		logger.debug("Listener added: {}", LogUtil.hashId(response));
+		logger.debug("Listener added: {}", Logs.hashId(response));
 		safe.write(() -> {
 			observers.add(response);
 			listenerSync.signal(observers.size());
@@ -91,7 +91,7 @@ public class RpcServiceNotifier<T, V> implements Functions.Closeable {
 	}
 
 	private void remove(StreamObserver<V> response) {
-		logger.debug("Listener removed: {}", LogUtil.hashId(response));
+		logger.debug("Listener removed: {}", Logs.hashId(response));
 		safe.write(() -> {
 			observers.remove(response);
 			listenerSync.signal(observers.size());
@@ -99,7 +99,7 @@ public class RpcServiceNotifier<T, V> implements Functions.Closeable {
 	}
 
 	private void error(StreamObserver<V> response, Throwable t) {
-		if (!RpcServiceUtil.ignorable(t)) logger.catching(Level.WARN, t);
+		if (!RpcServices.ignorable(t)) logger.catching(Level.WARN, t);
 		remove(response);
 	}
 }

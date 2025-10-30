@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public abstract class ProcessGroup implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
@@ -50,7 +50,7 @@ public abstract class ProcessGroup implements Functions.Closeable {
 	@Override
 	public void close() {
 		stop();
-		LogUtil.close(runners);
+		Logs.close(runners);
 		logger.info("Process group stopped");
 	}
 

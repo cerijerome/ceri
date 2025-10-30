@@ -4,7 +4,7 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.clib.jna.CUnistd.size_t;
@@ -154,8 +154,8 @@ public class CLib {
 	/**
 	 * Throws an exception if this C-lib implementation does not support the current OS.
 	 */
-	public static OsUtil.Os validateOs() {
-		var os = OsUtil.os();
+	public static Os.Info validateOs() {
+		var os = Os.info();
 		if (os.mac || os.linux) return os;
 		throw new UnsupportedOperationException("Not supported: " + os);
 	}

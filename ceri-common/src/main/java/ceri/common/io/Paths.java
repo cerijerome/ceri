@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.Iterator;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
@@ -251,7 +251,7 @@ public class Paths {
 	 * Extends a path. Returns null if path is null.
 	 */
 	public static Path extend(Path path, String... paths) {
-		if (path == null || ArrayUtil.isEmpty(paths)) return path;
+		if (path == null || Array.isEmpty(paths)) return path;
 		return newPath(path, path.toString(), paths);
 	}
 

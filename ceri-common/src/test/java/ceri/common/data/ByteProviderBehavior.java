@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
 import ceri.common.math.Maths;
@@ -15,7 +15,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class ByteProviderBehavior {
-	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
+	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final ByteProvider bp = provider(0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
 	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);
@@ -184,7 +184,7 @@ public class ByteProviderBehavior {
 	public void shouldDetermineIfBytesAreEqual() {
 		Assert.yes(bp.isEqualTo(5, -5, 6, -7, 8, -9));
 		Assert.no(bp.isEqualTo(5, -5, 6, -7, 8, 9));
-		byte[] bytes = ArrayUtil.bytes.of(0, -1, 2, -3, 4);
+		byte[] bytes = Array.bytes.of(0, -1, 2, -3, 4);
 		Assert.yes(bp.isEqualTo(0, bytes));
 		Assert.no(bp.isEqualTo(0, bytes, 0, 6));
 		Assert.no(bp.isEqualTo(9, -9, 0));
@@ -205,8 +205,8 @@ public class ByteProviderBehavior {
 	public void shouldDetermineIfContains() {
 		Assert.equal(bp.contains(-1, 2, -3), true);
 		Assert.equal(bp.contains(-1, 2, 3), false);
-		Assert.equal(bp.contains(ArrayUtil.bytes.of(-1, 2, -3)), true);
-		Assert.equal(bp.contains(ArrayUtil.bytes.of(-1, 2, 3)), false);
+		Assert.equal(bp.contains(Array.bytes.of(-1, 2, -3)), true);
+		Assert.equal(bp.contains(Array.bytes.of(-1, 2, 3)), false);
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class ByteProviderBehavior {
 		Assert.equal(bp.indexOf(0, -1, 2, -3), 1);
 		Assert.equal(bp.indexOf(0, -1, 2, 3), -1);
 		Assert.equal(bp.indexOf(8, -1, 2, -3), -1);
-		Assert.equal(bp.indexOf(0, ArrayUtil.bytes.of(-1, 2, -3), 0, 4), -1);
+		Assert.equal(bp.indexOf(0, Array.bytes.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class ByteProviderBehavior {
 		Assert.equal(bp.lastIndexOf(0, 2, -1), 5);
 		Assert.equal(bp.lastIndexOf(0, 2, 1), -1);
 		Assert.equal(bp.lastIndexOf(7, 0, -1), -1);
-		Assert.equal(bp.lastIndexOf(0, ArrayUtil.bytes.of(2, -1, 0), 0, 4), -1);
+		Assert.equal(bp.lastIndexOf(0, Array.bytes.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
@@ -331,7 +331,7 @@ public class ByteProviderBehavior {
 	/* Support methods */
 
 	public static ByteProvider provider(int... values) {
-		return provider(ArrayUtil.bytes.of(values));
+		return provider(Array.bytes.of(values));
 	}
 
 	public static ByteProvider provider(byte[] bytes) {

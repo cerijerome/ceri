@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
 
@@ -195,10 +195,10 @@ public class Utf8Test {
 
 	@Test
 	public void testDecodeBytes() {
-		Assert.equal(Utf8.decode(ArrayUtil.bytes.of('A')), Strings.of(_1B));
-		Assert.equal(Utf8.decode(ArrayUtil.bytes.of(0xc2, 0xa9)), Strings.of(_2B));
-		Assert.equal(Utf8.decode(ArrayUtil.bytes.of(0xe2, 0x84, 0x83)), Strings.of(_3B));
-		Assert.equal(Utf8.decode(ArrayUtil.bytes.of(0xf0, 0x9d, 0x90, 0x80)), Strings.of(_4B));
+		Assert.equal(Utf8.decode(Array.bytes.of('A')), Strings.of(_1B));
+		Assert.equal(Utf8.decode(Array.bytes.of(0xc2, 0xa9)), Strings.of(_2B));
+		Assert.equal(Utf8.decode(Array.bytes.of(0xe2, 0x84, 0x83)), Strings.of(_3B));
+		Assert.equal(Utf8.decode(Array.bytes.of(0xf0, 0x9d, 0x90, 0x80)), Strings.of(_4B));
 	}
 
 	@Test

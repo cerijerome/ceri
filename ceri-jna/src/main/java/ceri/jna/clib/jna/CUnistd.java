@@ -5,12 +5,12 @@ import static ceri.jna.clib.jna.CLib.lib;
 import java.util.Set;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.util.Validate;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.type.IntType;
 import ceri.jna.type.JnaSize;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 /**
  * Types and functions from {@code <unistd.h>}
@@ -136,7 +136,7 @@ public class CUnistd {
 	 * of bytes read, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes, int offset, int length) throws CException {
-		try (var m = JnaUtil.malloc(length)) {
+		try (var m = Jna.malloc(length)) {
 			return read(fd, m, bytes, offset, length);
 		}
 	}
@@ -167,7 +167,7 @@ public class CUnistd {
 	public static int read(int fd, Pointer buffer, byte[] bytes, int offset, int length)
 		throws CException {
 		int n = read(fd, buffer, length);
-		JnaUtil.read(buffer, bytes, offset, n);
+		Jna.read(buffer, bytes, offset, n);
 		return n;
 	}
 
@@ -176,7 +176,7 @@ public class CUnistd {
 	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static byte[] readBytes(int fd, int length) throws CException {
-		try (var m = JnaUtil.malloc(length)) {
+		try (var m = Jna.malloc(length)) {
 			return readBytes(fd, m);
 		}
 	}
@@ -186,7 +186,7 @@ public class CUnistd {
 	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static byte[] readBytes(int fd, Memory buffer) throws CException {
-		return readBytes(fd, buffer, JnaUtil.intSize(buffer));
+		return readBytes(fd, buffer, Jna.intSize(buffer));
 	}
 
 	/**
@@ -195,7 +195,7 @@ public class CUnistd {
 	 */
 	public static byte[] readBytes(int fd, Pointer buffer, int length) throws CException {
 		int n = read(fd, buffer, length);
-		return JnaUtil.bytes(buffer, 0, n);
+		return Jna.bytes(buffer, 0, n);
 	}
 
 	/**
@@ -218,7 +218,7 @@ public class CUnistd {
 	 * 0. May block without O_NONBLOCK. Returns the total bytes read as a new array.
 	 */
 	public static byte[] readAllBytes(int fd, int length) throws CException {
-		try (var m = JnaUtil.malloc(length)) {
+		try (var m = Jna.malloc(length)) {
 			return readAllBytes(fd, m);
 		}
 	}
@@ -228,7 +228,7 @@ public class CUnistd {
 	 * without O_NONBLOCK. Returns the total bytes read as a new array.
 	 */
 	public static byte[] readAllBytes(int fd, Memory buffer) throws CException {
-		return readAllBytes(fd, buffer, JnaUtil.intSize(buffer));
+		return readAllBytes(fd, buffer, Jna.intSize(buffer));
 	}
 
 	/**
@@ -237,7 +237,7 @@ public class CUnistd {
 	 */
 	public static byte[] readAllBytes(int fd, Pointer buffer, int length) throws CException {
 		int n = readAll(fd, buffer, length);
-		return JnaUtil.bytes(buffer, 0, n);
+		return Jna.bytes(buffer, 0, n);
 	}
 
 	/**
@@ -265,7 +265,7 @@ public class CUnistd {
 	 */
 	public static int readAll(int fd, byte[] bytes, int offset, int length) throws CException {
 		Validate.slice(bytes.length, offset, length);
-		try (Memory m = JnaUtil.malloc(length)) {
+		try (Memory m = Jna.malloc(length)) {
 			return readAll(fd, m, length, bytes, offset, length);
 		}
 	}
@@ -295,7 +295,7 @@ public class CUnistd {
 	 */
 	public static int readAll(int fd, Memory buffer, byte[] bytes, int offset, int length)
 		throws CException {
-		return readAll(fd, buffer, JnaUtil.intSize(buffer), bytes, offset, length);
+		return readAll(fd, buffer, Jna.intSize(buffer), bytes, offset, length);
 	}
 
 	/**
@@ -329,7 +329,7 @@ public class CUnistd {
 		while (rem > 0) {
 			int n = Math.min(rem, size);
 			int m = readAll(fd, buffer, n);
-			JnaUtil.read(buffer, bytes, offset, m);
+			Jna.read(buffer, bytes, offset, m);
 			offset += m;
 			rem -= m;
 			if (m < n) break;
@@ -357,7 +357,7 @@ public class CUnistd {
 	 * number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, int... bytes) throws CException {
-		return write(fd, ArrayUtil.bytes.of(bytes));
+		return write(fd, Array.bytes.of(bytes));
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class CUnistd {
 	 * errors.
 	 */
 	public static int write(int fd, byte[] bytes, int offset, int length) throws CException {
-		try (var m = JnaUtil.malloc(length)) {
+		try (var m = Jna.malloc(length)) {
 			return write(fd, m, bytes, offset, length);
 		}
 	}
@@ -412,7 +412,7 @@ public class CUnistd {
 	 */
 	public static int write(int fd, Pointer buffer, byte[] bytes, int offset, int length)
 		throws CException {
-		JnaUtil.write(buffer, bytes, offset, length);
+		Jna.write(buffer, bytes, offset, length);
 		return write(fd, buffer, length);
 	}
 
@@ -437,7 +437,7 @@ public class CUnistd {
 	 * total number of bytes written.
 	 */
 	public static int writeAll(int fd, int... bytes) throws CException {
-		return writeAll(fd, ArrayUtil.bytes.of(bytes));
+		return writeAll(fd, Array.bytes.of(bytes));
 	}
 
 	/**
@@ -465,7 +465,7 @@ public class CUnistd {
 	 */
 	public static int writeAll(int fd, byte[] bytes, int offset, int length) throws CException {
 		Validate.slice(bytes.length, offset, length);
-		try (Memory m = JnaUtil.mallocBytes(bytes, offset, length)) {
+		try (Memory m = Jna.mallocBytes(bytes, offset, length)) {
 			return writeAll(fd, m, length);
 		}
 	}
@@ -495,7 +495,7 @@ public class CUnistd {
 	 */
 	public static int writeAll(int fd, Memory buffer, byte[] bytes, int offset, int length)
 		throws CException {
-		return writeAll(fd, buffer, JnaUtil.intSize(buffer), bytes, offset, length);
+		return writeAll(fd, buffer, Jna.intSize(buffer), bytes, offset, length);
 	}
 
 	/**
@@ -528,7 +528,7 @@ public class CUnistd {
 		int rem = length;
 		while (rem > 0) {
 			int n = Math.min(rem, size);
-			JnaUtil.write(buffer, bytes, offset, n);
+			Jna.write(buffer, bytes, offset, n);
 			int m = writeAll(fd, buffer, n);
 			offset += m;
 			rem -= m;

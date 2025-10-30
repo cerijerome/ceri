@@ -1,12 +1,12 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.Testing;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaLibrary;
@@ -139,7 +139,7 @@ public class SelfHealingSerialBehavior {
 	@Test
 	public void shouldHandleOpenFailure() {
 		testSerial = TestSerial.of();
-		testSerial.open.error.setFrom(IOX, null);
+		testSerial.open.error.setFrom(ErrorGen.IOX, null);
 		serial = SelfHealingSerial.of(testSerial.selfHealingConfig());
 		Assert.thrown(serial::open);
 	}

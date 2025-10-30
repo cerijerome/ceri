@@ -3,10 +3,10 @@ package ceri.jna.util;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.test.Assert;
-import ceri.jna.test.JnaTestUtil;
-import ceri.jna.test.JnaTestUtil.MemCache;
+import ceri.jna.test.JnaTesting;
+import ceri.jna.test.JnaTesting.MemCache;
 import ceri.jna.type.JnaSize;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
@@ -26,7 +26,7 @@ import ceri.jna.type.Struct.Fields;
 public class JnaTestData {
 	private static final int ARRAY_SIZE = 3;
 	private static final int I_MULTIPLIER = 0x1111;
-	private final MemCache mc = JnaTestUtil.memCache(); // prevent gc on memory
+	private final MemCache mc = JnaTesting.memCache(); // prevent gc on memory
 	public final Memory[] memoryArrayByVal;
 	public final TestStruct[] structArrayByVal;
 	public final Pointer[] pointerArrayByVal;
@@ -58,13 +58,13 @@ public class JnaTestData {
 		}
 
 		public TestStruct populate(int i, Pointer p, int... bytes) {
-			return populate(i, p, ArrayUtil.bytes.of(bytes));
+			return populate(i, p, Array.bytes.of(bytes));
 		}
 
 		public TestStruct populate(int i, Pointer p, byte[] bytes) {
 			this.i = i;
 			this.p = p;
-			ArrayUtil.bytes.copy(bytes, 0, this.b, 0, bytes.length);
+			Array.bytes.copy(bytes, 0, this.b, 0, bytes.length);
 			return this;
 		}
 
@@ -85,7 +85,7 @@ public class JnaTestData {
 	 * Assert struct fields.
 	 */
 	public static void assertStruct(TestStruct t, int i, Pointer p, int... bytes) {
-		assertStruct(t, i, p, ArrayUtil.bytes.of(bytes));
+		assertStruct(t, i, p, Array.bytes.of(bytes));
 	}
 
 	/**
@@ -113,11 +113,11 @@ public class JnaTestData {
 	}
 
 	public Pointer structArrayByValPointer(int i) {
-		return JnaTestUtil.deref(structArrayByVal[0].getPointer().share(i * TestStruct.SIZE));
+		return JnaTesting.deref(structArrayByVal[0].getPointer().share(i * TestStruct.SIZE));
 	}
 
 	public Pointer structArrayByRefPointer(int i) {
-		return JnaTestUtil.deref(pointerArrayByVal[0].share(i * JnaSize.POINTER.get()));
+		return JnaTesting.deref(pointerArrayByVal[0].share(i * JnaSize.POINTER.get()));
 	}
 
 	public Pointer pointerArrayByValPointer(int i) {
@@ -155,7 +155,7 @@ public class JnaTestData {
 			Pointer p = m.share(i * TestStruct.SIZE).m;
 			array[i] = new TestStruct(p);
 			array[i].populate((i + 1) * I_MULTIPLIER, ps[i],
-				JnaUtil.bytes(ps[i], 0, TestStruct.BYTES));
+				Jna.bytes(ps[i], 0, TestStruct.BYTES));
 			array[i].write();
 		}
 		return array;
@@ -173,5 +173,4 @@ public class JnaTestData {
 		}
 		return array;
 	}
-
 }

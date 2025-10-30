@@ -1,6 +1,5 @@
 package ceri.serial.comm;
 
-import static ceri.jna.test.JnaTestUtil.assertRef;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -13,6 +12,7 @@ import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
+import ceri.jna.test.JnaAssert;
 import ceri.jna.util.JnaLibrary;
 
 public class SerialPortBehavior {
@@ -105,6 +105,6 @@ public class SerialPortBehavior {
 		var args = ref.lib().ioctl.awaitAuto();
 		Assert.equal(args.fd(), fd);
 		Assert.equal(args.request(), request);
-		assertRef(args.arg(0), value);
+		JnaAssert.ref(args.arg(0), value);
 	}
 }

@@ -2,7 +2,7 @@ package ceri.common.event;
 
 import java.util.function.Supplier;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.test.Assert;
 
 public class EventTrackerBehavior {
@@ -48,7 +48,7 @@ public class EventTrackerBehavior {
 	}
 
 	private EventTracker tracker(int maxEvents, Long windowMs, int... timeStamps) {
-		Supplier<Integer> supplier = ArrayUtil.ints.list(timeStamps).iterator()::next;
+		Supplier<Integer> supplier = Array.ints.list(timeStamps).iterator()::next;
 		return tracker(maxEvents, windowMs, supplier);
 	}
 

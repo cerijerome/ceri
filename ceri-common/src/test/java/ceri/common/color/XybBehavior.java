@@ -1,11 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertRgb;
-import static ceri.common.color.ColorTestUtil.assertXyb;
-import static ceri.common.color.ColorTestUtil.assertXyz;
-import static ceri.common.color.Colors.color;
-import static ceri.common.color.Xyb.CENTER;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -27,13 +21,13 @@ public class XybBehavior {
 
 	@Test
 	public void shouldCreateFromColor() {
-		assertXyb(Xyb.from(color(0)), 0, 0, 0, 0);
-		assertXyb(Xyb.fromRgb(0x804020), 1.0, 0.505, 0.384, 0.084);
+		ColorAssert.xyb(Xyb.from(Colors.color(0)), 0, 0, 0, 0);
+		ColorAssert.xyb(Xyb.fromRgb(0x804020), 1.0, 0.505, 0.384, 0.084);
 	}
 
 	@Test
 	public void shouldCreateWithFullBrightness() {
-		assertXyb(Xyb.full(0.5, 0.4), 1.0, 0.5, 0.4, 1.0);
+		ColorAssert.xyb(Xyb.full(0.5, 0.4), 1.0, 0.5, 0.4, 1.0);
 	}
 
 	@Test
@@ -49,17 +43,17 @@ public class XybBehavior {
 
 	@Test
 	public void shouldConvertToColor() {
-		assertColor(Xyb.from(0x12345678).color(), 0x12345678);
+		ColorAssert.color(Xyb.from(0x12345678).color(), 0x12345678);
 	}
 
 	@Test
 	public void shouldConvertToRgb() {
-		assertRgb(Xyb.from(0x12345678).rgb(), 0.071, 0.204, 0.337, 0.471);
+		ColorAssert.rgb(Xyb.from(0x12345678).rgb(), 0.071, 0.204, 0.337, 0.471);
 	}
 
 	@Test
 	public void shouldConvertToXyz() {
-		assertXyz(Xyb.from(0x12345678).xyz(), 0.071, 0.081, 0.087, 0.190);
+		ColorAssert.xyz(Xyb.from(0x12345678).xyz(), 0.071, 0.081, 0.087, 0.190);
 	}
 
 	@Test
@@ -70,31 +64,31 @@ public class XybBehavior {
 
 	@Test
 	public void shouldDim() {
-		assertXyb(Xyb.from(0x87654321).dim(0.0), 0.529, 0.452, 0.408, 0);
-		assertXyb(Xyb.from(0x87654321).dim(0.5), 0.529, 0.452, 0.408, 0.034);
-		assertXyb(Xyb.from(0x87654321).dim(1.5), 0.529, 0.452, 0.408, 0.103);
+		ColorAssert.xyb(Xyb.from(0x87654321).dim(0.0), 0.529, 0.452, 0.408, 0);
+		ColorAssert.xyb(Xyb.from(0x87654321).dim(0.5), 0.529, 0.452, 0.408, 0.034);
+		ColorAssert.xyb(Xyb.from(0x87654321).dim(1.5), 0.529, 0.452, 0.408, 0.103);
 		Assert.equal(Xyb.from(0x87654321).dim(1.0).argb(), 0x87654321);
-		assertXyb(Xyb.from(0x87654321).dim(20.0), 0.529, 0.452, 0.408, 1.378);
+		ColorAssert.xyb(Xyb.from(0x87654321).dim(20.0), 0.529, 0.452, 0.408, 1.378);
 	}
 
 	@Test
 	public void shouldNormalize() {
-		assertXyb(Xyb.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
-		assertXyb(Xyb.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
-		assertXyb(Xyb.of(0.5, 0.5, 1.5).normalize(), 0.5, 0.5, 1.0);
-		assertXyb(Xyb.of(0, 2.0, 0.5).normalize(), 1.0, 0.2, 1, 0.5);
-		assertXyb(Xyb.of(1.2, 2, -2, 1).normalize(), 1.0, 0.571, 0, 1);
-		assertXyb(Xyb.of(CENTER.x(), CENTER.y() + 1, 1).normalize(), 0.333, 1.0, 1);
-		assertXyb(Xyb.of(CENTER.x() + 1, CENTER.y(), 1).normalize(), 1.0, 0.333, 1);
+		ColorAssert.xyb(Xyb.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(0.5, 0.5, 1.5).normalize(), 0.5, 0.5, 1.0);
+		ColorAssert.xyb(Xyb.of(0, 2.0, 0.5).normalize(), 1.0, 0.2, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(1.2, 2, -2, 1).normalize(), 1.0, 0.571, 0, 1);
+		ColorAssert.xyb(Xyb.of(Xyb.CENTER.x(), Xyb.CENTER.y() + 1, 1).normalize(), 0.333, 1.0, 1);
+		ColorAssert.xyb(Xyb.of(Xyb.CENTER.x() + 1, Xyb.CENTER.y(), 1).normalize(), 1.0, 0.333, 1);
 	}
 
 	@Test
 	public void shouldLimitValues() {
-		assertXyb(Xyb.of(0.9, 0, 1, 0.5).limit(), 0.9, 0, 1, 0.5);
-		assertXyb(Xyb.of(0.9, 0, 1, -0.1).limit(), 0.9, 0, 1, 0);
-		assertXyb(Xyb.of(0.9, 0, 1.1, 0.5).limit(), 0.9, 0, 1, 0.5);
-		assertXyb(Xyb.of(0.9, 2, 1, 0.5).limit(), 0.9, 1, 1, 0.5);
-		assertXyb(Xyb.of(1.2, 2, 1, 0.5).limit(), 1.0, 1, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(0.9, 0, 1, 0.5).limit(), 0.9, 0, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(0.9, 0, 1, -0.1).limit(), 0.9, 0, 1, 0);
+		ColorAssert.xyb(Xyb.of(0.9, 0, 1.1, 0.5).limit(), 0.9, 0, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(0.9, 2, 1, 0.5).limit(), 0.9, 1, 1, 0.5);
+		ColorAssert.xyb(Xyb.of(1.2, 2, 1, 0.5).limit(), 1.0, 1, 1, 0.5);
 	}
 
 	@Test

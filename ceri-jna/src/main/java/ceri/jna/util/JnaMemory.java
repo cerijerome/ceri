@@ -1,6 +1,6 @@
 package ceri.jna.util;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
+import static ceri.common.data.Bytes.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,7 +29,7 @@ public class JnaMemory implements ByteAccessor {
 	}
 
 	public static JnaMemory of(Memory m, long offset) {
-		return of(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
+		return of(m, offset, Math.toIntExact(Jna.size(m) - offset));
 	}
 
 	public static JnaMemory of(Pointer p, long offset, int length) {
@@ -121,7 +121,7 @@ public class JnaMemory implements ByteAccessor {
 		 * Reads bytes into the memory pointer. Returns the destination offset after reading.
 		 */
 		public int readInto(Memory m, long offset) {
-			return readInto(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
+			return readInto(m, offset, Math.toIntExact(Jna.size(m) - offset));
 		}
 
 		/**
@@ -194,7 +194,7 @@ public class JnaMemory implements ByteAccessor {
 		 * Writes bytes from the memory pointer.
 		 */
 		public Writer writeFrom(Memory m, long offset) {
-			return writeFrom(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
+			return writeFrom(m, offset, Math.toIntExact(Jna.size(m) - offset));
 		}
 
 		/**
@@ -301,7 +301,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int copyTo(int index, byte[] array, int offset, int length) {
-		return JnaUtil.read(p, offset(index), array, offset, length);
+		return Jna.read(p, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -324,7 +324,7 @@ public class JnaMemory implements ByteAccessor {
 	 * Fails if the memory size to copy from is larger than int.
 	 */
 	public int copyTo(int index, Memory m, long offset) {
-		return copyTo(index, m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
+		return copyTo(index, m, offset, Math.toIntExact(Jna.size(m) - offset));
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class JnaMemory implements ByteAccessor {
 	 */
 	public int copyTo(int index, Pointer p, long offset, int length) {
 		Validate.slice(length(), index, length);
-		JnaUtil.memcpy(p, offset, this.p, offset(index), length);
+		Jna.memcpy(p, offset, this.p, offset(index), length);
 		return index + length;
 	}
 
@@ -386,7 +386,7 @@ public class JnaMemory implements ByteAccessor {
 	@Override
 	public int fill(int index, int length, int value) {
 		Validate.slice(length(), index, length);
-		JnaUtil.fill(p, offset(index), length, value);
+		Jna.fill(p, offset(index), length, value);
 		return index + length;
 	}
 
@@ -418,7 +418,7 @@ public class JnaMemory implements ByteAccessor {
 	 * bytes. Fails if the memory size to copy from is larger than int.
 	 */
 	public int copyFrom(int index, Memory m, long offset) {
-		return copyFrom(index, m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
+		return copyFrom(index, m, offset, Math.toIntExact(Jna.size(m) - offset));
 	}
 
 	/**
@@ -427,7 +427,7 @@ public class JnaMemory implements ByteAccessor {
 	 */
 	public int copyFrom(int index, Pointer p, long offset, int length) {
 		Validate.slice(length(), index, length);
-		JnaUtil.memcpy(this.p, offset(index), p, offset, length);
+		Jna.memcpy(this.p, offset(index), p, offset, length);
 		return index + length;
 	}
 
@@ -478,7 +478,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public String toString() {
-		return String.format("%s@%x%s", getClass().getSimpleName(), PointerUtil.peer(p) + offset,
+		return String.format("%s@%x%s", getClass().getSimpleName(), Pointers.peer(p) + offset,
 			ByteProvider.toHex(this));
 	}
 
@@ -502,7 +502,7 @@ public class JnaMemory implements ByteAccessor {
 	}
 
 	private long peer() {
-		return PointerUtil.peer(p) + offset;
+		return Pointers.peer(p) + offset;
 	}
 
 	private long offset(int index) {

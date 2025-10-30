@@ -1,18 +1,18 @@
 package ceri.common.net;
 
-import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 
 public class TcpServerSocketBehavior {
 
 	@Test
 	public void shouldStopListeningOnErrors() throws IOException {
 		var c = CallSync.consumer(null, true);
-		c.error.setFrom(IOX);
+		c.error.setFrom(ErrorGen.IOX);
 		try (var ss = TcpServerSocket.of()) {
 			var future = ss.listen(c::accept);
 			try (var _ = TcpSocket.connect(HostPort.localhost(ss.port()))) {

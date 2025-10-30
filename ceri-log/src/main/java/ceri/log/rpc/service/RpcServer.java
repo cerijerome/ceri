@@ -11,14 +11,14 @@ import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.common.util.Capability;
 import ceri.log.rpc.client.RpcChannel;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 public class RpcServer implements Functions.Closeable, Capability.Enabled {
 	private static final Logger logger = LogManager.getLogger();
-	public static final RpcServer NULL = new RpcServer(RpcServiceUtil.NULL_SERVER, Config.NULL);
+	public static final RpcServer NULL = new RpcServer(RpcServices.NULL_SERVER, Config.NULL);
 	private final Config config;
 	private final Server server;
 
@@ -75,7 +75,7 @@ public class RpcServer implements Functions.Closeable, Capability.Enabled {
 
 	@SuppressWarnings("resource")
 	public static RpcServer start(BindableService service, Config config) throws IOException {
-		return LogUtil.acceptOrClose(of(service, config), RpcServer::start);
+		return Logs.acceptOrClose(of(service, config), RpcServer::start);
 	}
 
 	public static RpcServer of(BindableService service, Config config) {

@@ -3,7 +3,7 @@ package ceri.jna.reflect;
 import static ceri.jna.util.JnaOs.linux;
 import static ceri.jna.util.JnaOs.mac;
 import com.sun.jna.Pointer;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.reflect.CAnnotations.CType.Attr;
@@ -28,7 +28,7 @@ public class CTestGen {
 	public static final int Fll = 117;
 
 	public enum E {
-		a(OsUtil.os().mac ? 0 : 1),
+		a(Os.info().mac ? 0 : 1),
 		@CType(name = "B")
 		b(2),
 		@CUndefined

@@ -29,7 +29,7 @@ import com.sun.jna.IntegerType;
 import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
 import ceri.common.math.Maths;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.common.util.Validate;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -90,7 +90,7 @@ public class CSerial {
 		throws CException {
 		var tty = CTermios.tcgetattr(fd);
 		setParamFlags(tty.c_cflag, dataBits, stopBits, parity);
-		if (OsUtil.os().mac) Mac.setBaud(fd, tty, baud);
+		if (Os.info().mac) Mac.setBaud(fd, tty, baud);
 		else Linux.setBaud(fd, tty, baud);
 	}
 
@@ -249,7 +249,7 @@ public class CSerial {
 			.put(CTermios.B4800, 4800).put(CTermios.B9600, 9600).put(CTermios.B19200, 19200)
 			.put(CTermios.B38400, 38400).put(CTermios.B57600, 57600).put(CTermios.B115200, 115200)
 			.put(CTermios.B230400, 230400);
-		if (OsUtil.os().linux) b.put(CTermios.B460800, 460800).put(CTermios.B500000, 500000)
+		if (Os.info().linux) b.put(CTermios.B460800, 460800).put(CTermios.B500000, 500000)
 			.put(CTermios.B576000, 576000).put(CTermios.B921600, 921600)
 			.put(CTermios.B1000000, 1000000).put(CTermios.B1152000, 1152000)
 			.put(CTermios.B1500000, 1500000).put(CTermios.B2000000, 2000000)
@@ -259,7 +259,7 @@ public class CSerial {
 	}
 
 	private static void setAttr(int fd, termios tty) throws CException {
-		if (OsUtil.os().mac) Mac.setAttr(fd, tty); // handle non-standard baud
+		if (Os.info().mac) Mac.setAttr(fd, tty); // handle non-standard baud
 		else CTermios.tcsetattr(fd, TCSANOW, tty);
 	}
 

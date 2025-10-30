@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Pointer;
 import ceri.common.collect.Iterables;
 import ceri.common.concurrent.Concurrent;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.smbus.SmBus;
@@ -69,16 +69,16 @@ public class I2cEmulator implements I2c.Null {
 
 	@Override
 	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {
-		byte[] command = JnaUtil.bytes(writeBuf, 0, writeLen);
+		byte[] command = Jna.bytes(writeBuf, 0, writeLen);
 		slaveWrite(address, command);
 	}
 
 	@Override
 	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
 		int readLen) throws IOException {
-		byte[] command = JnaUtil.bytes(writeBuf, 0, writeLen);
+		byte[] command = Jna.bytes(writeBuf, 0, writeLen);
 		byte[] response = slaveRead(address, command, readLen); // length checked in method
-		JnaUtil.write(readBuf, response);
+		Jna.write(readBuf, response);
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.test.ErrorGen.RTX;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
@@ -19,8 +18,9 @@ import ceri.common.data.ByteArray;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.Testing;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
@@ -94,7 +94,7 @@ public class LibFtdiStreamTest {
 		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
 			lastError(LIBUSB_ERROR_NO_DEVICE));
 		Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
-		lib.handleTransferEvent.error.setFrom(RTX);
+		lib.handleTransferEvent.error.setFrom(ErrorGen.RTX);
 		Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 	}
 
@@ -129,7 +129,7 @@ public class LibFtdiStreamTest {
 
 	private static boolean collect(ByteArray.Encoder encoder, Pointer p, int len, int max) {
 		if (p == null) return true;
-		encoder.writeFrom(JnaUtil.bytes(p, 0, len));
+		encoder.writeFrom(Jna.bytes(p, 0, len));
 		return encoder.length() < max;
 	}
 

@@ -29,7 +29,7 @@ public record Mask(int shift, long mask) {
 	 */
 	public static Mask ofBits(int shift, int count) {
 		Validate.min(count, 1);
-		return of(shift, ByteUtil.mask(shift, count));
+		return of(shift, Bytes.mask(shift, count));
 	}
 
 	/**

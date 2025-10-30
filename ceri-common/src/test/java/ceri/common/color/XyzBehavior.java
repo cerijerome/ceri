@@ -1,10 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertRgb;
-import static ceri.common.color.ColorTestUtil.assertXyb;
-import static ceri.common.color.ColorTestUtil.assertXyz;
-import static ceri.common.color.Colors.color;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -26,8 +21,8 @@ public class XyzBehavior {
 
 	@Test
 	public void shouldCreateFromColor() {
-		assertXyz(Xyz.from(color(0)), 0, 0, 0, 0);
-		assertXyz(Xyz.fromRgb(0x804020), 1.0, 0.110, 0.084, 0.024);
+		ColorAssert.xyz(Xyz.from(Colors.color(0)), 0, 0, 0, 0);
+		ColorAssert.xyz(Xyz.fromRgb(0x804020), 1.0, 0.110, 0.084, 0.024);
 	}
 
 	@Test
@@ -43,17 +38,17 @@ public class XyzBehavior {
 
 	@Test
 	public void shouldConvertToColor() {
-		assertColor(Xyz.from(0x12345678).color(), 0x12345678);
+		ColorAssert.color(Xyz.from(0x12345678).color(), 0x12345678);
 	}
 
 	@Test
 	public void shouldConvertToRgb() {
-		assertRgb(Xyz.from(0x12345678).rgb(), 0.071, 0.204, 0.337, 0.471);
+		ColorAssert.rgb(Xyz.from(0x12345678).rgb(), 0.071, 0.204, 0.337, 0.471);
 	}
 
 	@Test
 	public void shouldConvertToXyb() {
-		assertXyb(Xyz.from(0x12345678).xyb(), 0.071, 0.227, 0.243, 0.087);
+		ColorAssert.xyb(Xyz.from(0x12345678).xyb(), 0.071, 0.227, 0.243, 0.087);
 	}
 
 	@Test
@@ -64,10 +59,10 @@ public class XyzBehavior {
 
 	@Test
 	public void shouldNormalize() {
-		assertXyz(Xyz.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
-		assertXyz(Xyz.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
-		assertXyz(Xyz.of(0.5, 0.5, 1.5).normalize(), 0.5, 0.5, 1.5);
-		assertXyz(Xyz.of(0, 2.0, 0.5).normalize(), 1.0, 0, 1, 0.25);
-		assertXyz(Xyz.of(1.2, 2, -2, 1).normalize(), 1.0, 0, 0, 0);
+		ColorAssert.xyz(Xyz.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
+		ColorAssert.xyz(Xyz.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
+		ColorAssert.xyz(Xyz.of(0.5, 0.5, 1.5).normalize(), 0.5, 0.5, 1.5);
+		ColorAssert.xyz(Xyz.of(0, 2.0, 0.5).normalize(), 1.0, 0, 1, 0.25);
+		ColorAssert.xyz(Xyz.of(1.2, 2, -2, 1).normalize(), 1.0, 0, 0, 0);
 	}
 }

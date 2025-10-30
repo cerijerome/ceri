@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.except.Exceptions;
 import ceri.common.util.Validate;
 
@@ -164,7 +164,7 @@ public interface ByteReceiver {
 	 * Sets bytes at given index. Returns the index after the written bytes.
 	 */
 	default int setBytes(int index, int... array) {
-		return copyFrom(index, ArrayUtil.bytes.of(array));
+		return copyFrom(index, Array.bytes.of(array));
 	}
 
 	/**
@@ -178,7 +178,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setShort(int index, int value) {
-		return setEndian(index, Short.BYTES, value, ByteUtil.IS_BIG_ENDIAN);
+		return setEndian(index, Short.BYTES, value, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -200,7 +200,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setInt(int index, int value) {
-		return setEndian(index, Integer.BYTES, value, ByteUtil.IS_BIG_ENDIAN);
+		return setEndian(index, Integer.BYTES, value, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -222,7 +222,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setLong(int index, long value) {
-		return setEndian(index, Long.BYTES, value, ByteUtil.IS_BIG_ENDIAN);
+		return setEndian(index, Long.BYTES, value, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -290,7 +290,7 @@ public interface ByteReceiver {
 	 * this method.
 	 */
 	default int setEndian(int index, int size, long value, boolean msb) {
-		byte[] bytes = msb ? ByteUtil.toMsb(value, size) : ByteUtil.toLsb(value, size);
+		byte[] bytes = msb ? Bytes.toMsb(value, size) : Bytes.toLsb(value, size);
 		return copyFrom(index, bytes);
 	}
 

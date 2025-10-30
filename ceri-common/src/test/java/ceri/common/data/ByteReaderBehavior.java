@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
 public class ByteReaderBehavior {
-	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
+	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
 	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());
@@ -127,7 +127,7 @@ public class ByteReaderBehavior {
 	}
 
 	private static ByteReader reader(int... bytes) {
-		return reader(ArrayUtil.bytes.of(bytes));
+		return reader(Array.bytes.of(bytes));
 	}
 
 	private static ByteReader reader(byte[] bytes) {

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable.Wrap;
 import ceri.common.function.Excepts;
@@ -271,7 +271,7 @@ public class Collectable {
 	 */
 	@SafeVarargs
 	public static <T, C extends Collection<? super T>> C removeAll(C collection, T... ts) {
-		if (!isEmpty(collection) && !ArrayUtil.isEmpty(ts)) collection.removeAll(Arrays.asList(ts));
+		if (!isEmpty(collection) && !Array.isEmpty(ts)) collection.removeAll(Arrays.asList(ts));
 		return collection;
 	}
 }

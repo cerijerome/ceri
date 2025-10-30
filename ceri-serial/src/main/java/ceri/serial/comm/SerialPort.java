@@ -11,7 +11,7 @@ import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.comm.jna.CSerial;
 
 /**
@@ -154,7 +154,7 @@ public class SerialPort implements Serial {
 
 	@Override
 	public void close() {
-		LogUtil.close(in, out, () -> CUnistd.close(fd));
+		Logs.close(in, out, () -> CUnistd.close(fd));
 	}
 
 	private COutputStream createOut(int fd) {

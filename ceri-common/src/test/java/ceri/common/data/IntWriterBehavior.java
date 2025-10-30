@@ -4,14 +4,14 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
 public class IntWriterBehavior {
-	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
+	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final String str = "abc\ud83c\udc39de";
 	private static final int[] cp = str.codePoints().toArray();
 
@@ -27,10 +27,10 @@ public class IntWriterBehavior {
 		assertInts(1, w -> w.writeBool(true), 1);
 		assertInts(1, w -> w.writeInt(MIN_VALUE), MIN_VALUE);
 		assertInts(2, w -> w.writeLong(0xff01007f80L),
-			msb ? ArrayUtil.ints.of(0xff, 0x1007f80) : ArrayUtil.ints.of(0x1007f80, 0xff));
+			msb ? Array.ints.of(0xff, 0x1007f80) : Array.ints.of(0x1007f80, 0xff));
 		assertInts(1, w -> w.writeFloat(Float.intBitsToFloat(0xff01007f)), 0xff01007f);
 		assertInts(2, w -> w.writeDouble(Double.longBitsToDouble(0xff01007f80L)),
-			msb ? ArrayUtil.ints.of(0xff, 0x1007f80) : ArrayUtil.ints.of(0x1007f80, 0xff));
+			msb ? Array.ints.of(0xff, 0x1007f80) : Array.ints.of(0x1007f80, 0xff));
 	}
 
 	@Test

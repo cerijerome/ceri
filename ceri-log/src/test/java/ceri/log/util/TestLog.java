@@ -35,9 +35,9 @@ public class TestLog implements AutoCloseable {
 
 	public static void main(String[] args) {
 		testLogUtil(1);
-		try (var testLog0 = TestLog.of(LogUtil.class)) {
+		try (var testLog0 = TestLog.of(Logs.class)) {
 			testLogUtil(2);
-			try (var testLog1 = TestLog.of(LogUtil.class)) {
+			try (var testLog1 = TestLog.of(Logs.class)) {
 				testLogUtil(3);
 				System.out.println(Text.prefixLines("[1] ", testLog1.read()));
 			}
@@ -49,7 +49,7 @@ public class TestLog implements AutoCloseable {
 	}
 
 	private static void testLogUtil(int i) {
-		LogUtil.close((AutoCloseable) () -> {
+		Logs.close((AutoCloseable) () -> {
 			throw new IOException("" + i);
 		});
 	}
@@ -59,7 +59,7 @@ public class TestLog implements AutoCloseable {
 	}
 
 	public static TestLog of(Class<?> cls) {
-		return of(LogUtil.loggerName(cls), cls.getSimpleName() + ".log");
+		return of(Logs.loggerName(cls), cls.getSimpleName() + ".log");
 	}
 
 	public static TestLog of(String loggerName, String logFileName) {

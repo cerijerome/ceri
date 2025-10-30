@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.function.Supplier;
 import ceri.common.function.Functions;
 import ceri.common.util.Capability;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 
@@ -18,7 +18,7 @@ public interface RpcService extends BindableService, Capability.Name, AutoClosea
 	@SuppressWarnings("resource")
 	static Container start(Supplier<? extends RpcService> serviceSupplier, RpcServer.Config config)
 		throws IOException {
-		return LogUtil.acceptOrClose(container(serviceSupplier, config), Container::start);
+		return Logs.acceptOrClose(container(serviceSupplier, config), Container::start);
 	}
 
 	static Container container(Supplier<? extends RpcService> serviceSupplier,
@@ -59,7 +59,7 @@ public interface RpcService extends BindableService, Capability.Name, AutoClosea
 
 		@Override
 		public void close() {
-			LogUtil.close(server, service);
+			Logs.close(server, service);
 		}
 
 		@Override
@@ -79,7 +79,7 @@ public interface RpcService extends BindableService, Capability.Name, AutoClosea
 
 		@Override
 		default ServerServiceDefinition bindService() {
-			return RpcServiceUtil.NULL_SERVICE_DEFINITION;
+			return RpcServices.NULL_SERVICE_DEFINITION;
 		}
 
 		@Override

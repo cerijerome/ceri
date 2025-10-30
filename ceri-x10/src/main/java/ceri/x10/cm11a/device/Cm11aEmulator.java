@@ -6,7 +6,7 @@ import ceri.common.event.Listeners;
 import ceri.common.function.Enclosure;
 import ceri.common.io.StateChange;
 import ceri.log.concurrent.Dispatcher;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.x10.command.Command;
 import ceri.x10.util.X10Controller;
 
@@ -40,6 +40,6 @@ public class Cm11aEmulator implements Cm11a {
 
 	@Override
 	public void close() {
-		LogUtil.close(dispatcher);
+		Logs.close(dispatcher);
 	}
 }

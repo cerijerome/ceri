@@ -27,7 +27,7 @@ import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaOs;
 
@@ -69,7 +69,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetParityForLinux() {
-		JnaTestUtil.testAsOs(JnaOs.linux, SetParityForLinux.class, CSerial.class, CTermios.class,
+		JnaTesting.testAsOs(JnaOs.linux, SetParityForLinux.class, CSerial.class, CTermios.class,
 			CFcntl.class, CIoctl.class, CLib.class, CSerialTestHelper.class, TestCLibNative.class);
 	}
 

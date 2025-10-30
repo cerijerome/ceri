@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsbException;
 
@@ -147,7 +147,7 @@ public class UsbHotPlug implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(() -> LibUsb.libusb_hotplug_deregister_callback(usb.context(), handle));
+		Logs.close(() -> LibUsb.libusb_hotplug_deregister_callback(usb.context(), handle));
 		Reference.reachabilityFence(jnaCallback);
 	}
 

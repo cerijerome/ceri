@@ -27,7 +27,7 @@ public class CloseableTracker {
 	}
 
 	public void close() {
-		LogUtil.closeReversed(tracked);
+		Logs.closeReversed(tracked);
 	}
 
 }

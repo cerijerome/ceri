@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.reflect.Reflect;
@@ -40,7 +40,7 @@ public class UdpChannelBehavior {
 		Assert.array(udp1.select(5).bytes(), 1, 2, 3);
 		udp1.send("localhost", udp0.port, ByteArray.Mutable.wrap(3, 2, 1));
 		Assert.array(udp0.select(5).bytes(), 3, 2, 1);
-		udp0.send(NetUtil.localAddress(), udp1.port, ByteProvider.of(1, 3, 2));
+		udp0.send(Net.localAddress(), udp1.port, ByteProvider.of(1, 3, 2));
 		Assert.array(udp1.select(5).bytes(), 1, 3, 2);
 	}
 
@@ -56,7 +56,7 @@ public class UdpChannelBehavior {
 	@Test
 	public void shouldJoinMulticastGroup() throws IOException {
 		if (!isNetworkAvailable()) return;
-		var multicastAddress = InetAddress.getByAddress(ArrayUtil.bytes.of(239, 255, 1, 1));
+		var multicastAddress = InetAddress.getByAddress(Array.bytes.of(239, 255, 1, 1));
 		udp0 = UdpChannel.of(0);
 		udp1 = UdpChannel.of(0);
 		Assert.yes(udp1.join(multicastAddress));
@@ -75,7 +75,7 @@ public class UdpChannelBehavior {
 	}
 
 	private static boolean isNetworkAvailable() throws IOException {
-		if (NetUtil.localInterface() != null) return true;
+		if (Net.localInterface() != null) return true;
 		var caller = Reflect.previousCaller(1);
 		System.err.printf("Network unavailable for test: %s.%s\n", caller.cls, caller.method);
 		return false;

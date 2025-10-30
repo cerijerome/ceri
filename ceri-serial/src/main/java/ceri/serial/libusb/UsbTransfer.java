@@ -15,8 +15,8 @@ import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Validate;
 import ceri.jna.type.Struct;
-import ceri.jna.util.JnaUtil;
-import ceri.log.util.LogUtil;
+import ceri.jna.util.Jna;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_control_setup;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
@@ -210,7 +210,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_streams(handle.handle(), endPointBytes));
+			Logs.close(() -> LibUsb.libusb_free_streams(handle.handle(), endPointBytes));
 		}
 
 		private int validEndPoint(int endPoint) {
@@ -425,7 +425,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 	}
 
 	public T buffer(ByteBuffer buffer) {
-		transfer().buffer = JnaUtil.pointer(buffer);
+		transfer().buffer = Jna.pointer(buffer);
 		this.buffer = buffer;
 		return typedThis();
 	}
@@ -446,7 +446,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 
 	@Override
 	public void close() {
-		LogUtil.close(() -> LibUsb.libusb_free_transfer(transfer));
+		Logs.close(() -> LibUsb.libusb_free_transfer(transfer));
 		transfer = null;
 	}
 
@@ -481,7 +481,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 	private libusb_transfer_cb_fn adaptCallback(Consumer<? super T> callback) {
 		return callback == null ? null : _ -> {
 			libusb_transfer_cb_fn.read(transfer());
-			LogUtil.runSilently(() -> callback.accept(typedThis()));
+			Logs.runSilently(() -> callback.accept(typedThis()));
 		};
 	}
 
@@ -491,7 +491,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		try {
 			return function.apply(transfer);
 		} catch (LibUsbException | RuntimeException e) {
-			LogUtil.close(() -> LibUsb.libusb_free_transfer(transfer));
+			Logs.close(() -> LibUsb.libusb_free_transfer(transfer));
 			throw e;
 		}
 	}

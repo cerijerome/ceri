@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
@@ -203,7 +203,7 @@ public class Regex {
 		 */
 		public static <E extends Exception> String[] array(Pattern p, CharSequence s, int limit,
 			Excepts.Function<? extends E, ? super String, String> modifier) throws E {
-			if (p == null || Strings.isEmpty(s)) return ArrayUtil.Empty.strings;
+			if (p == null || Strings.isEmpty(s)) return Array.Empty.strings;
 			var split = p.split(s, limit);
 			if (modifier != null) for (int i = 0; i < split.length; i++)
 				split[i] = modifier.apply(split[i]);
@@ -390,7 +390,7 @@ public class Regex {
 	 * Compiles a pattern from joined strings.
 	 */
 	public static Pattern compile(Joiner joiner, Object... objs) {
-		if (joiner == null || ArrayUtil.isEmpty(objs)) return EMPTY;
+		if (joiner == null || Array.isEmpty(objs)) return EMPTY;
 		return Pattern.compile(joiner.joinAll(objs));
 	}
 

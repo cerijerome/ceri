@@ -1,7 +1,7 @@
 package ceri.common.collect;
 
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -74,7 +74,7 @@ public class SplitRangeBehavior {
 
 	@Test
 	public void shouldFindFromManyIndexes() {
-		var range = SplitRange.from(ArrayUtil.ints.fill(new int[300], 10));
+		var range = SplitRange.from(Array.ints.fill(new int[300], 10));
 		Assert.equal(range.index(-1), -1);
 		Assert.equal(range.index(0), 0);
 		Assert.equal(range.index(1000), 100);
@@ -84,7 +84,7 @@ public class SplitRangeBehavior {
 
 	@Test
 	public void shouldFindFromIndexes() {
-		var range = SplitRange.from(ArrayUtil.ints.fill(new int[100], 10));
+		var range = SplitRange.from(Array.ints.fill(new int[100], 10));
 		Assert.equal(range.length, 1000);
 		Assert.equal(range.index(-1), -1);
 		Assert.equal(range.index(0), 0);

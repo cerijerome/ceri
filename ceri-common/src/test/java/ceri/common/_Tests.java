@@ -10,7 +10,7 @@ import ceri.common.test.Testing;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// array
-	ceri.common.array.ArrayUtilTest.class, //
+	ceri.common.array.ArrayTest.class, //
 	ceri.common.array.DynamicArrayBehavior.class, //
 	ceri.common.array.PrimitiveArrayBehavior.class, //
 	ceri.common.array.RawArrayTest.class, //
@@ -68,11 +68,11 @@ import ceri.common.test.Testing;
 	ceri.common.data.ByteReaderBehavior.class, //
 	ceri.common.data.ByteReceiverBehavior.class, //
 	ceri.common.data.ByteStreamBehavior.class, //
-	ceri.common.data.ByteUtilTest.class, //
+	ceri.common.data.BytesTest.class, //
 	ceri.common.data.ByteWriterBehavior.class, //
 	ceri.common.data.CrcAlgorithmBehavior.class, //
 	ceri.common.data.CrcBehavior.class, //
-	ceri.common.data.DataUtilTest.class, //
+	ceri.common.data.DataTest.class, //
 	ceri.common.data.FieldBehavior.class, //
 	ceri.common.data.IntAccessorBehavior.class, //
 	ceri.common.data.IntArrayBehavior.class, //
@@ -141,7 +141,7 @@ import ceri.common.test.Testing;
 	ceri.common.io.FixableBehavior.class, //
 	ceri.common.io.IoExceptionsBehavior.class, //
 	ceri.common.io.IoStreamTest.class, //
-	ceri.common.io.IoUtilTest.class, //
+	ceri.common.io.IoTest.class, //
 	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.LineReaderBehavior.class, //
 	ceri.common.io.NioTest.class, //
@@ -170,16 +170,16 @@ import ceri.common.test.Testing;
 	ceri.common.math.TrigTest.class, //
 	// net
 	ceri.common.net.AddressTypeBehavior.class, //
-	ceri.common.net.EmailUtilTest.class, //
+	ceri.common.net.EmailsTest.class, //
 	ceri.common.net.HostPortBehavior.class, //
-	ceri.common.net.NetUtilTest.class, //
+	ceri.common.net.NetTest.class, //
 	ceri.common.net.ReplaceableTcpSocketBehavior.class, //
 	ceri.common.net.TcpServerSocketBehavior.class, //
 	ceri.common.net.TcpSocketBehavior.class, //
 	ceri.common.net.TcpSocketOptionBehavior.class, //
 	ceri.common.net.TcpSocketOptionsBehavior.class, //
 	ceri.common.net.UdpChannelBehavior.class, //
-	ceri.common.net.UdpUtilTest.class, //
+	ceri.common.net.UdpTest.class, //
 	ceri.common.net.UrlsTest.class, //
 	// process
 	ceri.common.process.ColumnsBehavior.class, //
@@ -191,7 +191,7 @@ import ceri.common.test.Testing;
 	ceri.common.property.KeyBehavior.class, //
 	ceri.common.property.ParserBehavior.class, //
 	ceri.common.property.PropertySourceBehavior.class, //
-	ceri.common.property.PropertyUtilTest.class, //
+	ceri.common.property.PropertyTest.class, //
 	ceri.common.property.SeparatorBehavior.class, //
 	ceri.common.property.TypedPropertiesBehavior.class, //
 	// reflect
@@ -285,7 +285,7 @@ import ceri.common.test.Testing;
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocalesTest.class, //
-	ceri.common.util.OsUtilTest.class, //
+	ceri.common.util.OsTest.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
 	ceri.common.util.TruthBehavior.class, //

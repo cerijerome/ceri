@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
@@ -62,7 +62,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default short readShort() {
-		return (short) readEndian(Short.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return (short) readEndian(Short.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default int readInt() {
-		return (int) readEndian(Integer.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return (int) readEndian(Integer.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default long readLong() {
-		return readEndian(Long.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return readEndian(Long.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public interface ByteReader {
 	 */
 	default long readEndian(int size, boolean msb) {
 		byte[] bytes = readBytes(size);
-		return msb ? ByteUtil.fromMsb(bytes) : ByteUtil.fromLsb(bytes);
+		return msb ? Bytes.fromMsb(bytes) : Bytes.fromLsb(bytes);
 	}
 
 	/**
@@ -248,7 +248,7 @@ public interface ByteReader {
 	 * Reads a copied array of bytes.
 	 */
 	default byte[] readBytes(int length) {
-		if (length == 0) return ArrayUtil.bytes.empty;
+		if (length == 0) return Array.bytes.empty;
 		byte[] copy = new byte[length];
 		readInto(copy);
 		return copy;

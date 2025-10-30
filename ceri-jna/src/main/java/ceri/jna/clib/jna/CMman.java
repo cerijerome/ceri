@@ -3,7 +3,7 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Pointer;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.reflect.CAnnotations.CInclude;
 
@@ -54,7 +54,7 @@ public class CMman {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.os().mac) {
+		if (Os.info().mac) {
 			MAP_ANONYMOUS = 0x1000;
 			MAP_NORESERVE = 0x0040;
 		} else {

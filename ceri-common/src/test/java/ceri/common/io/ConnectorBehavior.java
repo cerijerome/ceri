@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.test.Assert;
 import ceri.common.test.TestConnector;
 
@@ -29,7 +29,7 @@ public class ConnectorBehavior {
 			var w = new Connector.Wrapper<>(con);
 			w.open();
 			Assert.read(w.in(), 1, 2, 3);
-			w.out().write(ArrayUtil.bytes.of(4, 5, 6));
+			w.out().write(Array.bytes.of(4, 5, 6));
 			Assert.read(con.out.from, 4, 5, 6);
 		}
 	}

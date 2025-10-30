@@ -100,7 +100,7 @@ public class ByteStream {
 
 		@Override
 		public Writer fill(int length, int value) {
-			return writeFrom(ByteUtil.fill(length, value));
+			return writeFrom(Bytes.fill(length, value));
 		}
 
 		@Override

@@ -1,7 +1,5 @@
 package ceri.serial.ftdi;
 
-import static ceri.jna.test.JnaTestUtil.assertMemory;
-import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type.BREAK_ON;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type.BITS_7;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.ODD;
@@ -23,15 +21,16 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.data.ByteWriter;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.jna.test.JnaAssert;
 import ceri.jna.util.GcMemory;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.jna.LibFtdi;
@@ -149,13 +148,13 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldWriteData() throws IOException {
 		ftdi = open();
-		ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3));
-		ftdi.out().write(ArrayUtil.bytes.of(4, 5));
+		ftdi.out().write(Array.bytes.of(1, 2, 3));
+		ftdi.out().write(Array.bytes.of(4, 5));
 		lib.transferOut.assertValues( //
 			List.of(0x02, ByteProvider.of(1, 2, 3)), //
 			List.of(0x02, ByteProvider.of(4, 5)));
 		lib.transferOut.autoResponses((Integer) null); // set transferred to 0
-		Assert.thrown(() -> ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3))); // incomplete i/o
+		Assert.thrown(() -> ftdi.out().write(Array.bytes.of(1, 2, 3))); // incomplete i/o
 	}
 
 	@SuppressWarnings("resource")
@@ -215,7 +214,7 @@ public class FtdiDeviceBehavior {
 		var m = GcMemory.malloc(5).clear();
 		var control = ftdi.readSubmit(m.m, 5);
 		Assert.equal(control.dataDone(), 5);
-		assertMemory(m.m, 0, 3, 4, 7, 8, 11); // 2-byte gaps for chunk headers
+		JnaAssert.memory(m.m, 0, 3, 4, 7, 8, 11); // 2-byte gaps for chunk headers
 	}
 
 	@Test
@@ -229,7 +228,7 @@ public class FtdiDeviceBehavior {
 			var m = GcMemory.malloc(5).clear();
 			var control = ftdi.readSubmit(m.m, 5);
 			Assert.equal(control.dataDone(), 4);
-			assertPointer(m.m, 0, 3, 4, 7, 8); // 2 chunks successful
+			JnaAssert.pointer(m.m, 0, 3, 4, 7, 8); // 2 chunks successful
 		}, Level.OFF, LibFtdi.class);
 	}
 
@@ -239,7 +238,7 @@ public class FtdiDeviceBehavior {
 		ftdi.readChunkSize(8);
 		var m = GcMemory.malloc(5).clear();
 		lib.handleTransferEvent.autoResponse(te -> {
-			te.buffer().put(ArrayUtil.bytes.of(1, 2, 3, 4, 5, 6, 7));
+			te.buffer().put(Array.bytes.of(1, 2, 3, 4, 5, 6, 7));
 			return LIBUSB_TRANSFER_COMPLETED;
 		});
 		var control = ftdi.readSubmit(m.m, 5);
@@ -268,10 +267,9 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldUpdateStreamProgress() throws LibUsbException {
 		ftdi = openFtdiForStreaming(0x700, 5);
-		AtomicInteger n = new AtomicInteger();
+		var n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
-		CallSync.Function<FtdiProgressInfo, Boolean> sync =
-			CallSync.function(null, true, true, false);
+		var sync = CallSync.<FtdiProgressInfo, Boolean>function(null, true, true, false);
 		FtdiDevice.StreamCallback callback = (prog, _) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();
@@ -297,7 +295,7 @@ public class FtdiDeviceBehavior {
 		ByteWriter<?> writer) {
 		Assert.equal(te.endPoint(), endpoint);
 		Assert.equal(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
-		writer.writeFrom(ByteUtil.bytes(te.buffer()));
+		writer.writeFrom(Bytes.bytes(te.buffer()));
 		return LIBUSB_TRANSFER_COMPLETED;
 	}
 
@@ -311,7 +309,7 @@ public class FtdiDeviceBehavior {
 
 	private static boolean collect(ByteArray.Encoder encoder, ByteBuffer buffer, int max) {
 		if (buffer == null) return true;
-		encoder.writeFrom(ByteUtil.bytes(buffer));
+		encoder.writeFrom(Bytes.bytes(buffer));
 		return encoder.length() < max;
 	}
 

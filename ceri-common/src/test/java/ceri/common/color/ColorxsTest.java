@@ -1,7 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertColorx;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
@@ -142,7 +140,7 @@ public class ColorxsTest {
 		var c10 = Colorxs.blend(c1, c0);
 		var c21_0 = Colorxs.blend(c21, c0);
 		var c2_10 = Colorxs.blend(c2, c10);
-		ColorTestUtil.assertXargbDiff(c21_0.xargb(), c2_10.xargb(), 1);
+		ColorAssert.xargbDiff(c21_0.xargb(), c2_10.xargb(), 1);
 	}
 
 	@Test
@@ -154,7 +152,7 @@ public class ColorxsTest {
 		var c10 = Colorxs.blendXargbs(c1, c0);
 		var c21_0 = Colorxs.blendXargbs(c21, c0);
 		var c2_10 = Colorxs.blendXargbs(c2, c10);
-		ColorTestUtil.assertXargbDiff(c21_0, c2_10, 1);
+		ColorAssert.xargbDiff(c21_0, c2_10, 1);
 	}
 
 	@Test
@@ -175,21 +173,21 @@ public class ColorxsTest {
 
 	@Test
 	public void testColorxFromText() {
-		assertColorx(Colorxs.colorx("test"), null);
-		assertColorx(Colorxs.colorx("full"), Colorx.full);
+		ColorAssert.colorx(Colorxs.colorx("test"), null);
+		ColorAssert.colorx(Colorxs.colorx("full"), Colorx.full);
 	}
 
 	@Test
 	public void testValidColorxFromText() {
 		Assert.thrown(() -> Colorxs.validColorx("test"));
-		assertColorx(Colorxs.validColorx("full"), Colorx.full);
+		ColorAssert.colorx(Colorxs.validColorx("full"), Colorx.full);
 	}
 
 	@Test
 	public void testMax() {
-		assertColorx(Colorxs.max(Colorx.clear), 0L);
-		assertColorx(Colorxs.max(Colorx.full), Colorx.full);
-		assertColorx(Colorxs.max(Colorx.of(0x101ff010101L)), Colorx.fullX01);
+		ColorAssert.colorx(Colorxs.max(Colorx.clear), 0L);
+		ColorAssert.colorx(Colorxs.max(Colorx.full), Colorx.full);
+		ColorAssert.colorx(Colorxs.max(Colorx.of(0x101ff010101L)), Colorx.fullX01);
 	}
 
 	@Test
@@ -201,18 +199,18 @@ public class ColorxsTest {
 
 	@Test
 	public void testDim() {
-		assertColorx(Colorxs.dim(Colorx.of(0xeeccaa88ff664422L), 0.0), 0xff000000L);
-		assertColorx(Colorxs.dim(Colorx.of(0xeeccaa88ff664422L), 1.0), 0xeeccaa88ff664422L);
-		assertColorx(Colorxs.dim(Colorx.of(0xeeccaa88ff664422L), 0.5), 0x77665544ff332211L);
+		ColorAssert.colorx(Colorxs.dim(Colorx.of(0xeeccaa88ff664422L), 0.0), 0xff000000L);
+		ColorAssert.colorx(Colorxs.dim(Colorx.of(0xeeccaa88ff664422L), 1.0), 0xeeccaa88ff664422L);
+		ColorAssert.colorx(Colorxs.dim(Colorx.of(0xeeccaa88ff664422L), 0.5), 0x77665544ff332211L);
 	}
 
 	@Test
 	public void testScale() {
-		assertColorx(Colorxs.scale(Colorx.of(0xffddbb99ff224466L), //
+		ColorAssert.colorx(Colorxs.scale(Colorx.of(0xffddbb99ff224466L), //
 			Colorx.of(0x99bbddffff446622L), 0), 0xffddbb99ff224466L);
-		assertColorx(Colorxs.scale(Colorx.of(0xffddbb99ff224466L), //
+		ColorAssert.colorx(Colorxs.scale(Colorx.of(0xffddbb99ff224466L), //
 			Colorx.of(0x99bbddffff446622L), 1), 0x99bbddffff446622L);
-		assertColorx(Colorxs.scale(Colorx.of(0xffddbb99ff224466L), //
+		ColorAssert.colorx(Colorxs.scale(Colorx.of(0xffddbb99ff224466L), //
 			Colorx.of(0x99bbddffff446622L), 0.5), 0xccccccccff335544L);
 	}
 
@@ -308,7 +306,7 @@ public class ColorxsTest {
 
 	@Test
 	public void testDenormalize() {
-		assertColorx(
+		ColorAssert.colorx(
 			Colorxs.denormalize(Color.white, Color.gray, Color.red, Color.green, Color.blue),
 			0x7f7f7fffff000000L);
 	}
@@ -338,7 +336,7 @@ public class ColorxsTest {
 
 	@Test
 	public void testNormalize() {
-		assertColor(Colorxs.normalize(Colorx.of(0x7f7f7fffff000000L), Color.gray, Color.red,
+		ColorAssert.color(Colorxs.normalize(Colorx.of(0x7f7f7fffff000000L), Color.gray, Color.red,
 			Color.green, Color.blue), Color.white);
 	}
 
@@ -370,7 +368,8 @@ public class ColorxsTest {
 
 	@Test
 	public void testApplyColorFunction() {
-		assertColorx(Colorxs.apply(Colorx.of(0x8040ffff00ffL), Color::darker), 0x8040ffb200b2L);
+		ColorAssert
+			.colorx(Colorxs.apply(Colorx.of(0x8040ffff00ffL), Color::darker), 0x8040ffb200b2L);
 	}
 
 	private static void exerciseCompare(Comparator<Colorx> comparator, long cx, long lt, long eq,

@@ -10,9 +10,9 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.concurrent.Concurrent;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
@@ -48,12 +48,12 @@ public class LibFtdiTester {
 	private static void read(ftdi_context ftdi) throws LibUsbException {
 		logger.info("Reading");
 		int value = ftdi_read_pins(ftdi);
-		logger.info("Read: 0x{}", LogUtil.toHex(value));
+		logger.info("Read: 0x{}", Logs.toHex(value));
 	}
 
 	private static void write(ftdi_context ftdi, int value) throws LibUsbException {
 		logger.info("Writing");
-		int n = ftdi_write_data(ftdi, ByteBuffer.wrap(ArrayUtil.bytes.of(value)), 1);
+		int n = ftdi_write_data(ftdi, ByteBuffer.wrap(Array.bytes.of(value)), 1);
 		logger.info("Write: {} byte(s)", n);
 	}
 }

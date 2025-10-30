@@ -6,11 +6,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functional;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Pipe;
 import ceri.jna.clib.Poll;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * A pipe used to interrupt a blocking C poll(). Can be applied to multiple poll fds.
@@ -25,7 +25,7 @@ public class SyncPipe implements Functions.Closeable {
 	 */
 	@SuppressWarnings("resource")
 	public static SyncPipe of() throws IOException {
-		return LogUtil.applyOrClose(Pipe.of(), pipe -> {
+		return Logs.applyOrClose(Pipe.of(), pipe -> {
 			pipe.blocking(false);
 			return new SyncPipe(pipe);
 		});
@@ -36,7 +36,7 @@ public class SyncPipe implements Functions.Closeable {
 	 */
 	@SuppressWarnings("resource")
 	public static SyncPipe.Fixed of(Poll.Fd pollFd) throws IOException {
-		return LogUtil.applyOrClose(of(), sync -> {
+		return Logs.applyOrClose(of(), sync -> {
 			sync.init(pollFd);
 			return new Fixed(sync, pollFd);
 		});
@@ -165,7 +165,7 @@ public class SyncPipe implements Functions.Closeable {
 	 * Clear any tokens written to the pipe.
 	 */
 	public void clear() {
-		if (!closed.get()) Functional.muteRun(() -> IoUtil.clear(pipe.in()));
+		if (!closed.get()) Functional.muteRun(() -> Io.clear(pipe.in()));
 		sync.set(false);
 	}
 
@@ -173,7 +173,7 @@ public class SyncPipe implements Functions.Closeable {
 	public void close() {
 		if (closed.getAndSet(true)) return;
 		Closeables.close(this::write); // ignore failure
-		LogUtil.close(pipe); // log failure
+		Logs.close(pipe); // log failure
 	}
 
 	private boolean closed() {

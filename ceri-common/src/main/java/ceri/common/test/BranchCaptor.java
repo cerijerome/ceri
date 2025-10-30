@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.util.Set;
 import ceri.common.collect.Sets;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 
 /**
  * Class to help analyze missed branches in code coverage. Compare the captor results with
@@ -46,7 +46,7 @@ public class BranchCaptor {
 		if (size > 0) for (int i = 0; i < 1 << size; i++) {
 			var b = new StringBuilder();
 			for (int j = 0; j < size; j++)
-				b.append(symbol(ByteUtil.bit(i, j)));
+				b.append(symbol(Bytes.bit(i, j)));
 			var s = b.toString();
 			if (!branches.contains(s)) missing.add(s);
 		}

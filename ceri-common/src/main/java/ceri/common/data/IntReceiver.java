@@ -156,14 +156,14 @@ public interface IntReceiver {
 	 * Sets the value in native-order ints at the index. Returns the index after the written ints.
 	 */
 	default int setLong(int index, long value) {
-		return setLong(index, value, ByteUtil.IS_BIG_ENDIAN);
+		return setLong(index, value, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Sets the value in endian ints at the index. Returns the index after the written ints.
 	 */
 	default int setLong(int index, long value, boolean msb) {
-		int[] ints = msb ? IntUtil.longToMsb(value) : IntUtil.longToLsb(value);
+		int[] ints = msb ? Ints.longToMsb(value) : Ints.longToLsb(value);
 		return setInts(index, ints);
 	}
 

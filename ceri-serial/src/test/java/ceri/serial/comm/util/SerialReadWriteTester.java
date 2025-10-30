@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.math.Maths;
 import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
@@ -32,10 +32,10 @@ public class SerialReadWriteTester {
 	}
 
 	public static void main(String[] args) throws Exception {
-		var ports = SerialTestUtil.usbPorts(2);
-		try (var x1 = SerialTestUtil.execSelfHealing(ports[0], BAUD1, s -> readWrite(s))) {
+		var ports = SerialTesting.usbPorts(2);
+		try (var x1 = SerialTesting.execSelfHealing(ports[0], BAUD1, s -> readWrite(s))) {
 			Concurrent.delay(CYCLE_DIFF_MS);
-			try (var x2 = SerialTestUtil.execSelfHealing(ports[1], BAUD1, s -> readWrite(s))) {
+			try (var x2 = SerialTesting.execSelfHealing(ports[1], BAUD1, s -> readWrite(s))) {
 				x2.get();
 				x1.get();
 			}
@@ -65,7 +65,7 @@ public class SerialReadWriteTester {
 
 	@SuppressWarnings("resource")
 	private static void readString(Serial serial) throws IOException {
-		String s = IoUtil.availableString(serial.in());
+		String s = Io.availableString(serial.in());
 		if (s.isEmpty()) return;
 		if (s.codePoints().filter(i -> i < CHAR_MIN || i > CHAR_MAX).findAny().isEmpty())
 			logger.info("%s: %s", serial.port(), s);

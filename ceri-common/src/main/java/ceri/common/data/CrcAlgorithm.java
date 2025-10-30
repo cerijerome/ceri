@@ -23,7 +23,7 @@ import ceri.common.math.Maths;
  */
 public class CrcAlgorithm {
 	private static final int CACHE_SIZE = 1 << Byte.SIZE;
-	public static final ByteProvider checkBytes = ByteUtil.toAscii("123456789");
+	public static final ByteProvider checkBytes = Bytes.toAscii("123456789");
 	// Algorithm parameters
 	public final int width;
 	public final long poly;
@@ -180,8 +180,8 @@ public class CrcAlgorithm {
 		width = builder.width;
 		refIn = builder.refIn;
 		refOut = builder.refOut;
-		mask = ByteUtil.mask(width);
-		poly = (builder.powers != null ? ByteUtil.maskOfBits(builder.powers) : builder.poly) & mask;
+		mask = Bytes.mask(width);
+		poly = (builder.powers != null ? Bytes.maskOfBits(builder.powers) : builder.poly) & mask;
 		xorOut = builder.xorOut & mask;
 		init = reverse(refOut, builder.init);
 		lastBit = 1L << (width - 1);
@@ -230,7 +230,7 @@ public class CrcAlgorithm {
 	 * Used by Crc object to process one byte.
 	 */
 	long apply(long crc, byte val) {
-		return mask(entry(ByteUtil.shiftBits(crc, shift1) ^ val) ^ ByteUtil.shiftBits(crc, shift2));
+		return mask(entry(Bytes.shiftBits(crc, shift1) ^ val) ^ Bytes.shiftBits(crc, shift2));
 	}
 
 	@Override
@@ -275,14 +275,14 @@ public class CrcAlgorithm {
 		byte[] entries = new byte[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = (byte) createEntry(i);
-		return i -> entries[Maths.ubyte(i)] & ByteUtil.BYTE_MASK;
+		return i -> entries[Maths.ubyte(i)] & Bytes.BYTE_MASK;
 	}
 
 	private EntryAccessor intCache() {
 		int[] entries = new int[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = (int) createEntry(i);
-		return i -> entries[Maths.ubyte(i)] & ByteUtil.INT_MASK;
+		return i -> entries[Maths.ubyte(i)] & Bytes.INT_MASK;
 	}
 
 	private EntryAccessor longCache() {
@@ -297,13 +297,13 @@ public class CrcAlgorithm {
 	}
 
 	private long createEntry(long r) {
-		r = ByteUtil.shiftBits(reverse(refIn, r), shift0);
+		r = Bytes.shiftBits(reverse(refIn, r), shift0);
 		for (int i = 0; i < Byte.SIZE; i++)
 			r = (r & lastBit) != 0 ? r = (r << 1) ^ poly : r << 1;
 		return mask(reverse(refOut, r));
 	}
 
 	private long reverse(boolean reverse, long value) {
-		return reverse ? ByteUtil.reverse(value, width) : value;
+		return reverse ? Bytes.reverse(value, width) : value;
 	}
 }

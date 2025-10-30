@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Iterables;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.SimpleExecutor;
@@ -27,7 +27,7 @@ import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.io.Resource;
 import ceri.common.math.Maths;
-import ceri.common.property.PropertyUtil;
+import ceri.common.property.Property;
 import ceri.common.property.TypedProperties;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
@@ -274,7 +274,7 @@ public class Testing {
 	 */
 	public static TypedProperties properties(Class<?> cls, String name, String... prefix) {
 		var text = init(() -> Resource.string(cls, name + ".properties"));
-		return TypedProperties.from(PropertyUtil.parse(text), prefix);
+		return TypedProperties.from(Property.parse(text), prefix);
 	}
 
 	/**
@@ -361,7 +361,7 @@ public class Testing {
 	 * Creates a test input stream with given bytes.
 	 */
 	public static ByteArrayInputStream inputStream(int... bytes) {
-		return new ByteArrayInputStream(ArrayUtil.bytes.of(bytes));
+		return new ByteArrayInputStream(Array.bytes.of(bytes));
 	}
 
 	/**

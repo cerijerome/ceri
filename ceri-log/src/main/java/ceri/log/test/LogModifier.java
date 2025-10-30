@@ -8,7 +8,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.function.Excepts;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Use to temporarily change log level during tests, to prevent noise.
@@ -65,7 +65,7 @@ public class LogModifier implements AutoCloseable {
 
 		public Builder set(Level level, Class<?>... classes) {
 			for (Class<?> cls : classes)
-				set(level, LogUtil.loggerName(cls));
+				set(level, Logs.loggerName(cls));
 			return this;
 		}
 

@@ -5,7 +5,7 @@ import java.io.InputStream;
 import ceri.common.data.ByteArray;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.text.Strings;
 import ceri.common.time.TimeSupplier;
 import ceri.common.time.Timer;
@@ -135,7 +135,7 @@ public class Processor {
 
 	private String waitFor(Process process, Parameters parameters) throws IOException {
 		if (captureStdOut) return waitForCapture(process, parameters);
-		waitForProcess(process, parameters, IoUtil::clear);
+		waitForProcess(process, parameters, Io::clear);
 		return "";
 	}
 

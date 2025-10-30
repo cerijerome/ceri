@@ -11,7 +11,7 @@ import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
 import ceri.common.time.TimeSpec;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.common.util.StartupValues;
 import ceri.jna.clib.Signal;
 import ceri.jna.clib.jna.CFcntl;
@@ -42,7 +42,7 @@ public class CLibVerifier {
 
 	public static void verifyAll(PrintStream out, String serial) throws IOException {
 		out.println("CLib JNA system check");
-		out.println(OsUtil.os().full());
+		out.println(Os.info().full());
 		verifyFile();
 		verifySignal();
 		verifySigset();
@@ -89,7 +89,7 @@ public class CLibVerifier {
 			CUnistd.write(fds[1], 0);
 			Assert.equal(CPoll.poll(pollfds, 1000), 2);
 			Assert.equal(CPoll.poll(pollfds, -1), 2);
-			if (OsUtil.os().linux) verifyPpoll(pollfds);
+			if (Os.info().linux) verifyPpoll(pollfds);
 			CUnistd.read(fds[0], new byte[1]);
 		} finally {
 			CUnistd.close(fds[0]);

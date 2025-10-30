@@ -4,7 +4,7 @@ import static ceri.common.math.Maths.ubyte;
 import java.util.function.Function;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.jna.type.Struct.Fields;
 
 /**
@@ -55,7 +55,7 @@ public class VarStructTester {
 		public ByteVar(int dummy, int... array) {
 			this.dummy = dummy;
 			this.count = (byte) array.length;
-			this.array = ArrayUtil.bytes.of(array);
+			this.array = Array.bytes.of(array);
 		}
 
 		public ByteVar(Pointer p) {
@@ -85,7 +85,7 @@ public class VarStructTester {
 			this.dummy1 = (byte) dummy1;
 			this.dummy2 = (short) dummy2;
 			this.length = lastOffset + array.length;
-			this.array = ArrayUtil.bytes.of(array);
+			this.array = Array.bytes.of(array);
 		}
 
 		public LenVar(Pointer p) {

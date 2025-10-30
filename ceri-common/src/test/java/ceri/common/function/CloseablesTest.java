@@ -1,6 +1,5 @@
 package ceri.common.function;
 
-import static ceri.common.test.ErrorGen.IOX;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringReader;
@@ -14,6 +13,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
 import ceri.common.test.TestProcess;
@@ -177,7 +177,7 @@ public class CloseablesTest {
 		try (var p = TestProcess.of()) {
 			Assert.yes(Closeables.close(p));
 			p.waitFor.assertCalls(1);
-			p.waitFor.error.setFrom(IOX);
+			p.waitFor.error.setFrom(ErrorGen.IOX);
 			Assert.no(Closeables.close(p));
 		}
 	}
@@ -188,7 +188,7 @@ public class CloseablesTest {
 		try (var exec = TestExecutorService.of()) {
 			Assert.yes(Closeables.close(exec));
 			exec.shutdown.assertAuto(true);
-			exec.shutdown.error.setFrom(IOX);
+			exec.shutdown.error.setFrom(ErrorGen.IOX);
 			Assert.no(Closeables.close(exec));
 		}
 	}
@@ -201,7 +201,7 @@ public class CloseablesTest {
 		f.get.assertCalls(1);
 		f.get.error.set(new CancellationException());
 		Assert.yes(Closeables.close(f));
-		f.get.error.setFrom(IOX);
+		f.get.error.setFrom(ErrorGen.IOX);
 		Assert.no(Closeables.close(f));
 	}
 

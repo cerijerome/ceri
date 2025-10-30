@@ -7,7 +7,7 @@ import com.sun.jna.ptr.ByReference;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.jna.util.JnaArgs;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 /**
  * Extends standard integer type, exposing size and sign, and providing read/write pointer access.
@@ -114,7 +114,7 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	 * Perform a bitwise-and.
 	 */
 	public T and(long value) {
-		JnaUtil.and(this, value);
+		Jna.and(this, value);
 		return typedThis();
 	}
 
@@ -122,7 +122,7 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	 * Perform a bitwise-or.
 	 */
 	public T or(long value) {
-		JnaUtil.or(this, value);
+		Jna.or(this, value);
 		return typedThis();
 	}
 
@@ -130,7 +130,7 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	 * Perform a bitwise-and followed by bitwise-or.
 	 */
 	public T andOr(long and, long or) {
-		JnaUtil.andOr(this, and, or);
+		Jna.andOr(this, and, or);
 		return typedThis();
 	}
 
@@ -138,7 +138,7 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	 * Apply and set the native long value.
 	 */
 	public T apply(Functions.LongOperator operator) {
-		JnaUtil.apply(this, operator);
+		Jna.apply(this, operator);
 		return typedThis();
 	}
 

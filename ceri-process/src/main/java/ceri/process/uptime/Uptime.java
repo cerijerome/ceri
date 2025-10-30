@@ -9,7 +9,7 @@ import ceri.common.process.Processor;
 import ceri.common.text.Parse;
 import ceri.common.text.Regex;
 import ceri.common.time.Dates;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.process.net.Net;
 
 /**
@@ -35,7 +35,7 @@ public class Uptime {
 	 */
 	public static long systemUptimeMs(Processor processor) {
 		try {
-			var os = OsUtil.os();
+			var os = Os.info();
 			if (os.linux || os.mac) return of(processor).uptimeMs().parse();
 			long startTime =
 				Net.of(processor).stats.server().parse().since().toInstant().toEpochMilli();

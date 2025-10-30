@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -80,7 +80,7 @@ public class Lists {
 	 */
 	@SafeVarargs
 	public static <T> List<T> wrap(T... values) {
-		return ArrayUtil.isEmpty(values) ? List.of() : Arrays.asList(values); 
+		return Array.isEmpty(values) ? List.of() : Arrays.asList(values); 
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class Lists {
 	 */
 	public static <T> List<T> sub(List<T> list, int offset, int length) {
 		if (list == null) return Immutable.list();
-		return ArrayUtil.applySlice(Collectable.size(list), offset, length,
+		return Array.applySlice(Collectable.size(list), offset, length,
 			(o, l) -> list.subList(o, o + l));
 	}
 
@@ -234,7 +234,7 @@ public class Lists {
 	 * Fills the list range with the given value.
 	 */
 	public static <T, L extends List<T>> L fill(L list, int offset, int length, T fill) {
-		if (list != null) ArrayUtil.acceptSlice(list.size(), offset, length, (o, l) -> {
+		if (list != null) Array.acceptSlice(list.size(), offset, length, (o, l) -> {
 			for (int i = 0; i < l; i++)
 				list.set(o + i, fill);
 		});
@@ -263,7 +263,7 @@ public class Lists {
 	 */
 	public static <T> List<T> insert(List<T> dest, int index, T[] src, int offset, int length) {
 		if (src == null || dest == null) return dest;
-		return ArrayUtil.applySlice(src.length, offset, length, (o, l) -> {
+		return Array.applySlice(src.length, offset, length, (o, l) -> {
 			int i = Maths.limit(index, 0, dest.size() - 1);
 			dest.addAll(i, Arrays.asList(src).subList(o, o + l));
 			return dest;

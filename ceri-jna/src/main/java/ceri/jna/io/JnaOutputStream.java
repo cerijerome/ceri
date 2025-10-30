@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import com.sun.jna.Memory;
 import ceri.common.io.IoExceptions;
 import ceri.common.util.Validate;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.jna.util.ThreadBuffers;
 
 /**
@@ -81,8 +81,8 @@ public abstract class JnaOutputStream extends OutputStream {
 	private int writeAll(Memory buffer, byte[] b, int off, int len) throws IOException {
 		int rem = len;
 		while (rem > 0) {
-			int n = Math.min(rem, JnaUtil.intSize(buffer));
-			JnaUtil.write(buffer, b, off, n);
+			int n = Math.min(rem, Jna.intSize(buffer));
+			Jna.write(buffer, b, off, n);
 			int m = writeBlock(buffer, n);
 			off += m;
 			rem -= m;
@@ -95,7 +95,7 @@ public abstract class JnaOutputStream extends OutputStream {
 		int off = 0;
 		while (off < len) {
 			@SuppressWarnings("resource")
-			int m = write(JnaUtil.share(buffer, off), len - off);
+			int m = write(Jna.share(buffer, off), len - off);
 			if (m <= 0) break;
 			off += m;
 		}

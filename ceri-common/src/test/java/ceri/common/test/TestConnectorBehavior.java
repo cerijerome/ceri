@@ -1,11 +1,10 @@
 package ceri.common.test;
 
-import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.Connector;
 import ceri.common.io.StateChange;
@@ -28,7 +27,7 @@ public class TestConnectorBehavior {
 	public void shouldEchoToInput() throws IOException {
 		con.open();
 		con.echoOn();
-		con.out().write(ArrayUtil.bytes.of(1, 2, 3, 4, 5), 1, 3);
+		con.out().write(Array.bytes.of(1, 2, 3, 4, 5), 1, 3);
 		Assert.equal(con.in().available(), 3);
 		Assert.read(con.in(), 2, 3, 4);
 	}
@@ -40,7 +39,7 @@ public class TestConnectorBehavior {
 		con.pairWith((Connector) con2);
 		con.open();
 		con2.open();
-		con.out().write(ArrayUtil.bytes.of(1, 2, 3));
+		con.out().write(Array.bytes.of(1, 2, 3));
 		Assert.read(con2.out.from, 1, 2, 3);
 	}
 
@@ -112,8 +111,8 @@ public class TestConnectorBehavior {
 	@Test
 	public void shouldResetState() throws IOException {
 		con.broken();
-		con.in.read.error.setFrom(IOX);
-		con.out.write.error.setFrom(IOX);
+		con.in.read.error.setFrom(ErrorGen.IOX);
+		con.out.write.error.setFrom(ErrorGen.IOX);
 		con.reset();
 		con.open();
 		con.in.to.writeBytes(0);

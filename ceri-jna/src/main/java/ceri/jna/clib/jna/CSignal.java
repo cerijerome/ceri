@@ -4,13 +4,13 @@ import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.reflect.CAnnotations.CUndefined;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Pointers;
 
 /**
  * Types and functions from {@code <signal.h>}
@@ -108,7 +108,7 @@ public class CSignal {
 	 */
 	public static boolean signal(int signum, sighandler_t handler) throws CException {
 		Pointer p = caller.callType(() -> lib().signal(signum, handler), "signal", signum, handler);
-		return PointerUtil.peer(p) != SIG_ERR;
+		return Pointers.peer(p) != SIG_ERR;
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class CSignal {
 			throw CException.of(CErrNo.EINVAL, "Only SIG_DFL or SIG_IGN allowed: %d", handler);
 		Pointer p = caller.callType(() -> lib().signal(signum, new Pointer(handler)), "signal",
 			signum, handler);
-		return PointerUtil.peer(p) != SIG_ERR;
+		return Pointers.peer(p) != SIG_ERR;
 	}
 
 	/**
@@ -171,7 +171,7 @@ public class CSignal {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.os().mac) {
+		if (Os.info().mac) {
 			SIGSET_T_SIZE = 4;
 			SIGBUS = 10;
 			SIGUSR1 = 30;

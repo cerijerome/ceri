@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class LogModifierBehavior {
 	private static final Logger logger = LogManager.getLogger();
@@ -32,7 +32,7 @@ public class LogModifierBehavior {
 		LogModifier.run(() -> {
 			Assert.equal(logger.getLevel(), Level.ERROR);
 			log(logger);
-		}, Level.ERROR, LogUtil.loggerName(getClass()));
+		}, Level.ERROR, Logs.loggerName(getClass()));
 		log(logger);
 	}
 

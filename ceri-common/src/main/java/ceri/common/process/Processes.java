@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.io.IoStream;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.text.Joiner;
 import ceri.common.text.Regex;
 
@@ -60,7 +60,7 @@ public class Processes {
 	 */
 	@SuppressWarnings("resource")
 	public static String stdOut(Process process) throws IOException {
-		return IoUtil.availableString(process.getInputStream());
+		return Io.availableString(process.getInputStream());
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class Processes {
 	 */
 	@SuppressWarnings("resource")
 	public static String stdErr(Process process) throws IOException {
-		return IoUtil.availableString(process.getErrorStream());
+		return Io.availableString(process.getErrorStream());
 	}
 
 	public static String toString(ProcessBuilder builder) {

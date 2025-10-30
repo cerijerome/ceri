@@ -5,7 +5,7 @@ import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 
 public class JnaOsBehavior {
 	private Functions.Closeable override;
@@ -36,7 +36,7 @@ public class JnaOsBehavior {
 
 	@Test
 	public void testCurrentCompatibility() {
-		override = OsUtil.os("test", null, null);
+		override = Os.info("test", null, null);
 		Assert.equal(JnaOs.current(JnaOs.unknown), true);
 		Assert.equal(JnaOs.current(JnaOs.mac), true);
 		Assert.equal(JnaOs.current(JnaOs.linux), true);
@@ -52,7 +52,7 @@ public class JnaOsBehavior {
 		Assert.equal(JnaOs.validCurrent(), JnaOs.mac);
 		override = JnaOs.linux.override();
 		Assert.equal(JnaOs.validCurrent(), JnaOs.linux);
-		override = OsUtil.os("test", null, null);
+		override = Os.info("test", null, null);
 		Assert.thrown(() -> JnaOs.validCurrent());
 	}
 

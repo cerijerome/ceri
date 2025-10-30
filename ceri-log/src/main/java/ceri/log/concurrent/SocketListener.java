@@ -12,7 +12,7 @@ import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Server socket handler with listener notification. Can be used as a shutdown listening mechanism.
@@ -57,7 +57,7 @@ public class SocketListener extends LoopingExecutor {
 
 	@Override
 	public void close() {
-		LogUtil.close(serverSocket);
+		Logs.close(serverSocket);
 		super.close();
 	}
 

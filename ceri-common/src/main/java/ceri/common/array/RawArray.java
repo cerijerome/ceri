@@ -214,7 +214,7 @@ public class RawArray {
 	public static <E extends Exception, T, R> R applySlice(T array, int offset, int length,
 		Excepts.IntBiFunction<E, R> function) throws E {
 		if (array == null) return null;
-		return ArrayUtil.applySlice(length(array), offset, length, function);
+		return Array.applySlice(length(array), offset, length, function);
 	}
 
 	/**
@@ -222,7 +222,7 @@ public class RawArray {
 	 */
 	public static <E extends Exception, T> T acceptSlice(T array, int offset, int length,
 		Excepts.IntBiConsumer<E> consumer) throws E {
-		if (array != null) ArrayUtil.acceptSlice(length(array), offset, length, consumer);
+		if (array != null) Array.acceptSlice(length(array), offset, length, consumer);
 		return array;
 	}
 
@@ -242,9 +242,9 @@ public class RawArray {
 	 * Passes bounded ranges to the function and returns the result.
 	 */
 	public static <E extends Exception, T, R> R applyBiSlice(T lArray, int lOffset, int lLength,
-		T rArray, int rOffset, int rLength, ArrayUtil.BiSliceFunction<E, R> function) throws E {
+		T rArray, int rOffset, int rLength, Array.BiSliceFunction<E, R> function) throws E {
 		if (function == null) return null;
-		return ArrayUtil.applyBiSlice(length(lArray), lOffset, lLength, length(rArray), rOffset,
+		return Array.applyBiSlice(length(lArray), lOffset, lLength, length(rArray), rOffset,
 			rLength, function);
 	}
 
@@ -252,9 +252,9 @@ public class RawArray {
 	 * Passes bounded ranges to the consumer.
 	 */
 	public static <E extends Exception, T> void acceptBiSlice(T lArray, int lOffset, int lLength,
-		T rArray, int rOffset, int rLength, ArrayUtil.BiSliceConsumer<E> consumer) throws E {
+		T rArray, int rOffset, int rLength, Array.BiSliceConsumer<E> consumer) throws E {
 		if (consumer == null) return;
-		ArrayUtil.acceptBiSlice(length(lArray), lOffset, lLength, length(rArray), rOffset, rLength,
+		Array.acceptBiSlice(length(lArray), lOffset, lLength, length(rArray), rOffset, rLength,
 			consumer);
 	}
 
@@ -398,7 +398,7 @@ public class RawArray {
 	public static <T, C> T unboxed(Functions.IntFunction<T> constructor, List<C> list, int offset,
 		int length) {
 		if (list == null || constructor == null) return null;
-		return ArrayUtil.applySlice(list.size(), offset, length, (o, l) -> {
+		return Array.applySlice(list.size(), offset, length, (o, l) -> {
 			T unboxed = constructor.apply(l);
 			for (int i = 0; i < l; i++)
 				set(unboxed, i, list.get(o + i));

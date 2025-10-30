@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.net.NetUtil;
+import ceri.common.net.Net;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Regex;
 
@@ -143,7 +143,7 @@ public class Resource implements Functions.Closeable {
 
 	private static Resource file(URL url, Excepts.Function<IOException, Path, Path> pathAdjuster)
 		throws IOException {
-		var path = Path.of(NetUtil.uri(url));
+		var path = Path.of(Net.uri(url));
 		return new Resource(null, pathAdjuster.apply(path));
 	}
 

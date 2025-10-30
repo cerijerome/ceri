@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Listens on a given port to signal a shutdown.
@@ -53,7 +53,7 @@ public class ShutdownListener implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(socket);
+		Logs.close(socket);
 	}
 
 }

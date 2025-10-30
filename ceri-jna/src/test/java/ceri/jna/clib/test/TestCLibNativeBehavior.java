@@ -24,7 +24,7 @@ import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
 
@@ -103,7 +103,7 @@ public class TestCLibNativeBehavior {
 	public void shouldWriteFromMemory() throws IOException {
 		var lib = initFd();
 		lib.write.autoResponses(2, 1);
-		Assert.equal(CUnistd.write(fd, JnaTestUtil.mem(1, 2, 3).m, 3), 2);
+		Assert.equal(CUnistd.write(fd, JnaTesting.mem(1, 2, 3).m, 3), 2);
 		lib.write.assertAuto(WriteArgs.of(fd, 1, 2, 3));
 		Assert.equal(CUnistd.write(fd, (Pointer) null, 2), 1);
 		lib.write.assertAuto(WriteArgs.of(fd, 0, 0));

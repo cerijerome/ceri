@@ -7,7 +7,7 @@ import ceri.common.concurrent.Concurrent;
 import ceri.common.io.Direction;
 import ceri.common.math.Maths;
 import ceri.common.util.StartupValues;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiDevice;
 import ceri.serial.spi.SpiMode;
@@ -19,7 +19,7 @@ public class SpiPulseTester {
 
 	public static void main(String[] args) throws IOException {
 		args = new String[] { "5", "1" };
-		StartupValues v = LogUtil.startupValues(Level.WARN, args);
+		StartupValues v = Logs.startupValues(Level.WARN, args);
 		int size = v.next("size", p -> p.toInt(4));
 		int bus = v.next("bus", p -> p.toInt(0));
 		int chip = v.next("chip", p -> p.toInt(0));

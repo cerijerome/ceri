@@ -29,11 +29,11 @@ import ceri.common.text.Strings;
 import ceri.common.text.Text;
 import ceri.common.time.Dates;
 import ceri.common.util.Basics;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.type.IntType;
 import ceri.jna.util.JnaArgs;
 import ceri.jna.util.JnaOs;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 /**
  * Generates c code to compile and run on a target system, in order to print symbol values and
@@ -516,7 +516,7 @@ public class CSymbolGen {
 	}
 
 	private static Object longValue(Object value, boolean signed) {
-		var n = JnaUtil.asLong(value, signed);
+		var n = Jna.asLong(value, signed);
 		if (n != null) return n;
 		throw new IllegalArgumentException("Unsupported field value: " + value);
 	}
@@ -557,7 +557,7 @@ public class CSymbolGen {
 			 * Build:  gcc %s.c -o %s; chmod a+x ./%s
 			 *  Run:  ./%s
 			 */
-			""", os, Reflect.name(CSymbolGen.class), OsUtil.value(), Dates.nowSec(), filename,
+			""", os, Reflect.name(CSymbolGen.class), Os.value(), Dates.nowSec(), filename,
 			filename, filename, filename);
 	}
 }

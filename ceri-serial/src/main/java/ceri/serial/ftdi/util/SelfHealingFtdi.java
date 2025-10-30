@@ -10,7 +10,7 @@ import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiDevice;
@@ -292,7 +292,7 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 			ftdiConfig.build().apply(ftdi);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {
-			LogUtil.close(ftdi);
+			Logs.close(ftdi);
 			throw e;
 		}
 	}

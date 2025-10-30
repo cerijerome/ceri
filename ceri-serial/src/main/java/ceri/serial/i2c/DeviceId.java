@@ -3,7 +3,7 @@ package ceri.serial.i2c;
 import java.util.Map;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.util.Validate;
 
 public record DeviceId(int manufacturer, int part, int revision) {
@@ -11,11 +11,11 @@ public record DeviceId(int manufacturer, int part, int revision) {
 	public static final DeviceId NONE = new DeviceId(0, 0, 0);
 	public static final int BYTES = 3;
 	private static final Map<Integer, Company> companyIds = assignedManufacturerIds();
-	private static final int MANUFACTURER_MASK = ByteUtil.maskInt(12);
+	private static final int MANUFACTURER_MASK = Bytes.maskInt(12);
 	private static final int MANUFACTURER_BIT = 12;
-	private static final int PART_MASK = ByteUtil.maskInt(9);
+	private static final int PART_MASK = Bytes.maskInt(9);
 	private static final int PART_BIT = 3;
-	private static final int REVISION_MASK = ByteUtil.maskInt(3);
+	private static final int REVISION_MASK = Bytes.maskInt(3);
 
 	/**
 	 * Companies with assigned manufacturer ids.
@@ -54,7 +54,7 @@ public record DeviceId(int manufacturer, int part, int revision) {
 	}
 
 	public byte[] encodeBytes() {
-		return ByteUtil.toMsb(encode(), BYTES);
+		return Bytes.toMsb(encode(), BYTES);
 	}
 
 	public Company company() {

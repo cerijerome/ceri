@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
@@ -262,7 +262,7 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private static char[] repeat(char c, int n) {
-		if (n <= 0) return ArrayUtil.chars.empty;
+		if (n <= 0) return Array.chars.empty;
 		var chars = new char[n];
 		Arrays.fill(chars, c);
 		return chars;

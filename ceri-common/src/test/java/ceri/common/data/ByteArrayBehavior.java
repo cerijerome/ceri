@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -29,8 +29,8 @@ public class ByteArrayBehavior {
 	public void shouldNotBreachImmutableEqualsContract() {
 		var t = ByteArray.Immutable.wrap(1, 2, 3);
 		var eq0 = ByteArray.Immutable.wrap(1, 2, 3);
-		var eq1 = ByteArray.Immutable.copyOf(ArrayUtil.bytes.of(1, 2, 3));
-		var eq2 = ByteArray.Immutable.copyOf(ArrayUtil.bytes.of(0, 1, 2, 3, 4), 1, 3);
+		var eq1 = ByteArray.Immutable.copyOf(Array.bytes.of(1, 2, 3));
+		var eq2 = ByteArray.Immutable.copyOf(Array.bytes.of(0, 1, 2, 3, 4), 1, 3);
 		var ne0 = ByteArray.Immutable.wrap(1, 2, 4);
 		var ne1 = ByteArray.Immutable.wrap(1, 2, 3, 0);
 		var ne2 = ByteArray.Immutable.wrap();
@@ -40,7 +40,7 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableCopy() {
-		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
+		byte[] bytes = Array.bytes.of(1, 2, 3);
 		var im = ByteArray.Immutable.copyOf(bytes);
 		bytes[1] = 0;
 		Assert.equals(im.getByte(1), 2);
@@ -48,9 +48,9 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableByteWrapper() {
-		Assert.yes(ByteArray.Immutable.wrap(ArrayUtil.bytes.of(1, 2, 3)).isEqualTo(0, 1, 2, 3));
-		Assert.yes(ByteArray.Immutable.wrap(ArrayUtil.bytes.of(1, 2, 3), 3).isEmpty());
-		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
+		Assert.yes(ByteArray.Immutable.wrap(Array.bytes.of(1, 2, 3)).isEqualTo(0, 1, 2, 3));
+		Assert.yes(ByteArray.Immutable.wrap(Array.bytes.of(1, 2, 3), 3).isEmpty());
+		byte[] bytes = Array.bytes.of(1, 2, 3);
 		var im = ByteArray.Immutable.wrap(bytes);
 		bytes[1] = 0;
 		Assert.equals(im.getByte(1), 0);
@@ -83,7 +83,7 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldCreateMutableCopy() {
-		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
+		byte[] bytes = Array.bytes.of(1, 2, 3);
 		var m = ByteArray.Mutable.copyOf(bytes);
 		bytes[1] = 0;
 		Assert.equals(m.getByte(1), 2);
@@ -93,7 +93,7 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldProvideAnImmutableView() {
-		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
+		byte[] bytes = Array.bytes.of(1, 2, 3);
 		var m = ByteArray.Mutable.wrap(bytes);
 		Assert.array(m.asImmutable().copy(0), 1, 2, 3);
 		Assert.isNull(Reflect.castOrNull(ByteReceiver.class, m.asImmutable()));
@@ -119,7 +119,7 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldSetEndianBytes() {
-		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
+		byte[] bytes = Array.bytes.of(1, 2, 3);
 		var m = ByteArray.Mutable.wrap(bytes);
 		Assert.equal(m.setEndian(1, 2, 0x1234, true), 3);
 		Assert.array(bytes, 1, 0x12, 0x34);
@@ -140,8 +140,8 @@ public class ByteArrayBehavior {
 		var m = ByteArray.Mutable.wrap(1, 2, 3, 4, 5);
 		Assert.equal(m.setBytes(3, -4, -5), 5);
 		Assert.yes(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		Assert.thrown(() -> m.copyFrom(3, ArrayUtil.bytes.of(1, 2, 3), 0));
-		Assert.thrown(() -> m.copyFrom(0, ArrayUtil.bytes.of(1, 2, 3), 2, 2));
+		Assert.thrown(() -> m.copyFrom(3, Array.bytes.of(1, 2, 3), 0));
+		Assert.thrown(() -> m.copyFrom(0, Array.bytes.of(1, 2, 3), 2, 2));
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class ByteArrayBehavior {
 	@Test
 	public void shouldReadFromInputStream() throws IOException {
 		var m = ByteArray.Mutable.of(5);
-		var in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
+		var in = new ByteArrayInputStream(Array.bytes.of(1, 2, 3));
 		Assert.equal(m.readFrom(2, in, 2), 4);
 		Assert.yes(m.isEqualTo(0, 0, 0, 1, 2, 0));
 	}
@@ -217,9 +217,9 @@ public class ByteArrayBehavior {
 	@Test
 	public void shouldDetermineIfEqualToBytes() {
 		Assert
-			.yes(ByteArray.Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, ArrayUtil.bytes.of(2, 3, 4)));
-		Assert.no(ByteArray.Immutable.wrap(1, 2, 3).isEqualTo(2, ArrayUtil.bytes.of(1, 2)));
-		Assert.no(ByteArray.Immutable.wrap(1, 2, 3).isEqualTo(0, ArrayUtil.bytes.of(1, 2), 0, 3));
+			.yes(ByteArray.Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, Array.bytes.of(2, 3, 4)));
+		Assert.no(ByteArray.Immutable.wrap(1, 2, 3).isEqualTo(2, Array.bytes.of(1, 2)));
+		Assert.no(ByteArray.Immutable.wrap(1, 2, 3).isEqualTo(0, Array.bytes.of(1, 2), 0, 3));
 	}
 
 	@Test
@@ -293,7 +293,7 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldEncodeAndReadFromIntoByteArray() {
-		byte[] bin = ArrayUtil.bytes.of(1, 2, 3, 4, 5);
+		byte[] bin = Array.bytes.of(1, 2, 3, 4, 5);
 		byte[] bout = new byte[3];
 		ByteArray.Encoder.of().writeFrom(bin, 1, 3).skip(-3).readInto(bout, 1, 2);
 		Assert.array(bout, 0, 2, 3);
@@ -320,7 +320,7 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldEncodeFromInputStream() throws IOException {
-		var in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
+		var in = new ByteArrayInputStream(Array.bytes.of(1, 2, 3));
 		var en = ByteArray.Encoder.of();
 		Assert.equal(en.transferFrom(in, 5), 3);
 		Assert.array(en.bytes(), 1, 2, 3);
@@ -345,7 +345,7 @@ public class ByteArrayBehavior {
 		Assert.thrown(() -> en.writeBytes(1, 2, 3));
 		Assert.thrown(() -> en.fill(3, 0xff));
 		Assert.thrown(() -> en.skip(3));
-		var in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
+		var in = new ByteArrayInputStream(Array.bytes.of(1, 2, 3));
 		Assert.thrown(() -> en.transferFrom(in, 3));
 		en.writeBytes(1, 2);
 	}

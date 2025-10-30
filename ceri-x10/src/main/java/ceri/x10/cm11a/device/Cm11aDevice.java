@@ -10,7 +10,7 @@ import ceri.common.io.Connector;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;
 import ceri.log.concurrent.Dispatcher;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.command.Command;
 import ceri.x10.util.X10Controller;
@@ -148,6 +148,6 @@ public class Cm11aDevice implements Cm11a {
 
 	@Override
 	public void close() {
-		LogUtil.close(processor, dispatcher);
+		Logs.close(processor, dispatcher);
 	}
 }

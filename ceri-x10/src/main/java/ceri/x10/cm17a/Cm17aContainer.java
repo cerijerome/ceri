@@ -7,7 +7,7 @@ import ceri.common.io.DeviceMode;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
 import ceri.common.util.Basics;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.util.SelfHealingSerial;
 import ceri.x10.cm17a.device.Cm17a;
@@ -155,7 +155,7 @@ public class Cm17aContainer implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(createdCm17a, createdSerial);
+		Logs.close(createdCm17a, createdSerial);
 		logger.info("[%d:%s] stopped", id, type);
 	}
 

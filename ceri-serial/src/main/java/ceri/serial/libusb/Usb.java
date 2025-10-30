@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.logging.log4j.Level;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.UsbDevice.Devices;
 import ceri.serial.libusb.UsbHotPlug.Callback;
 import ceri.serial.libusb.jna.LibUsb;
@@ -81,7 +81,7 @@ public class Usb implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(() -> LibUsb.libusb_exit(context));
+		Logs.close(() -> LibUsb.libusb_exit(context));
 		context = null;
 	}
 

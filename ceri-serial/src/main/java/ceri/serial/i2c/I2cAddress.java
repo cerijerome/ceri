@@ -1,7 +1,7 @@
 package ceri.serial.i2c;
 
-import ceri.common.array.ArrayUtil;
-import ceri.common.data.ByteUtil;
+import ceri.common.array.Array;
+import ceri.common.data.Bytes;
 import ceri.common.except.Exceptions;
 import ceri.common.math.Maths;
 import ceri.common.math.Radix;
@@ -18,8 +18,8 @@ public record I2cAddress(int address, boolean tenBit) {
 	/** Device ID, used with Wr and Rd bits */
 	public static final I2cAddress DEVICE_ID = new I2cAddress(0x7c, false);
 	private static final Format.OfLong HEX3 = Format.ofLong(Radix.HEX, 3, 3);
-	public static final int MASK_7BIT = ByteUtil.maskInt(7);
-	public static final int MASK_10BIT = ByteUtil.maskInt(10);
+	public static final int MASK_7BIT = Bytes.maskInt(7);
+	public static final int MASK_10BIT = Bytes.maskInt(10);
 	private static final int FRAME0_10BIT_PREFIX = 0xf0; // frame[0] prefix of 10-bit address
 	private static final int SLAVE_7BIT_MIN = 0x08;
 	private static final int SLAVE_7BIT_MAX = 0x77;
@@ -32,7 +32,7 @@ public record I2cAddress(int address, boolean tenBit) {
 		if (frames.length == 1) return of7Bit(Maths.ubyte(frames[0]) >>> 1);
 		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX) throw Exceptions
 			.illegalArg("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
-		int address = (int) ByteUtil.fromMsb((~FRAME0_10BIT_PREFIX & Maths.ubyte(frames[0])) >>> 1,
+		int address = (int) Bytes.fromMsb((~FRAME0_10BIT_PREFIX & Maths.ubyte(frames[0])) >>> 1,
 			frames[1]);
 		return of10Bit(address);
 	}
@@ -84,10 +84,10 @@ public record I2cAddress(int address, boolean tenBit) {
 	 * for 7-bit.
 	 */
 	public byte[] frames(boolean read) {
-		if (!tenBit) return ArrayUtil.bytes.of((address << 1) | (read ? 1 : 0));
-		return ArrayUtil.bytes.of(
-			FRAME0_10BIT_PREFIX | (ByteUtil.byteAt(address, 1) << 1) | (read ? 1 : 0),
-			ByteUtil.byteAt(address, 0));
+		if (!tenBit) return Array.bytes.of((address << 1) | (read ? 1 : 0));
+		return Array.bytes.of(
+			FRAME0_10BIT_PREFIX | (Bytes.byteAt(address, 1) << 1) | (read ? 1 : 0),
+			Bytes.byteAt(address, 0));
 	}
 
 	@Override

@@ -28,9 +28,9 @@ public class Receive {
 
 	public static Entry decode(boolean function, ByteReader r) {
 		int code = r.readUbyte();
-		House house = Data.decodeHouse(code);
-		if (!function) return Entry.address(house, Data.decodeUnit(code));
-		FunctionType type = Data.decodeFunctionType(code);
+		House house = X10Data.decodeHouse(code);
+		if (!function) return Entry.address(house, X10Data.decodeUnit(code));
+		FunctionType type = X10Data.decodeFunctionType(code);
 		if (type.group == FunctionGroup.ext) return Entry.ext(house, r.readUbyte(), r.readUbyte());
 		if (type.group == FunctionGroup.dim)
 			return Entry.dim(house, type, toDimPercent(r.readUbyte()));
@@ -50,12 +50,12 @@ public class Receive {
 	}
 
 	public static void encode(Entry entry, ByteWriter<?> w) {
-		if (entry.isAddress()) w.writeByte(Data.encode(entry.house, entry.unit));
+		if (entry.isAddress()) w.writeByte(X10Data.encode(entry.house, entry.unit));
 		else if (entry.isGroup(FunctionGroup.ext))
-			w.writeBytes(Data.encode(entry.house, entry.type), entry.data, entry.command);
+			w.writeBytes(X10Data.encode(entry.house, entry.type), entry.data, entry.command);
 		else if (entry.isGroup(FunctionGroup.dim))
-			w.writeBytes(Data.encode(entry.house, entry.type), fromDimPercent(entry.data));
-		else w.writeByte(Data.encode(entry.house, entry.type));
+			w.writeBytes(X10Data.encode(entry.house, entry.type), fromDimPercent(entry.data));
+		else w.writeByte(X10Data.encode(entry.house, entry.type));
 	}
 
 	private static int fromDimPercent(int percent) {

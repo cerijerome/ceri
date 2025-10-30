@@ -1,6 +1,5 @@
 package ceri.log.registry;
 
-import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -13,6 +12,7 @@ import ceri.common.function.Excepts;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
@@ -32,8 +32,8 @@ public class RegistryServiceBehavior {
 
 	@Test
 	public void shouldCreateConfigFromProperties() {
-		var config = new RegistryService.Properties(Testing.properties("registry", "service"))
-			.config();
+		var config =
+			new RegistryService.Properties(Testing.properties("registry", "service")).config();
 		Assert.equal(config,
 			new RegistryService.Config("test", Path.of("test/registry.properties"), 100, 200));
 	}
@@ -101,7 +101,7 @@ public class RegistryServiceBehavior {
 	public void shouldRetrySaveOnError() throws IOException {
 		LogModifier.run(() -> {
 			var save = CallSync.<Properties>consumer(null, false);
-			save.error.setFrom(IOX, IOX, null);
+			save.error.setFrom(ErrorGen.IOX, ErrorGen.IOX, null);
 			service = RegistryService.of(null, p -> save.accept(p, ExceptionAdapter.io), 0, 0);
 			service.registry.accept(p -> p.set(123, "a.b.c"));
 			service.persist(true);

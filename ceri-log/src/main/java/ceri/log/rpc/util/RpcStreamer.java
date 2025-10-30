@@ -3,7 +3,7 @@ package ceri.log.rpc.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.Functions;
-import ceri.log.rpc.client.RpcClientUtil;
+import ceri.log.rpc.client.RpcClients;
 import io.grpc.stub.StreamObserver;
 
 /**
@@ -43,7 +43,7 @@ public class RpcStreamer<T> implements Functions.Closeable {
 		try {
 			observer.onCompleted();
 		} catch (RuntimeException e) {
-			if (!RpcClientUtil.ignorable(e)) logger.warn(e);
+			if (!RpcClients.ignorable(e)) logger.warn(e);
 		}
 	}
 

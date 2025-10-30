@@ -13,12 +13,12 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.test.Testing;
 import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CSignal;
 import ceri.log.test.LogModifier;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.UsbHotPlug.Callback;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -48,7 +48,7 @@ public class UsbHotPlugTester {
 		try {
 			registerHotPlugs(usb, events, hotPlugs);
 			logger.info("Processing events...");
-			while (IoUtil.availableChar() == 0) {
+			while (Io.availableChar() == 0) {
 				showEvents(events);
 				usb.events().handleTimeoutCompleted(Duration.ZERO, null);
 				Concurrent.delay(POLL_MS);
@@ -57,7 +57,7 @@ public class UsbHotPlugTester {
 			}
 			logger.info("Done");
 		} finally {
-			LogUtil.close(hotPlugs);
+			Logs.close(hotPlugs);
 		}
 	}
 

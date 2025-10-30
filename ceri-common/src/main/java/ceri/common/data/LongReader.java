@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
@@ -46,7 +46,7 @@ public interface LongReader {
 	 * Reads a copied array of longs.
 	 */
 	default long[] readLongs(int length) {
-		if (length == 0) return ArrayUtil.longs.empty;
+		if (length == 0) return Array.longs.empty;
 		long[] copy = new long[length];
 		readInto(copy);
 		return copy;

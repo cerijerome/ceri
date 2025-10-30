@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import ceri.common.function.Functions;
 import ceri.common.io.Connector;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class Pipe implements Connector, Functions.Closeable {
 	public final FileDescriptor read;
@@ -40,6 +40,6 @@ public class Pipe implements Connector, Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(read, write);
+		Logs.close(read, write);
 	}
 }

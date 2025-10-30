@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import java.io.PrintStream;
 import java.util.Map;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Maps;
 import ceri.common.stream.Streams;
 
@@ -94,7 +94,7 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 		}
 
 		public String get(int row, int col, int i) {
-			var lines = cells.getOrDefault(new Coord(row, col), ArrayUtil.Empty.strings);
+			var lines = cells.getOrDefault(new Coord(row, col), Array.Empty.strings);
 			if (i >= lines.length) return Strings.repeat(' ', colSize(col));
 			return lines[i] + Strings.repeat(' ', colSize(col) - lines[i].length());
 		}

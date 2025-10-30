@@ -7,11 +7,11 @@ import java.util.Objects;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Sets;
 import ceri.common.net.HostPort;
-import ceri.common.net.NetUtil;
+import ceri.common.net.Net;
 import ceri.common.text.Joiner;
 
 public class HostList {
-	public static final HostList LOCALHOST = from(NetUtil.LOCALHOST);
+	public static final HostList LOCALHOST = from(Net.LOCALHOST);
 	public final List<HostPort> hosts;
 
 	public static HostList from(String... hosts) {

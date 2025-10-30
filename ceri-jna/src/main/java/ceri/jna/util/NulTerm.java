@@ -1,12 +1,12 @@
 package ceri.jna.util;
 
-import static ceri.jna.util.JnaUtil.DEFAULT_CHARSET;
+import static ceri.jna.util.Jna.DEFAULT_CHARSET;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.text.Strings;
 
 /**
@@ -75,7 +75,7 @@ public class NulTerm {
 	 * Decodes the bytes into a string, up to the first 0 or array limit.
 	 */
 	public static String readTruncate(Charset charset, Memory m) {
-		return readTruncate(charset, m, JnaUtil.intSize(m));
+		return readTruncate(charset, m, Jna.intSize(m));
 	}
 
 	/**
@@ -89,8 +89,8 @@ public class NulTerm {
 	 * Decodes the bytes into a string, up to the first 0 or array limit.
 	 */
 	public static String readTruncate(Charset charset, Pointer p, int len) {
-		if (PointerUtil.validate(p, 0, len) == null) return null;
-		return readTruncate(charset, JnaUtil.bytes(p, 0L, len));
+		if (Pointers.validate(p, 0, len) == null) return null;
+		return readTruncate(charset, Jna.bytes(p, 0L, len));
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class NulTerm {
 	 * Decodes the bytes into a string, dropping any trailing 0.
 	 */
 	public static String readTrim(Charset charset, Memory m) {
-		return readTrim(charset, m, JnaUtil.intSize(m));
+		return readTrim(charset, m, Jna.intSize(m));
 	}
 
 	/**
@@ -134,8 +134,8 @@ public class NulTerm {
 	 * Decodes the bytes into a string, dropping any trailing 0.
 	 */
 	public static String readTrim(Charset charset, Pointer p, int len) {
-		if (PointerUtil.validate(p, 0, len) == null) return null;
-		return readTrim(charset, JnaUtil.bytes(p, 0L, len));
+		if (Pointers.validate(p, 0, len) == null) return null;
+		return readTrim(charset, Jna.bytes(p, 0L, len));
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class NulTerm {
 		if (s == null || dest == null || dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
 		int n = Math.min(src.length, dest.length - 1);
-		ArrayUtil.bytes.copy(src, 0, dest, 0, n);
+		Array.bytes.copy(src, 0, dest, 0, n);
 		dest[n] = 0;
 		return n + 1;
 	}
@@ -172,7 +172,7 @@ public class NulTerm {
 	 * bytes written.
 	 */
 	public static int write(String s, Charset charset, Memory m) {
-		return write(s, charset, m, JnaUtil.intSize(m));
+		return write(s, charset, m, Jna.intSize(m));
 	}
 
 	/**
@@ -192,7 +192,7 @@ public class NulTerm {
 		Objects.requireNonNull(p);
 		byte[] src = s.getBytes(charset);
 		int n = Math.min(src.length, len - 1);
-		JnaUtil.write(p, src, 0, n);
+		Jna.write(p, src, 0, n);
 		p.setByte(n, (byte) 0);
 		return n + 1;
 	}
@@ -211,7 +211,7 @@ public class NulTerm {
 	 */
 	public static int writePad(String s, Charset charset, byte[] dest) {
 		int n = write(s, charset, dest);
-		ArrayUtil.bytes.fill(dest, n, 0);
+		Array.bytes.fill(dest, n, 0);
 		return dest.length;
 	}
 
@@ -228,7 +228,7 @@ public class NulTerm {
 	 * bytes written.
 	 */
 	public static int writePad(String s, Charset charset, Memory m) {
-		return writePad(s, charset, m, JnaUtil.intSize(m));
+		return writePad(s, charset, m, Jna.intSize(m));
 	}
 
 	/**
@@ -245,7 +245,7 @@ public class NulTerm {
 	 */
 	public static int writePad(String s, Charset charset, Pointer p, int len) {
 		int n = write(s, charset, p, len);
-		JnaUtil.fill(p, n, len - n, 0);
+		Jna.fill(p, n, len - n, 0);
 		return len;
 	}
 
@@ -274,8 +274,8 @@ public class NulTerm {
 	}
 
 	private static byte[] slice(byte[] bytes, int start, int length) {
-		if (length == 0) return ArrayUtil.bytes.empty;
+		if (length == 0) return Array.bytes.empty;
 		if (start == 0 && bytes.length == length) return bytes;
-		return ArrayUtil.bytes.copyOf(bytes, start, length);
+		return Array.bytes.copyOf(bytes, start, length);
 	}
 }

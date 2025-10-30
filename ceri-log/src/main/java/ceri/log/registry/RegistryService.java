@@ -19,7 +19,7 @@ import ceri.common.property.TypedProperties;
 import ceri.common.time.Dates;
 import ceri.common.time.TimeSupplier;
 import ceri.log.concurrent.LoopingExecutor;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * A registry persistence service, allowing direct access and queued updates.
@@ -103,7 +103,7 @@ public class RegistryService extends LoopingExecutor {
 	@Override
 	public void close() {
 		super.close();
-		if (processUpdates()) LogUtil.close(this::save);
+		if (processUpdates()) Logs.close(this::save);
 	}
 
 	@Override

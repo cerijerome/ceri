@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.util.Validate;
 
 public class Xor {
@@ -11,7 +11,7 @@ public class Xor {
 	}
 
 	public Xor add(int... values) {
-		return add(ArrayUtil.bytes.of(values));
+		return add(Array.bytes.of(values));
 	}
 
 	public Xor add(byte... bytes) {

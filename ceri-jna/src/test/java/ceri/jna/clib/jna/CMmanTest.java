@@ -1,12 +1,12 @@
 package ceri.jna.clib.jna;
 
 import org.junit.Test;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 
 public class CMmanTest {
 
 	@Test
 	public void testFields() throws Exception {
-		JnaTestUtil.testForEachOs(CMman.class);
+		JnaTesting.testForEachOs(CMman.class);
 	}
 }

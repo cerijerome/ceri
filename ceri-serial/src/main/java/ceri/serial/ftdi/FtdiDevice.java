@@ -11,8 +11,8 @@ import com.sun.jna.Pointer;
 import ceri.common.concurrent.Lazy;
 import ceri.jna.io.JnaInputStream;
 import ceri.jna.io.JnaOutputStream;
-import ceri.jna.util.JnaUtil;
-import ceri.log.util.LogUtil;
+import ceri.jna.util.Jna;
+import ceri.log.util.Logs;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
@@ -61,7 +61,7 @@ public class FtdiDevice implements Ftdi {
 			LibFtdi.ftdi_usb_open_find(ftdi, finder);
 			return new FtdiDevice(ftdi);
 		} catch (LibUsbException | RuntimeException e) {
-			LogUtil.close(ftdi, LibFtdi::ftdi_free);
+			Logs.close(ftdi, LibFtdi::ftdi_free);
 			throw e;
 		}
 	}
@@ -197,8 +197,8 @@ public class FtdiDevice implements Ftdi {
 	@Override
 	public void close() {
 		if (closed.getAndSet(true)) return;
-		LogUtil.close(ftdi, LibFtdi::ftdi_free);
-		LogUtil.close(in, out);
+		Logs.close(ftdi, LibFtdi::ftdi_free);
+		Logs.close(in, out);
 	}
 
 	ftdi_context ftdi() throws LibUsbException {
@@ -222,7 +222,7 @@ public class FtdiDevice implements Ftdi {
 		return new JnaInputStream() {
 			@Override
 			protected int read(Memory buffer, int len) throws IOException {
-				return LibFtdi.ftdi_read_data(ftdi(), JnaUtil.buffer(buffer), len);
+				return LibFtdi.ftdi_read_data(ftdi(), Jna.buffer(buffer), len);
 			}
 		};
 	}
@@ -231,7 +231,7 @@ public class FtdiDevice implements Ftdi {
 		return new JnaOutputStream() {
 			@Override
 			protected int write(Memory buffer, int len) throws IOException {
-				return LibFtdi.ftdi_write_data(ftdi(), JnaUtil.buffer(buffer), len);
+				return LibFtdi.ftdi_write_data(ftdi(), Jna.buffer(buffer), len);
 			}
 		};
 	}

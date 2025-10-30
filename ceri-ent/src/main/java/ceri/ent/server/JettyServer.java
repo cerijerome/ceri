@@ -10,10 +10,10 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
 import ceri.common.except.ExceptionAdapter;
-import ceri.common.net.NetUtil;
+import ceri.common.net.Net;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Regex;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Base wrapper class for managing a jetty server.
@@ -44,7 +44,7 @@ public class JettyServer implements AutoCloseable {
 	@Override
 	public void close() throws IOException {
 		stop();
-		LogUtil.close(this::waitForServer);
+		Logs.close(this::waitForServer);
 	}
 
 	public String url(String path) {
@@ -66,7 +66,7 @@ public class JettyServer implements AutoCloseable {
 
 	private String host() {
 		try {
-			InetAddress address = NetUtil.localAddress();
+			InetAddress address = Net.localAddress();
 			if (address != null) return address.getHostAddress();
 		} catch (SocketException e) {
 			// no IP found

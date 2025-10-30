@@ -14,8 +14,8 @@ import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.rpc.util.RpcStreamer;
-import ceri.log.rpc.util.RpcUtil;
-import ceri.log.util.LogUtil;
+import ceri.log.rpc.util.Rpc;
+import ceri.log.util.Logs;
 import io.grpc.stub.StreamObserver;
 
 /**
@@ -81,7 +81,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		this.call = call;
 		this.transform = transform;
 		this.config = config;
-		callback = RpcUtil.observer(this::onNotify, this::onCompleted, this::onError);
+		callback = Rpc.observer(this::onNotify, this::onCompleted, this::onError);
 		start();
 	}
 
@@ -113,7 +113,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	@Override
 	public void close() {
-		LogUtil.close(caller);
+		Logs.close(caller);
 		super.close();
 	}
 
@@ -145,16 +145,16 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		// if (caller != null && !caller.closed()) return; // already receiving (not possible?)
 		logger.debug("Waiting for notifications");
 		caller = RpcStreamer.of(call.apply(callback)); // wrap observer as new closable instance
-		caller.next(RpcUtil.EMPTY); // start receiving; close() to stop
+		caller.next(Rpc.EMPTY); // start receiving; close() to stop
 	}
 
 	private void stopReceiving() {
 		logger.debug("Stopping notifications");
-		LogUtil.close(caller);
+		Logs.close(caller);
 	}
 
 	private void onNotify(V v) {
-		logger.trace("Notification: {}", LogUtil.compact(v));
+		logger.trace("Notification: {}", Logs.compact(v));
 		T t = transform.apply(v);
 		var listeners = Concurrent.lockedGet(lock, () -> Sets.link(this.listeners));
 		notifyListeners(listeners, t);
@@ -170,8 +170,8 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void onError(Throwable t) {
-		if (!RpcClientUtil.ignorable(t))
-			logger.warn("Streaming error: {}", RpcUtil.cause(t).getMessage());
+		if (!RpcClients.ignorable(t))
+			logger.warn("Streaming error: {}", Rpc.cause(t).getMessage());
 		signalReset();
 	}
 

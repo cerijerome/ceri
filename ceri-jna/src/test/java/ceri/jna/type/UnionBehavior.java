@@ -1,6 +1,6 @@
 package ceri.jna.type;
 
-import static ceri.jna.test.JnaTestUtil.mem;
+import static ceri.jna.test.JnaTesting.mem;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.test.Assert;

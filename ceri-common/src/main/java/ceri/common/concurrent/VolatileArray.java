@@ -2,7 +2,7 @@ package ceri.common.concurrent;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.array.PrimitiveArray;
 import ceri.common.array.TypedArray;
 import ceri.common.data.ByteAccessor;
@@ -17,9 +17,9 @@ import ceri.common.util.Validate;
  * Fixed-size arrays with volatile access to values.
  */
 public class VolatileArray<A, T> {
-	public static final Factory<byte[], Bytes> BYTES = new Factory<>(ArrayUtil.bytes, Bytes::new);
-	public static final Factory<int[], Ints> INTS = new Factory<>(ArrayUtil.ints, Ints::new);
-	public static final Factory<long[], Longs> LONGS = new Factory<>(ArrayUtil.longs, Longs::new);
+	public static final Factory<byte[], Bytes> BYTES = new Factory<>(Array.bytes, Bytes::new);
+	public static final Factory<int[], Ints> INTS = new Factory<>(Array.ints, Ints::new);
+	public static final Factory<long[], Longs> LONGS = new Factory<>(Array.longs, Longs::new);
 	private final Factory<A, T> factory;
 	private final A array;
 	private final int offset;

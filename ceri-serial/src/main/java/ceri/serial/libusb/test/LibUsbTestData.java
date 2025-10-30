@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.data.ByteArray;
@@ -21,7 +21,7 @@ import ceri.common.util.Validate;
 import ceri.jna.type.JnaSize;
 import ceri.jna.type.Struct;
 import ceri.jna.util.GcMemory;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Pointers;
 import ceri.serial.libusb.jna.LibUsb;
 
 /**
@@ -98,7 +98,7 @@ public class LibUsbTestData {
 				interfaces[i].write();
 				cd.bNumInterfaces++;
 			}
-			cd.interfaces = ArrayUtil.at(interfaces, 0);
+			cd.interfaces = Array.at(interfaces, 0);
 		}
 
 		@SafeVarargs
@@ -117,7 +117,7 @@ public class LibUsbTestData {
 				descs[i].write();
 				it.num_altsetting++;
 			}
-			it.altsetting = ArrayUtil.at(descs, 0);
+			it.altsetting = Array.at(descs, 0);
 		}
 
 		@SafeVarargs
@@ -133,7 +133,7 @@ public class LibUsbTestData {
 				descs[i].write();
 				id.bNumEndpoints++;
 			}
-			id.endpoint = ArrayUtil.at(descs, 0);
+			id.endpoint = Array.at(descs, 0);
 		}
 
 		public static void ssEndPointCompanionDesc(DeviceConfig dc,
@@ -304,7 +304,7 @@ public class LibUsbTestData {
 		}
 
 		public LibUsb.libusb_config_descriptor configDescriptor(int i) {
-			return ArrayUtil.at(configDescriptors, i);
+			return Array.at(configDescriptors, i);
 		}
 
 		public LibUsb.libusb_config_descriptor configDescriptorByValue(int value) {
@@ -421,11 +421,11 @@ public class LibUsbTestData {
 	}
 
 	public Context context(LibUsb.libusb_context ctx) {
-		return find(contexts, PointerUtil.pointer(ctx));
+		return find(contexts, Pointers.pointer(ctx));
 	}
 
 	public void removeContext(LibUsb.libusb_context ctx) {
-		var p = PointerUtil.pointer(ctx);
+		var p = Pointers.pointer(ctx);
 		var context = get(contexts, p);
 		if (context == null) return;
 		deviceLists.removeIf(t -> t.context == context);
@@ -466,7 +466,7 @@ public class LibUsbTestData {
 	}
 
 	public Device device(LibUsb.libusb_device dev) {
-		return find(devices, PointerUtil.pointer(dev));
+		return find(devices, Pointers.pointer(dev));
 	}
 
 	public Device device(Functions.Predicate<? super Device> filter) {
@@ -502,7 +502,7 @@ public class LibUsbTestData {
 	}
 
 	public DeviceHandle deviceHandle(LibUsb.libusb_device_handle handle) {
-		return find(deviceHandles, PointerUtil.pointer(handle));
+		return find(deviceHandles, Pointers.pointer(handle));
 	}
 
 	public void removeDeviceHandle(DeviceHandle handle) {

@@ -7,7 +7,7 @@ import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
 public class IntReaderBehavior {
-	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
+	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final String str = "abc\ud83c\udc39de";
 	private static final int[] cp = str.codePoints().toArray();
 

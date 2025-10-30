@@ -4,8 +4,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.function.Functions;
 import ceri.common.util.Validate;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 
 /**
  * Provides access to struct field pointers as typed arrays. Can be set as
@@ -61,7 +61,7 @@ public class StructField {
 	 */
 	public static <T, R> Type<T, R> byVal(Functions.Function<T, Pointer> ptrFn,
 		Functions.Function<Pointer, R> createFn) {
-		return t -> JnaUtil.type(ptrFn.apply(t), createFn);
+		return t -> Jna.type(ptrFn.apply(t), createFn);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class StructField {
 	 */
 	public static <T, R> Type<T, R> byRef(Functions.Function<T, Pointer> ptrFn,
 		Functions.Function<Pointer, R> createFn) {
-		return t -> JnaUtil.type(PointerUtil.byRef(ptrFn.apply(t)), createFn);
+		return t -> Jna.type(Pointers.byRef(ptrFn.apply(t)), createFn);
 	}
 
 	/**
@@ -92,11 +92,11 @@ public class StructField {
 			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
 			Validate.index(n, i);
-			return JnaUtil.byVal(p, i, createFn, size);
+			return Jna.byVal(p, i, createFn, size);
 		}, t -> {
 			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			return JnaUtil.arrayByVal(p, createFn, arrayFn, n, size);
+			return Jna.arrayByVal(p, createFn, arrayFn, n, size);
 		});
 	}
 
@@ -111,11 +111,11 @@ public class StructField {
 			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
 			Validate.index(n, i);
-			return JnaUtil.byRef(p, i, createFn);
+			return Jna.byRef(p, i, createFn);
 		}, t -> {
 			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			return JnaUtil.arrayByRef(p, createFn, arrayFn, n);
+			return Jna.arrayByRef(p, createFn, arrayFn, n);
 		});
 	}
 
@@ -127,10 +127,10 @@ public class StructField {
 		Functions.Function<Pointer, R> createFn, Functions.IntFunction<R[]> arrayFn) {
 		return array((t, i) -> {
 			var p = ptrFn.apply(t);
-			return JnaUtil.byRef(p, i, createFn);
+			return Jna.byRef(p, i, createFn);
 		}, t -> {
 			var p = ptrFn.apply(t);
-			return JnaUtil.arrayByRef(p, createFn, arrayFn);
+			return Jna.arrayByRef(p, createFn, arrayFn);
 		});
 	}
 

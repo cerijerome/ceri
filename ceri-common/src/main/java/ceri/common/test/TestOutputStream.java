@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.data.ByteStream;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functional;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.io.PipedStream;
 import ceri.common.text.ToString;
 
@@ -50,7 +50,7 @@ public class TestOutputStream extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		write(ArrayUtil.bytes.of(b));
+		write(Array.bytes.of(b));
 	}
 
 	@SuppressWarnings("resource")
@@ -98,7 +98,7 @@ public class TestOutputStream extends OutputStream {
 		Pattern p = Pattern.compile(pattern);
 		while (true) {
 			write.awaitAuto();
-			b.append(IoUtil.availableString(from, charset));
+			b.append(Io.availableString(from, charset));
 			if (p.matcher(b).matches()) return b.toString();
 		}
 	}

@@ -10,7 +10,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Testing;
 import ceri.log.rpc.test.TestStreamObserver;
-import ceri.log.rpc.util.RpcUtil;
+import ceri.log.rpc.util.Rpc;
 import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
 
@@ -44,12 +44,12 @@ public class RpcClientNotifierBehavior {
 		try (var _ = notifier.enclose(sync::accept)) {
 			// starts listening
 			clientControl = serverCall.awaitAuto(); // start streaming
-			serverControl.next.assertAuto(RpcUtil.EMPTY); // start listening
+			serverControl.next.assertAuto(Rpc.EMPTY); // start listening
 			// stop from server
 			clientControl.onCompleted();
 			serverControl.completed.awaitAuto(); // stop listening
 			clientControl = serverCall.awaitAuto(); // start streaming
-			serverControl.next.assertAuto(RpcUtil.EMPTY); // start listening
+			serverControl.next.assertAuto(Rpc.EMPTY); // start listening
 		}
 		serverControl.completed.awaitAuto(); // stop (makes sure reset delay happens)
 	}
@@ -62,7 +62,7 @@ public class RpcClientNotifierBehavior {
 			try (var _ = notifier.enclose(sync::accept)) {
 				// starts listening
 				var clientControl = serverCall.awaitAuto(); // start streaming
-				serverControl.next.assertAuto(RpcUtil.EMPTY); // start listening
+				serverControl.next.assertAuto(Rpc.EMPTY); // start listening
 				// error from server
 				clientControl.onError(new IllegalStateException("already half-closed"));
 				clientControl.onError(new IOException("test")); // logged

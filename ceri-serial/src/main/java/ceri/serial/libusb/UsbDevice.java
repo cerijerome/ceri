@@ -7,8 +7,8 @@ import ceri.common.data.IntProvider;
 import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.jna.type.ArrayPointer;
-import ceri.jna.util.PointerUtil;
-import ceri.log.util.LogUtil;
+import ceri.jna.util.Pointers;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -36,7 +36,7 @@ public class UsbDevice implements Functions.Closeable {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_device_list(list));
+			Logs.close(() -> LibUsb.libusb_free_device_list(list));
 			list = null;
 		}
 	}
@@ -140,7 +140,7 @@ public class UsbDevice implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(() -> {
+		Logs.close(() -> {
 			while (refs > 0)
 				unref();
 		});
@@ -149,7 +149,7 @@ public class UsbDevice implements Functions.Closeable {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, PointerUtil.pointer(device), refs);
+		return ToString.forClass(this, Pointers.pointer(device), refs);
 	}
 
 	libusb_device device() {

@@ -1,6 +1,5 @@
 package ceri.common.collect;
 
-import static ceri.common.collect.Iterables.ofNull;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
@@ -85,8 +84,8 @@ public class IterablesTest {
 		Assert.equal(Iterables.first(null, 0), 0);
 		Assert.equal(Iterables.first(nullIterable), null);
 		Assert.equal(Iterables.first(nullIterable, 0), 0);
-		Assert.equal(Iterables.first(ofNull()), null);
-		Assert.equal(Iterables.first(ofNull(), 0), 0);
+		Assert.equal(Iterables.first(Iterables.ofNull()), null);
+		Assert.equal(Iterables.first(Iterables.ofNull(), 0), 0);
 		Assert.equal(Iterables.first(list), -1);
 		Assert.equal(Iterables.first(list, 0), -1);
 	}
@@ -97,8 +96,8 @@ public class IterablesTest {
 		Assert.equal(Iterables.nth(null, 1, 0), 0);
 		Assert.equal(Iterables.nth(nullIterable, 1), null);
 		Assert.equal(Iterables.nth(nullIterable, 1, 0), 0);
-		Assert.equal(Iterables.nth(ofNull(), 1), null);
-		Assert.equal(Iterables.nth(ofNull(), 1, 0), 0);
+		Assert.equal(Iterables.nth(Iterables.ofNull(), 1), null);
+		Assert.equal(Iterables.nth(Iterables.ofNull(), 1, 0), 0);
 		Assert.equal(Iterables.nth(list, 1), null);
 		Assert.equal(Iterables.nth(list, 1, 0), null);
 	}
@@ -107,7 +106,7 @@ public class IterablesTest {
 	public void testForEach() {
 		Assert.equal(Iterables.forEach(null, emptyConsumer), 0);
 		Assert.equal(Iterables.forEach(nullIterable, emptyConsumer), 0);
-		Assert.equal(Iterables.forEach(ofNull(), emptyConsumer), 0);
+		Assert.equal(Iterables.forEach(Iterables.ofNull(), emptyConsumer), 0);
 		Assert.equal(Iterables.forEach(list, nullConsumer), 0);
 		Assert.equal(Iterables.forEach(list, emptyConsumer), 3);
 		Captor.of().apply(c -> Assert.equal(Iterables.forEach(list, c), 3)).verify(-1, null, 1);
@@ -117,7 +116,7 @@ public class IterablesTest {
 	public void testRemoveIf() {
 		Assert.equal(Iterables.removeIf(null, predicate), 0);
 		Assert.equal(Iterables.removeIf(nullIterable, predicate), 0);
-		Assert.equal(Iterables.removeIf(ofNull(), predicate), 0);
+		Assert.equal(Iterables.removeIf(Iterables.ofNull(), predicate), 0);
 		Assert.equal(Iterables.removeIf(list, nullPredicate), 0);
 		assertList(Lists.ofAll(-1, null, 1),
 			l -> Assert.equal(Iterables.removeIf(l, nullPredicate), 0), -1, null, 1);

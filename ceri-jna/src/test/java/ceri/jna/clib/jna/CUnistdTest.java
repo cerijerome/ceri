@@ -2,7 +2,6 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDWR;
-import static ceri.jna.test.JnaTestUtil.assertCException;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -15,9 +14,9 @@ import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Seek;
 import ceri.jna.clib.test.TestCLibNative;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaAssert;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 public class CUnistdTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -71,9 +70,9 @@ public class CUnistdTest {
 		m = new Memory(4);
 		Assert.equal(CUnistd.read(fd, Pointer.NULL, 0), 0);
 		Assert.equal(CUnistd.read(fd, m, 1), 1);
-		JnaTestUtil.assertPointer(m, 0, 't');
+		JnaAssert.pointer(m, 0, 't');
 		Assert.equal(CUnistd.read(fd, m, 4), 3);
-		JnaTestUtil.assertPointer(m, 0, 'e', 's', 't');
+		JnaAssert.pointer(m, 0, 'e', 's', 't');
 		Assert.equal(CUnistd.read(fd, m, 1), 0);
 	}
 
@@ -153,7 +152,7 @@ public class CUnistdTest {
 	public void testWriteToFileDescriptor() throws IOException {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
-		m = JnaUtil.mallocBytes("test".getBytes());
+		m = Jna.mallocBytes("test".getBytes());
 		Assert.equal(CUnistd.write(fd, Pointer.NULL, 0), 0);
 		Assert.equal(CUnistd.write(fd, m, 4), 4);
 		Assert.file(helper.path("file2"), "test".getBytes());
@@ -161,7 +160,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testFailToWriteWithBadFileDescriptor() {
-		m = JnaUtil.mallocBytes("test".getBytes());
+		m = Jna.mallocBytes("test".getBytes());
 		Assert.thrown(() -> CUnistd.write(-1, m, 4));
 	}
 
@@ -259,7 +258,7 @@ public class CUnistdTest {
 		CUnistd.closeSilently(-1);
 		int fd = CFcntl.open("test", 0, 0);
 		CUnistd.close(fd);
-		assertCException(() -> CUnistd.close(fd));
+		JnaAssert.cexception(() -> CUnistd.close(fd));
 		CUnistd.closeSilently(fd);
 	}
 

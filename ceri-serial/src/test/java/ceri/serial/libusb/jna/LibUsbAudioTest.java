@@ -3,7 +3,7 @@ package ceri.serial.libusb.jna;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.jna.type.Struct;
@@ -86,7 +86,7 @@ public class LibUsbAudioTest {
 	@Test
 	public void testControlHeaderDescriptor() {
 		var t = new audio_control_header_descriptor(null);
-		t.baInterfaceNr = ArrayUtil.bytes.of(1, 2, 3);
+		t.baInterfaceNr = Array.bytes.of(1, 2, 3);
 		t.bInCollection = (byte) t.baInterfaceNr.length;
 		Struct.write(t);
 		t = writeRead(t, audio_control_header_descriptor::new);
@@ -97,9 +97,9 @@ public class LibUsbAudioTest {
 	@Test
 	public void testMixerUnitDescriptor() {
 		var t = new audio_mixer_unit_descriptor(null);
-		t.baSourceID = ArrayUtil.bytes.of(1, 2, 3);
+		t.baSourceID = Array.bytes.of(1, 2, 3);
 		t.bNrInPins = (byte) t.baSourceID.length;
-		t.bmControls = ArrayUtil.bytes.of(4, 5, 6);
+		t.bmControls = Array.bytes.of(4, 5, 6);
 		t.bLength = (byte) (audio_mixer_unit_descriptor.BASE_LENGTH + t.baSourceID.length +
 			t.bmControls.length);
 		Assert.equal(t.bLength, (byte) 16);
@@ -110,7 +110,7 @@ public class LibUsbAudioTest {
 	@Test
 	public void testSelectorUnitDescriptor() {
 		var t = new audio_selector_unit_descriptor(null);
-		t.baSourceID = ArrayUtil.bytes.of(1, 2, 3);
+		t.baSourceID = Array.bytes.of(1, 2, 3);
 		t.bNrInPins = (byte) t.baSourceID.length;
 		t.bLength = (byte) (audio_selector_unit_descriptor.BASE_LENGTH + t.baSourceID.length);
 		Assert.equal(t.bLength, (byte) 9);
@@ -122,7 +122,7 @@ public class LibUsbAudioTest {
 		var t = new audio_feat_unit_descriptor(null);
 		Assert.equal(t.channels(), 0);
 		t.bControlSize = 2;
-		t.bmaControls = ArrayUtil.bytes.of(1, 2, 3, 4, 5, 6);
+		t.bmaControls = Array.bytes.of(1, 2, 3, 4, 5, 6);
 		t.bLength = (byte) (audio_feat_unit_descriptor.BASE_LENGTH + t.bmaControls.length);
 		Assert.equal(t.bLength, (byte) 13);
 		Assert.equal(t.channels(), 2);
@@ -131,11 +131,11 @@ public class LibUsbAudioTest {
 	@Test
 	public void testProcUnitDescriptor() {
 		var t = new audio_proc_unit_descriptor(null);
-		t.baSourceID = ArrayUtil.bytes.of(1, 2, 3);
+		t.baSourceID = Array.bytes.of(1, 2, 3);
 		t.bNrInPins = (byte) t.baSourceID.length;
-		t.bmControls = ArrayUtil.bytes.of(4, 5, 6);
+		t.bmControls = Array.bytes.of(4, 5, 6);
 		t.bControlSize = (byte) t.bmControls.length;
-		t.extra = ArrayUtil.bytes.of(7, 8);
+		t.extra = Array.bytes.of(7, 8);
 		t.bLength = (byte) (audio_proc_unit_descriptor.BASE_LENGTH + t.baSourceID.length +
 			t.bmControls.length + t.extra.length);
 		Assert.equal(t.bLength, (byte) 21);
@@ -147,9 +147,9 @@ public class LibUsbAudioTest {
 	@Test
 	public void testModeProcUnitDescriptor() {
 		var t = new audio_mode_proc_unit_descriptor(null);
-		t.bmControls = ArrayUtil.bytes.of(4, 5, 6);
+		t.bmControls = Array.bytes.of(4, 5, 6);
 		t.bControlSize = (byte) t.bmControls.length;
-		t.waModes = ArrayUtil.shorts.of(7, 8);
+		t.waModes = Array.shorts.of(7, 8);
 		t.bNrModes = (byte) t.waModes.length;
 		t.bLength = (byte) (audio_mode_proc_unit_descriptor.BASE_LENGTH + t.bmControls.length +
 			t.waModes.length * 2);
@@ -161,9 +161,9 @@ public class LibUsbAudioTest {
 	@Test
 	public void testExtUnitDescriptor() {
 		var t = new audio_ext_unit_descriptor(null);
-		t.baSourceID = ArrayUtil.bytes.of(1, 2, 3);
+		t.baSourceID = Array.bytes.of(1, 2, 3);
 		t.bNrInPins = (byte) t.baSourceID.length;
-		t.bmControls = ArrayUtil.bytes.of(4, 5);
+		t.bmControls = Array.bytes.of(4, 5);
 		t.bControlSize = (byte) t.bmControls.length;
 		t.bLength = (byte) (audio_ext_unit_descriptor.BASE_LENGTH + t.baSourceID.length +
 			t.bmControls.length);
@@ -175,7 +175,7 @@ public class LibUsbAudioTest {
 	@Test
 	public void testAssocInterfaceDescriptor() {
 		var t = new audio_assoc_interface_descriptor(null);
-		t.extra = ArrayUtil.bytes.of(1, 2, 3);
+		t.extra = Array.bytes.of(1, 2, 3);
 		t.bLength = (byte) (audio_assoc_interface_descriptor.BASE_LENGTH + t.extra.length);
 		Struct.write(t);
 		t = writeRead(t, audio_assoc_interface_descriptor::new);

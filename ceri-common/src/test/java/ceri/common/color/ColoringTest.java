@@ -1,6 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.color;
 import java.awt.Color;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -15,7 +14,7 @@ public class ColoringTest {
 
 	@Test
 	public void testName() {
-		Assert.equal(Coloring.name(color(0x123456)), null);
+		Assert.equal(Coloring.name(Colors.color(0x123456)), null);
 		Assert.equal(Coloring.name(Coloring.aquamarine.color()), "aquamarine");
 	}
 

@@ -9,7 +9,7 @@ import ceri.common.collect.Lists;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.data.ByteWriter;
 import ceri.common.text.ToString;
 import ceri.common.util.Validate;
@@ -34,7 +34,7 @@ public class EntryBuffer {
 		var entries = Lists.<Entry>of();
 		int bits = r.readUbyte();
 		for (int i = 0; i < count - 1;) {
-			boolean isFunction = ByteUtil.bit(bits, i);
+			boolean isFunction = Bytes.bit(bits, i);
 			var entry = Receive.decode(isFunction, r);
 			entries.add(entry);
 			i += Receive.size(entry);

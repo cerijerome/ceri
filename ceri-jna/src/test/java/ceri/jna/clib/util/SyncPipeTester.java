@@ -1,6 +1,6 @@
 package ceri.jna.clib.util;
 
-import static ceri.log.util.LogUtil.create;
+import static ceri.log.util.Logs.create;
 import java.io.IOException;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.Level;

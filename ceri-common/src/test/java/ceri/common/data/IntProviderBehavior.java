@@ -2,14 +2,14 @@ package ceri.common.data;
 
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.IntReceiverBehavior.Holder;
 import ceri.common.math.Maths;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class IntProviderBehavior {
-	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
+	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final IntProvider ip = provider(0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
 	private static final String str = "abc\ud83c\udc39de";
 	private static final int[] cp = str.codePoints().toArray();
@@ -159,7 +159,7 @@ public class IntProviderBehavior {
 	public void shouldDetermineIfIntsAreEqual() {
 		Assert.yes(ip.isEqualTo(5, -5, 6, -7, 8, -9));
 		Assert.no(ip.isEqualTo(5, -5, 6, -7, 8, 9));
-		int[] ints = ArrayUtil.ints.of(0, -1, 2, -3, 4);
+		int[] ints = Array.ints.of(0, -1, 2, -3, 4);
 		Assert.yes(ip.isEqualTo(0, ints));
 		Assert.no(ip.isEqualTo(0, ints, 0, 6));
 		Assert.no(ip.isEqualTo(9, -9, 0));
@@ -187,7 +187,7 @@ public class IntProviderBehavior {
 		Assert.equal(ip.indexOf(0, -1, 2, -3), 1);
 		Assert.equal(ip.indexOf(0, -1, 2, 3), -1);
 		Assert.equal(ip.indexOf(8, -1, 2, -3), -1);
-		Assert.equal(ip.indexOf(0, ArrayUtil.ints.of(-1, 2, -3), 0, 4), -1);
+		Assert.equal(ip.indexOf(0, Array.ints.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -204,7 +204,7 @@ public class IntProviderBehavior {
 		Assert.equal(ip.lastIndexOf(0, 2, -1), 5);
 		Assert.equal(ip.lastIndexOf(0, 2, 1), -1);
 		Assert.equal(ip.lastIndexOf(7, 0, -1), -1);
-		Assert.equal(ip.lastIndexOf(0, ArrayUtil.ints.of(2, -1, 0), 0, 4), -1);
+		Assert.equal(ip.lastIndexOf(0, Array.ints.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test

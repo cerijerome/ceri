@@ -9,7 +9,7 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 
 /**
  * Tab rotator for Chrome and other apps. Uses Robot for opt+cmd+right to advance tabs.
@@ -126,7 +126,7 @@ public class TabRotor {
 	private void adjust() {
 		int delayMs = currentDelayMs;
 		while (true) {
-			char ch = IoUtil.availableChar();
+			char ch = Io.availableChar();
 			if (ch == 0) break;
 			if (ch == '>') currentDelayMs = Math.max(pollMs, currentDelayMs - adjustMs);
 			if (ch == '<') currentDelayMs += adjustMs;

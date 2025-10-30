@@ -15,7 +15,7 @@ import ceri.jna.clib.Mode.Mask;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaLibrary;
 import ceri.log.test.LogModifier;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class CFileDescriptorBehavior {
 	private final JnaLibrary.Ref<TestCLibNative> ref = TestCLibNative.ref();
@@ -129,7 +129,7 @@ public class CFileDescriptorBehavior {
 	public void shouldNotThrowExceptionOnClose() throws IOException {
 		var lib = init();
 		lib.close.error.setFrom(ErrNo.EIO::lastError);
-		LogModifier.run(fd::close, Level.OFF, LogUtil.class);
+		LogModifier.run(fd::close, Level.OFF, Logs.class);
 		lib.close.error.clear();
 	}
 

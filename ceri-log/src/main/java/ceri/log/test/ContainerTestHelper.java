@@ -10,7 +10,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.common.reflect.Reflect;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Test helper to create containers from a property file and close after use. Containers are cached
@@ -47,6 +47,6 @@ public class ContainerTestHelper implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(cache.values());
+		Logs.close(cache.values());
 	}
 }

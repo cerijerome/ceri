@@ -2,7 +2,7 @@ package ceri.jna.clib.jna;
 
 import com.sun.jna.Pointer;
 import ceri.common.function.Functions;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.common.util.Validate;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
@@ -10,7 +10,7 @@ import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.JnaOs;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 /**
  * Types and functions from {@code <sys/ioctl.h>}
@@ -113,7 +113,7 @@ public class CIoctl {
 	 * Get the number of bytes in the input buffer.
 	 */
 	public static int fionread(int fd) throws CException {
-		var ref = JnaUtil.intRef(0);
+		var ref = Jna.intRef(0);
 		ioctl("FIONREAD", fd, FIONREAD, ref);
 		return ref.getValue();
 	}
@@ -122,7 +122,7 @@ public class CIoctl {
 	 * Get the number of bytes in the output buffer.
 	 */
 	public static int tiocoutq(int fd) throws CException {
-		var ref = JnaUtil.intRef(0);
+		var ref = Jna.intRef(0);
 		ioctl("TIOCOUTQ", fd, TIOCOUTQ, ref);
 		return ref.getValue();
 	}
@@ -138,7 +138,7 @@ public class CIoctl {
 	 * Get the status of modem bits TIOCM_*.
 	 */
 	public static int tiocmget(int fd) throws CException {
-		var ref = JnaUtil.intRef(0);
+		var ref = Jna.intRef(0);
 		ioctl("TIOCMGET", fd, TIOCMGET, ref);
 		return ref.getValue();
 	}
@@ -147,7 +147,7 @@ public class CIoctl {
 	 * Set the modem status bit.
 	 */
 	public static int tiocmbis(int fd, int bit) throws CException {
-		var ref = JnaUtil.intRef(bit);
+		var ref = Jna.intRef(bit);
 		ioctl("TIOCMBIS", fd, TIOCMBIS, ref);
 		return ref.getValue();
 	}
@@ -156,7 +156,7 @@ public class CIoctl {
 	 * Clear the modem status bit.
 	 */
 	public static int tiocmbic(int fd, int bit) throws CException {
-		var ref = JnaUtil.intRef(bit);
+		var ref = Jna.intRef(bit);
 		ioctl("TIOCMBIC", fd, TIOCMBIC, ref);
 		return ref.getValue();
 	}
@@ -165,7 +165,7 @@ public class CIoctl {
 	 * Set the status of modem bits TIOCM_*.
 	 */
 	public static void tiocmset(int fd, int bits) throws CException {
-		var ref = JnaUtil.intRef(bits);
+		var ref = Jna.intRef(bits);
 		ioctl("TIOCMSET", fd, TIOCMSET, ref);
 	}
 
@@ -264,7 +264,7 @@ public class CIoctl {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.os().mac) {
+		if (Os.info().mac) {
 			_IOC_SIZEBITS = 13; // IOCPARM_MASK = 0x1fff;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
 			_IOC_NONE = 0x20000000;

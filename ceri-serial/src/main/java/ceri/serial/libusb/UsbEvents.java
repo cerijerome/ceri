@@ -13,7 +13,7 @@ import ceri.common.function.Functions;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
@@ -134,7 +134,7 @@ public class UsbEvents {
 			var array = Struct.read(ref.get());
 			return Immutable.adaptListOf(t -> new PollFd(t.fd, ushort(t.events)), array);
 		} finally {
-			LogUtil.close(() -> LibUsb.libusb_free_pollfds(ref));
+			Logs.close(() -> LibUsb.libusb_free_pollfds(ref));
 		}
 	}
 
@@ -152,21 +152,21 @@ public class UsbEvents {
 
 	private libusb_pollfd_added_cb addedCallback(Excepts.Consumer<IOException, PollFd> callback) {
 		if (callback == null) return null;
-		return (fd, events, _) -> LogUtil
+		return (fd, events, _) -> Logs
 			.runSilently(() -> callback.accept(new PollFd(fd, ushort(events))));
 	}
 
 	private libusb_pollfd_removed_cb removedCallback(Excepts.IntConsumer<IOException> callback) {
 		if (callback == null) return null;
-		return (fd, _) -> LogUtil.runSilently(() -> callback.accept(fd));
+		return (fd, _) -> Logs.runSilently(() -> callback.accept(fd));
 	}
 
 	private void unlockEvents() {
-		LogUtil.runSilently(() -> LibUsb.libusb_unlock_events(context()));
+		Logs.runSilently(() -> LibUsb.libusb_unlock_events(context()));
 	}
 
 	private void unlockEventWaiters() {
-		LogUtil.runSilently(() -> LibUsb.libusb_unlock_event_waiters(context()));
+		Logs.runSilently(() -> LibUsb.libusb_unlock_event_waiters(context()));
 	}
 
 	private libusb_context context() {

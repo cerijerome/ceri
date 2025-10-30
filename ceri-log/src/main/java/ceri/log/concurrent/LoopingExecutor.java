@@ -8,7 +8,7 @@ import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Executes a runnable method in a repeating loop until an exception is thrown.
@@ -79,7 +79,7 @@ public abstract class LoopingExecutor implements Functions.Closeable {
 	@Override
 	public void close() {
 		closed = true;
-		LogUtil.close(executor, exitTimeoutMs);
+		Logs.close(executor, exitTimeoutMs);
 	}
 
 	private void loops() {

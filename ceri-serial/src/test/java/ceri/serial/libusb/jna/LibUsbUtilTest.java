@@ -2,7 +2,7 @@ package ceri.serial.libusb.jna;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 
@@ -39,6 +39,6 @@ public class LibUsbUtilTest {
 	public void testRequireByteBuffer() throws LibUsbException {
 		LibUsbUtil.require(null, 0);
 		Assert.thrown(() -> LibUsbUtil.require(null, 4));
-		Assert.thrown(() -> LibUsbUtil.require(JnaTestUtil.buffer(1, 2, 3), 4));
+		Assert.thrown(() -> LibUsbUtil.require(JnaTesting.buffer(1, 2, 3), 4));
 	}
 }

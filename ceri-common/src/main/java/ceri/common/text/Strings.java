@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
@@ -126,7 +126,7 @@ public class Strings {
 	 */
 	public static String format(String format, Object... objs) {
 		if (format == null) return "";
-		if (ArrayUtil.isEmpty(objs)) return format;
+		if (Array.isEmpty(objs)) return format;
 		return String.format(format, objs);
 	}
 
@@ -262,7 +262,7 @@ public class Strings {
 	 */
 	public static String sub(CharSequence s, int offset, int length) {
 		if (isEmpty(s)) return "";
-		return ArrayUtil.applySlice(s.length(), offset, length,
+		return Array.applySlice(s.length(), offset, length,
 			(o, l) -> l == 0 ? "" : s.subSequence(o, o + l).toString());
 	}
 
@@ -319,7 +319,7 @@ public class Strings {
 	public static boolean equals(CharSequence s, int soffset, CharSequence other, int ooffset,
 		int length) {
 		if (s == null || other == null) return s == other;
-		return ArrayUtil.applyBiSlice(length(s), soffset, length, length(other), ooffset, length,
+		return Array.applyBiSlice(length(s), soffset, length, length(other), ooffset, length,
 			(so, sl, oo, ol) -> sl == ol && regionMatches(s, so, other, oo, sl));
 	}
 
@@ -346,7 +346,7 @@ public class Strings {
 	public static boolean equals(boolean matchCase, String s, int soffset, String other,
 		int ooffset, int length) {
 		if (s == null || other == null) return s == other;
-		return ArrayUtil.applyBiSlice(length(s), soffset, length, length(other), ooffset, length,
+		return Array.applyBiSlice(length(s), soffset, length, length(other), ooffset, length,
 			(so, sl, oo, ol) -> sl == ol && s.regionMatches(!matchCase, so, other, oo, sl));
 	}
 
@@ -362,7 +362,7 @@ public class Strings {
 	 */
 	public static boolean equalsAt(CharSequence s, int soffset, CharSequence other, int ooffset) {
 		if (s == null || other == null) return s == other;
-		return ArrayUtil.applyBiSlice(length(s), soffset, 0, length(other), ooffset,
+		return Array.applyBiSlice(length(s), soffset, 0, length(other), ooffset,
 			Integer.MAX_VALUE, (so, _, oo, ol) -> regionMatches(s, so, other, oo, ol));
 	}
 
@@ -379,7 +379,7 @@ public class Strings {
 	public static boolean equalsAt(boolean matchCase, String s, int soffset, String other,
 		int ooffset) {
 		if (s == null || other == null) return s == other;
-		return ArrayUtil.applyBiSlice(length(s), soffset, 0, length(other), ooffset,
+		return Array.applyBiSlice(length(s), soffset, 0, length(other), ooffset,
 			Integer.MAX_VALUE, (so, _, oo, ol) -> s.regionMatches(!matchCase, so, other, oo, ol));
 	}
 
@@ -431,7 +431,7 @@ public class Strings {
 	public static boolean contains(CharSequence s, int soffset, int slength, CharSequence other,
 		int ooffset, int olength) {
 		if (s == null || other == null) return false;
-		return ArrayUtil.applyBiSlice(length(s), soffset, slength, length(other), ooffset, olength,
+		return Array.applyBiSlice(length(s), soffset, slength, length(other), ooffset, olength,
 			(so, sl, oo, ol) -> {
 				for (int i = 0; i <= sl - ol; i++)
 					if (regionMatches(s, so + i, other, oo, ol)) return true;
@@ -463,7 +463,7 @@ public class Strings {
 	public static boolean contains(boolean matchCase, String s, int soffset, int slength,
 		String other, int ooffset, int olength) {
 		if (s == null || other == null) return false;
-		return ArrayUtil.applyBiSlice(length(s), soffset, slength, length(other), ooffset, olength,
+		return Array.applyBiSlice(length(s), soffset, slength, length(other), ooffset, olength,
 			(so, sl, oo, ol) -> {
 				for (int i = 0; i <= sl - ol; i++)
 					if (s.regionMatches(!matchCase, so + i, other, oo, ol)) return true;

@@ -34,7 +34,7 @@ import ceri.common.util.Counter;
 public class Stream<E extends Exception, T> {
 	private static final Excepts.Consumer<RuntimeException, Object> NULL_CONSUMER = _ -> {};
 	private static final Stream<RuntimeException, Object> EMPTY = new Stream<>(_ -> false);
-	private NextSupplier<E, ? extends T> supplier;
+	private NextSupplier<E, T> supplier;
 
 	/**
 	 * Iterating functional interface
@@ -156,7 +156,7 @@ public class Stream<E extends Exception, T> {
 	}
 
 	Stream(NextSupplier<E, ? extends T> supplier) {
-		this.supplier = supplier;
+		this.supplier = Reflect.unchecked(supplier);
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class Stream<E extends Exception, T> {
 	public Stream<E, String> string() {
 		return map(Strings::safe);
 	}
-	
+
 	/**
 	 * Maps stream elements to a new type.
 	 */
@@ -308,8 +308,9 @@ public class Stream<E extends Exception, T> {
 	 */
 	public Stream<E, T> sorted(Comparator<? super T> comparator) {
 		if (emptyInstance()) return this;
-		return update(
-			adaptedSupplier(supplier, s -> iteratorSupplier(sortedList(s, comparator).iterator())));
+		Excepts.Operator<E, NextSupplier<E, T>> adapter =
+			s -> iteratorSupplier(sortedList(s, comparator).iterator());
+		return update(adaptedSupplier(supplier, adapter));
 	}
 
 	/**

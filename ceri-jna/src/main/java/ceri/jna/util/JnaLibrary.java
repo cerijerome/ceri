@@ -10,7 +10,7 @@ import com.sun.jna.NativeLibrary;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.common.util.SystemVars;
 
 /**
@@ -150,6 +150,6 @@ public class JnaLibrary<T extends Library> {
 	/* os-specific settings */
 
 	static {
-		if (OsUtil.os().mac) addPaths(MAC_LOCAL_LIB, MAC_HOMEBREW_LIB);
+		if (Os.info().mac) addPaths(MAC_LOCAL_LIB, MAC_HOMEBREW_LIB);
 	}
 }

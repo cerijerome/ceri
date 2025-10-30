@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.jna.clib.test.TestCLibNative;
@@ -37,7 +37,7 @@ public class COutputStreamBehavior {
 		var lib = initOut();
 		Assert.equal(out.bufferSize(), 3);
 		lib.write.autoResponses(1, 2, 1);
-		out.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
+		out.write(Array.bytes.of(1, 2, 3, 4, 5));
 		lib.write.assertValues( //
 			WriteArgs.of(fd, 1, 2, 3), // 1 byte written
 			WriteArgs.of(fd, 2, 3), // 2 bytes written

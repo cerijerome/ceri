@@ -19,12 +19,12 @@ import ceri.common.concurrent.Lazy;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.event.Listenable;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.io.LineReader;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
@@ -644,7 +644,7 @@ public class ManualTester implements Functions.Closeable {
 	 * Read and print available bytes from the stream.
 	 */
 	public void readBytes(InputStream in) throws IOException {
-		var bytes = IoUtil.availableBytes(in);
+		var bytes = Io.availableBytes(in);
 		if (bytes.isEmpty()) return;
 		out("IN <<< ");
 		print(bytes);
@@ -654,7 +654,7 @@ public class ManualTester implements Functions.Closeable {
 	 * Write ascii bytes to the output stream and mirror to out.
 	 */
 	public void writeAscii(OutputStream out, String text) throws IOException {
-		writeBytes(out, ByteUtil.toAscii(text));
+		writeBytes(out, Bytes.toAscii(text));
 	}
 
 	/**

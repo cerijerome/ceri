@@ -45,7 +45,7 @@ public interface Connector extends Closeable, Capability.Name {
 	 */
 	@SuppressWarnings("resource")
 	static void echo(Connector connector) throws IOException {
-		IoUtil.pipe(connector.in(), connector.out());
+		Io.pipe(connector.in(), connector.out());
 	}
 
 	/**

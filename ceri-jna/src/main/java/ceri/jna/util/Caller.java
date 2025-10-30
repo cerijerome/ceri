@@ -232,7 +232,7 @@ public class Caller<E extends Exception> {
 
 	private E lastError(LastErrorException e, String message) {
 		int code = e.getErrorCode();
-		var lastErrorMsg = JnaUtil.message(e);
+		var lastErrorMsg = Jna.message(e);
 		if (!lastErrorMsg.isEmpty()) message = lastErrorMsg + ": " + message;
 		return Exceptions.initCause(exceptionFn.apply(code, message), e);
 	}

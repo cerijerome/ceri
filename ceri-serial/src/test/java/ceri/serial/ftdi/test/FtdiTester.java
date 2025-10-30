@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.IntStream;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.function.Closeables;
 import ceri.common.function.Enclosure;
 import ceri.common.test.ConnectorTester;
@@ -133,7 +133,7 @@ public class FtdiTester {
 	private static void showBits(ManualTester tester, int value, int bits) {
 		StringBuilder b = new StringBuilder("H ");
 		for (int i = bits - 1; i >= 0; i--) {
-			b.append(ByteUtil.bit(value, i) ? '1' : '0');
+			b.append(Bytes.bit(value, i) ? '1' : '0');
 			if (i > 0 && (i % Byte.SIZE == 0)) b.append('-');
 		}
 		tester.out(b.append(" L").toString());

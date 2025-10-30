@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
@@ -173,7 +173,7 @@ public class Exceptions {
 	 */
 	public static StackTraceElement firstStackElement(Throwable t) {
 		if (t == null) return null;
-		return ArrayUtil.at(t.getStackTrace(), 0);
+		return Array.at(t.getStackTrace(), 0);
 	}
 
 	/**

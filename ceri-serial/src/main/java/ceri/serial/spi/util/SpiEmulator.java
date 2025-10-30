@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.io.Direction;
 import ceri.common.test.PulsePrinter;
 import ceri.common.util.Validate;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.SpiTransfer;
@@ -148,14 +148,14 @@ public class SpiEmulator implements Spi {
 
 	private ByteBuffer buffer(long peer, int len) {
 		if (peer == 0L) return ByteBuffer.allocate(0);
-		return JnaUtil.buffer(PointerUtil.pointer(peer), 0, len);
+		return Jna.buffer(Pointers.pointer(peer), 0, len);
 	}
 
 	private byte[] read(ByteBuffer in) {
-		return ByteUtil.readFrom(in, 0, in.capacity());
+		return Bytes.readFrom(in, 0, in.capacity());
 	}
 
 	private void write(ByteBuffer out, byte[] data) {
-		ByteUtil.writeTo(out, 0, data, 0, Math.min(data.length, out.capacity()));
+		Bytes.writeTo(out, 0, data, 0, Math.min(data.length, out.capacity()));
 	}
 }

@@ -1,10 +1,10 @@
 package ceri.serial.libusb.jna;
 
 import java.nio.ByteBuffer;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.math.Maths;
 import ceri.common.test.BinaryPrinter;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 public class ByteBufferTester {
 	private static final int PACKET_HEADER_SIZE = 2;
@@ -114,7 +114,7 @@ public class ByteBufferTester {
 	static void write(ByteBuffer bb, byte[] b, int len) {
 		int n = len; // Math.min(len, bb.remaining());
 		bb.put(b, 0, n);
-		System.out.printf("write(%d) => (%d) [%s]%n", len, n, ByteUtil.toHex(b, 0, n, " "));
+		System.out.printf("write(%d) => (%d) [%s]%n", len, n, Bytes.toHex(b, 0, n, " "));
 		print(bb);
 	}
 
@@ -122,7 +122,7 @@ public class ByteBufferTester {
 		int n = Math.min(len, bb.remaining());
 		byte[] b = new byte[n];
 		bb.get(b);
-		System.out.printf("read(%d) => (%d) [%s]%n", len, n, ByteUtil.toHex(b, " "));
+		System.out.printf("read(%d) => (%d) [%s]%n", len, n, Bytes.toHex(b, " "));
 		print(bb);
 	}
 
@@ -131,9 +131,9 @@ public class ByteBufferTester {
 		print(bb);
 		int n = read0(bb, bb.capacity());
 		print(bb);
-		byte[] b = JnaUtil.bytes(bb, 0, n);
+		byte[] b = Jna.bytes(bb, 0, n);
 		print(bb);
-		System.out.println(ByteUtil.toHex(b, " "));
+		System.out.println(Bytes.toHex(b, " "));
 	}
 
 	private static int read0(ByteBuffer buffer, int size) {

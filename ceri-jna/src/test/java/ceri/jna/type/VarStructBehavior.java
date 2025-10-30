@@ -3,7 +3,7 @@ package ceri.jna.type;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.test.Assert;
@@ -30,7 +30,7 @@ public class VarStructBehavior {
 		public ByteVar(int dummy, int... array) {
 			this.dummy = dummy;
 			this.count = (byte) array.length;
-			this.array = ArrayUtil.bytes.of(array);
+			this.array = Array.bytes.of(array);
 		}
 
 		public ByteVar(Pointer p) {
@@ -62,7 +62,7 @@ public class VarStructBehavior {
 		assertByteVar(bv, 100);
 	}
 
-	public static void assertByteVar(ByteVar bv, int dummy, int... bytes) {
+	private static void assertByteVar(ByteVar bv, int dummy, int... bytes) {
 		Assert.equal(bv.dummy, dummy);
 		Assert.equal(bv.count, (byte) bytes.length);
 		Assert.array(bv.array, bytes);

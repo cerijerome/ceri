@@ -4,9 +4,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sun.jna.Library;
 import ceri.common.test.Assert;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.common.util.SystemVars;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 
 public class JnaLibraryBehavior {
 
@@ -47,15 +47,15 @@ public class JnaLibraryBehavior {
 	@Test
 	public void testMacLibPath() {
 		try (var _ = SystemVars.removableProperty("jna.library.path", null)) {
-			JnaTestUtil.testForEachOs(LibPath.class, JnaLibrary.class);
+			JnaTesting.testForEachOs(LibPath.class, JnaLibrary.class);
 		}
 	}
 
 	public static class LibPath {
 		static {
 			System.clearProperty("jna.library.path");
-			if (OsUtil.os().mac) Assert.find(JnaLibrary.path(), "/homebrew/");
-			if (OsUtil.os().linux) Assert.notFound(JnaLibrary.path(), "/homebrew/");
+			if (Os.info().mac) Assert.find(JnaLibrary.path(), "/homebrew/");
+			if (Os.info().linux) Assert.notFound(JnaLibrary.path(), "/homebrew/");
 		}
 	}
 }

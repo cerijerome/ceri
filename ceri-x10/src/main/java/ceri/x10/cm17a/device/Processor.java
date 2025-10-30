@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.TaskQueue;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.except.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.command.Address;
@@ -98,8 +98,8 @@ public class Processor extends LoopingExecutor {
 		logger.debug("Sending: 0x%02x", code);
 		sendByte(Data.HEADER1);
 		sendByte(Data.HEADER2);
-		sendByte(ByteUtil.ubyteAt(code, 1));
-		sendByte(ByteUtil.ubyteAt(code, 0));
+		sendByte(Bytes.ubyteAt(code, 1));
+		sendByte(Bytes.ubyteAt(code, 0));
 		sendByte(Data.FOOTER);
 	}
 
@@ -108,7 +108,7 @@ public class Processor extends LoopingExecutor {
 	 */
 	private void sendByte(int b) throws IOException {
 		for (int i = Byte.SIZE - 1; i >= 0; i--) {
-			if (ByteUtil.bit(b, i)) {
+			if (Bytes.bit(b, i)) {
 				connector.dtr(false);
 				Concurrent.delayMicros(config.waitIntervalMicros);
 				connector.dtr(true);

@@ -10,7 +10,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import ceri.common.function.Functions;
 import ceri.common.net.HostPort;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class Client implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
@@ -80,6 +80,6 @@ public class Client implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(mongo, MongoClient::close);
+		Logs.close(mongo, MongoClient::close);
 	}
 }

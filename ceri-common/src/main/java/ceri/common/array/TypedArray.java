@@ -148,7 +148,7 @@ public abstract class TypedArray<T> {
 		 * Returns true if the value is found within the array.
 		 */
 		public final boolean has(T[] array, T value) {
-			return ArrayUtil.has(array, value);
+			return Array.has(array, value);
 		}
 
 		/**
@@ -177,7 +177,7 @@ public abstract class TypedArray<T> {
 
 		@Override
 		public void swap(T[] array, int index0, int index1) {
-			ArrayUtil.swap(array, index0, index1);
+			Array.swap(array, index0, index1);
 		}
 
 		/**

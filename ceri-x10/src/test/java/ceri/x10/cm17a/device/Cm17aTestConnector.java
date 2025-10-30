@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import java.io.IOException;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.data.IntArray;
 import ceri.common.event.Listenable;
 import ceri.common.except.ExceptionAdapter;
@@ -87,7 +87,7 @@ public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 	}
 
 	private void bit(boolean on) throws IOException {
-		value |= ByteUtil.maskOfBitInt(on, Byte.SIZE - 1 - bit++);
+		value |= Bytes.maskOfBitInt(on, Byte.SIZE - 1 - bit++);
 		if (bit < Byte.SIZE) return;
 		out.write(value);
 		value = 0;

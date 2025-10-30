@@ -23,7 +23,7 @@ import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class TestSpiCLibNative extends TestCLibNative {
@@ -78,13 +78,13 @@ public class TestSpiCLibNative extends TestCLibNative {
 	private ByteProvider transmitBytes(spi_ioc_transfer xfer) {
 		if (xfer.tx_buf == 0L) return null;
 		Pointer p = new Pointer(xfer.tx_buf);
-		return ByteProvider.of(JnaUtil.bytes(p, 0, xfer.len));
+		return ByteProvider.of(Jna.bytes(p, 0, xfer.len));
 	}
 
 	private void receiveBytes(spi_ioc_transfer xfer, ByteProvider rxBytes) {
 		if (xfer.rx_buf == 0L || rxBytes == null) return;
 		Pointer p = new Pointer(xfer.rx_buf);
-		JnaUtil.write(p, rxBytes.copy(0));
+		Jna.write(p, rxBytes.copy(0));
 	}
 
 	private int ioctlSpiSetByte(int request, ByteByReference ref) {

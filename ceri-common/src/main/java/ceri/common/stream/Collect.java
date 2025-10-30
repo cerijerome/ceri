@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collector;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.array.DynamicArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -43,7 +43,7 @@ public class Collect {
 			new Composed<>(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
 		/** Collects elements into a sorted primitive array. */
 		public static final IntStream.Collector<?, int[]> sortedArray = new Composed<>(
-			DynamicArray::ints, DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
+			DynamicArray::ints, DynamicArray.OfInt::accept, a -> Array.ints.sort(a.truncate()));
 		/** Calculates the average value of elements. */
 		public static final IntStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);
@@ -75,7 +75,7 @@ public class Collect {
 		/** Collects elements into a sorted primitive array. */
 		public static final LongStream.Collector<DynamicArray.OfLong, long[]> sortedArray =
 			new Composed<>(DynamicArray::longs, DynamicArray.OfLong::accept,
-				a -> ArrayUtil.longs.sort(a.truncate()));
+				a -> Array.longs.sort(a.truncate()));
 		/** Calculates the average value of elements. */
 		public static final LongStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);
@@ -101,7 +101,7 @@ public class Collect {
 		/** Collects elements into a sorted primitive array. */
 		public static final DoubleStream.Collector<DynamicArray.OfDouble, double[]> sortedArray =
 			new Composed<>(DynamicArray::doubles, DynamicArray.OfDouble::accept,
-				a -> ArrayUtil.doubles.sort(a.truncate()));
+				a -> Array.doubles.sort(a.truncate()));
 		/** Calculates the average value of elements. */
 		public static final DoubleStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);
@@ -194,7 +194,7 @@ public class Collect {
 	public static <R, T extends R> Collector<T, ?, R[]>
 		sortedArray(Functions.IntFunction<R[]> constructor, Comparator<? super R> comparator) {
 		return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
-			a -> ArrayUtil.sort(a.truncate(), comparator));
+			a -> Array.sort(a.truncate(), comparator));
 	}
 
 	/**

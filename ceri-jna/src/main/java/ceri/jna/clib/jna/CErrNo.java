@@ -5,7 +5,7 @@ import static ceri.jna.util.JnaOs.mac;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.reflect.CAnnotations.CUndefined;
@@ -380,7 +380,7 @@ public class CErrNo {
 	}
 
 	static {
-		if (OsUtil.os().mac) {
+		if (Os.info().mac) {
 			EAGAIN = 35;
 			EWOULDBLOCK = 35;
 			EDEADLK = 11;

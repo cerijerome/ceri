@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Fluent;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Validate;
@@ -54,7 +54,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeShort(int value) {
-		return writeEndian(value, Short.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return writeEndian(value, Short.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeInt(int value) {
-		return writeEndian(value, Integer.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return writeEndian(value, Integer.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -96,7 +96,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeLong(long value) {
-		return writeEndian(value, Long.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return writeEndian(value, Long.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -160,7 +160,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * be improved by overriding.
 	 */
 	default T writeEndian(long value, int size, boolean msb) {
-		byte[] bytes = msb ? ByteUtil.toMsb(value, size) : ByteUtil.toLsb(value, size);
+		byte[] bytes = msb ? Bytes.toMsb(value, size) : Bytes.toLsb(value, size);
 		return writeFrom(bytes);
 	}
 
@@ -208,7 +208,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes bytes from array.
 	 */
 	default T writeBytes(int... array) {
-		return writeFrom(ArrayUtil.bytes.of(array));
+		return writeFrom(Array.bytes.of(array));
 	}
 
 	/**

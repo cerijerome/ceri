@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 
 public class BinaryPrinterBehavior {
 	private StringBuilder b;
@@ -69,7 +69,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintByteBuffer() {
 		bin = init().showBinary(false).build();
-		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy(0));
+		ByteBuffer buffer = ByteBuffer.wrap(Bytes.toAscii("abc").copy(0));
 		bin.print(buffer);
 		Assert.equal(b.toString(), "61 62 63                 abc     \n");
 	}
@@ -77,7 +77,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintByteArray() {
 		bin = init().showBinary(false).build();
-		bin.print(ByteUtil.toAscii("abc"));
+		bin.print(Bytes.toAscii("abc"));
 		Assert.equal(b.toString(), "61 62 63                 abc     \n");
 	}
 

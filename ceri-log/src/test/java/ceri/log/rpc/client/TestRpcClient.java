@@ -5,7 +5,7 @@ import com.google.protobuf.UInt32Value;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.log.rpc.TestGrpc;
-import ceri.log.rpc.util.RpcUtil;
+import ceri.log.rpc.util.Rpc;
 
 /**
  * Client for the Test service.
@@ -26,15 +26,15 @@ public class TestRpcClient implements Functions.Closeable {
 	}
 
 	public void run() throws IOException {
-		RpcClientUtil.wrap(() -> stub.run(RpcUtil.EMPTY));
+		RpcClients.wrap(() -> stub.run(Rpc.EMPTY));
 	}
 
 	public void set(int value) throws IOException {
-		RpcClientUtil.wrap(() -> stub.set(RpcUtil.uint32(value)));
+		RpcClients.wrap(() -> stub.set(Rpc.uint32(value)));
 	}
 
 	public int get() throws IOException {
-		return RpcClientUtil.wrapReturn(() -> stub.get(RpcUtil.EMPTY)).getValue();
+		return RpcClients.wrapReturn(() -> stub.get(Rpc.EMPTY)).getValue();
 	}
 
 	@Override

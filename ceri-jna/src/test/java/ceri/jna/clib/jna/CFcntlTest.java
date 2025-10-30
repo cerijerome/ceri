@@ -1,13 +1,13 @@
 package ceri.jna.clib.jna;
 
-import static ceri.jna.test.JnaTestUtil.LEX;
+import static ceri.jna.test.JnaTesting.LEX;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.util.JnaLibrary;
 
 public class CFcntlTest {
@@ -102,7 +102,7 @@ public class CFcntlTest {
 
 	@Test
 	public void testFields() {
-		JnaTestUtil.testForEachOs(CFcntl.class);
+		JnaTesting.testForEachOs(CFcntl.class);
 	}
 
 	private void assertFcntlAuto(int fd, int request, Object... args) {

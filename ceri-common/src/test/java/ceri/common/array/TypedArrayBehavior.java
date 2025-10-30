@@ -9,8 +9,8 @@ import ceri.common.text.Joiner;
 public class TypedArrayBehavior {
 	private static final Integer[] NULL = null;
 	private static final Integer[] EMPTY = new Integer[0];
-	private final Integer[] ints = ArrayUtil.of(-1, null, 1, null, 1);
-	private final TypedArray.Type.Integral<Integer> typed = ArrayUtil.ints.box;
+	private final Integer[] ints = Array.of(-1, null, 1, null, 1);
+	private final TypedArray.Type.Integral<Integer> typed = Array.ints.box;
 
 	@Test
 	public void shouldCreateArray() {

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Fluent;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
@@ -33,7 +33,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends ByteArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(ArrayUtil.bytes.empty, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Array.bytes.empty, 0, 0);
 
 		public static Immutable copyOf(byte[] array) {
 			return copyOf(array, 0);
@@ -49,7 +49,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Immutable wrap(int... array) {
-			return wrap(ArrayUtil.bytes.of(array));
+			return wrap(Array.bytes.of(array));
 		}
 
 		public static Immutable wrap(byte[] array) {
@@ -106,7 +106,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends ByteArray implements ByteAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(ArrayUtil.bytes.empty, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Array.bytes.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new byte[length]);
@@ -126,7 +126,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Mutable wrap(int... array) {
-			return wrap(ArrayUtil.bytes.of(array));
+			return wrap(Array.bytes.of(array));
 		}
 
 		public static Mutable wrap(byte[] array) {
@@ -186,8 +186,8 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public int setEndian(int index, int size, long value, boolean msb) {
 			Validate.slice(length(), index, size);
-			return msb ? ByteUtil.writeMsb(value, array, offset(index), size) :
-				ByteUtil.writeLsb(value, array, offset(index), size);
+			return msb ? Bytes.writeMsb(value, array, offset(index), size) :
+				Bytes.writeLsb(value, array, offset(index), size);
 		}
 
 		@Override
@@ -500,8 +500,8 @@ public abstract class ByteArray implements ByteProvider {
 	@Override
 	public long getEndian(int index, int size, boolean msb) {
 		Validate.slice(length(), index, size);
-		return msb ? ByteUtil.fromMsb(array, offset(index), size) :
-			ByteUtil.fromLsb(array, offset(index), size);
+		return msb ? Bytes.fromMsb(array, offset(index), size) :
+			Bytes.fromLsb(array, offset(index), size);
 	}
 
 	@Override
@@ -512,7 +512,7 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public byte[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.bytes.empty;
+		if (length == 0) return Array.bytes.empty;
 		Validate.slice(length(), index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -546,14 +546,14 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
-		return ArrayUtil.bytes.equals(this.array, offset(index), array, offset, length);
+		if (!Array.isValidSlice(length(), index, length)) return false;
+		if (!Array.isValidSlice(array.length, offset, length)) return false;
+		return Array.bytes.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
 	public boolean isEqualTo(int index, ByteProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
+		if (!Array.isValidSlice(length(), index, length)) return false;
 		return provider.isEqualTo(offset, array, offset(index), length);
 	}
 
@@ -568,11 +568,11 @@ public abstract class ByteArray implements ByteProvider {
 
 	boolean isEqual(ByteArray other) {
 		if (length() != other.length()) return false;
-		return ArrayUtil.bytes.equals(array, offset(0), other.array, other.offset(0), length());
+		return Array.bytes.equals(array, offset(0), other.array, other.offset(0), length());
 	}
 
 	int hash() {
-		return ArrayUtil.bytes.hash(array, offset, length());
+		return Array.bytes.hash(array, offset, length());
 	}
 
 	int offset(int index) {

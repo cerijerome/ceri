@@ -1,6 +1,6 @@
 package ceri.ent.mongo.server;
 
-import static ceri.common.net.NetUtil.LOCALHOST;
+import static ceri.common.net.Net.LOCALHOST;
 import java.io.IOException;
 import java.nio.file.Path;
 import ceri.common.net.HostPort;

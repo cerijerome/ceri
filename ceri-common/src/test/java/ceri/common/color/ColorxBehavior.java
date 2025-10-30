@@ -1,7 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colors.color;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -25,8 +23,8 @@ public class ColorxBehavior {
 
 	@Test
 	public void shouldCreateFromDenormalization() {
-		assertColorx(Colorx.from(0xff806048, 0x404000, 0x802000, 0x4040), 0x4080ffff000038L);
-		assertColorx(Colorx.from( //
+		ColorAssert.colorx(Colorx.from(0xff806048, 0x404000, 0x802000, 0x4040), 0x4080ffff000038L);
+		ColorAssert.colorx(Colorx.from( //
 			color(0xff806048), color(0x404000), color(0x802000), color(0x4040)), 0x4080ffff000038L);
 	}
 
@@ -63,12 +61,12 @@ public class ColorxBehavior {
 	@Test
 	public void shouldSetComponent() {
 		var cx = Colorx.of(0x33221177886644L);
-		assertColorx(cx.a(0xaa), 0x332211aa886644L);
-		assertColorx(cx.r(0xaa), 0x33221177aa6644L);
-		assertColorx(cx.g(0xaa), 0x3322117788aa44L);
-		assertColorx(cx.b(0xaa), 0x332211778866aaL);
-		assertColorx(cx.x(1, 0xaa), 0x33aa1177886644L);
-		assertColorx(cx.x(3, 0xaa), 0xaa33221177886644L);
+		ColorAssert.colorx(cx.a(0xaa), 0x332211aa886644L);
+		ColorAssert.colorx(cx.r(0xaa), 0x33221177aa6644L);
+		ColorAssert.colorx(cx.g(0xaa), 0x3322117788aa44L);
+		ColorAssert.colorx(cx.b(0xaa), 0x332211778866aaL);
+		ColorAssert.colorx(cx.x(1, 0xaa), 0x33aa1177886644L);
+		ColorAssert.colorx(cx.x(3, 0xaa), 0xaa33221177886644L);
 	}
 
 	@Test
@@ -85,15 +83,15 @@ public class ColorxBehavior {
 	@Test
 	public void shouldFlattenAlpha() {
 		var cx = Colorx.of(0x33221180886644L);
-		assertColorx(cx.flatten(), 0x1a1109ff443322L);
+		ColorAssert.colorx(cx.flatten(), 0x1a1109ff443322L);
 	}
 
 	@Test
 	public void shouldNormalizeToColor() {
-		assertColor(Colorx.of(0x4080ffff000038L).normalize(), 0xff000038);
-		assertColor(Colorx.of(0x4080ffff000038L).normalize( //
+		ColorAssert.color(Colorx.of(0x4080ffff000038L).normalize(), 0xff000038);
+		ColorAssert.color(Colorx.of(0x4080ffff000038L).normalize( //
 			color(0x404000), color(0x802000), color(0x4040)), 0xff806048);
-		assertColor(Colorx.of(0x4080ffff000038L).normalize( //
+		ColorAssert.color(Colorx.of(0x4080ffff000038L).normalize( //
 			color(0x404000), color(0x802000), color(0x4040), color(0xffffff)), 0xff806048);
 	}
 
@@ -105,5 +103,4 @@ public class ColorxBehavior {
 		Assert.equal(Colorx.of(0x4080ffff000038L).normalizeArgb(0x404000, 0x802000, 0x4040, 0xffff),
 			0xff806048);
 	}
-
 }

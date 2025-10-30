@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
@@ -55,15 +55,15 @@ public interface IntReader {
 	 * Returns the value from native-order ints.
 	 */
 	default long readLong() {
-		return readLong(ByteUtil.IS_BIG_ENDIAN);
+		return readLong(Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Returns the value from endian ints.
 	 */
 	default long readLong(boolean msb) {
-		int[] ints = readInts(IntUtil.LONG_INTS);
-		return msb ? IntUtil.longFromMsb(ints) : IntUtil.longFromLsb(ints);
+		int[] ints = readInts(Ints.LONG_INTS);
+		return msb ? Ints.longFromMsb(ints) : Ints.longFromLsb(ints);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public interface IntReader {
 	 * Reads a copied array of ints.
 	 */
 	default int[] readInts(int length) {
-		if (length == 0) return ArrayUtil.ints.empty;
+		if (length == 0) return Array.ints.empty;
 		int[] copy = new int[length];
 		readInto(copy);
 		return copy;

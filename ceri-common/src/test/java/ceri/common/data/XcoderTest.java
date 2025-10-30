@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import java.util.Set;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Enums;
 import ceri.common.test.Assert;
 
@@ -348,10 +348,10 @@ public class XcoderTest {
 	@SafeVarargs
 	private static <T> void assertRem(Xcoder.Rem<T> rem, long diff, T... ts) {
 		Assert.ordered(rem.types(), ts);
-		Assert.equal(rem.first(), ArrayUtil.at(ts, 0));
+		Assert.equal(rem.first(), Array.at(ts, 0));
 		Assert.equal(rem.diff(), diff);
 		Assert.equal(rem.diffInt(), (int) diff);
 		Assert.equal(rem.isExact(), diff == 0L);
-		Assert.equal(rem.isEmpty(), ArrayUtil.isEmpty(ts) && diff == 0L);
+		Assert.equal(rem.isEmpty(), Array.isEmpty(ts) && diff == 0L);
 	}
 }

@@ -2,7 +2,7 @@ package ceri.jna.clib.jna;
 
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.type.IntType;
@@ -357,7 +357,7 @@ public class CTermios {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.os().mac) {
+		if (Os.info().mac) {
 			TCFLAG_T_SIZE = JnaSize.LONG.get();
 			SPEED_T_SIZE = JnaSize.LONG.get();
 			NCCS = 20;

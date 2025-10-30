@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 
 /**
  * A buffer that maps data bits to pulses shaped with storage bits.
@@ -85,7 +85,7 @@ public class PulseBuffer implements ByteReceiver {
 	}
 
 	private void setStorageByte(int offset, int startBit, int len, boolean on) {
-		int mask = ByteUtil.maskInt(Byte.SIZE - startBit - len, len); // reverse it
+		int mask = Bytes.maskInt(Byte.SIZE - startBit - len, len); // reverse it
 		if (on) buffer[offset] |= mask;
 		else buffer[offset] &= ~mask;
 	}

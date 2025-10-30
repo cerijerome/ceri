@@ -65,7 +65,7 @@ public class ThreadBuffers implements Functions.Closeable {
 	public void remove() {
 		@SuppressWarnings("resource")
 		var m = Concurrent.lockedGet(lock, () -> buffers.remove(Thread.currentThread()));
-		JnaUtil.close(m);
+		Jna.close(m);
 	}
 
 	/**

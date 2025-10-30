@@ -14,7 +14,7 @@ import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
 import ceri.serial.i2c.jna.I2cDev.i2c_smbus_ioctl_data;
@@ -144,7 +144,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 
 	private void receive(i2c_msg msg, ByteProvider received) {
 		if (!i2c_msg.FLAGS.has(msg, I2C_M_RD) || msg.buf == null || received.length() == 0) return;
-		JnaUtil.write(msg.buf, received.copy(0));
+		Jna.write(msg.buf, received.copy(0));
 	}
 
 	private Bytes bytes(i2c_msg msg) {

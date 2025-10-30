@@ -21,7 +21,7 @@ import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.common.util.Capability;
 import ceri.log.concurrent.LoopingExecutor;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * The base logic for self-healing devices. It will automatically reconnect if the device is fatally
@@ -157,7 +157,7 @@ public abstract class SelfHealing<T extends Capability.Name & Closeable> extends
 	@Override
 	public void close() {
 		super.close();
-		LogUtil.close(device);
+		Logs.close(device);
 	}
 
 	protected abstract T openDevice() throws IOException;
@@ -210,7 +210,7 @@ public abstract class SelfHealing<T extends Capability.Name & Closeable> extends
 
 	@SuppressWarnings("resource")
 	private synchronized void initDevice() throws IOException {
-		LogUtil.close(this.device);
+		Logs.close(this.device);
 		var device = openDevice();
 		this.device.set(device);
 		logger.debug("Connected: %s", device.name());

@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
@@ -337,7 +337,7 @@ public class LibUsbPrinter {
 	}
 
 	private static String hex(byte[] bytes) {
-		return ArrayUtil.bytes.toHex(bytes);
+		return Array.bytes.toHex(bytes);
 	}
 
 	private static <T> T get(Excepts.Supplier<LibUsbException, T> supplier) {

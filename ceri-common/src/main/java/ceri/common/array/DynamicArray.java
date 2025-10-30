@@ -195,7 +195,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfBool extends DynamicArray<boolean[]> implements Functions.BoolConsumer {
 		private OfBool(Functions.IntOperator growth) {
-			super(ArrayUtil.bools, growth);
+			super(Array.bools, growth);
 		}
 
 		@Override
@@ -216,7 +216,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfChar extends DynamicArray<char[]> implements Functions.IntConsumer {
 		private OfChar(Functions.IntOperator growth) {
-			super(ArrayUtil.chars, growth);
+			super(Array.chars, growth);
 		}
 
 		@Override
@@ -263,7 +263,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfByte extends DynamicArray<byte[]> implements Functions.IntConsumer {
 		private OfByte(Functions.IntOperator growth) {
-			super(ArrayUtil.bytes, growth);
+			super(Array.bytes, growth);
 		}
 
 		@Override
@@ -291,7 +291,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfShort extends DynamicArray<short[]> implements Functions.IntConsumer {
 		private OfShort(Functions.IntOperator growth) {
-			super(ArrayUtil.shorts, growth);
+			super(Array.shorts, growth);
 		}
 
 		@Override
@@ -319,7 +319,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfInt extends DynamicArray<int[]> implements Functions.IntConsumer {
 		private OfInt(Functions.IntOperator growth) {
-			super(ArrayUtil.ints, growth);
+			super(Array.ints, growth);
 		}
 
 		@Override
@@ -340,7 +340,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfLong extends DynamicArray<long[]> implements Functions.LongConsumer {
 		private OfLong(Functions.IntOperator growth) {
-			super(ArrayUtil.longs, growth);
+			super(Array.longs, growth);
 		}
 
 		@Override
@@ -361,7 +361,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfFloat extends DynamicArray<float[]> implements Functions.DoubleConsumer {
 		private OfFloat(Functions.IntOperator growth) {
-			super(ArrayUtil.floats, growth);
+			super(Array.floats, growth);
 		}
 
 		@Override
@@ -383,7 +383,7 @@ public abstract class DynamicArray<T> {
 	public static class OfDouble extends DynamicArray<double[]>
 		implements Functions.DoubleConsumer {
 		private OfDouble(Functions.IntOperator growth) {
-			super(ArrayUtil.doubles, growth);
+			super(Array.doubles, growth);
 		}
 
 		@Override
@@ -459,7 +459,7 @@ public abstract class DynamicArray<T> {
 
 	private int append(int arrayLen, int offset, int length,
 		Functions.ObjBiIntConsumer<T> consumer) {
-		ArrayUtil.acceptSlice(arrayLen, offset, length, (o, l) -> {
+		Array.acceptSlice(arrayLen, offset, length, (o, l) -> {
 			ensureSize(index + l);
 			for (int i = 0; i < l; i++)
 				consumer.accept(this.array, index++, o + i);

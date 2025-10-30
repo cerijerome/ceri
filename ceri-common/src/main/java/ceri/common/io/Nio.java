@@ -7,10 +7,16 @@ import java.util.Set;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Excepts;
 
+/**
+ * Support for new I/O operations.
+ */
 public class Nio {
 
 	private Nio() {}
 
+	/**
+	 * Iterates selected keys, calling consumer.
+	 */
 	public static void selectKeys(Selector selector,
 		Excepts.Consumer<IOException, SelectionKey> consumer)
 		throws IOException, InterruptedException {
@@ -19,6 +25,9 @@ public class Nio {
 			consumer.accept(i.next());
 	}
 
+	/**
+	 * Clears selected keys.
+	 */
 	public static void clearKeys(Set<SelectionKey> selectedKeys) {
 		for (var i = selectedKeys.iterator(); i.hasNext(); i.remove())
 			i.next();

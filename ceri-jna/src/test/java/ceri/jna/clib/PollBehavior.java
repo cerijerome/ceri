@@ -6,12 +6,12 @@ import static ceri.jna.clib.Poll.Event.POLLOUT;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.test.Assert;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaOs;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class PollBehavior {
 	private Pipe pipe;
@@ -19,7 +19,7 @@ public class PollBehavior {
 
 	@After
 	public void after() {
-		LogUtil.close(pipe);
+		Logs.close(pipe);
 		pipe = null;
 		poll = null;
 	}
@@ -99,7 +99,7 @@ public class PollBehavior {
 
 	@SuppressWarnings("resource")
 	private void writeToPipe(int... bytes) throws IOException {
-		pipe.out().write(ArrayUtil.bytes.of(bytes));
+		pipe.out().write(Array.bytes.of(bytes));
 	}
 
 	private void initPipe() throws IOException {

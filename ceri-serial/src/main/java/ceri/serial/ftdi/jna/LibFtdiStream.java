@@ -20,7 +20,7 @@ import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.jna.util.GcMemory;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
@@ -236,7 +236,7 @@ public class LibFtdiStream {
 	}
 
 	private static void cancelTransfers(FTDIStreamState<?> state) {
-		LogUtil.runSilently(() -> {
+		Logs.runSilently(() -> {
 			for (int i = 0; i < state.transfers.length; i++)
 				LibUsb.libusb_cancel_transfer(state.transfers[i]);
 		});
@@ -247,7 +247,7 @@ public class LibFtdiStream {
 	 * Free transfer and decrement the active transfer count.
 	 */
 	private static void freeTransfer(FTDIStreamState<?> state, int i) {
-		LogUtil.close(() -> LibUsb.libusb_free_transfer(state.transfers[i]));
+		Logs.close(() -> LibUsb.libusb_free_transfer(state.transfers[i]));
 		state.transfers[i] = null;
 		state.activeTransfers--;
 		checkCompleted(state);

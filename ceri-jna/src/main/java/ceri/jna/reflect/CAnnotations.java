@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
@@ -52,7 +52,7 @@ public class CAnnotations {
 
 			/** No targets to process. */
 			public static final Value NONE =
-				new Value(JnaOs.NONE, ArrayUtil.Empty.classes, ArrayUtil.Empty.classes, "");
+				new Value(JnaOs.NONE, Array.Empty.classes, Array.Empty.classes, "");
 
 			/**
 			 * Create from annotation.
@@ -372,21 +372,21 @@ public class CAnnotations {
 			 * Returns true if the type is defined by typedef in c.
 			 */
 			public boolean typedef() {
-				return ArrayUtil.has(attrs(), Attr.typedef);
+				return Array.has(attrs(), Attr.typedef);
 			}
 
 			/**
 			 * Returns true if the type is defined as an enum in c.
 			 */
 			public boolean cenum() {
-				return ArrayUtil.has(attrs(), Attr.cenum);
+				return Array.has(attrs(), Attr.cenum);
 			}
 
 			/**
 			 * Returns true if the type value is defined as signed in c.
 			 */
 			public boolean signed() {
-				return ArrayUtil.has(attrs(), Attr.signed);
+				return Array.has(attrs(), Attr.signed);
 			}
 		}
 	}
@@ -425,7 +425,7 @@ public class CAnnotations {
 		// Type annotation without OS => type
 		// Otherwise undefined
 		for (var ctype : ctypes)
-			if (ArrayUtil.has(ctype.os(), os)) return CType.Value.from(ctype);
+			if (Array.has(ctype.os(), os)) return CType.Value.from(ctype);
 		for (var ctype : ctypes)
 			if (ctype.os().length == 0) return CType.Value.from(ctype);
 		return CType.Value.UNDEFINED;

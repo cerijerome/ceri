@@ -14,15 +14,17 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
+import ceri.common.data.TypeValue;
 import ceri.common.function.Functions;
 import ceri.common.text.StringBuilders;
+import ceri.common.util.Truth;
 
 public class AssertTest {
 	private static final int IMIN = Integer.MIN_VALUE;
@@ -288,18 +290,18 @@ public class AssertTest {
 
 	@Test
 	public void testApproxArray() {
-		Assert.approxArray(ArrayUtil.doubles.of(0.1234, 0.1235), 0.1233, 0.1236);
-		Assert.approxArray(4, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1234, 0.1235);
+		Assert.approxArray(Array.doubles.of(0.1234, 0.1235), 0.1233, 0.1236);
+		Assert.approxArray(4, Array.doubles.of(0.1234, 0.1235), 0.1234, 0.1235);
 		Assert.assertion(
-			() -> Assert.approxArray(ArrayUtil.doubles.of(0.1234, 0.1235), 0.1235, 0.1235));
+			() -> Assert.approxArray(Array.doubles.of(0.1234, 0.1235), 0.1235, 0.1235));
 	}
 
 	@Test
 	public void testApproxArrayWithDiff() {
-		Assert.approxArray(0.001, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1233, 0.1236);
-		Assert.approxArray(0.0001, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1234, 0.1235);
+		Assert.approxArray(0.001, Array.doubles.of(0.1234, 0.1235), 0.1233, 0.1236);
+		Assert.approxArray(0.0001, Array.doubles.of(0.1234, 0.1235), 0.1234, 0.1235);
 		Assert.assertion(
-			() -> Assert.approxArray(0.0001, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1235, 0.1235));
+			() -> Assert.approxArray(0.0001, Array.doubles.of(0.1234, 0.1235), 0.1235, 0.1235));
 	}
 
 	// collections
@@ -366,29 +368,29 @@ public class AssertTest {
 
 	@Test
 	public void testUnordered() {
-		Assert.unordered(ArrayUtil.of(1, -1, null), null, 1, -1);
-		var list = ArrayUtil.ints.list(5, 1, 4, 2, 3);
+		Assert.unordered(Array.of(1, -1, null), null, 1, -1);
+		var list = Array.ints.list(5, 1, 4, 2, 3);
 		Assert.unordered(list, 1, 2, 3, 4, 5);
 		Assert.assertion(() -> Assert.unordered(list, 1, 2, 4, 5));
 		Assert.assertion(() -> Assert.unordered(list, 1, 2, 3, 4, 5, 6));
-		Assert.unordered(ArrayUtil.bools.of(true, false), false, true);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.bools.of(true, false), false, false));
-		Assert.unordered(ArrayUtil.chars.of('a', 'b'), 'b', 'a');
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.chars.of('a', 'b'), 'b', 'b'));
-		Assert.unordered(ArrayUtil.chars.of('a', 'b'), 0x62, 0x61);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.chars.of('a', 'b'), 0x62, 0x62));
-		Assert.unordered(ArrayUtil.bytes.of(-1, 1), 1, -1);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.bytes.of(-1, 1), 1, 1));
-		Assert.unordered(ArrayUtil.shorts.of(-1, 1), 1, -1);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.shorts.of(-1, 1), 1, 1));
-		Assert.unordered(ArrayUtil.ints.of(-1, 1), 1, -1);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.ints.of(-1, 1), 1, 1));
-		Assert.unordered(ArrayUtil.longs.of(-1, 1), 1, -1);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.longs.of(-1, 1), 1, 1));
-		Assert.unordered(ArrayUtil.floats.of(-1.0, 1.0), 1.0, -1.0);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.floats.of(-1.0, 1.0), 1.0, 1.0));
-		Assert.unordered(ArrayUtil.doubles.of(-1, 1), 1, -1);
-		Assert.assertion(() -> Assert.unordered(ArrayUtil.doubles.of(-1, 1), 1, 1));
+		Assert.unordered(Array.bools.of(true, false), false, true);
+		Assert.assertion(() -> Assert.unordered(Array.bools.of(true, false), false, false));
+		Assert.unordered(Array.chars.of('a', 'b'), 'b', 'a');
+		Assert.assertion(() -> Assert.unordered(Array.chars.of('a', 'b'), 'b', 'b'));
+		Assert.unordered(Array.chars.of('a', 'b'), 0x62, 0x61);
+		Assert.assertion(() -> Assert.unordered(Array.chars.of('a', 'b'), 0x62, 0x62));
+		Assert.unordered(Array.bytes.of(-1, 1), 1, -1);
+		Assert.assertion(() -> Assert.unordered(Array.bytes.of(-1, 1), 1, 1));
+		Assert.unordered(Array.shorts.of(-1, 1), 1, -1);
+		Assert.assertion(() -> Assert.unordered(Array.shorts.of(-1, 1), 1, 1));
+		Assert.unordered(Array.ints.of(-1, 1), 1, -1);
+		Assert.assertion(() -> Assert.unordered(Array.ints.of(-1, 1), 1, 1));
+		Assert.unordered(Array.longs.of(-1, 1), 1, -1);
+		Assert.assertion(() -> Assert.unordered(Array.longs.of(-1, 1), 1, 1));
+		Assert.unordered(Array.floats.of(-1.0, 1.0), 1.0, -1.0);
+		Assert.assertion(() -> Assert.unordered(Array.floats.of(-1.0, 1.0), 1.0, 1.0));
+		Assert.unordered(Array.doubles.of(-1, 1), 1, -1);
+		Assert.assertion(() -> Assert.unordered(Array.doubles.of(-1, 1), 1, 1));
 	}
 
 	// ordered
@@ -491,23 +493,36 @@ public class AssertTest {
 
 	@Test
 	public void testAscii() {
-		var r = ByteUtil.toAscii("tests").reader(0);
+		var r = Bytes.toAscii("tests").reader(0);
 		Assert.ascii(r, "test");
 		r.reset();
 		Assert.assertion(() -> Assert.ascii(r, "test0"));
 	}
 
+	// other types
+	
+	@Test
+	public void testTypeValue() {
+		Assert.typeValue(TypeValue.of(-1, null, null), null, -1);
+		Assert.typeValue(TypeValue.of(-1, null, null), null, -1, null);
+		Assert.typeValue(TypeValue.of(-1, null, "no"), null, -1);
+		Assert.typeValue(TypeValue.of(-1, null, "no"), null, -1, "no");
+		Assert.typeValue(TypeValue.of(-1, Truth.maybe, "maybe"), Truth.maybe, -1);
+		Assert.assertion(() -> Assert.typeValue(
+			TypeValue.of(-1, Truth.maybe, "maybe"), Truth.maybe, -1, null));
+	}
+	
 	// I/O
 
 	@Test
 	public void testBuffer() {
-		Assert.buffer(ByteBuffer.wrap(ArrayUtil.bytes.of()));
-		Assert.buffer(ByteBuffer.wrap(ArrayUtil.bytes.of(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
+		Assert.buffer(ByteBuffer.wrap(Array.bytes.of()));
+		Assert.buffer(ByteBuffer.wrap(Array.bytes.of(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
 	}
 
 	@Test
 	public void testRead() throws IOException {
-		var in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
+		var in = new ByteArrayInputStream(Array.bytes.of(1, 2, 3));
 		Assert.read(in, 1, 2, 3);
 		in.reset();
 		Assert.read(in, ByteProvider.of(1, 2));

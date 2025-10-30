@@ -14,7 +14,7 @@ import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * A self-healing TCP socket connector. It will automatically reconnect if the connection is broken.
@@ -174,7 +174,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 			options.applyAll(socket);
 			return socket;
 		} catch (RuntimeException | IOException e) {
-			LogUtil.close(socket);
+			Logs.close(socket);
 			throw e;
 		}
 	}

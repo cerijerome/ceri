@@ -1,7 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertHsb;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
@@ -191,24 +189,24 @@ public class ColorsTest {
 
 	@Test
 	public void testFlatten() {
-		assertColor(Colors.flatten(Colors.color(0x00802040)), 0xff000000);
-		assertColor(Colors.flatten(Colors.color(0x80802040)), 0xff401020);
-		assertColor(Colors.flatten(Colors.color(0xff802040)), 0xff802040);
+		ColorAssert.color(Colors.flatten(Colors.color(0x00802040)), 0xff000000);
+		ColorAssert.color(Colors.flatten(Colors.color(0x80802040)), 0xff401020);
+		ColorAssert.color(Colors.flatten(Colors.color(0xff802040)), 0xff802040);
 	}
 
 	@Test
 	public void testColorFromComponents() {
-		assertColor(Colors.color(0x80, 0x70, 0xff, 0), 0x8070ff00);
+		ColorAssert.color(Colors.color(0x80, 0x70, 0xff, 0), 0x8070ff00);
 	}
 
 	@Test
 	public void testColorFromText() {
-		assertColor(Colors.color("test"), null);
-		assertColor(Colors.color("clear"), 0);
-		assertColor(Colors.color("aquamarine"), Coloring.aquamarine.argb);
-		assertColor(Colors.color("#fed"), 0xffffeedd);
-		assertColor(Colors.color("0xfed"), 0xff000fed);
-		assertColor(Colors.color("#fedcba98"), 0xfedcba98);
+		ColorAssert.color(Colors.color("test"), null);
+		ColorAssert.color(Colors.color("clear"), 0);
+		ColorAssert.color(Colors.color("aquamarine"), Coloring.aquamarine.argb);
+		ColorAssert.color(Colors.color("#fed"), 0xffffeedd);
+		ColorAssert.color(Colors.color("0xfed"), 0xff000fed);
+		ColorAssert.color(Colors.color("#fedcba98"), 0xfedcba98);
 	}
 
 	@Test
@@ -222,10 +220,10 @@ public class ColorsTest {
 	@Test
 	public void testSetComponent() {
 		var c = Colors.color(0x88776655);
-		assertColor(Colors.a(c, 0xaa), 0xaa776655);
-		assertColor(Colors.r(c, 0xaa), 0x88aa6655);
-		assertColor(Colors.g(c, 0xaa), 0x8877aa55);
-		assertColor(Colors.b(c, 0xaa), 0x887766aa);
+		ColorAssert.color(Colors.a(c, 0xaa), 0xaa776655);
+		ColorAssert.color(Colors.r(c, 0xaa), 0x88aa6655);
+		ColorAssert.color(Colors.g(c, 0xaa), 0x8877aa55);
+		ColorAssert.color(Colors.b(c, 0xaa), 0x887766aa);
 		Assert.same(Colors.a(c, 0x88), c);
 		Assert.same(Colors.r(c, 0x77), c);
 		Assert.same(Colors.g(c, 0x66), c);
@@ -235,20 +233,20 @@ public class ColorsTest {
 	@Test
 	public void testValidColorFromText() {
 		Assert.thrown(() -> Colors.validColor("test"));
-		assertColor(Colors.validColor("aquamarine"), Coloring.aquamarine.argb);
+		ColorAssert.color(Colors.validColor("aquamarine"), Coloring.aquamarine.argb);
 	}
 
 	@Test
 	public void testGray() {
-		assertColor(Colors.gray(0), 0xff000000);
-		assertColor(Colors.gray(0xab), 0xffababab);
+		ColorAssert.color(Colors.gray(0), 0xff000000);
+		ColorAssert.color(Colors.gray(0xab), 0xffababab);
 	}
 
 	@Test
 	public void testMax() {
-		assertColor(Colors.max(Colors.color(0x80408020)), 0x8080ff40);
-		assertColor(Colors.max(Colors.color(0x8040ff20)), 0x8040ff20);
-		assertColor(Colors.max(Colors.color(0x80000000)), 0x80000000);
+		ColorAssert.color(Colors.max(Colors.color(0x80408020)), 0x8080ff40);
+		ColorAssert.color(Colors.max(Colors.color(0x8040ff20)), 0x8040ff20);
+		ColorAssert.color(Colors.max(Colors.color(0x80000000)), 0x80000000);
 	}
 
 	@Test
@@ -258,46 +256,46 @@ public class ColorsTest {
 
 	@Test
 	public void testDim() {
-		assertColor(Colors.dim(Colors.color(0xff664422), 0.0), 0xff000000);
-		assertColor(Colors.dim(Colors.color(0xff664422), 1.0), 0xff664422);
-		assertColor(Colors.dim(Colors.color(0xff664422), 0.5), 0xff332211);
-		assertColor(Colors.dim(Colors.color(0xff664422), 0.125), 0xff0d0904);
-		assertColor(Colors.dim(Colors.color(0x88664422), 0.5), 0x88332211);
-		assertColor(Colors.dim(Colors.color(0x88000000), 0.5), 0x88000000);
+		ColorAssert.color(Colors.dim(Colors.color(0xff664422), 0.0), 0xff000000);
+		ColorAssert.color(Colors.dim(Colors.color(0xff664422), 1.0), 0xff664422);
+		ColorAssert.color(Colors.dim(Colors.color(0xff664422), 0.5), 0xff332211);
+		ColorAssert.color(Colors.dim(Colors.color(0xff664422), 0.125), 0xff0d0904);
+		ColorAssert.color(Colors.dim(Colors.color(0x88664422), 0.5), 0x88332211);
+		ColorAssert.color(Colors.dim(Colors.color(0x88000000), 0.5), 0x88000000);
 	}
 
 	@Test
 	public void testScale() {
-		assertColor(Colors.scale(Colors.color(0xff224466), Colors.color(0xff446622), 0),
+		ColorAssert.color(Colors.scale(Colors.color(0xff224466), Colors.color(0xff446622), 0),
 			0xff224466);
-		assertColor(Colors.scale(Colors.color(0xff224466), Colors.color(0xff446622), 1),
+		ColorAssert.color(Colors.scale(Colors.color(0xff224466), Colors.color(0xff446622), 1),
 			0xff446622);
-		assertColor(Colors.scale(Colors.color(0xff224466), Colors.color(0xff446622), 0.5),
+		ColorAssert.color(Colors.scale(Colors.color(0xff224466), Colors.color(0xff446622), 0.5),
 			0xff335544);
 	}
 
 	@Test
 	public void testScaleHsb() {
-		assertColor(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0),
+		ColorAssert.color(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0),
 			0xff804020);
-		assertColor(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0.25),
+		ColorAssert.color(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0.25),
 			0xff807020);
-		assertColor(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0.5),
+		ColorAssert.color(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0.5),
 			0xff608020);
-		assertColor(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0.75),
+		ColorAssert.color(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 0.75),
 			0xff308020);
-		assertColor(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 1),
+		ColorAssert.color(Colors.scaleHsb(Colors.color(0xff804020), Colors.color(0xff208040), 1),
 			0xff208040);
 	}
 
 	@Test
 	public void testScaleHsbColors() {
-		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.0), 0.5, 0.8,
-			0.4);
-		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.5), 0.7, 0.6,
-			0.5);
-		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 1.0), 0.9, 0.4,
-			0.6);
+		ColorAssert.hsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.0), 0.5,
+			0.8, 0.4);
+		ColorAssert.hsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.5), 0.7,
+			0.6, 0.5);
+		ColorAssert.hsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 1.0), 0.9,
+			0.4, 0.6);
 	}
 
 	@Test
@@ -354,7 +352,7 @@ public class ColorsTest {
 		var c10 = Colors.blendArgbs(c1, c0);
 		var c21_0 = Colors.blendArgbs(c21, c0);
 		var c2_10 = Colors.blendArgbs(c2, c10);
-		ColorTestUtil.assertArgbDiff(c21_0, c2_10, 1);
+		ColorAssert.argbDiff(c21_0, c2_10, 1);
 	}
 
 	@Test

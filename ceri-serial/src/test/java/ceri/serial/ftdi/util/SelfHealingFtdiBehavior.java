@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
@@ -18,7 +18,7 @@ import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.Testing;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.FtdiBitMode;
@@ -213,7 +213,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldWriteBytes() throws IOException {
 		connect();
-		con.out().write(ArrayUtil.bytes.of(1, 2, 3));
+		con.out().write(Array.bytes.of(1, 2, 3));
 		lib.transferOut.assertAuto(List.of(0x02, ByteProvider.of(1, 2, 3)));
 	}
 
@@ -258,7 +258,7 @@ public class SelfHealingFtdiBehavior {
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var _ = con.listeners().enclose(sync::signal)) {
-				lib.transferOut.error.setFrom(JnaTestUtil.LEX);
+				lib.transferOut.error.setFrom(JnaTesting.LEX);
 				Assert.thrown(con::open);
 				sync.await(StateChange.broken);
 				lib.transferOut.awaitAuto();

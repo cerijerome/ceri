@@ -5,7 +5,7 @@ import ceri.common.collect.Iterables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functional;
 import ceri.common.function.Functions;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 
 /**
  * Supported OS types for JNA code.
@@ -56,16 +56,16 @@ public enum JnaOs implements Functional.Access<JnaOs> {
 	 * Determine the current OS type.
 	 */
 	public static JnaOs current() {
-		return from(OsUtil.os());
+		return from(Os.info());
 	}
 
 	/**
 	 * Determine the OS type.
 	 */
-	public static JnaOs from(OsUtil.Os os) {
-		if (os == null) return unknown;
-		if (os.mac) return mac;
-		if (os.linux) return linux;
+	public static JnaOs from(Os.Info info) {
+		if (info == null) return unknown;
+		if (info.mac) return mac;
+		if (info.linux) return linux;
 		return unknown;
 	}
 
@@ -75,7 +75,7 @@ public enum JnaOs implements Functional.Access<JnaOs> {
 	public static JnaOs validCurrent() {
 		var os = current();
 		if (os.known()) return os;
-		throw new IllegalStateException("Unsupported OS: " + OsUtil.os());
+		throw new IllegalStateException("Unsupported OS: " + Os.info());
 	}
 
 	private JnaOs(String name, String cdefine) {
@@ -94,7 +94,7 @@ public enum JnaOs implements Functional.Access<JnaOs> {
 	 * Overrides the current OS type with this OS type. Close to revert the override.
 	 */
 	public Functions.Closeable override() {
-		return OsUtil.os(name, null, null);
+		return Os.info(name, null, null);
 	}
 
 	/**

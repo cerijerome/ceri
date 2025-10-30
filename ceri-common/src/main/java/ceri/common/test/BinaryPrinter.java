@@ -6,9 +6,9 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.function.Functions;
 import ceri.common.math.Radix;
 import ceri.common.reflect.Reflect;
@@ -199,7 +199,7 @@ public class BinaryPrinter {
 	 */
 	public BinaryPrinter printCodePoints(String s) {
 		var out = new ByteArrayOutputStream();
-		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toMsb((short) cp)));
+		s.codePoints().forEach(cp -> Bytes.writeTo(out, Bytes.toMsb((short) cp)));
 		return print(out.toByteArray());
 	}
 
@@ -273,7 +273,7 @@ public class BinaryPrinter {
 	 * Print binary data.
 	 */
 	public BinaryPrinter print(int... bytes) {
-		return print(ArrayUtil.bytes.of(bytes));
+		return print(Array.bytes.of(bytes));
 	}
 
 	/**

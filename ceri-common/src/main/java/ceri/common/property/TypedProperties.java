@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Sets;
 import ceri.common.function.Excepts;
 import ceri.common.stream.Collect;
@@ -79,7 +79,7 @@ public class TypedProperties {
 	 */
 	public static TypedProperties load(Class<?> cls, String name, String... prefix)
 		throws IOException {
-		return from(PropertyUtil.load(cls, name), prefix);
+		return from(Property.load(cls, name), prefix);
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class TypedProperties {
 	 */
 	private TypedProperties(PropertySource properties, String... prefix) {
 		this.properties = properties;
-		if (prefix == null) prefix = ArrayUtil.Empty.strings;
+		if (prefix == null) prefix = Array.Empty.strings;
 		this.prefix = separator().join(prefix);
 	}
 

@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functional;
 import ceri.common.math.Maths;
@@ -213,7 +213,7 @@ public class IoStream {
 		return new OutputStream() {
 			@Override
 			public void write(int b) throws IOException {
-				if (writeFn != null) write(ArrayUtil.bytes.of(b), 0, 1);
+				if (writeFn != null) write(Array.bytes.of(b), 0, 1);
 			}
 
 			@Override
@@ -370,7 +370,7 @@ public class IoStream {
 
 	private static void write(OutputStream out, FilterWrite writeFn, int b) throws IOException {
 		if (writeFn == null) out.write(b);
-		else write(out, writeFn, ArrayUtil.bytes.of(b), 0, 1);
+		else write(out, writeFn, Array.bytes.of(b), 0, 1);
 	}
 
 	private static void write(OutputStream out, FilterWrite writeFn, byte[] b, int off, int len)
@@ -393,7 +393,7 @@ public class IoStream {
 
 			@Override
 			public byte[] readAllBytes() {
-				return ArrayUtil.bytes.empty; // 1-byte instead?
+				return Array.bytes.empty; // 1-byte instead?
 			}
 
 			@Override

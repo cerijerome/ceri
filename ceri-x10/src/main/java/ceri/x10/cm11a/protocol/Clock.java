@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
-import ceri.common.data.DataUtil;
+import ceri.common.data.Data;
 import ceri.common.text.ToString;
 import ceri.common.time.Dates;
 import ceri.x10.command.House;
@@ -31,7 +31,7 @@ import ceri.x10.command.House;
  * </pre>
  */
 public class Clock implements ByteArray.Encodable {
-	private static final int SIZE = 1 + Data.DATE_BYTES + 1;
+	private static final int SIZE = 1 + X10Data.DATE_BYTES + 1;
 	private static final int CLEAR_BATTERY_TIMER_FLAG = 0x4;
 	private static final int CLEAR_MONITORED_STATUS_FLAG = 0x2;
 	private static final int PURGE_TIMER_FLAG = 0x1;
@@ -42,11 +42,11 @@ public class Clock implements ByteArray.Encodable {
 	public final boolean purgeTimer;
 
 	public static Clock decode(ByteReader r) {
-		DataUtil.expect(r, Protocol.TIME.value);
+		Data.expect(r, Protocol.TIME.value);
 		var builder = new Builder();
-		builder.date(Data.readDateFrom(r));
+		builder.date(X10Data.readDateFrom(r));
 		int code = r.readUbyte();
-		builder.house(Data.decodeHouse(code));
+		builder.house(X10Data.decodeHouse(code));
 		builder.clearBatteryTimer(clearBatteryTimer(code));
 		builder.clearMonitoredStatus(clearMonitoredStatus(code));
 		builder.purgeTimer(purgeTimer(code));
@@ -120,8 +120,9 @@ public class Clock implements ByteArray.Encodable {
 	@Override
 	public void encode(ByteArray.Encoder encoder) {
 		encoder.writeByte(Protocol.TIME.value);
-		Data.writeDateTo(date, encoder);
-		int code = Data.encode(house, flags(clearBatteryTimer, clearMonitoredStatus, purgeTimer));
+		X10Data.writeDateTo(date, encoder);
+		int code =
+			X10Data.encode(house, flags(clearBatteryTimer, clearMonitoredStatus, purgeTimer));
 		encoder.writeByte(code);
 	}
 
@@ -162,8 +163,8 @@ public class Clock implements ByteArray.Encodable {
 
 	private static int flags(boolean clearBatteryTimer, boolean clearMonitoredStatus,
 		boolean purgeTimer) {
-		return (clearBatteryTimer ? CLEAR_BATTERY_TIMER_FLAG : 0) |
-			(clearMonitoredStatus ? CLEAR_MONITORED_STATUS_FLAG : 0) |
-			(purgeTimer ? PURGE_TIMER_FLAG : 0);
+		return (clearBatteryTimer ? CLEAR_BATTERY_TIMER_FLAG : 0)
+			| (clearMonitoredStatus ? CLEAR_MONITORED_STATUS_FLAG : 0)
+			| (purgeTimer ? PURGE_TIMER_FLAG : 0);
 	}
 }

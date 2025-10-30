@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.jna.test.JnaTestUtil.buffer;
+import static ceri.jna.test.JnaTesting.buffer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_TYPE_STANDARD;
@@ -17,13 +17,13 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.log.test.LogModifier;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.UsbTransfer.Bulk;
 import ceri.serial.libusb.UsbTransfer.BulkStream;
 import ceri.serial.libusb.UsbTransfer.Control;
@@ -62,7 +62,7 @@ public class UsbTransferBehavior {
 		CallSync.Consumer<Control> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.controlTransfer(callback)) {
 			transfer.buffer(ByteBuffer.allocateDirect(12)).length(12).data()
-				.put(ArrayUtil.bytes.of(1, 2, 3, 4));
+				.put(Array.bytes.of(1, 2, 3, 4));
 			transfer.setup().recipient(LIBUSB_RECIPIENT_DEVICE).type(LIBUSB_REQUEST_TYPE_STANDARD)
 				.standard(LIBUSB_REQUEST_GET_STATUS).direction(LIBUSB_ENDPOINT_OUT).value(0xff)
 				.index(3);
@@ -126,7 +126,7 @@ public class UsbTransferBehavior {
 				handle.close();
 				Assert.thrown(() -> streams.bulkTransfer(0x81, 1, _ -> {}));
 			}
-		}, Level.OFF, LogUtil.class);
+		}, Level.OFF, Logs.class);
 	}
 
 	@SuppressWarnings("resource")
@@ -170,8 +170,8 @@ public class UsbTransferBehavior {
 			Assert.yes(transfer == callback.value());
 			Assert.equal(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
 			Assert.equal(transfer.actualLength(), 7);
-			Assert.array(JnaUtil.bytes(transfer.packetBufferSimple(1)), 4, 5, 6);
-			Assert.array(JnaUtil.bytes(transfer.packetBuffer(2)), 7);
+			Assert.array(Jna.bytes(transfer.packetBufferSimple(1)), 4, 5, 6);
+			Assert.array(Jna.bytes(transfer.packetBuffer(2)), 7);
 		}
 	}
 
@@ -186,7 +186,7 @@ public class UsbTransferBehavior {
 				transfer.close();
 				Assert.thrown(() -> transfer.submit());
 			}
-		}, Level.OFF, LogUtil.class);
+		}, Level.OFF, Logs.class);
 	}
 
 }

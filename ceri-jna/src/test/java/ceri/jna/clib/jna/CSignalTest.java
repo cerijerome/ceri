@@ -1,10 +1,9 @@
 package ceri.jna.clib.jna;
 
-import static ceri.jna.test.JnaTestUtil.assertCException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.jna.clib.ErrNo;
@@ -12,7 +11,8 @@ import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CSignal.sigset_t;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaAssert;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.util.JnaLibrary;
 
 public class CSignalTest {
@@ -53,14 +53,14 @@ public class CSignalTest {
 		lib.sigset.assertAuto(0);
 		// set SIGINT
 		CSignal.sigaddset(sigset, CSignal.SIGINT);
-		lib.sigset.assertAuto(ByteUtil.maskOfBitsInt(CSignal.SIGINT));
+		lib.sigset.assertAuto(Bytes.maskOfBitsInt(CSignal.SIGINT));
 		Assert.yes(CSignal.sigismember(sigset, CSignal.SIGINT));
 		// set SIGABRT
 		CSignal.sigaddset(sigset, CSignal.SIGABRT);
-		lib.sigset.assertAuto(ByteUtil.maskOfBitsInt(CSignal.SIGINT, CSignal.SIGABRT));
+		lib.sigset.assertAuto(Bytes.maskOfBitsInt(CSignal.SIGINT, CSignal.SIGABRT));
 		// unset SIGINT
 		CSignal.sigdelset(sigset, CSignal.SIGINT);
-		lib.sigset.assertAuto(ByteUtil.maskOfBitsInt(CSignal.SIGABRT));
+		lib.sigset.assertAuto(Bytes.maskOfBitsInt(CSignal.SIGABRT));
 		Assert.no(CSignal.sigismember(sigset, CSignal.SIGINT));
 	}
 
@@ -69,9 +69,9 @@ public class CSignalTest {
 		var lib = ref.init();
 		var sigset = CSignal.sigemptyset(new sigset_t());
 		lib.sigset.autoResponses(-1, 0);
-		assertCException(() -> CSignal.sigismember(sigset, CSignal.SIGINT));
+		JnaAssert.cexception(() -> CSignal.sigismember(sigset, CSignal.SIGINT));
 		lib.sigset.error.setFrom(ErrNo.EACCES::lastError);
-		assertCException(() -> CSignal.sigismember(sigset, CSignal.SIGINT));
+		JnaAssert.cexception(() -> CSignal.sigismember(sigset, CSignal.SIGINT));
 	}
 
 	@Test
@@ -81,6 +81,6 @@ public class CSignalTest {
 
 	@Test
 	public void testFields() {
-		JnaTestUtil.testForEachOs(CSignal.class);
+		JnaTesting.testForEachOs(CSignal.class);
 	}
 }

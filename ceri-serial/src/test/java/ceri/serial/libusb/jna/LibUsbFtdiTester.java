@@ -15,9 +15,9 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.concurrent.Concurrent;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
@@ -62,7 +62,7 @@ public class LibUsbFtdiTester {
 		read(handle);
 		Concurrent.delay(delayMs);
 		ByteBuffer b =
-			ByteBuffer.wrap(ArrayUtil.bytes.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
+			ByteBuffer.wrap(Array.bytes.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
 		for (int i = 0; i < 16; i++) {
 			write(handle, b, i);
 			Concurrent.delay(delayMs);
@@ -83,7 +83,7 @@ public class LibUsbFtdiTester {
 	private static void read(libusb_device_handle handle) throws LibUsbException {
 		logger.info("Reading 1 byte");
 		int value = ubyte(libusb_control_transfer(handle, 0xc0, 0x0c, 0x0000, 1, 1, 500)[0]);
-		logger.info("Status: 0x{}", LogUtil.toHex(value));
+		logger.info("Status: 0x{}", Logs.toHex(value));
 	}
 
 	private static void write(libusb_device_handle handle, ByteBuffer b, int i)

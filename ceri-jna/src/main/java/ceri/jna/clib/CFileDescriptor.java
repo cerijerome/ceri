@@ -13,7 +13,7 @@ import ceri.common.text.Regex;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
@@ -134,7 +134,7 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public void close() {
 		if (closed.getAndSet(true)) return;
-		LogUtil.close(in, out, () -> CUnistd.close(fd));
+		Logs.close(in, out, () -> CUnistd.close(fd));
 	}
 
 	/**

@@ -36,14 +36,14 @@ public class UdpChannel implements AutoCloseable {
 
 	@SuppressWarnings("resource")
 	private UdpChannel(int port) throws IOException {
-		networkIface = NetUtil.localInterface();
+		networkIface = Net.localInterface();
 		channel = DatagramChannel.open();
 		channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
 			.setOption(StandardSocketOptions.IP_MULTICAST_IF, networkIface)
 			.bind(new InetSocketAddress(port)).socket().setBroadcast(true);
 		channel.configureBlocking(false);
-		localHost = NetUtil.localIp4Address();
-		broadcastHost = NetUtil.localBroadcast();
+		localHost = Net.localIp4Address();
+		broadcastHost = Net.localBroadcast();
 		this.port = channel.socket().getLocalPort();
 	}
 

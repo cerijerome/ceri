@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 /**
  * Originally used to encapsulate an executor service as a Closeable resource. Now ExecutorService
@@ -70,6 +70,6 @@ public class CloseableExecutor implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(executor);
+		Logs.close(executor);
 	}
 }

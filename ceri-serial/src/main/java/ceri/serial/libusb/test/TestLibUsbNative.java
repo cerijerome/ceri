@@ -26,7 +26,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.function.Enclosure;
 import ceri.common.math.Maths;
 import ceri.common.test.Assert;
@@ -35,8 +35,8 @@ import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.jna.util.Caller;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 import ceri.serial.libusb.UsbEvents.PollFd;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -101,7 +101,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		int... bytes) {
 		Assert.equal(t.endPoint, endPoint, "endPoint");
 		Assert.equal(t.type, type, "type");
-		Assert.array(JnaUtil.bytes(t.buffer), bytes);
+		Assert.array(Jna.bytes(t.buffer), bytes);
 	}
 
 	public static LastErrorException lastError(LibUsb.libusb_error error) {
@@ -218,7 +218,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_device_descriptor(libusb_device dev, Pointer p) {
 		var desc = Struct.write(device(dev).config.desc);
-		JnaUtil.memcpy(p, 0, desc.getPointer(), 0, desc.size());
+		Jna.memcpy(p, 0, desc.getPointer(), 0, desc.size());
 		return 0;
 	}
 
@@ -329,7 +329,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		int port_numbers_len) {
 		byte[] portNumbers = device(dev).config.portNumbers;
 		if (portNumbers.length > port_numbers_len) return LIBUSB_ERROR_OVERFLOW.value;
-		JnaUtil.write(port_numbers, portNumbers);
+		Jna.write(port_numbers, portNumbers);
 		return portNumbers.length;
 	}
 
@@ -337,7 +337,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public libusb_device libusb_get_parent(libusb_device dev) {
 		var device = device(dev);
 		var parent = data.parentDevice(device);
-		return parent == null ? null : PointerUtil.set(new libusb_device(), parent.p);
+		return parent == null ? null : Pointers.set(new libusb_device(), parent.p);
 	}
 
 	@Override
@@ -382,7 +382,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public libusb_device libusb_get_device(libusb_device_handle dev_handle) {
-		return PointerUtil.set(new libusb_device(), handle(dev_handle).device.p);
+		return Pointers.set(new libusb_device(), handle(dev_handle).device.p);
 	}
 
 	@Override
@@ -416,7 +416,7 @@ public class TestLibUsbNative implements LibUsbNative {
 				d -> d.config.desc.idVendor == vendor_id && d.config.desc.idProduct == product_id);
 			if (device == null) return null;
 			var handle = data.createDeviceHandle(device);
-			return PointerUtil.set(new libusb_device_handle(), handle.p);
+			return Pointers.set(new libusb_device_handle(), handle.p);
 		} finally {
 			data.removeDeviceList(deviceList, true);
 		}
@@ -473,7 +473,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_kernel_driver_active(libusb_device_handle dev, int interface_number) {
-		return ByteUtil.bit(handle(dev).kernelDriverInterfaceBits, interface_number) ? 0 : 1;
+		return Bytes.bit(handle(dev).kernelDriverInterfaceBits, interface_number) ? 0 : 1;
 	}
 
 	@Override
@@ -686,7 +686,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		var list = this.pollFds.get();
 		if (list == null) return null;
 		var pollFds = new libusb_pollfd[list.size()];
-		var pointers = PointerUtil.callocArray(list.size() + 1);
+		var pointers = Pointers.callocArray(list.size() + 1);
 		for (int i = 0; i < pollFds.length; i++) {
 			pollFds[i] = new libusb_pollfd(null);
 			pollFds[i].fd = list.get(i).fd();
@@ -776,14 +776,14 @@ public class TestLibUsbNative implements LibUsbNative {
 		int length) {
 		ByteProvider bytes = transferIn.apply(List.of(reqType, req, value, index, length));
 		if (bytes == null || bytes.length() == 0) return 0;
-		ByteUtil.writeTo(buffer, 0, bytes.copy(0));
+		Bytes.writeTo(buffer, 0, bytes.copy(0));
 		return bytes.length();
 	}
 
 	private int controlTransferOut(int reqType, int req, int value, int index, ByteBuffer buffer,
 		int length) {
 		byte[] bytes = new byte[length];
-		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
+		if (buffer != null) Bytes.readFrom(buffer, 0, bytes);
 		return transferOut.apply(List.of(reqType, req, value, index, ByteProvider.of(bytes)));
 	}
 
@@ -791,7 +791,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		IntByReference actualLength) {
 		ByteProvider bytes = transferIn.apply(List.of(endpoint, length));
 		if (bytes != null) {
-			ByteUtil.writeTo(buffer, 0, bytes.copy(0));
+			Bytes.writeTo(buffer, 0, bytes.copy(0));
 			if (actualLength != null) actualLength.setValue(bytes.length());
 		}
 		return 0;
@@ -800,7 +800,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	private int syncTransferOut(int endpoint, ByteBuffer buffer, int length,
 		IntByReference actualLength) {
 		byte[] bytes = new byte[length];
-		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
+		if (buffer != null) Bytes.readFrom(buffer, 0, bytes);
 		Integer result = transferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
 		if (actualLength != null) actualLength.setValue(result == null ? 0 : length);
 		return result == null ? 0 : result;
@@ -820,7 +820,7 @@ public class TestLibUsbNative implements LibUsbNative {
 			if (hotPlug.context != context) continue;
 			var event = handleHotPlugEvent.apply(hotPlug);
 			if (event.device == null) continue;
-			var ctx = PointerUtil.set(new libusb_context(), context.p);
+			var ctx = Pointers.set(new libusb_context(), context.p);
 			int result =
 				hotPlug.callback.invoke(ctx, event.device(), event.event().value, hotPlug.userData);
 			if (result != 0) data.removeHotPlug(hotPlug.handle);
@@ -833,7 +833,7 @@ public class TestLibUsbNative implements LibUsbNative {
 			var t = transfer.transfer();
 			if (handle(t.dev_handle).device.deviceList.context != context) continue;
 			if (t.status == 0) {
-				ByteBuffer buffer = JnaUtil.buffer(t.buffer, 0, t.length);
+				ByteBuffer buffer = Jna.buffer(t.buffer, 0, t.length);
 				var status = handleTransferEvent
 					.apply(new TransferEvent(Maths.ubyte(t.endpoint), t.type(), buffer));
 				if (status == null) continue; // no event

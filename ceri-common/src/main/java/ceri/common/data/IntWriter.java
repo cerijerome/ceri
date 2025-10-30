@@ -45,14 +45,14 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * Writes native-order ints.
 	 */
 	default T writeLong(long value) {
-		return writeLong(value, ByteUtil.IS_BIG_ENDIAN);
+		return writeLong(value, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Writes endian ints.
 	 */
 	default T writeLong(long value, boolean msb) {
-		int[] ints = msb ? IntUtil.longToMsb(value) : IntUtil.longToLsb(value);
+		int[] ints = msb ? Ints.longToMsb(value) : Ints.longToLsb(value);
 		return writeInts(ints);
 	}
 

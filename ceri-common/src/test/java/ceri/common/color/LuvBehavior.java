@@ -1,11 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertLuv;
-import static ceri.common.color.ColorTestUtil.assertRgb;
-import static ceri.common.color.ColorTestUtil.assertXyb;
-import static ceri.common.color.ColorTestUtil.assertXyz;
-import static ceri.common.color.Colors.color;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -49,26 +43,26 @@ public class LuvBehavior {
 
 	@Test
 	public void shouldCreateFromColorWithRef() {
-		assertLuv(Luv.Ref.CIE_D65.luv(color(0)), 0, 0, 0, 0);
-		assertLuv(Luv.Ref.CIE_D65.luv(color(0xff123456)), 0.21, -0.108, -0.277);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Colors.color(0)), 0, 0, 0, 0);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Colors.color(0xff123456)), 0.21, -0.108, -0.277);
 	}
 
 	@Test
 	public void shouldCreateFromRgbWithRef() {
-		assertLuv(Luv.Ref.CIE_D65.luv(Rgb.from(0)), 0, 0, 0, 0);
-		assertLuv(Luv.Ref.CIE_D65.luv(Rgb.from(0xff123456)), 0.21, -0.108, -0.277);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Rgb.from(0)), 0, 0, 0, 0);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Rgb.from(0xff123456)), 0.21, -0.108, -0.277);
 	}
 
 	@Test
 	public void shouldCreateFromXyzWithRef() {
-		assertLuv(Luv.Ref.CIE_D65.luv(Xyz.from(0)), 0, 0, 0, 0);
-		assertLuv(Luv.Ref.CIE_D65.luv(Xyz.from(0xff123456)), 0.21, -0.108, -0.277);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Xyz.from(0)), 0, 0, 0, 0);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Xyz.from(0xff123456)), 0.21, -0.108, -0.277);
 	}
 
 	@Test
 	public void shouldCreateFromXybWithRef() {
-		assertLuv(Luv.Ref.CIE_D65.luv(Xyb.from(0)), 0, 0, 0, 0);
-		assertLuv(Luv.Ref.CIE_D65.luv(Xyb.from(0xff123456)), 0.21, -0.108, -0.277);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Xyb.from(0)), 0, 0, 0, 0);
+		ColorAssert.luv(Luv.Ref.CIE_D65.luv(Xyb.from(0xff123456)), 0.21, -0.108, -0.277);
 	}
 
 	@Test
@@ -79,25 +73,25 @@ public class LuvBehavior {
 
 	@Test
 	public void shouldConvertToColorWithRef() {
-		assertColor(Luv.Ref.CIE_D65.color(Luv.of(0, 0, 0)), 0xff000000);
-		assertColor(Luv.Ref.CIE_D65.color(Luv.of(0.21, -0.108, -0.277)), 0xff123456);
+		ColorAssert.color(Luv.Ref.CIE_D65.color(Luv.of(0, 0, 0)), 0xff000000);
+		ColorAssert.color(Luv.Ref.CIE_D65.color(Luv.of(0.21, -0.108, -0.277)), 0xff123456);
 	}
 
 	@Test
 	public void shouldConvertToRgbWithRef() {
-		assertRgb(Luv.Ref.CIE_D65.rgb(Luv.of(0, 0, 0)), 0, 0, 0);
-		assertRgb(Luv.Ref.CIE_D65.rgb(Luv.of(0.21, -0.108, -0.277)), 0.07, 0.203, 0.337);
+		ColorAssert.rgb(Luv.Ref.CIE_D65.rgb(Luv.of(0, 0, 0)), 0, 0, 0);
+		ColorAssert.rgb(Luv.Ref.CIE_D65.rgb(Luv.of(0.21, -0.108, -0.277)), 0.07, 0.203, 0.337);
 	}
 
 	@Test
 	public void shouldConvertToXyzWithRef() {
-		assertXyz(Luv.Ref.CIE_D65.xyz(Luv.of(0, 0, 0)), 0, 0, 0);
-		assertXyz(Luv.Ref.CIE_D65.xyz(Luv.of(0.21, -0.108, -0.277)), 0.032, 0.032, 0.093);
+		ColorAssert.xyz(Luv.Ref.CIE_D65.xyz(Luv.of(0, 0, 0)), 0, 0, 0);
+		ColorAssert.xyz(Luv.Ref.CIE_D65.xyz(Luv.of(0.21, -0.108, -0.277)), 0.032, 0.032, 0.093);
 	}
 
 	@Test
 	public void shouldConvertToXybWithRef() {
-		assertXyb(Luv.Ref.CIE_D65.xyb(Luv.of(0, 0, 0)), 0, 0, 0);
-		assertXyb(Luv.Ref.CIE_D65.xyb(Luv.of(0.21, -0.108, -0.277)), 0.201, 0.207, 0.032);
+		ColorAssert.xyb(Luv.Ref.CIE_D65.xyb(Luv.of(0, 0, 0)), 0, 0, 0);
+		ColorAssert.xyb(Luv.Ref.CIE_D65.xyb(Luv.of(0.21, -0.108, -0.277)), 0.201, 0.207, 0.032);
 	}
 }

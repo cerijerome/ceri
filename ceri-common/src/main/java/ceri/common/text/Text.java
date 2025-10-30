@@ -3,7 +3,7 @@ package ceri.common.text;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Collectable;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -124,7 +124,7 @@ public class Text {
 	 * Adds a line number to the start of each line, and joins the lines.
 	 */
 	public static String addLineNumbers(String[] lines) {
-		if (ArrayUtil.isEmpty(lines)) return "";
+		if (Array.isEmpty(lines)) return "";
 		return addLineNumbers(Arrays.asList(lines));
 	}
 

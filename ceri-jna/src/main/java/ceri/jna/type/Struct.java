@@ -19,8 +19,8 @@ import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.Strings;
 import ceri.jna.util.JnaArgs;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 
 /**
  * Extends Structure to provide more array and general field support.
@@ -100,14 +100,14 @@ public abstract class Struct extends Structure {
 	 * required to be contiguous.
 	 */
 	public static long peer(Structure[] array) {
-		return PointerUtil.peer(pointer(array));
+		return Pointers.peer(pointer(array));
 	}
 
 	/**
 	 * Returns the pointer peer, or 0.
 	 */
 	public static long peer(Structure struct) {
-		return PointerUtil.peer(pointer(struct));
+		return Pointers.peer(pointer(struct));
 	}
 
 	/**
@@ -218,7 +218,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T copy(T from, Pointer to,
 		Functions.Function<Pointer, T> constructor) {
 		var t = constructor.apply(to);
-		if (from != null) JnaUtil.memmove(t.getPointer(), 0, from.getPointer(), 0, from.size());
+		if (from != null) Jna.memmove(t.getPointer(), 0, from.getPointer(), 0, from.size());
 		return readAuto(t);
 	}
 
@@ -237,7 +237,7 @@ public abstract class Struct extends Structure {
 	 */
 	public static <T extends Structure> T copyFrom(Pointer from, T to) {
 		if (from == null || to == null || to.getPointer().equals(from)) return to;
-		JnaUtil.memmove(to.getPointer(), 0, from, 0, to.size());
+		Jna.memmove(to.getPointer(), 0, from, 0, to.size());
 		return readAuto(to);
 	}
 
@@ -247,7 +247,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T copyTo(T from, Pointer to) {
 		if (from == null || to == null || from.getPointer().equals(to)) return from;
 		writeAuto(from);
-		JnaUtil.memmove(to, 0, from.getPointer(), 0, from.size());
+		Jna.memmove(to, 0, from.getPointer(), 0, from.size());
 		return from;
 	}
 
@@ -258,7 +258,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] mallocArray(Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
-		return JnaUtil.mallocArray(constructor, arrayFn, count, size(constructor));
+		return Jna.mallocArray(constructor, arrayFn, count, size(constructor));
 	}
 
 	/**
@@ -268,7 +268,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] callocArray(Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
-		return JnaUtil.callocArray(constructor, arrayFn, count, size(constructor));
+		return Jna.callocArray(constructor, arrayFn, count, size(constructor));
 	}
 
 	/**
@@ -279,7 +279,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] arrayByVal(Pointer p,
 		Functions.Function<Pointer, T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
-		return arrayOfVal(readAuto(JnaUtil.type(p, constructor)), arrayFn, count);
+		return arrayOfVal(readAuto(Jna.type(p, constructor)), arrayFn, count);
 	}
 
 	/**
@@ -314,7 +314,7 @@ public abstract class Struct extends Structure {
 	 */
 	public static <T extends Structure> T byVal(Pointer p, int i,
 		Functions.Function<Pointer, T> constructor) {
-		return readAuto(JnaUtil.byVal(p, i, constructor, size(constructor)));
+		return readAuto(Jna.byVal(p, i, constructor, size(constructor)));
 	}
 
 	/**
@@ -427,7 +427,7 @@ public abstract class Struct extends Structure {
 	 * Returns an inline byte array at given offset.
 	 */
 	protected byte[] byteArray(int offset, int length) {
-		return JnaUtil.bytes(getPointer(), offset, length);
+		return Jna.bytes(getPointer(), offset, length);
 	}
 
 	/**
@@ -471,7 +471,7 @@ public abstract class Struct extends Structure {
 	 */
 	protected <T> T[] arrayByRef(int offset, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn) {
-		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayFn);
+		return Jna.arrayByRef(getPointer().share(offset), constructor, arrayFn);
 	}
 
 	/**
@@ -487,7 +487,7 @@ public abstract class Struct extends Structure {
 	 */
 	protected <T> T[] arrayByRef(int offset, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count) {
-		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayFn, count);
+		return Jna.arrayByRef(getPointer().share(offset), constructor, arrayFn, count);
 	}
 
 	/**

@@ -8,7 +8,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processes;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class ProcessRunner implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
@@ -69,7 +69,7 @@ public class ProcessRunner implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(process);
+		Logs.close(process);
 		logger.info("Process stopped");
 	}
 

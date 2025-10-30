@@ -12,8 +12,8 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.common.array.ArrayUtil;
-import ceri.common.data.ByteUtil;
+import ceri.common.array.Array;
+import ceri.common.data.Bytes;
 import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 import ceri.common.util.Basics;
@@ -24,8 +24,8 @@ import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.VarStruct;
 import ceri.jna.util.Caller;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 
 /**
  * Provides types and static function calls. Updated to libusb 1.0.24.
@@ -655,7 +655,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.bytes(extra, 0, extra_length);
+			return Jna.bytes(extra, 0, extra_length);
 		}
 	}
 
@@ -696,7 +696,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.bytes(extra, 0, extra_length);
+			return Jna.bytes(extra, 0, extra_length);
 		}
 	}
 
@@ -750,7 +750,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.bytes(extra, 0, extra_length);
+			return Jna.bytes(extra, 0, extra_length);
 		}
 	}
 
@@ -1398,7 +1398,7 @@ public class LibUsb {
 			libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
 			(libusb_descriptor_type.LIBUSB_DT_STRING.value << 8) | desc_index, langid, buffer,
 			buffer.limit(), DEFAULT_TIMEOUT);
-		return JnaUtil.string(StandardCharsets.UTF_16, buffer, 0, size);
+		return Jna.string(StandardCharsets.UTF_16, buffer, 0, size);
 	}
 
 	/* polling and timeouts */
@@ -1501,7 +1501,7 @@ public class LibUsb {
 	public static libusb_context libusb_init() throws LibUsbException {
 		PointerByReference ref = new PointerByReference();
 		caller.verify(() -> lib().libusb_init(ref), "libusb_init");
-		return PointerUtil.set(new libusb_context(), ref.getValue());
+		return Pointers.set(new libusb_context(), ref.getValue());
 	}
 
 	/**
@@ -1559,7 +1559,7 @@ public class LibUsb {
 		PointerByReference ref = new PointerByReference();
 		int size = caller.verifyInt(() -> lib().libusb_get_device_list(ctx, ref),
 			"libusb_get_device_list", ctx);
-		return ArrayPointer.byRef(ref.getValue(), PointerUtil.adapt(libusb_device::new),
+		return ArrayPointer.byRef(ref.getValue(), Pointers.adapt(libusb_device::new),
 			libusb_device[]::new, size);
 	}
 
@@ -1799,7 +1799,7 @@ public class LibUsb {
 		LibUsbUtil.require(dev);
 		PointerByReference handle = new PointerByReference();
 		caller.verify(() -> lib().libusb_open(dev, handle), "libusb_open", dev, handle);
-		return PointerUtil.set(new libusb_device_handle(), handle.getValue());
+		return Pointers.set(new libusb_device_handle(), handle.getValue());
 	}
 
 	public static void libusb_close(libusb_device_handle dev_handle) throws LibUsbException {
@@ -1864,13 +1864,13 @@ public class LibUsb {
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		int... endpoints) throws LibUsbException {
-		return libusb_alloc_streams(dev, num_streams, ArrayUtil.bytes.of(endpoints));
+		return libusb_alloc_streams(dev, num_streams, Array.bytes.of(endpoints));
 	}
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		byte[] endpoints) throws LibUsbException {
 		LibUsbUtil.require(dev);
-		try (Memory m = JnaUtil.mallocBytes(endpoints)) {
+		try (Memory m = Jna.mallocBytes(endpoints)) {
 			return caller.verifyInt(
 				() -> lib().libusb_alloc_streams(dev, num_streams, m, endpoints.length),
 				"libusb_alloc_streams", dev, num_streams, m, endpoints.length);
@@ -1879,13 +1879,13 @@ public class LibUsb {
 
 	public static void libusb_free_streams(libusb_device_handle dev, int... endpoints)
 		throws LibUsbException {
-		libusb_free_streams(dev, ArrayUtil.bytes.of(endpoints));
+		libusb_free_streams(dev, Array.bytes.of(endpoints));
 	}
 
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)
 		throws LibUsbException {
 		if (dev == null || endpoints.length == 0) return;
-		try (Memory m = JnaUtil.mallocBytes(endpoints)) {
+		try (Memory m = Jna.mallocBytes(endpoints)) {
 			caller.verify(() -> lib().libusb_free_streams(dev, m, endpoints.length),
 				"libusb_free_streams", dev, m, endpoints.length);
 		}
@@ -1980,7 +1980,7 @@ public class LibUsb {
 		ByteBuffer buffer = ByteBuffer.allocate(wLength);
 		int count = libusb_control_transfer(dev_handle, request_type, bRequest, wValue, wIndex,
 			buffer, wLength, timeout);
-		return JnaUtil.bytes(buffer, 0, count);
+		return Jna.bytes(buffer, 0, count);
 	}
 
 	public static int libusb_control_transfer(libusb_device_handle dev_handle, int request_type,
@@ -2012,7 +2012,7 @@ public class LibUsb {
 		int length, int timeout) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int count = libusb_bulk_transfer(dev_handle, endpoint, buffer, length, timeout);
-		return JnaUtil.bytes(buffer, 0, count);
+		return Jna.bytes(buffer, 0, count);
 	}
 
 	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2042,7 +2042,7 @@ public class LibUsb {
 		int length, int timeout) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int len = libusb_interrupt_transfer(dev_handle, endpoint, buffer, length, timeout);
-		return JnaUtil.bytes(buffer, 0, len);
+		return Jna.bytes(buffer, 0, len);
 	}
 
 	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2072,7 +2072,7 @@ public class LibUsb {
 			() -> lib().libusb_get_string_descriptor_ascii(dev, (byte) desc_index, buffer,
 				buffer.capacity()),
 			"libusb_get_string_descriptor_ascii", dev, desc_index, buffer, buffer.capacity());
-		return JnaUtil.string(StandardCharsets.ISO_8859_1, buffer, 0, size);
+		return Jna.string(StandardCharsets.ISO_8859_1, buffer, 0, size);
 	}
 
 	/* polling and timeouts */
@@ -2172,7 +2172,7 @@ public class LibUsb {
 
 	public static void libusb_free_pollfds(ArrayPointer<libusb_pollfd> pollFds)
 		throws LibUsbException {
-		Pointer p = PointerUtil.pointer(pollFds);
+		Pointer p = Pointers.pointer(pollFds);
 		if (p != null) caller.call(() -> lib().libusb_free_pollfds(p), "libusb_free_pollfds", p);
 	}
 
@@ -2205,7 +2205,7 @@ public class LibUsb {
 	}
 
 	public static short libusb_cpu_to_le16(short x) {
-		return (short) Basics.ternaryInt(ByteUtil.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
+		return (short) Basics.ternaryInt(Bytes.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
 	}
 
 	public static short libusb_le16_to_cpu(short x) {

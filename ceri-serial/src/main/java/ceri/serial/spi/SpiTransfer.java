@@ -2,12 +2,12 @@ package ceri.serial.spi;
 
 import static ceri.common.math.Maths.ubyte;
 import static ceri.common.math.Maths.ushort;
-import static ceri.jna.util.JnaUtil.buffer;
+import static ceri.jna.util.Jna.buffer;
 import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.io.Direction;
 import ceri.common.util.Validate;
@@ -47,7 +47,7 @@ public class SpiTransfer {
 	}
 
 	public byte[] read() {
-		if (in().capacity() == 0) return ArrayUtil.bytes.empty;
+		if (in().capacity() == 0) return Array.bytes.empty;
 		byte[] buffer = new byte[size()];
 		in().clear().get(buffer);
 		return buffer;

@@ -10,7 +10,7 @@ import ceri.jna.clib.Poll;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.util.SyncPipe;
 import ceri.log.test.LogModifier;
-import ceri.serial.comm.util.SerialTestUtil;
+import ceri.serial.comm.util.SerialTesting;
 
 /**
  * Polls a serial port fd, and randomly signals the pipe or writes to the fd.
@@ -25,12 +25,12 @@ public class SerialPollTester {
 	}
 
 	public static void main(String[] args) throws Exception {
-		var port = SerialTestUtil.usbPorts(2);
+		var port = SerialTesting.usbPorts(2);
 		int baud = 250000;
 		Poll poll = Poll.of(2);
 		try (var pipe = SyncPipe.of(poll.fd(0));
-			var p = SerialTestUtil.execFd(port[0], baud, fd -> runPoll(poll, pipe, fd));
-			var w = SerialTestUtil.execFd(port[1], baud, fd -> runWrite(pipe, fd))) {
+			var p = SerialTesting.execFd(port[0], baud, fd -> runPoll(poll, pipe, fd));
+			var w = SerialTesting.execFd(port[1], baud, fd -> runWrite(pipe, fd))) {
 			w.get();
 			p.get();
 		}
@@ -38,14 +38,14 @@ public class SerialPollTester {
 	}
 
 	private static void runPoll(Poll poll, SyncPipe.Fixed pipe, int fd) throws IOException {
-		SerialTestUtil.clear(fd);
+		SerialTesting.clear(fd);
 		poll.fd(1).fd(fd).request(Poll.Event.POLLIN);
 		logger.info("poll: start");
 		for (int i = 0; i < CYCLES; i++) {
 			var n = poll.poll(10000);
 			logger.info("poll: %s revents[0]=0x%x", n, poll.fd(1).revents());
 			pipe.clear();
-			SerialTestUtil.clear(fd);
+			SerialTesting.clear(fd);
 		}
 	}
 

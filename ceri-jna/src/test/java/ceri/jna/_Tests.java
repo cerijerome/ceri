@@ -52,7 +52,8 @@ import ceri.common.test.Testing;
 	ceri.jna.reflect.CAnnotationsTest.class, //
 	ceri.jna.reflect.CSymbolGenBehavior.class, //
 	// test
-	ceri.jna.test.JnaTestUtilTest.class, //
+	ceri.jna.test.JnaAssertTest.class, //
+	ceri.jna.test.JnaTestingTest.class, //
 	// type
 	ceri.jna.type.ArrayPointerBehavior.class, //
 	ceri.jna.type.CLongBehavior.class, //
@@ -71,9 +72,9 @@ import ceri.common.test.Testing;
 	ceri.jna.util.JnaLibraryBehavior.class, //
 	ceri.jna.util.JnaMemoryBehavior.class, //
 	ceri.jna.util.JnaOsBehavior.class, //
-	ceri.jna.util.JnaUtilTest.class, //
+	ceri.jna.util.JnaTest.class, //
 	ceri.jna.util.NulTermTest.class, //
-	ceri.jna.util.PointerUtilTest.class, //
+	ceri.jna.util.PointersTest.class, //
 	ceri.jna.util.ThreadBuffersBehavior.class, //
 })
 public class _Tests {

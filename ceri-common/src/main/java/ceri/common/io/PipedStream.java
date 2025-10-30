@@ -114,7 +114,7 @@ public class PipedStream implements Functions.Closeable {
 	 */
 	public void clear() throws IOException {
 		out.flush();
-		IoUtil.clear(in);
+		Io.clear(in);
 	}
 
 	@Override

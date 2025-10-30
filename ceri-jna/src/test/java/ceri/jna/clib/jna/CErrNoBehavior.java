@@ -2,7 +2,7 @@ package ceri.jna.clib.jna;
 
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 
 public class CErrNoBehavior {
 
@@ -13,6 +13,6 @@ public class CErrNoBehavior {
 
 	@Test
 	public void testOsCoverage() {
-		JnaTestUtil.testForEachOs(CErrNo.class);
+		JnaTesting.testForEachOs(CErrNo.class);
 	}
 }

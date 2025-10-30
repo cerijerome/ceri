@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import com.sun.jna.Memory;
 import ceri.common.util.Validate;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.jna.util.ThreadBuffers;
 
 /**
@@ -40,7 +40,7 @@ public abstract class JnaInputStream extends InputStream {
 		ensureOpen();
 		var buffer = buffers.get();
 		int n = read(buffer, 1);
-		return n > 0 ? JnaUtil.ubyte(buffer, 0) : -1;
+		return n > 0 ? Jna.ubyte(buffer, 0) : -1;
 	}
 
 	@SuppressWarnings("resource")
@@ -50,8 +50,8 @@ public abstract class JnaInputStream extends InputStream {
 		ensureOpen();
 		if (len == 0) return 0;
 		var buffer = buffers.get();
-		int n = read(buffer, Math.min(len, JnaUtil.intSize(buffer)));
-		JnaUtil.read(buffer, b, off, n);
+		int n = read(buffer, Math.min(len, Jna.intSize(buffer)));
+		Jna.read(buffer, b, off, n);
 		return n > 0 ? n : -1;
 	}
 

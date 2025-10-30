@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collect.Sets;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.function.Excepts;
 import ceri.common.log.Level;
 import ceri.common.stream.Streams;
@@ -13,9 +13,9 @@ import ceri.common.test.Captor;
 
 public class ParserBehavior {
 	private static final Excepts.Function<RuntimeException, Integer, List<Integer>> BIT_LIST =
-		i -> Streams.ints(ByteUtil.bits(i)).boxed().toList();
+		i -> Streams.ints(Bytes.bits(i)).boxed().toList();
 	private static final Excepts.Function<RuntimeException, Integer, Integer[]> BIT_ARRAY =
-		i -> Streams.ints(ByteUtil.bits(i)).boxed().toArray(Integer[]::new);
+		i -> Streams.ints(Bytes.bits(i)).boxed().toArray(Integer[]::new);
 
 	@Test
 	public void shouldAllowNullValue() {

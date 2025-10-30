@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
@@ -100,7 +100,7 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldWriteData() throws IOException {
 		init();
 		shs.open();
-		shs.out().write(ArrayUtil.bytes.of(1, 2, 3));
+		shs.out().write(Array.bytes.of(1, 2, 3));
 		Assert.read(socket.out.from, 1, 2, 3);
 	}
 

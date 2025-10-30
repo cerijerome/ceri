@@ -11,7 +11,7 @@ import ceri.common.text.Regex;
 public class HostPort {
 	public static final int INVALID_PORT = -1;
 	public static final HostPort NULL = new HostPort(null, INVALID_PORT);
-	public static final HostPort LOCALHOST = new HostPort(NetUtil.LOCALHOST, INVALID_PORT);
+	public static final HostPort LOCALHOST = new HostPort(Net.LOCALHOST, INVALID_PORT);
 	private static final Pattern HOST_REGEX = Pattern.compile("([^:]+)(?::(\\d+))?");
 	public final String host;
 	public final int port;
@@ -29,7 +29,7 @@ public class HostPort {
 	}
 
 	public static HostPort localhost(int port) {
-		return of(NetUtil.LOCALHOST, port);
+		return of(Net.LOCALHOST, port);
 	}
 
 	public static HostPort of(String host) {
@@ -51,7 +51,7 @@ public class HostPort {
 	}
 
 	public InetSocketAddress asSocketAddress() throws UnknownHostException {
-		return NetUtil.requireResolved(new InetSocketAddress(host, port(0)));
+		return Net.requireResolved(new InetSocketAddress(host, port(0)));
 	}
 
 	public int port(int def) {

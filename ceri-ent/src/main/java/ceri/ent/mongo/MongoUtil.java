@@ -19,12 +19,12 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
-import ceri.common.net.NetUtil;
+import ceri.common.net.Net;
 import ceri.common.text.Regex;
 
 public class MongoUtil {
 	public static final String MONGODB_PROTOCOL = "mongodb://";
-	public static final String LOCALHOST = MONGODB_PROTOCOL + NetUtil.LOCALHOST;
+	public static final String LOCALHOST = MONGODB_PROTOCOL + Net.LOCALHOST;
 	public static final int PORT = 27017;
 	public static final String ID = "_id";
 	public static final String SET_OPERATOR = "$set";

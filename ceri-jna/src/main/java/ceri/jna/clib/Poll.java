@@ -8,7 +8,7 @@ import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 import ceri.common.stream.Streams;
 import ceri.common.time.TimeSpec;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.clib.jna.CPoll;
 import ceri.jna.clib.jna.CTime;
 
@@ -189,7 +189,7 @@ public class Poll implements Iterable<Poll.Fd> {
 	 * Poll with timeout and signal set (Linux only).
 	 */
 	public int poll(TimeSpec timeout, SigSet sigset) throws IOException {
-		var os = OsUtil.os();
+		var os = Os.info();
 		if (!os.linux) throw new UnsupportedOperationException("Linux only: " + os);
 		return CPoll.Linux.ppoll(pollfds, CTime.timespec.of(timeout), SigSet.struct(sigset));
 	}

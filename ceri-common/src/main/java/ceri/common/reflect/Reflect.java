@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -433,7 +433,7 @@ public class Reflect {
 	 * Creates an object of given type, using default constructor
 	 */
 	public static <T> T create(Class<T> classType) throws RuntimeInvocationException {
-		return create(classType, ArrayUtil.Empty.classes);
+		return create(classType, Array.Empty.classes);
 	}
 
 	/**

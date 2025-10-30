@@ -5,7 +5,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.Formatter;
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Functions;
 import ceri.common.io.IoStream;
 import ceri.common.math.Maths;
@@ -79,7 +79,7 @@ public class StringBuilders {
 		 * Otherwise only the index is updated.
 		 */
 		public State append(int i, int length) {
-			return ArrayUtil.applySlice(length(), i, length, (o, l) -> {
+			return Array.applySlice(length(), i, length, (o, l) -> {
 				if (l > 0 && modified()) b.append(s, o, o + l);
 				index = Math.max(o, index) + l;
 				return this;
@@ -110,7 +110,7 @@ public class StringBuilders {
 		 * Otherwise only the index is updated.
 		 */
 		public State append(int j, CharSequence s, int offset, int length) {
-			return ArrayUtil.applySlice(Strings.length(s), offset, length, (o, l) -> {
+			return Array.applySlice(Strings.length(s), offset, length, (o, l) -> {
 				int i = Maths.limit(j, 0, length());
 				if (l > 0 && (modified() || i >= length() || !Strings.equals(this.s, i, s, o, l)))
 					ensure(i).append(s, o, o + l);
@@ -210,7 +210,7 @@ public class StringBuilders {
 	 */
 	public static StringBuilder append(StringBuilder b, CharSequence s, int offset, int length) {
 		if (b == null || s == null) return b;
-		return ArrayUtil.applySlice(s.length(), offset, length, (o, l) -> b.append(s, o, o + l));
+		return Array.applySlice(s.length(), offset, length, (o, l) -> b.append(s, o, o + l));
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class StringBuilders {
 	 */
 	public static StringBuilder format(StringBuilder b, String format, Object... objs) {
 		if (format == null) return b;
-		if (ArrayUtil.isEmpty(objs)) return b.append(format);
+		if (Array.isEmpty(objs)) return b.append(format);
 		try (var f = new Formatter(b)) {
 			f.format(format, objs);
 			return b;
@@ -278,7 +278,7 @@ public class StringBuilders {
 	 */
 	public static String sub(StringBuilder s, int offset, int length) {
 		if (Strings.isEmpty(s)) return "";
-		return ArrayUtil.applySlice(s.length(), offset, length, (o, l) -> s.substring(o, o + l));
+		return Array.applySlice(s.length(), offset, length, (o, l) -> s.substring(o, o + l));
 	}
 
 	/**
@@ -311,7 +311,7 @@ public class StringBuilders {
 		return new OutputStream() {
 			@Override
 			public void write(int b) {
-				s.append(new String(ArrayUtil.bytes.of(b), cs));
+				s.append(new String(Array.bytes.of(b), cs));
 			}
 
 			@Override

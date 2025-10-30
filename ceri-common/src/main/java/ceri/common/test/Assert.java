@@ -18,16 +18,17 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Iterables;
 import ceri.common.collect.Lists;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
+import ceri.common.data.TypeValue;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.PathList;
@@ -668,7 +669,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(byte[] array, int... values) {
-		array(array, ArrayUtil.bytes.of(values));
+		array(array, Array.bytes.of(values));
 	}
 
 	/**
@@ -682,7 +683,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(short[] array, int... values) {
-		array(array, ArrayUtil.shorts.of(values));
+		array(array, Array.shorts.of(values));
 	}
 
 	/**
@@ -724,7 +725,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(ByteProvider array, int... values) {
-		array(array, ArrayUtil.bytes.of(values));
+		array(array, Array.bytes.of(values));
 	}
 
 	/**
@@ -956,84 +957,84 @@ public class Assert {
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(boolean[] lhs, boolean... expected) {
-		unordered(ArrayUtil.bools.list(lhs), ArrayUtil.bools.list(expected));
+		unordered(Array.bools.list(lhs), Array.bools.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(byte[] lhs, byte... expected) {
-		unordered(ArrayUtil.bytes.list(lhs), ArrayUtil.bytes.list(expected));
+		unordered(Array.bytes.list(lhs), Array.bytes.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(byte[] lhs, int... values) {
-		unordered(lhs, ArrayUtil.bytes.of(values));
+		unordered(lhs, Array.bytes.of(values));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(char[] lhs, char... expected) {
-		unordered(ArrayUtil.chars.list(lhs), ArrayUtil.chars.list(expected));
+		unordered(Array.chars.list(lhs), Array.chars.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(char[] lhs, int... expected) {
-		unordered(lhs, ArrayUtil.chars.of(expected));
+		unordered(lhs, Array.chars.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(short[] lhs, short... expected) {
-		unordered(ArrayUtil.shorts.list(lhs), ArrayUtil.shorts.list(expected));
+		unordered(Array.shorts.list(lhs), Array.shorts.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(short[] lhs, int... expected) {
-		unordered(lhs, ArrayUtil.shorts.of(expected));
+		unordered(lhs, Array.shorts.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(int[] lhs, int... expected) {
-		unordered(ArrayUtil.ints.list(lhs), ArrayUtil.ints.list(expected));
+		unordered(Array.ints.list(lhs), Array.ints.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(long[] lhs, long... expected) {
-		unordered(ArrayUtil.longs.list(lhs), ArrayUtil.longs.list(expected));
+		unordered(Array.longs.list(lhs), Array.longs.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(float[] lhs, float... expected) {
-		unordered(ArrayUtil.floats.list(lhs), ArrayUtil.floats.list(expected));
+		unordered(Array.floats.list(lhs), Array.floats.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(float[] lhs, double... expected) {
-		unordered(lhs, ArrayUtil.floats.of(expected));
+		unordered(lhs, Array.floats.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(double[] lhs, double... expected) {
-		unordered(ArrayUtil.doubles.list(lhs), ArrayUtil.doubles.list(expected));
+		unordered(Array.doubles.list(lhs), Array.doubles.list(expected));
 	}
 
 	/**
@@ -1260,10 +1261,31 @@ public class Assert {
 		equal(actual, s);
 	}
 
+	// other types
+	
+	/**
+	 * Fails if the type value fields do not equal the given values.
+	 */
+	public static <T> void typeValue(TypeValue<T> t, T type, int value) {
+		Assert.equal(t.intValue(), value);
+		Assert.equal(t.type(), type);
+	}
+
+	/**
+	 * Fails if the type value fields do not equal the given values.
+	 */
+	public static <T> void typeValue(TypeValue<T> t, T type, int value, String namePattern,
+		Object... args) {
+		Assert.equal(t.intValue(), value);
+		Assert.equal(t.type(), type);
+		if (namePattern == null) Assert.isNull(t.name());
+		else Assert.match(t.name(), namePattern, args);
+	}
+	
 	// I/O
 
 	public static void buffer(ByteBuffer buffer, int... bytes) {
-		array(ByteUtil.bytes(buffer), bytes);
+		array(Bytes.bytes(buffer), bytes);
 	}
 
 	/**
@@ -1277,7 +1299,7 @@ public class Assert {
 	 * Check bytes read from input stream.
 	 */
 	public static void read(InputStream in, int... bytes) throws IOException {
-		read(in, ArrayUtil.bytes.of(bytes));
+		read(in, Array.bytes.of(bytes));
 	}
 
 	/**

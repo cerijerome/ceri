@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Iterators;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Fluent;
@@ -270,7 +270,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default short getShort(int index) {
-		return (short) getEndian(index, Short.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return (short) getEndian(index, Short.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -312,7 +312,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default int getInt(int index) {
-		return (int) getEndian(index, Integer.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return (int) getEndian(index, Integer.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -354,7 +354,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default long getLong(int index) {
-		return getEndian(index, Long.BYTES, ByteUtil.IS_BIG_ENDIAN);
+		return getEndian(index, Long.BYTES, Bytes.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -419,7 +419,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 */
 	default long getEndian(int index, int size, boolean msb) {
 		byte[] copy = copy(index, size);
-		return msb ? ByteUtil.fromMsb(copy) : ByteUtil.fromLsb(copy);
+		return msb ? Bytes.fromMsb(copy) : Bytes.fromLsb(copy);
 	}
 
 	/**
@@ -524,7 +524,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns a copy of provided bytes from index.
 	 */
 	default byte[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.bytes.empty;
+		if (length == 0) return Array.bytes.empty;
 		Validate.slice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
@@ -638,7 +638,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns true if bytes are equal to array bytes.
 	 */
 	default boolean isEqualTo(int index, int... array) {
-		return isEqualTo(index, ArrayUtil.bytes.of(array));
+		return isEqualTo(index, Array.bytes.of(array));
 	}
 
 	/**
@@ -659,8 +659,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns true if bytes from index are equal to array bytes.
 	 */
 	default boolean isEqualTo(int index, byte[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
+		if (!Array.isValidSlice(length(), index, length)) return false;
+		if (!Array.isValidSlice(array.length, offset, length)) return false;
 		while (length-- > 0)
 			if (getByte(index++) != array[offset++]) return false;
 		return true;
@@ -684,8 +684,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns true if bytes from index are equal to provider bytes.
 	 */
 	default boolean isEqualTo(int index, ByteProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
-		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return false;
+		if (!Array.isValidSlice(length(), index, length)) return false;
+		if (!Array.isValidSlice(provider.length(), offset, length)) return false;
 		while (length-- > 0)
 			if (getByte(index++) != provider.getByte(offset++)) return false;
 		return true;
@@ -709,7 +709,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the first index that matches array bytes. Returns -1 if no match.
 	 */
 	default int indexOf(int index, int... array) {
-		return indexOf(index, ArrayUtil.bytes.of(array));
+		return indexOf(index, Array.bytes.of(array));
 	}
 
 	/**
@@ -730,8 +730,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the first index that matches array bytes. Returns -1 if no match.
 	 */
 	default int indexOf(int index, byte[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(array.length, offset, length)) return -1;
 		for (; index <= length() - length; index++)
 			if (isEqualTo(index, array, offset, length)) return index;
 		return -1;
@@ -755,8 +755,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the first index that matches provider bytes. Returns -1 if no match.
 	 */
 	default int indexOf(int index, ByteProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(provider.length(), offset, length)) return -1;
 		for (; index <= length() - length; index++)
 			if (isEqualTo(index, provider, offset, length)) return index;
 		return -1;
@@ -766,7 +766,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the last index that matches array bytes. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, int... array) {
-		return lastIndexOf(index, ArrayUtil.bytes.of(array));
+		return lastIndexOf(index, Array.bytes.of(array));
 	}
 
 	/**
@@ -787,8 +787,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the last index that matches array bytes. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, byte[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(array.length, offset, length)) return -1;
 		for (int i = length() - length; i >= index; i--)
 			if (isEqualTo(i, array, offset, length)) return i;
 		return -1;
@@ -812,8 +812,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the last index that matches provider bytes. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, ByteProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(provider.length(), offset, length)) return -1;
 		for (int i = length() - length; i >= index; i--)
 			if (isEqualTo(i, provider, offset, length)) return i;
 		return -1;

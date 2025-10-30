@@ -5,11 +5,11 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
@@ -74,15 +74,15 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldExecuteSyncControlTransfer() throws LibUsbException {
-		handle.controlTransfer(0x01, 0x11, 0x22, 3, ArrayUtil.bytes.of(1, 2, 3), 100);
-		handle.controlTransfer(0x01, 0x11, 0x22, 3, JnaTestUtil.buffer(1, 2, 3), 100);
+		handle.controlTransfer(0x01, 0x11, 0x22, 3, Array.bytes.of(1, 2, 3), 100);
+		handle.controlTransfer(0x01, 0x11, 0x22, 3, JnaTesting.buffer(1, 2, 3), 100);
 		lib.transferOut.assertValues( //
 			List.of(0x01, 0x11, 0x22, 3, ByteProvider.of(1, 2, 3)),
 			List.of(0x01, 0x11, 0x22, 3, ByteProvider.of(1, 2, 3)));
 		handle.controlTransfer(0x81, 0x11, 0x22, 3, 100);
 		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
 		Assert.array(handle.controlTransfer(0x81, 0x11, 0x22, 3, 3, 100), 5, 6);
-		var buffer = JnaTestUtil.buffer(0, 0, 0);
+		var buffer = JnaTesting.buffer(0, 0, 0);
 		Assert.equal(handle.controlTransfer(0x81, 0x11, 0x22, 3, buffer, 100), 2);
 		Assert.buffer(buffer.flip(), 5, 6, 0);
 		lib.transferIn.assertValues( //
@@ -93,14 +93,14 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldExecuteSyncBulkTransfer() throws LibUsbException {
-		handle.bulkTransfer(0x01, ArrayUtil.bytes.of(1, 2, 3), 100);
-		handle.bulkTransfer(0x01, JnaTestUtil.buffer(1, 2, 3), 100);
+		handle.bulkTransfer(0x01, Array.bytes.of(1, 2, 3), 100);
+		handle.bulkTransfer(0x01, JnaTesting.buffer(1, 2, 3), 100);
 		lib.transferOut.assertValues( //
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
 			List.of(0x01, ByteProvider.of(1, 2, 3)));
 		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
 		Assert.array(handle.bulkTransfer(0x81, 3, 100), 5, 6);
-		var buffer = JnaTestUtil.buffer(0, 0, 0);
+		var buffer = JnaTesting.buffer(0, 0, 0);
 		Assert.equal(handle.bulkTransfer(0x81, buffer, 100), 2);
 		Assert.buffer(buffer.flip(), 5, 6, 0);
 		lib.transferIn.assertValues( //
@@ -110,14 +110,14 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldExecuteSyncInterruptTransfer() throws LibUsbException {
-		handle.interruptTransfer(0x01, ArrayUtil.bytes.of(1, 2, 3), 100);
-		handle.interruptTransfer(0x01, JnaTestUtil.buffer(1, 2, 3), 100);
+		handle.interruptTransfer(0x01, Array.bytes.of(1, 2, 3), 100);
+		handle.interruptTransfer(0x01, JnaTesting.buffer(1, 2, 3), 100);
 		lib.transferOut.assertValues( //
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
 			List.of(0x01, ByteProvider.of(1, 2, 3)));
 		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
 		Assert.array(handle.interruptTransfer(0x81, 3, 100), 5, 6);
-		var buffer = JnaTestUtil.buffer(0, 0, 0);
+		var buffer = JnaTesting.buffer(0, 0, 0);
 		Assert.equal(handle.interruptTransfer(0x81, buffer, 100), 2);
 		Assert.buffer(buffer.flip(), 5, 6, 0);
 		lib.transferIn.assertValues( //

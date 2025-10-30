@@ -3,7 +3,7 @@ package ceri.common.data;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Iterables;
@@ -29,7 +29,7 @@ public class Xcoder {
 	public static record Rem<T>(Set<T> types, long diff) {
 		@SafeVarargs
 		public static <T> Rem<T> of(long diff, T... types) {
-			if (ArrayUtil.at(types, 0) == null) return new Rem<>(Immutable.set(), diff);
+			if (Array.at(types, 0) == null) return new Rem<>(Immutable.set(), diff);
 			return new Rem<>(Immutable.setOfAll(Sets::link, types), diff);
 		}
 

@@ -1,16 +1,16 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.jna.test.JnaTestUtil.assertPointer;
-import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
+import ceri.jna.test.JnaAssert;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.type.ArrayPointer;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
@@ -59,7 +59,7 @@ public class LibUsbTest {
 	@Test
 	public void testControlSetup() {
 		var transfer = new LibUsb.libusb_transfer(null);
-		var m = mem(0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9);
+		var m = JnaTesting.mem(0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9);
 		var setup = LibUsb.libusb_fill_control_setup(m.m, 0x80, 3, 4, 5, 3);
 		LibUsb.libusb_fill_control_transfer(transfer, null, setup, null, null, 0);
 		setup = LibUsb.libusb_control_transfer_get_setup(transfer);
@@ -69,15 +69,15 @@ public class LibUsbTest {
 		Assert.equal(setup.wIndex, (short) 5);
 		Assert.equal(setup.wLength, (short) 3);
 		Pointer p = LibUsb.libusb_control_transfer_get_data(transfer);
-		assertPointer(p, 0, 7, 8, 9);
+		JnaAssert.pointer(p, 0, 7, 8, 9);
 	}
 
 	@Test
 	public void testIsoPacketSimpleAccess() {
 		var transfer = transfer(4);
-		transfer.buffer = JnaUtil.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+		transfer.buffer = Jna.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 		LibUsb.libusb_set_iso_packet_lengths(transfer, 3);
-		assertPointer(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, 2), 0, 7, 8, 9);
+		JnaAssert.pointer(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, 2), 0, 7, 8, 9);
 		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, Short.MAX_VALUE + 1));
 		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, 4));
 	}
@@ -85,9 +85,9 @@ public class LibUsbTest {
 	@Test
 	public void testIsoPacketAccess() {
 		var transfer = transfer(4);
-		transfer.buffer = JnaUtil.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+		transfer.buffer = Jna.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 		LibUsb.libusb_set_iso_packet_lengths(transfer, 3);
-		assertPointer(LibUsb.libusb_get_iso_packet_buffer(transfer, 2), 0, 7, 8, 9);
+		JnaAssert.pointer(LibUsb.libusb_get_iso_packet_buffer(transfer, 2), 0, 7, 8, 9);
 		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer(transfer, Short.MAX_VALUE + 1));
 		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer(transfer, 4));
 	}
@@ -184,7 +184,7 @@ public class LibUsbTest {
 	}
 
 	private static ArrayPointer<libusb_device> deviceList(Pointer p) {
-		return ArrayPointer.byRef(p, PointerUtil.adapt(libusb_device::new), libusb_device[]::new);
+		return ArrayPointer.byRef(p, Pointers.adapt(libusb_device::new), libusb_device[]::new);
 	}
 
 	private static LibUsb.libusb_transfer transfer(int packets) {

@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Iterators;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Fluent;
@@ -218,7 +218,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns a copy of provided longs from index.
 	 */
 	default long[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.longs.empty;
+		if (length == 0) return Array.longs.empty;
 		Validate.slice(length(), index, length);
 		long[] copy = new long[length];
 		copyTo(index, copy, 0, length);
@@ -311,8 +311,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns true if longs from index are equal to array longs.
 	 */
 	default boolean isEqualTo(int index, long[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
+		if (!Array.isValidSlice(length(), index, length)) return false;
+		if (!Array.isValidSlice(array.length, offset, length)) return false;
 		while (length-- > 0)
 			if (getLong(index++) != array[offset++]) return false;
 		return true;
@@ -336,8 +336,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns true if longs from index are equal to provider longs.
 	 */
 	default boolean isEqualTo(int index, LongProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
-		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return false;
+		if (!Array.isValidSlice(length(), index, length)) return false;
+		if (!Array.isValidSlice(provider.length(), offset, length)) return false;
 		while (length-- > 0)
 			if (getLong(index++) != provider.getLong(offset++)) return false;
 		return true;
@@ -368,8 +368,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns the first index that matches array longs. Returns -1 if no match.
 	 */
 	default int indexOf(int index, long[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(array.length, offset, length)) return -1;
 		for (; index <= length() - length; index++)
 			if (isEqualTo(index, array, offset, length)) return index;
 		return -1;
@@ -393,8 +393,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns the first index that matches provider longs. Returns -1 if no match.
 	 */
 	default int indexOf(int index, LongProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(provider.length(), offset, length)) return -1;
 		for (; index <= length() - length; index++)
 			if (isEqualTo(index, provider, offset, length)) return index;
 		return -1;
@@ -418,8 +418,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns the last index that matches array longs. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, long[] array, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(array.length, offset, length)) return -1;
 		for (int i = length() - length; i >= index; i--)
 			if (isEqualTo(i, array, offset, length)) return i;
 		return -1;
@@ -443,8 +443,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns the last index that matches provider longs. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, LongProvider provider, int offset, int length) {
-		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
-		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return -1;
+		if (!Array.isValidSlice(length(), index, length)) return -1;
+		if (!Array.isValidSlice(provider.length(), offset, length)) return -1;
 		for (int i = length() - length; i >= index; i--)
 			if (isEqualTo(i, provider, offset, length)) return i;
 		return -1;

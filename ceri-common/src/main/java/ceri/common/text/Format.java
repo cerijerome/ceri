@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.math.Maths;
@@ -182,7 +182,7 @@ public class Format {
 		}
 
 		private Appender digits(CharSequence s, int offset, int length) {
-			return ArrayUtil.applySlice(Strings.length(s), offset, length, (o, l) -> {
+			return Array.applySlice(Strings.length(s), offset, length, (o, l) -> {
 				for (int i = 0; i < l; i++)
 					digit(s.charAt(o + i));
 				return this;

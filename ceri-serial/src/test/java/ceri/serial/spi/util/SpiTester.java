@@ -1,6 +1,6 @@
 package ceri.serial.spi.util;
 
-import static ceri.log.util.LogUtil.startupValues;
+import static ceri.log.util.Logs.startupValues;
 import java.io.IOException;
 import java.util.Arrays;
 import org.apache.logging.log4j.Level;

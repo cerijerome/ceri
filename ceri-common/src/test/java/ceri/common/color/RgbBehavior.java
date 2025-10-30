@@ -1,11 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertHsb;
-import static ceri.common.color.ColorTestUtil.assertRgb;
-import static ceri.common.color.ColorTestUtil.assertXyb;
-import static ceri.common.color.ColorTestUtil.assertXyz;
-import static ceri.common.color.Colors.color;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -27,8 +21,8 @@ public class RgbBehavior {
 
 	@Test
 	public void shouldCreateFromColor() {
-		assertRgb(Rgb.from(color(0)), 0, 0, 0, 0);
-		assertRgb(Rgb.fromRgb(0x804020), 1.0, 0.502, 0.251, 0.125);
+		ColorAssert.rgb(Rgb.from(Colors.color(0)), 0, 0, 0, 0);
+		ColorAssert.rgb(Rgb.fromRgb(0x804020), 1.0, 0.502, 0.251, 0.125);
 	}
 
 	@Test
@@ -44,28 +38,28 @@ public class RgbBehavior {
 
 	@Test
 	public void shouldConvertToColor() {
-		assertColor(Rgb.from(0x12345678).color(), 0x12345678);
+		ColorAssert.color(Rgb.from(0x12345678).color(), 0x12345678);
 	}
 
 	@Test
 	public void shouldConvertToHsb() {
-		assertHsb(Rgb.from(0x12345678).hsb(), 0.071, 0.583, 0.567, 0.471);
+		ColorAssert.hsb(Rgb.from(0x12345678).hsb(), 0.071, 0.583, 0.567, 0.471);
 	}
 
 	@Test
 	public void shouldConvertToXyz() {
-		assertXyz(Rgb.from(0x12345678).xyz(), 0.071, 0.081, 0.087, 0.190);
+		ColorAssert.xyz(Rgb.from(0x12345678).xyz(), 0.071, 0.081, 0.087, 0.190);
 	}
 
 	@Test
 	public void shouldConvertToXyb() {
-		assertXyb(Rgb.from(0x12345678).xyb(), 0.071, 0.227, 0.243, 0.087);
+		ColorAssert.xyb(Rgb.from(0x12345678).xyb(), 0.071, 0.227, 0.243, 0.087);
 	}
 
 	@Test
 	public void shouldApplyAlpha() {
 		Assert.equal(Rgb.from(0xff654321).applyAlpha().argb(), 0xff654321);
-		assertRgb(Rgb.from(0x87654321).applyAlpha(), 1.0, 0.210, 0.139, 0.069);
+		ColorAssert.rgb(Rgb.from(0x87654321).applyAlpha(), 1.0, 0.210, 0.139, 0.069);
 	}
 
 	@Test
@@ -76,29 +70,29 @@ public class RgbBehavior {
 
 	@Test
 	public void shouldDim() {
-		assertRgb(Rgb.from(0x87654321).dim(0.0), 0.529, 0, 0, 0);
-		assertRgb(Rgb.from(0x87654321).dim(0.5), 0.529, 0.198, 0.131, 0.065);
-		assertRgb(Rgb.from(0x87654321).dim(1.5), 0.529, 0.594, 0.394, 0.194);
+		ColorAssert.rgb(Rgb.from(0x87654321).dim(0.0), 0.529, 0, 0, 0);
+		ColorAssert.rgb(Rgb.from(0x87654321).dim(0.5), 0.529, 0.198, 0.131, 0.065);
+		ColorAssert.rgb(Rgb.from(0x87654321).dim(1.5), 0.529, 0.594, 0.394, 0.194);
 		Assert.equal(Rgb.from(0x87654321).dim(1.0).argb(), 0x87654321);
 		// not normalized or limited
-		assertRgb(Rgb.from(0x87654321).dim(5.0), 0.529, 1.980, 1.314, 0.647);
+		ColorAssert.rgb(Rgb.from(0x87654321).dim(5.0), 0.529, 1.980, 1.314, 0.647);
 	}
 
 	@Test
 	public void shouldNormalize() {
-		assertRgb(Rgb.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
-		assertRgb(Rgb.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
-		assertRgb(Rgb.of(0, 2.0, 0.5).normalize(), 1.0, 0, 1, 0.25);
-		assertRgb(Rgb.of(1.2, 2, -2, 1).normalize(), 1.0, 1.0, 0, 0.75);
+		ColorAssert.rgb(Rgb.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
+		ColorAssert.rgb(Rgb.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
+		ColorAssert.rgb(Rgb.of(0, 2.0, 0.5).normalize(), 1.0, 0, 1, 0.25);
+		ColorAssert.rgb(Rgb.of(1.2, 2, -2, 1).normalize(), 1.0, 1.0, 0, 0.75);
 	}
 
 	@Test
 	public void shouldLimitValues() {
-		assertRgb(Rgb.of(0.9, 0, 1, 0.5).limit(), 0.9, 0, 1, 0.5);
-		assertRgb(Rgb.of(0.9, 0, 1, -0.1).limit(), 0.9, 0, 1, 0);
-		assertRgb(Rgb.of(0.9, 0, 1.1, 0.5).limit(), 0.9, 0, 1, 0.5);
-		assertRgb(Rgb.of(0.9, 2, 1, 0.5).limit(), 0.9, 1, 1, 0.5);
-		assertRgb(Rgb.of(1.2, 2, 1, 0.5).limit(), 1.0, 1, 1, 0.5);
+		ColorAssert.rgb(Rgb.of(0.9, 0, 1, 0.5).limit(), 0.9, 0, 1, 0.5);
+		ColorAssert.rgb(Rgb.of(0.9, 0, 1, -0.1).limit(), 0.9, 0, 1, 0);
+		ColorAssert.rgb(Rgb.of(0.9, 0, 1.1, 0.5).limit(), 0.9, 0, 1, 0.5);
+		ColorAssert.rgb(Rgb.of(0.9, 2, 1, 0.5).limit(), 0.9, 1, 1, 0.5);
+		ColorAssert.rgb(Rgb.of(1.2, 2, 1, 0.5).limit(), 1.0, 1, 1, 0.5);
 	}
 
 	@Test

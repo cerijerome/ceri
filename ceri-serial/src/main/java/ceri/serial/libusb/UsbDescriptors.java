@@ -7,7 +7,7 @@ import java.util.Set;
 import ceri.common.collect.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Functions;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -157,7 +157,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_config_descriptor(descriptor));
+			Logs.close(() -> LibUsb.libusb_free_config_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -335,7 +335,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_ss_endpoint_companion_descriptor(descriptor));
+			Logs.close(() -> LibUsb.libusb_free_ss_endpoint_companion_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -367,7 +367,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_bos_descriptor(descriptor));
+			Logs.close(() -> LibUsb.libusb_free_bos_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -430,7 +430,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_usb_2_0_extension_descriptor(descriptor));
+			Logs.close(() -> LibUsb.libusb_free_usb_2_0_extension_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -469,7 +469,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_ss_usb_device_capability_descriptor(descriptor));
+			Logs.close(() -> LibUsb.libusb_free_ss_usb_device_capability_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -492,7 +492,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.close(() -> LibUsb.libusb_free_container_id_descriptor(descriptor));
+			Logs.close(() -> LibUsb.libusb_free_container_id_descriptor(descriptor));
 			descriptor = null;
 		}
 

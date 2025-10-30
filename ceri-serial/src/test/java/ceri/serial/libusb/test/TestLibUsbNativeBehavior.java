@@ -1,6 +1,5 @@
 package ceri.serial.libusb.test;
 
-import static ceri.jna.test.JnaTestUtil.assertLastError;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_BUSY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
@@ -15,8 +14,9 @@ import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.test.JnaAssert;
 import ceri.jna.type.Struct;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -32,7 +32,7 @@ public class TestLibUsbNativeBehavior {
 
 	@After
 	public void after() {
-		LogUtil.close(enc);
+		Logs.close(enc);
 		lib = null;
 		enc = null;
 	}
@@ -141,7 +141,7 @@ public class TestLibUsbNativeBehavior {
 		lib.data.addConfig(LibUsbSampleData.audioConfig());
 		var xfer = LibUsb.libusb_alloc_transfer(1);
 		LibUsb.libusb_transfer_set_stream_id(xfer, 3);
-		assertLastError(() -> lib.libusb_transfer_set_stream_id(xfer.getPointer(), 3));
+		JnaAssert.lastError(() -> lib.libusb_transfer_set_stream_id(xfer.getPointer(), 3));
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class TestLibUsbNativeBehavior {
 			initLib();
 			int h = LibUsb.libusb_hotplug_register_callback(null, 3, 0, 0, 0, 0, null, m).value;
 			Assert.equal(lib.libusb_hotplug_get_user_data(null, h), m);
-			assertLastError(() -> lib.libusb_hotplug_get_user_data(LibUsb.libusb_init(), h));
+			JnaAssert.lastError(() -> lib.libusb_hotplug_get_user_data(LibUsb.libusb_init(), h));
 		}
 	}
 

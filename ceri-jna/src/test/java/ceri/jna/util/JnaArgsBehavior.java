@@ -52,8 +52,8 @@ public class JnaArgsBehavior {
 	@Test
 	public void shouldPrintPointer() {
 		try (Memory m = new Memory(3)) {
-			long peer = PointerUtil.peer(m);
-			Pointer p = PointerUtil.pointer(peer + 1);
+			long peer = Pointers.peer(m);
+			Pointer p = Pointers.pointer(peer + 1);
 			Assert.string(JnaArgs.DEFAULT.args(m, p), "@%x+3,@%x", peer, peer + 1);
 		}
 	}
@@ -63,7 +63,7 @@ public class JnaArgsBehavior {
 		try (Memory m = new Memory(3)) {
 			var pt = new TestPointerType();
 			pt.setPointer(m);
-			Assert.string(JnaArgs.string(pt), "TestPointerType(@%x+3)", PointerUtil.peer(m));
+			Assert.string(JnaArgs.string(pt), "TestPointerType(@%x+3)", Pointers.peer(m));
 		}
 	}
 

@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.data.ByteUtil.toAscii;
+import static ceri.common.data.Bytes.toAscii;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.net.HostPort;

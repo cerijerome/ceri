@@ -1,11 +1,9 @@
 package ceri.common.test;
 
-import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.ErrorGen.RTX;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.process.Parameters;
 import ceri.common.test.TestProcess.TestProcessor;
 import ceri.common.time.Timeout;
@@ -23,7 +21,7 @@ public class TestProcessBehavior {
 	@Test
 	public void shouldReset() throws IOException {
 		try (var p = TestProcess.of("in", "err", 0)) {
-			p.getOutputStream().write(ArrayUtil.bytes.of(1, 2, 3));
+			p.getOutputStream().write(Array.bytes.of(1, 2, 3));
 			Assert.equal(p.getInputStream().available(), 2);
 			Assert.equal(p.getErrorStream().available(), 3);
 			p.out.assertAvailable(3);
@@ -44,7 +42,7 @@ public class TestProcessBehavior {
 	@Test
 	public void shouldResetProcessor() throws IOException {
 		TestProcessor p = TestProcess.processor("test");
-		p.exec.error.setFrom(RTX);
+		p.exec.error.setFrom(ErrorGen.RTX);
 		p.reset();
 		Assert.equal(p.exec(), "test");
 	}
@@ -53,7 +51,7 @@ public class TestProcessBehavior {
 	public void shouldWaitForProcess() throws IOException, InterruptedException {
 		try (var p = TestProcess.of("in", "err", 1)) {
 			Assert.equal(p.waitFor(), 1);
-			p.exitValue.error.setFrom(INX);
+			p.exitValue.error.setFrom(ErrorGen.INX);
 			Assert.thrown(() -> p.waitFor());
 		}
 	}
@@ -65,5 +63,4 @@ public class TestProcessBehavior {
 			p.waitFor.assertValues(Timeout.millis(100));
 		}
 	}
-
 }

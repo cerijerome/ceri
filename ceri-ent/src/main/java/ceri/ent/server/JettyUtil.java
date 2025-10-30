@@ -13,7 +13,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class JettyUtil {
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
@@ -64,7 +64,7 @@ public class JettyUtil {
 
 	private static ResourceCollection resourceCollection(Collection<Class<?>> classes) {
 		return new ResourceCollection(
-			LogUtil.createArray(Resource[]::new, JettyUtil::resource, classes));
+			Logs.createArray(Resource[]::new, JettyUtil::resource, classes));
 	}
 
 	private static Resource resource(Class<?> cls) {

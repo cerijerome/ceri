@@ -13,7 +13,7 @@ import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.Struct.Packed;
 import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 public class StructBehavior {
 	private final JnaTestData data = JnaTestData.of();
@@ -146,7 +146,7 @@ public class StructBehavior {
 
 	@Test
 	public void testCopyNew() {
-		try (var p = JnaUtil.calloc(TestStruct.SIZE)) {
+		try (var p = Jna.calloc(TestStruct.SIZE)) {
 			assertStruct(Struct.copy(null, p, TestStruct::new), 0, null, 0, 0, 0);
 			var t = Struct.copy(Struct.write(new TestStruct(100, p, 1)), p, TestStruct::new);
 			assertStruct(t, 100, p, 1, 0, 0);
@@ -277,7 +277,7 @@ public class StructBehavior {
 
 	@Test
 	public void testArrayIsByVal() {
-		try (var m = JnaUtil.calloc(TestStruct.SIZE * 3)) {
+		try (var m = Jna.calloc(TestStruct.SIZE * 3)) {
 			var t0 = new TestStruct(m);
 			var t1 = new TestStruct(m.share(TestStruct.SIZE));
 			var t2 = new TestStruct(m.share(TestStruct.SIZE * 2));

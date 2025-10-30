@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -27,11 +27,11 @@ import ceri.jna.clib.jna.CSignal;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTime;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 
 /**
  * Test implementation for CLib native interface.
@@ -134,7 +134,7 @@ public class TestCLibNative implements CLib.Native {
 
 		public static PollArgs of(pollfd[] pollfds, long timeoutNs, int... signals) {
 			return new PollArgs(List.of(pollfds), Duration.ofNanos(timeoutNs),
-				Set.of(ArrayUtil.ints.boxed(signals)));
+				Set.of(Array.ints.boxed(signals)));
 		}
 
 		/**
@@ -324,14 +324,14 @@ public class TestCLibNative implements CLib.Native {
 		ByteProvider data = read.apply(new ReadArgs(fd(fd), len.intValue()));
 		if (data == null || data.length() == 0) return new CUnistd.ssize_t(0);
 		int n = Math.min(data.length(), len.intValue());
-		JnaUtil.write(buffer, data.copy(0), 0, n);
+		Jna.write(buffer, data.copy(0), 0, n);
 		return new CUnistd.ssize_t(n);
 	}
 
 	@Override
 	public CUnistd.ssize_t write(int fd, Pointer buffer, CUnistd.size_t len) {
 		byte[] bytes = new byte[len.intValue()];
-		if (buffer != null) JnaUtil.read(buffer, bytes);
+		if (buffer != null) Jna.read(buffer, bytes);
 		int n = write.apply(new WriteArgs(fd(fd), ByteProvider.of(bytes)));
 		return new CUnistd.ssize_t(n);
 	}
@@ -368,19 +368,19 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int sigaddset(Pointer set, int signum) {
-		return sigset(set, ByteUtil.applyBitsInt(set.getInt(0), true, signum));
+		return sigset(set, Bytes.applyBitsInt(set.getInt(0), true, signum));
 	}
 
 	@Override
 	public int sigdelset(Pointer set, int signum) {
-		return sigset(set, ByteUtil.applyBitsInt(set.getInt(0), false, signum));
+		return sigset(set, Bytes.applyBitsInt(set.getInt(0), false, signum));
 	}
 
 	@Override
 	public int sigismember(Pointer set, int signum) {
 		int mask = set.getInt(0);
 		int result = sigset.apply(mask);
-		if (result == 0) return ByteUtil.bit(mask, signum) ? 1 : 0;
+		if (result == 0) return Bytes.bit(mask, signum) ? 1 : 0;
 		return result;
 	}
 
@@ -400,8 +400,8 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	private static int[] signals(Pointer sigmask) {
-		if (sigmask == null) return ArrayUtil.ints.empty;
-		return ByteUtil.bits(sigmask.getInt(0));
+		if (sigmask == null) return Array.ints.empty;
+		return Bytes.bits(sigmask.getInt(0));
 	}
 
 	@Override
@@ -504,7 +504,7 @@ public class TestCLibNative implements CLib.Native {
 
 	protected int fd(int fd, int errorCode) {
 		if (fds.contains(fd)) return fd;
-		throw JnaTestUtil.lastError(errorCode, String.valueOf(fdContext.get(fd)));
+		throw JnaTesting.lastError(errorCode, String.valueOf(fdContext.get(fd)));
 	}
 
 	private int sigset(Pointer set, int mask) {

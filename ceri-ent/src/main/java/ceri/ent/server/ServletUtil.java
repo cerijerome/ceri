@@ -3,7 +3,7 @@ package ceri.ent.server;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,8 +30,8 @@ public class ServletUtil {
 	}
 
 	public static void log(Logger logger, Level level, Request request) {
-		logger.log(level, "Request from {}: {} {}", LogUtil.toString(request::remoteAddress),
-			request.http.getServletPath(), LogUtil.compact(request.http.getParameterMap()));
+		logger.log(level, "Request from {}: {} {}", Logs.toString(request::remoteAddress),
+			request.http.getServletPath(), Logs.compact(request.http.getParameterMap()));
 	}
 
 	public static void dispatchJsp(HttpServletRequest request, HttpServletResponse response,

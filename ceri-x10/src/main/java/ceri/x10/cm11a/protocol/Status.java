@@ -32,7 +32,7 @@ import ceri.x10.command.House;
 public class Status implements ByteArray.Encodable {
 	private static final Format.OfLong BIN =
 		new Format.OfLong(true, Radix.BIN.prefix(), Radix.BIN.n, 4, 0, Format.Separator._4);
-	private static final int SIZE = 2 + Data.DATE_BYTES + 7;
+	private static final int SIZE = 2 + X10Data.DATE_BYTES + 7;
 	private static final int BATTERY_TIMER_RESET = 0xffff;
 	public final int batteryTimer;
 	public final LocalDateTime date;
@@ -45,10 +45,10 @@ public class Status implements ByteArray.Encodable {
 	public static Status decode(ByteReader r) {
 		var builder = new Builder();
 		builder.batteryTimer(r.readUshortMsb());
-		builder.date(Data.readDateFrom(r));
+		builder.date(X10Data.readDateFrom(r));
 		int code = r.readUbyte();
-		builder.house(Data.decodeHouse(code));
-		builder.firmware(Data.decodeLower(code));
+		builder.house(X10Data.decodeHouse(code));
+		builder.firmware(X10Data.decodeLower(code));
 		builder.addressed(r.readUshortMsb());
 		builder.onOff(r.readUshortMsb());
 		builder.dim(r.readUshortMsb());
@@ -132,8 +132,8 @@ public class Status implements ByteArray.Encodable {
 	@Override
 	public void encode(ByteArray.Encoder encoder) {
 		encoder.writeShortMsb(batteryTimer);
-		Data.writeDateTo(date, encoder);
-		encoder.writeByte(Data.encode(house, firmware));
+		X10Data.writeDateTo(date, encoder);
+		encoder.writeByte(X10Data.encode(house, firmware));
 		encoder.writeShortMsb(addressed);
 		encoder.writeShortMsb(onOff);
 		encoder.writeShortMsb(dim);

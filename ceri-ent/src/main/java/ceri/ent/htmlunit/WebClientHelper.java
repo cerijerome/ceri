@@ -12,7 +12,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 //import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import ceri.common.function.Functions;
-import ceri.common.net.NetUtil;
+import ceri.common.net.Net;
 import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements Functions.Closeable {
@@ -99,7 +99,7 @@ public class WebClientHelper implements Functions.Closeable {
 
 	public HtmlPage getPage(String url, Path file) throws IOException {
 		String content = Files.readString(file);
-		StringWebResponse response = new StringWebResponse(content, NetUtil.url(url));
+		StringWebResponse response = new StringWebResponse(content, Net.url(url));
 		return (HtmlPage) webClient.getPageCreator().createPage(response,
 			new TopLevelWindow("", webClient) {});
 	}

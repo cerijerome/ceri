@@ -1,6 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.jna.test.JnaTestUtil.assertCException;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -9,7 +8,8 @@ import ceri.common.test.Assert;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaAssert;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.JnaLibrary;
@@ -58,7 +58,7 @@ public class CUtilTest {
 		ref.lib().ioctl.autoResponse(a -> handleIoc(a, 100, CErrNo.EAGAIN));
 		Assert.equal(CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN), null);
 		ref.lib().ioctl.autoResponse(a -> handleIoc(a, 100, CErrNo.EPERM));
-		assertCException(CErrNo.EPERM, () -> CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN));
+		JnaAssert.cexception(CErrNo.EPERM, () -> CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN));
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class CUtilTest {
 		Assert.optional(CUtil.optionalGet(() -> "test", CErrNo.EAGAIN), "test");
 		Assert.optional(
 			CUtil.optionalGet(() -> Assert.throwIt(ErrNo.EAGAIN.error()), CErrNo.EAGAIN), null);
-		assertCException(CErrNo.EPERM,
+		JnaAssert.cexception(CErrNo.EPERM,
 			() -> CUtil.optionalGet(() -> Assert.throwIt(ErrNo.EPERM.error()), CErrNo.EAGAIN));
 	}
 
@@ -74,7 +74,7 @@ public class CUtilTest {
 	public void testRun() throws CException {
 		Assert.equal(CUtil.run(() -> {}, CErrNo.EAGAIN), true);
 		Assert.equal(CUtil.run(() -> Assert.throwIt(ErrNo.EAGAIN.error()), CErrNo.EAGAIN), false);
-		assertCException(CErrNo.EPERM,
+		JnaAssert.cexception(CErrNo.EPERM,
 			() -> CUtil.run(() -> Assert.throwIt(ErrNo.EPERM.error()), CErrNo.EAGAIN));
 	}
 
@@ -83,7 +83,7 @@ public class CUtilTest {
 		CUtil.requireContiguous(new CPoll.pollfd[0]);
 		CUtil.requireContiguous(CPoll.pollfd.array(0));
 		CUtil.requireContiguous(CPoll.pollfd.array(2));
-		assertCException(() -> CUtil
+		JnaAssert.cexception(() -> CUtil
 			.requireContiguous(new CPoll.pollfd[] { new CPoll.pollfd(), new CPoll.pollfd() }));
 	}
 
@@ -98,8 +98,8 @@ public class CUtilTest {
 	}
 
 	private static int handleIoc(CtlArgs args, int a, int errNo) {
-		if (errNo != 0) throw JnaTestUtil.lastError(errNo, "test");
-		JnaTestUtil.handleStructRef(args.arg(0), new S(), s -> s.a = a);
+		if (errNo != 0) throw JnaTesting.lastError(errNo, "test");
+		JnaTesting.handleStructRef(args.arg(0), new S(), s -> s.a = a);
 		return 0;
 	}
 }

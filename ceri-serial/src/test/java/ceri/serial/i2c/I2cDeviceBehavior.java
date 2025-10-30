@@ -1,23 +1,21 @@
 package ceri.serial.i2c;
 
 import static ceri.jna.clib.test.TestCLibNative.autoError;
-import static ceri.jna.test.JnaTestUtil.LEX;
-import static ceri.jna.test.JnaTestUtil.mem;
-import static ceri.jna.test.JnaTestUtil.memSize;
 import static ceri.serial.i2c.jna.I2cDev.i2c_func.I2C_FUNC_SMBUS_EMUL;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaAssert;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.TestI2cCLibNative;
@@ -56,7 +54,7 @@ public class I2cDeviceBehavior {
 		var lib = initI2c();
 		Assert.yes(i2c.exists(I2cAddress.of(0x3b)));
 		Assert.thrown(() -> i2c.exists(I2cAddress.of(0x1ab))); // 10-bit not supported
-		lib.ioctlSmBusInt.error.setFrom(LEX);
+		lib.ioctlSmBusInt.error.setFrom(JnaTesting.LEX);
 		Assert.no(i2c.exists(I2cAddress.of(0x3b)));
 	}
 
@@ -102,7 +100,7 @@ public class I2cDeviceBehavior {
 		var lib = initI2c();
 		byte[] receive = new byte[3];
 		lib.ioctlI2cBytes.autoResponses(ByteProvider.of(4, 5, 6));
-		i2c.readData(I2cAddress.of(0x1ab), ArrayUtil.bytes.of(1, 2, 3), receive);
+		i2c.readData(I2cAddress.of(0x1ab), Array.bytes.of(1, 2, 3), receive);
 		Assert.array(receive, 4, 5, 6);
 		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0x1ab, 0x10, ByteProvider.of(1, 2, 3), 3),
 			new Bytes(0x1ab, 0x11, null, 3)));
@@ -111,11 +109,11 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldWriteAndReadFromMemory() throws IOException {
 		var lib = initI2c();
-		var out = mem(1, 2, 3);
-		var in = memSize(3);
+		var out = JnaTesting.mem(1, 2, 3);
+		var in = JnaTesting.memSize(3);
 		lib.ioctlI2cBytes.autoResponses(ByteProvider.of(4, 5, 6));
 		i2c.writeRead(I2cAddress.of(0x1ab), out.m, in.m);
-		JnaTestUtil.assertMemory(in.m, 0, 4, 5, 6);
+		JnaAssert.memory(in.m, 0, 4, 5, 6);
 		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0x1ab, 0x10, ByteProvider.of(1, 2, 3), 3),
 			new Bytes(0x1ab, 0x11, null, 3)));
 	}

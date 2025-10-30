@@ -13,8 +13,8 @@ import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Termios;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.jna.util.JnaUtil;
-import ceri.log.util.LogUtil;
+import ceri.jna.util.Jna;
+import ceri.log.util.Logs;
 
 /**
  * Modifies tty to provide char-based input and display. Attempts to copy functionality of terminal
@@ -63,12 +63,12 @@ public class TtyInput implements LineReader, Functions.Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(termios::set);
+		Logs.close(termios::set);
 	}
 
 	private void configureTty(FileDescriptor fd) throws IOException {
 		var termios = Termios.get(fd);
-		JnaUtil.and(termios.localFlags(), ~(CTermios.ICANON | CTermios.ECHO | CTermios.ECHONL));
+		Jna.and(termios.localFlags(), ~(CTermios.ICANON | CTermios.ECHO | CTermios.ECHONL));
 		termios.set();
 	}
 }

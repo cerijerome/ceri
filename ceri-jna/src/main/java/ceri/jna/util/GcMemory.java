@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
 import com.sun.jna.Memory;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 
 /**
  * Wrapper for long-term Memory that relies on gc to free rather than close(). Avoids
@@ -16,14 +16,14 @@ public class GcMemory {
 	 */
 	@SuppressWarnings("resource")
 	public static GcMemory malloc(int size) {
-		return of(JnaUtil.malloc(size));
+		return of(Jna.malloc(size));
 	}
 
 	/**
 	 * Allocate native memory and copy array.
 	 */
 	public static GcMemory mallocBytes(int... array) {
-		return mallocBytes(ArrayUtil.bytes.of(array));
+		return mallocBytes(Array.bytes.of(array));
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class GcMemory {
 	 */
 	@SuppressWarnings("resource")
 	public static GcMemory mallocBytes(byte[] array, int offset, int length) {
-		return of(JnaUtil.mallocBytes(array, offset, length));
+		return of(Jna.mallocBytes(array, offset, length));
 	}
 
 	public static GcMemory of(Memory m) {
@@ -77,7 +77,7 @@ public class GcMemory {
 	 */
 	@SuppressWarnings("resource")
 	public GcMemory share(long offset, long size) {
-		var m = JnaUtil.share(this.m, offset, size);
+		var m = Jna.share(this.m, offset, size);
 		return m == this.m ? this : of(m);
 	}
 	
@@ -85,7 +85,7 @@ public class GcMemory {
 	 * Returns the memory size, 0 for null memory.
 	 */
 	public long size() {
-		return JnaUtil.size(m);
+		return Jna.size(m);
 	}
 
 	/**

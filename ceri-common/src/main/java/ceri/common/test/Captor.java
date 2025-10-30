@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import java.util.List;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
@@ -81,11 +81,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 		}
 
 		public final void verifyInt(int... values) {
-			verify(ArrayUtil.ints.list(values));
+			verify(Array.ints.list(values));
 		}
 
 		public int[] ints() {
-			return ArrayUtil.ints.unboxed(values);
+			return Array.ints.unboxed(values);
 		}
 	}
 
@@ -102,11 +102,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 		}
 
 		public final void verifyLong(long... values) {
-			verify(ArrayUtil.longs.list(values));
+			verify(Array.longs.list(values));
 		}
 
 		public long[] longs() {
-			return ArrayUtil.longs.unboxed(values);
+			return Array.longs.unboxed(values);
 		}
 	}
 

@@ -4,8 +4,8 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
-import ceri.common.data.ByteUtil;
+import ceri.common.array.Array;
+import ceri.common.data.Bytes;
 
 public class TestOutputStreamBehavior {
 	private TestOutputStream out;
@@ -22,7 +22,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldSinkBytes() throws IOException {
-		out.write(ArrayUtil.bytes.of(1, 2, 3));
+		out.write(Array.bytes.of(1, 2, 3));
 		Assert.equal(out.from.available(), 3);
 		Assert.read(out.from, 1, 2, 3);
 		Assert.equal(out.from.available(), 0);
@@ -31,7 +31,7 @@ public class TestOutputStreamBehavior {
 	@Test
 	public void should() throws IOException {
 		out.assertAvailable(0);
-		out.write(ArrayUtil.bytes.of(1, 2, 3));
+		out.write(Array.bytes.of(1, 2, 3));
 		out.flush();
 		Assert.assertion(() -> out.assertAvailable(2));
 		out.assertAvailable(3);
@@ -50,9 +50,9 @@ public class TestOutputStreamBehavior {
 		try (var run = Testing.threadRun(() -> {
 			out.awaitMatch("(?s).*\nx");
 		})) {
-			out.write(ByteUtil.toAsciiBytes("test\0"));
-			out.write(ByteUtil.toAsciiBytes("\n"));
-			out.write(ByteUtil.toAsciiBytes("x"));
+			out.write(Bytes.toAsciiBytes("test\0"));
+			out.write(Bytes.toAsciiBytes("\n"));
+			out.write(Bytes.toAsciiBytes("x"));
 			run.get();
 		}
 	}

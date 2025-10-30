@@ -18,7 +18,7 @@ import ceri.common.io.Connector;
 import ceri.common.io.PollingInputStream;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.cm11a.protocol.Clock;
-import ceri.x10.cm11a.protocol.Data;
+import ceri.x10.cm11a.protocol.X10Data;
 import ceri.x10.cm11a.protocol.Entry;
 import ceri.x10.cm11a.protocol.EntryBuffer;
 import ceri.x10.cm11a.protocol.EntryCollector;
@@ -110,7 +110,7 @@ public class Processor extends LoopingExecutor {
 	private void sendEntry(Entry entry) throws IOException {
 		logger.debug("Sending: %s", entry);
 		ByteProvider data = Transmit.encode(entry);
-		int checksum = Data.checksum(data);
+		int checksum = X10Data.checksum(data);
 		// TODO: add resend logic if checksum fails
 		out.writeFrom(data);
 		await(checksum);

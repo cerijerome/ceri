@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
 import com.sun.jna.Memory;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.stream.Streams;
 
 /**
@@ -31,28 +31,28 @@ public class MemcpySpeedTester {
 	}
 
 	private static long testMemcpySpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.bytes(Streams.slice(0, size));
-		try (Memory m0 = JnaUtil.mallocBytes(b)) {
+		byte[] b = Bytes.bytes(Streams.slice(0, size));
+		try (Memory m0 = Jna.mallocBytes(b)) {
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < size - chunk; i += inc)
-				JnaUtil.memcpy(m0, i, i + inc, chunk); // memcpy each chunk back by inc bytes
+				Jna.memcpy(m0, i, i + inc, chunk); // memcpy each chunk back by inc bytes
 			return System.currentTimeMillis() - t0;
 		}
 	}
 
 	private static long testMemmoveSpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.bytes(Streams.slice(0, size));
-		try (Memory m0 = JnaUtil.mallocBytes(b)) {
+		byte[] b = Bytes.bytes(Streams.slice(0, size));
+		try (Memory m0 = Jna.mallocBytes(b)) {
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < size - chunk; i += inc)
-				JnaUtil.memmove(m0, i, i + inc, chunk); // memmove each chunk forward by inc bytes
+				Jna.memmove(m0, i, i + inc, chunk); // memmove each chunk forward by inc bytes
 			return System.currentTimeMillis() - t0;
 		}
 	}
 
 	private static long testReuseBufferSpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.bytes(Streams.slice(0, size));
-		try (Memory m0 = JnaUtil.mallocBytes(b)) {
+		byte[] b = Bytes.bytes(Streams.slice(0, size));
+		try (Memory m0 = Jna.mallocBytes(b)) {
 			byte[] buffer = new byte[chunk];
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < size - chunk; i += inc) {

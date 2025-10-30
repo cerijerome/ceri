@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.Bytes;
 import ceri.common.data.CrcAlgorithm;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.util.Validate;
 import ceri.jna.util.GcMemory;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev;
 import ceri.serial.i2c.util.I2cUtil;
@@ -76,13 +76,13 @@ public class SmBusI2c implements SmBus {
 
 	@Override
 	public void writeWordData(int command, int value) throws IOException {
-		byte[] send = { (byte) command, ByteUtil.byteAt(value, 0), ByteUtil.byteAt(value, 1), 0 };
+		byte[] send = { (byte) command, Bytes.byteAt(value, 0), Bytes.byteAt(value, 1), 0 };
 		write(send);
 	}
 
 	@Override
 	public int processCall(int command, int value) throws IOException {
-		byte[] send = { (byte) command, ByteUtil.byteAt(value, 0), ByteUtil.byteAt(value, 1) };
+		byte[] send = { (byte) command, Bytes.byteAt(value, 0), Bytes.byteAt(value, 1) };
 		return writeRead(send, Short.BYTES).getUshortLsb(0);
 	}
 
@@ -137,7 +137,7 @@ public class SmBusI2c implements SmBus {
 		var recvM = GcMemory.malloc(length(recvLen, pec)).clear().m;
 		var msg = I2cUtil.populate(null, address, recvM, I2cDev.i2c_msg_flag.I2C_M_RD);
 		transfer(msg);
-		byte[] recv = JnaUtil.bytes(recvM);
+		byte[] recv = Jna.bytes(recvM);
 		if (pec) CRC.start().add(crcAddr(true)).add(recv, 0, recv.length - 1)
 			.verify(recv[recv.length - 1]);
 		return pec ? ByteArray.Mutable.wrap(recv, 0, recv.length - 1) :
@@ -166,7 +166,7 @@ public class SmBusI2c implements SmBus {
 		I2cUtil.populate(msgs[0], address, GcMemory.mallocBytes(send).m);
 		I2cUtil.populate(msgs[1], address, recvM, I2cDev.i2c_msg_flag.I2C_M_RD);
 		transfer(msgs);
-		byte[] recv = JnaUtil.bytes(recvM);
+		byte[] recv = Jna.bytes(recvM);
 		if (pec) CRC.start().add(crcAddr(false)).add(send).add(crcAddr(true))
 			.add(recv, 0, recv.length - 1).verify(recv[recv.length - 1]);
 		return pec ? ByteArray.Mutable.wrap(recv, 0, recv.length - 1) :
@@ -184,7 +184,7 @@ public class SmBusI2c implements SmBus {
 		I2cUtil.populate(msgs[1], address, 1, recvM, I2cDev.i2c_msg_flag.I2C_M_RD,
 			I2cDev.i2c_msg_flag.I2C_M_RECV_LEN);
 		transfer(msgs);
-		byte[] recv = JnaUtil.bytes(recvM);
+		byte[] recv = Jna.bytes(recvM);
 		int recvLen = 1 + Math.min(Maths.ubyte(recv[0]), I2cDev.I2C_SMBUS_BLOCK_MAX);
 		if (pec) CRC.start().add(crcAddr(false)).add(send).add(crcAddr(true)).add(recv, 0, recvLen)
 			.verify(recv[recvLen]);

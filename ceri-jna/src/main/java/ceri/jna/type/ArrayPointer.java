@@ -5,8 +5,8 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.function.Functions;
 import ceri.common.util.Validate;
-import ceri.jna.util.JnaUtil;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Jna;
+import ceri.jna.util.Pointers;
 
 /**
  * Holds a pointer to a typed array, and provides access to the array. The array may be
@@ -20,8 +20,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	 */
 	public static <T> ArrayPointer<T> byRef(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn) {
-		return of(p, i -> JnaUtil.byRef(p, i, constructor),
-			() -> JnaUtil.arrayByRef(p, constructor, arrayFn), () -> PointerUtil.count(p));
+		return of(p, i -> Jna.byRef(p, i, constructor),
+			() -> Jna.arrayByRef(p, constructor, arrayFn), () -> Pointers.count(p));
 	}
 
 	/**
@@ -30,8 +30,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	public static <T> ArrayPointer<T> byRef(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count) {
 		Validate.min(count, 0);
-		return of(p, i -> JnaUtil.byRef(p, Validate.index(count, i), constructor),
-			() -> JnaUtil.arrayByRef(p, constructor, arrayFn, count), () -> count);
+		return of(p, i -> Jna.byRef(p, Validate.index(count, i), constructor),
+			() -> Jna.arrayByRef(p, constructor, arrayFn, count), () -> count);
 	}
 
 	/**
@@ -49,8 +49,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	public static <T> ArrayPointer<T> byVal(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count, int size) {
 		Validate.min(count, 0);
-		return of(p, i -> JnaUtil.byVal(p, Validate.index(count, i), constructor, size),
-			() -> JnaUtil.arrayByVal(p, constructor, arrayFn, count, size), () -> count);
+		return of(p, i -> Jna.byVal(p, Validate.index(count, i), constructor, size),
+			() -> Jna.arrayByVal(p, constructor, arrayFn, count, size), () -> count);
 	}
 
 	private ArrayPointer(Pointer p) {

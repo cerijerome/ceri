@@ -1,7 +1,7 @@
 package ceri.log.rpc.service;
 
-import static ceri.log.rpc.service.RpcServiceUtil.respond;
-import static ceri.log.rpc.util.RpcUtil.EMPTY;
+import static ceri.log.rpc.service.RpcServices.respond;
+import static ceri.log.rpc.util.Rpc.EMPTY;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UInt32Value;
 import ceri.common.event.Listeners;

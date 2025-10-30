@@ -13,7 +13,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.text.Parse;
 import ceri.common.text.Strings;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.common.xml.XPaths;
 import ceri.common.xml.Xml;
 import ceri.process.ioreg.Ioreg;
@@ -53,7 +53,7 @@ public class MacUsbLocator {
 	 * Looks up the serial port name based on location id. Used by SelfHealingSerialConnector.
 	 */
 	public PortSupplier portSupplier(int locationId) {
-		if (OsUtil.os().mac) return PortSupplier.named(() -> port(locationId),
+		if (Os.info().mac) return PortSupplier.named(() -> port(locationId),
 			String.format("locationId:0x%x", locationId));
 		throw new UnsupportedOperationException("Only Mac is supported");
 	}

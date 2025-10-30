@@ -5,7 +5,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.function.Closeables;
 import ceri.common.io.TestPath;
 
@@ -57,7 +57,7 @@ public class FileTestHelperBehavior {
 
 	@Test
 	public void shouldCreateBinaryFiles() throws IOException {
-		files = FileTestHelper.builder().filef(ArrayUtil.bytes.of(1, 2, 3, 4, 5), "a/%s", "data")
+		files = FileTestHelper.builder().filef(Array.bytes.of(1, 2, 3, 4, 5), "a/%s", "data")
 			.build();
 		Assert.array(files.read("a/data"), 1, 2, 3, 4, 5);
 	}

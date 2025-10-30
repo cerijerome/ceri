@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.Functions;
-import ceri.common.net.NetUtil;
+import ceri.common.net.Net;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import io.grpc.ManagedChannel;
@@ -27,7 +27,7 @@ public class RpcChannel implements Functions.Closeable {
 		public static final Config NULL = new Config(null, null);
 
 		public static Config localhost(int port) {
-			return new Config(NetUtil.LOCALHOST, port);
+			return new Config(Net.LOCALHOST, port);
 		}
 
 		public boolean enabled() {
@@ -35,7 +35,7 @@ public class RpcChannel implements Functions.Closeable {
 		}
 
 		public boolean isLocalhost() {
-			return NetUtil.isLocalhost(host);
+			return Net.isLocalhost(host);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class RpcChannel implements Functions.Closeable {
 	}
 
 	public static RpcChannel localhost(int port) {
-		return plaintext(NetUtil.LOCALHOST, port);
+		return plaintext(Net.LOCALHOST, port);
 	}
 
 	public static RpcChannel plaintext(String host, int port) {

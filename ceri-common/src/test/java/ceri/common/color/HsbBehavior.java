@@ -1,8 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorTestUtil.assertColor;
-import static ceri.common.color.ColorTestUtil.assertHsb;
-import static ceri.common.color.ColorTestUtil.assertRgb;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -24,13 +21,13 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldCreateFromRgb() {
-		assertHsb(Hsb.fromRgb(0), 0, 0, 0);
-		assertHsb(Hsb.fromRgb(0x804020), 0.056, 0.750, 0.502);
+		ColorAssert.hsb(Hsb.fromRgb(0), 0, 0, 0);
+		ColorAssert.hsb(Hsb.fromRgb(0x804020), 0.056, 0.750, 0.502);
 	}
 
 	@Test
 	public void shouldCreateWithMaxSaturationAndBrightness() {
-		assertHsb(Hsb.max(0.5), 0.5, 1, 1);
+		ColorAssert.hsb(Hsb.max(0.5), 0.5, 1, 1);
 	}
 
 	@Test
@@ -46,12 +43,12 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldConvertToColor() {
-		assertColor(Hsb.from(0x804020).color(), 0xff804020);
+		ColorAssert.color(Hsb.from(0x804020).color(), 0xff804020);
 	}
 
 	@Test
 	public void shouldConvertToRgb() {
-		assertRgb(Hsb.from(0xff804020).rgb(), 1.0, 0.502, 0.251, 0.125);
+		ColorAssert.rgb(Hsb.from(0xff804020).rgb(), 1.0, 0.502, 0.251, 0.125);
 	}
 
 	@Test
@@ -73,8 +70,8 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldApplyAlpha() {
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).applyAlpha(), 0.8, 0.6, 0.4);
-		assertHsb(Hsb.of(0.5, 0.8, 0.6, 0.4).applyAlpha(), 0.8, 0.6, 0.2);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).applyAlpha(), 0.8, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.5, 0.8, 0.6, 0.4).applyAlpha(), 0.8, 0.6, 0.2);
 	}
 
 	@Test
@@ -85,30 +82,30 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldShiftHue() {
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(0.0), 0.8, 0.6, 0.4);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(0.5), 0.3, 0.6, 0.4);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(1.0), 0.8, 0.6, 0.4);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(1.4), 0.2, 0.6, 0.4);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(-1.2), 0.6, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(0.0), 0.8, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(0.5), 0.3, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(1.0), 0.8, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(1.4), 0.2, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).shiftHue(-1.2), 0.6, 0.6, 0.4);
 	}
 
 	@Test
 	public void shouldDim() {
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).dim(0.0), 0.8, 0.6, 0);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).dim(0.5), 0.8, 0.6, 0.2);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).dim(1.5), 0.8, 0.6, 0.6);
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).dim(1.0), 0.8, 0.6, 0.4);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).dim(0.0), 0.8, 0.6, 0);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).dim(0.5), 0.8, 0.6, 0.2);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).dim(1.5), 0.8, 0.6, 0.6);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).dim(1.0), 0.8, 0.6, 0.4);
 		// not normalized or limited
-		assertHsb(Hsb.of(0.8, 0.6, 0.4).dim(5.0), 0.8, 0.6, 1.0);
+		ColorAssert.hsb(Hsb.of(0.8, 0.6, 0.4).dim(5.0), 0.8, 0.6, 1.0);
 	}
 
 	@Test
 	public void shouldNormalize() {
-		assertHsb(Hsb.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
-		assertHsb(Hsb.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
-		assertHsb(Hsb.of(0, 2.0, 0.5).normalize(), 1.0, 0, 1, 0.5);
-		assertHsb(Hsb.of(0, 1.0, -0.5).normalize(), 1.0, 0, 1, 0.0);
-		assertHsb(Hsb.of(1.0, 2, -2, 1).normalize(), 1.0, 1.0, 0, 1.0);
+		ColorAssert.hsb(Hsb.of(0, 1, 0.5).normalize(), 0, 1, 0.5);
+		ColorAssert.hsb(Hsb.of(1.1, 0, 1, 0.5).normalize(), 1.0, 0, 1, 0.5);
+		ColorAssert.hsb(Hsb.of(0, 2.0, 0.5).normalize(), 1.0, 0, 1, 0.5);
+		ColorAssert.hsb(Hsb.of(0, 1.0, -0.5).normalize(), 1.0, 0, 1, 0.0);
+		ColorAssert.hsb(Hsb.of(1.0, 2, -2, 1).normalize(), 1.0, 1.0, 0, 1.0);
 	}
 
 	@Test

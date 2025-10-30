@@ -1,11 +1,11 @@
 package ceri.jna.util;
 
-import static ceri.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.ByteArray;
 import ceri.common.test.Assert;
+import ceri.jna.test.JnaAssert;
 
 public class NulTermTest {
 
@@ -32,23 +32,23 @@ public class NulTermTest {
 	@Test
 	public void testTruncateBytes() {
 		Assert.equal(NulTerm.truncate((byte[]) null), null);
-		Assert.array(NulTerm.truncate(ArrayUtil.bytes.of()));
-		Assert.array(NulTerm.truncate(ArrayUtil.bytes.of(0)));
-		Assert.array(NulTerm.truncate(ArrayUtil.bytes.of(0, 0)));
-		Assert.array(NulTerm.truncate(ArrayUtil.bytes.of(1, 2, 3)), 1, 2, 3);
-		Assert.array(NulTerm.truncate(ArrayUtil.bytes.of(0, 1, 2, 3, 0)));
-		Assert.array(NulTerm.truncate(ArrayUtil.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3);
+		Assert.array(NulTerm.truncate(Array.bytes.of()));
+		Assert.array(NulTerm.truncate(Array.bytes.of(0)));
+		Assert.array(NulTerm.truncate(Array.bytes.of(0, 0)));
+		Assert.array(NulTerm.truncate(Array.bytes.of(1, 2, 3)), 1, 2, 3);
+		Assert.array(NulTerm.truncate(Array.bytes.of(0, 1, 2, 3, 0)));
+		Assert.array(NulTerm.truncate(Array.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3);
 	}
 
 	@Test
 	public void testTrimBytes() {
 		Assert.equal(NulTerm.trim((byte[]) null), null);
-		Assert.array(NulTerm.trim(ArrayUtil.bytes.of()));
-		Assert.array(NulTerm.trim(ArrayUtil.bytes.of(0)));
-		Assert.array(NulTerm.trim(ArrayUtil.bytes.of(0, 0)));
-		Assert.array(NulTerm.trim(ArrayUtil.bytes.of(1, 2, 3)), 1, 2, 3);
-		Assert.array(NulTerm.trim(ArrayUtil.bytes.of(0, 1, 2, 3, 0)), 0, 1, 2, 3);
-		Assert.array(NulTerm.trim(ArrayUtil.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3, 0, 4, 5,
+		Assert.array(NulTerm.trim(Array.bytes.of()));
+		Assert.array(NulTerm.trim(Array.bytes.of(0)));
+		Assert.array(NulTerm.trim(Array.bytes.of(0, 0)));
+		Assert.array(NulTerm.trim(Array.bytes.of(1, 2, 3)), 1, 2, 3);
+		Assert.array(NulTerm.trim(Array.bytes.of(0, 1, 2, 3, 0)), 0, 1, 2, 3);
+		Assert.array(NulTerm.trim(Array.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3, 0, 4, 5,
 			6);
 	}
 
@@ -147,7 +147,7 @@ public class NulTermTest {
 		var dest = GcMemory.malloc(size);
 		byte[] b = b(expected);
 		Assert.equal(NulTerm.write(s, dest.m), b.length);
-		assertPointer(dest.m, 0, b);
+		JnaAssert.pointer(dest.m, 0, b);
 	}
 
 	private static void assertWritePad(int size, String s, String expected) {
@@ -161,12 +161,12 @@ public class NulTermTest {
 		var dest = GcMemory.malloc(size);
 		byte[] b = b(expected);
 		Assert.equal(NulTerm.writePad(s, dest.m), b.length);
-		assertPointer(dest.m, 0, b);
+		JnaAssert.pointer(dest.m, 0, b);
 	}
 
 	private static byte[] b(String s) {
 		if (s == null) return null;
-		return s.getBytes(JnaUtil.DEFAULT_CHARSET);
+		return s.getBytes(Jna.DEFAULT_CHARSET);
 	}
 
 	private static GcMemory m(String s) {

@@ -8,7 +8,7 @@ import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaAssert;
 import ceri.jna.type.Struct;
 
 /**
@@ -45,7 +45,7 @@ public abstract class CSerialTestHelper {
 			var args = super.lib.ioctl.awaitAuto();
 			Assert.equal(args.fd(), fd);
 			Assert.equal(args.request(), CIoctl.Mac.IOSSIOSPEED);
-			JnaTestUtil.assertRef(args.arg(0), new speed_t(speed));
+			JnaAssert.ref(args.arg(0), new speed_t(speed));
 		}
 
 		private void handleIos(CtlArgs args) {

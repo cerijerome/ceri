@@ -3,7 +3,7 @@ package ceri.serial.i2c.jna;
 import java.util.Set;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.data.Field;
 import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
@@ -179,13 +179,13 @@ public class I2cDev {
 		public void setBlock(byte[] data, int offset, int length) {
 			Validate.slice(data.length, offset, length);
 			Validate.max(length, I2C_SMBUS_BLOCK_MAX, "Data length");
-			ArrayUtil.bytes.copy(data, offset, block, 1, length);
+			Array.bytes.copy(data, offset, block, 1, length);
 			setBlockLength(length);
 		}
 
 		public byte[] getBlock() {
 			int length = Math.min(Maths.ubyte(block[0]), I2C_SMBUS_BLOCK_MAX);
-			return ArrayUtil.bytes.copyOf(block, 1, length);
+			return Array.bytes.copyOf(block, 1, length);
 		}
 	}
 

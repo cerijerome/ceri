@@ -9,7 +9,7 @@ import ceri.jna.clib.jna.CTermios.termios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTesting;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaOs;
 
@@ -128,7 +128,7 @@ public class CTermiosTest {
 	@Test
 	public void testOsCoverage() {
 		ref.init();
-		JnaTestUtil.testForEachOs(CTermios.class);
+		JnaTesting.testForEachOs(CTermios.class);
 	}
 
 	private TestCLibNative initFd() {

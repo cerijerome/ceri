@@ -4,7 +4,7 @@ import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import java.util.function.IntUnaryOperator;
 import ceri.common.function.Functions;
-import ceri.common.util.OsUtil;
+import ceri.common.util.Os;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CUndefined;
@@ -144,7 +144,7 @@ public class CFcntl {
 	/* os-specific initialization */
 
 	static {
-		var os = OsUtil.os();
+		var os = Os.info();
 		if (os.mac) {
 			O_CREAT = 0x200;
 			O_EXCL = 0x800;

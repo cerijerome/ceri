@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import java.util.Locale;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.text.Strings;
 
 public class Locales {
@@ -14,8 +14,8 @@ public class Locales {
 		if (Strings.isBlank(localeStr)) return Locale.ROOT;
 		var split = localeStr.split("_", 3);
 		int i = 0;
-		return Locale.of(ArrayUtil.at(split, i++, ""), ArrayUtil.at(split, i++, ""),
-			ArrayUtil.at(split, i, ""));
+		return Locale.of(Array.at(split, i++, ""), Array.at(split, i++, ""),
+			Array.at(split, i, ""));
 	}
 
 	/**

@@ -1,10 +1,8 @@
 package ceri.jna.util;
 
-import static ceri.jna.test.JnaTestUtil.assertNotValid;
-import static ceri.jna.test.JnaTestUtil.assertValid;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaAssert;
 
 public class GcMemoryBehavior {
 
@@ -25,7 +23,7 @@ public class GcMemoryBehavior {
 		var m = GcMemory.mallocBytes(-1, 0x80, 0x7f).clear();
 		assertGcMemory(m, 0, 0, 0);
 		m = GcMemory.mallocBytes(-1, 0x80, 0x7f).close().clear();
-		assertNotValid(m.m);
+		JnaAssert.notValid(m.m);
 	}
 
 	@Test
@@ -51,12 +49,12 @@ public class GcMemoryBehavior {
 	@Test
 	public void shouldFreeMemoryOnClose() {
 		var m = GcMemory.malloc(3);
-		assertValid(m.m);
+		JnaAssert.valid(m.m);
 		m.close();
-		assertNotValid(m.m);
+		JnaAssert.notValid(m.m);
 	}
 
 	private static void assertGcMemory(GcMemory m, int... bytes) {
-		JnaTestUtil.assertMemory(m.m, 0, bytes);
+		JnaAssert.memory(m.m, 0, bytes);
 	}
 }

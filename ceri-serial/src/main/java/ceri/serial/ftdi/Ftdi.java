@@ -4,10 +4,10 @@ import static ceri.serial.ftdi.jna.LibFtdiStream.PROGRESS_INTERVAL_SEC;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Pointer;
-import ceri.common.array.ArrayUtil;
+import ceri.common.array.Array;
 import ceri.common.io.Connector;
 import ceri.common.util.Validate;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Jna;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
 
 /**
@@ -144,7 +144,7 @@ public interface Ftdi extends Connector {
 	 * Writes data to the chip in asynchronous mode.
 	 */
 	default FtdiTransferControl writeSubmit(int... bytes) throws IOException {
-		return writeSubmit(ArrayUtil.bytes.of(bytes));
+		return writeSubmit(Array.bytes.of(bytes));
 	}
 
 	/**
@@ -167,7 +167,7 @@ public interface Ftdi extends Connector {
 	@SuppressWarnings("resource")
 	default FtdiTransferControl writeSubmit(byte[] data, int offset, int len) throws IOException {
 		Validate.slice(data.length, offset, len);
-		var m = JnaUtil.mallocBytes(data, offset, len);
+		var m = Jna.mallocBytes(data, offset, len);
 		return writeSubmit(m, len);
 	}
 

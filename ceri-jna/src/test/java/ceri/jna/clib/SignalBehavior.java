@@ -11,7 +11,7 @@ import ceri.jna.clib.jna.CSignal;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.util.JnaLibrary;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 
 public class SignalBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -34,7 +34,7 @@ public class SignalBehavior {
 	public void shouldSetHandler() throws IOException {
 		var sync = CallSync.<Signal>consumer(null, true);
 		try (var _ = Signal.SIGUSR1.signal(sync)) {
-			LogUtil.runSilently(Signal.SIGUSR1::raise);
+			Logs.runSilently(Signal.SIGUSR1::raise);
 			sync.assertAuto(Signal.SIGUSR1);
 		}
 	}

@@ -7,7 +7,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.jna.type.JnaSize;
 import ceri.jna.util.GcMemory;
-import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Pointers;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
@@ -117,7 +117,7 @@ public class LibUsbFinderBehavior {
 		Assert.thrown(() -> LibUsbFinder.FIRST.findAndOpen(null)); // device not found
 		Assert.thrown(() -> LibUsbFinder.FIRST.findAndRef(null)); // device not found
 		libusb_context ctx =
-			PointerUtil.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.get()).m);
+			Pointers.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.get()).m);
 		Assert.thrown(() -> LibUsbFinder.FIRST.findAndRef(ctx, 1)); // device not found
 	}
 

@@ -1,6 +1,5 @@
 package ceri.common.math;
 
-import static ceri.common.math.FractionBehavior.assertFraction;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -32,45 +31,45 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldConvertToPureFraction() {
-		assertFraction(MixedFraction.of(10).asFraction(), 10, 1);
-		assertFraction(MixedFraction.of(10, 1, 3).asFraction(), 31, 3);
-		assertFraction(MixedFraction.of(0, 1, 3).asFraction(), 1, 3);
+		MathAssert.fraction(MixedFraction.of(10).asFraction(), 10, 1);
+		MathAssert.fraction(MixedFraction.of(10, 1, 3).asFraction(), 31, 3);
+		MathAssert.fraction(MixedFraction.of(0, 1, 3).asFraction(), 1, 3);
 	}
 
 	@Test
 	public void shouldNegate() {
-		assertMixedFraction(MixedFraction.of(0).negate(), 0, 0, 1);
-		assertMixedFraction(MixedFraction.of(2, 1, 2).negate(), -2, -1, 2);
-		assertMixedFraction(MixedFraction.of(-2, -1, 2).negate(), 2, 1, 2);
-		assertMixedFraction(MixedFraction.of(0, -1, 2).negate(), 0, 1, 2);
+		MathAssert.fraction(MixedFraction.of(0).negate(), 0, 0, 1);
+		MathAssert.fraction(MixedFraction.of(2, 1, 2).negate(), -2, -1, 2);
+		MathAssert.fraction(MixedFraction.of(-2, -1, 2).negate(), 2, 1, 2);
+		MathAssert.fraction(MixedFraction.of(0, -1, 2).negate(), 0, 1, 2);
 	}
 
 	@Test
 	public void shouldAddMixedFractions() {
-		assertMixedFraction(MixedFraction.of(0).add(MixedFraction.of(0, 0, 1)), 0, 0, 1);
-		assertMixedFraction(MixedFraction.of(1).add(MixedFraction.of(0, 0, 1)), 1, 0, 1);
-		assertMixedFraction(MixedFraction.of(0).add(MixedFraction.of(0, 1, 2)), 0, 1, 2);
-		assertMixedFraction(MixedFraction.of(3, 2, 3).add(MixedFraction.of(-1, -1, 4)), 2, 5, 12);
+		MathAssert.fraction(MixedFraction.of(0).add(MixedFraction.of(0, 0, 1)), 0, 0, 1);
+		MathAssert.fraction(MixedFraction.of(1).add(MixedFraction.of(0, 0, 1)), 1, 0, 1);
+		MathAssert.fraction(MixedFraction.of(0).add(MixedFraction.of(0, 1, 2)), 0, 1, 2);
+		MathAssert.fraction(MixedFraction.of(3, 2, 3).add(MixedFraction.of(-1, -1, 4)), 2, 5, 12);
 	}
 
 	@Test
 	public void shouldMultiplyMixedFractions() {
-		assertMixedFraction(MixedFraction.of(0).multiply(MixedFraction.of(0, 0, 1)), 0, 0, 1);
-		assertMixedFraction(MixedFraction.of(1).multiply(MixedFraction.of(0, 0, 1)), 0, 0, 1);
-		assertMixedFraction(MixedFraction.of(0).multiply(MixedFraction.of(1, 1, 2)), 0, 0, 1);
-		assertMixedFraction(MixedFraction.of(1).multiply(MixedFraction.of(1, 1, 2)), 1, 1, 2);
-		assertMixedFraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.of(-1, -1, 4)), -4, -7,
+		MathAssert.fraction(MixedFraction.of(0).multiply(MixedFraction.of(0, 0, 1)), 0, 0, 1);
+		MathAssert.fraction(MixedFraction.of(1).multiply(MixedFraction.of(0, 0, 1)), 0, 0, 1);
+		MathAssert.fraction(MixedFraction.of(0).multiply(MixedFraction.of(1, 1, 2)), 0, 0, 1);
+		MathAssert.fraction(MixedFraction.of(1).multiply(MixedFraction.of(1, 1, 2)), 1, 1, 2);
+		MathAssert.fraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.of(-1, -1, 4)), -4, -7,
 			12);
-		assertMixedFraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.ONE), 3, 2, 3);
+		MathAssert.fraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.ONE), 3, 2, 3);
 	}
 
 	@Test
 	public void shouldDivideMixedFractions() {
-		assertMixedFraction(MixedFraction.of(0).divide(MixedFraction.of(1, 0, 1)), 0, 0, 1);
-		assertMixedFraction(MixedFraction.of(1).divide(MixedFraction.of(1, 1, 2)), 0, 2, 3);
-		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(1, 0, 1)), 3, 2, 3);
+		MathAssert.fraction(MixedFraction.of(0).divide(MixedFraction.of(1, 0, 1)), 0, 0, 1);
+		MathAssert.fraction(MixedFraction.of(1).divide(MixedFraction.of(1, 1, 2)), 0, 2, 3);
+		MathAssert.fraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(1, 0, 1)), 3, 2, 3);
 		Assert.thrown(() -> MixedFraction.of(0).divide(MixedFraction.of(0, 0, 1)));
-		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(-1, -1, 4)), -2, -14,
+		MathAssert.fraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(-1, -1, 4)), -2, -14,
 			15);
 	}
 
@@ -116,16 +115,10 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldReduceDuringConstruction() {
-		assertMixedFraction(MixedFraction.of(7, 41, 13), 10, 2, 13);
-		assertMixedFraction(MixedFraction.of(10, 2, 13), 10, 2, 13);
-		assertMixedFraction(MixedFraction.of(0, 132, 13), 10, 2, 13);
-		assertMixedFraction(MixedFraction.of(Long.MIN_VALUE, 1, 1), Long.MIN_VALUE + 1, 0, 1);
-		assertMixedFraction(MixedFraction.of(0, Long.MIN_VALUE, 1), Long.MIN_VALUE, 0, 1);
-	}
-
-	public static void assertMixedFraction(MixedFraction fraction, long whole, long numerator,
-		long denominator) {
-		Assert.equal(fraction.whole(), whole);
-		Assert.equal(fraction.fraction().equals(numerator, denominator), true);
+		MathAssert.fraction(MixedFraction.of(7, 41, 13), 10, 2, 13);
+		MathAssert.fraction(MixedFraction.of(10, 2, 13), 10, 2, 13);
+		MathAssert.fraction(MixedFraction.of(0, 132, 13), 10, 2, 13);
+		MathAssert.fraction(MixedFraction.of(Long.MIN_VALUE, 1, 1), Long.MIN_VALUE + 1, 0, 1);
+		MathAssert.fraction(MixedFraction.of(0, Long.MIN_VALUE, 1), Long.MIN_VALUE, 0, 1);
 	}
 }

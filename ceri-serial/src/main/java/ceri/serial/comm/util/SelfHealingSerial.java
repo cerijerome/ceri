@@ -7,12 +7,12 @@ import java.util.function.Function;
 import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Io;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
-import ceri.log.util.LogUtil;
+import ceri.log.util.Logs;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
@@ -278,11 +278,11 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 		try {
 			String port = config.portSupplier.get();
 			serial = config.factory.open(port);
-			IoUtil.clear(serial.in());
+			Io.clear(serial.in());
 			serialConfig.build().applyTo(serial);
 			return serial;
 		} catch (RuntimeException | IOException e) {
-			LogUtil.close(serial);
+			Logs.close(serial);
 			throw e;
 		}
 	}
