@@ -1,0 +1,120 @@
+package ceri.ffm.util;
+
+import java.util.List;
+import ceri.common.collect.Iterables;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functional;
+import ceri.common.function.Functions;
+import ceri.common.util.Os;
+
+/**
+ * Supported OS types for FFM code.
+ */
+public enum FfmOs implements Functional.Access<FfmOs> {
+	unknown(null, null),
+	mac("Mac", "__APPLE__"),
+	linux("Linux", "__linux__");
+
+	/** The list of supported OS types. */
+	public static final List<FfmOs> KNOWN = List.of(mac, linux);
+	/** Empty array */
+	public static final FfmOs[] NONE = new FfmOs[0];
+	/** The OS arch name */
+	public final String name;
+	/** The OS c code #ifdef check */
+	public final String cdefine;
+
+	/**
+	 * Returns true if the given OS is not null and is known.
+	 */
+	public static boolean known(FfmOs os) {
+		return os != null && os.known();
+	}
+
+	/**
+	 * Apply the consumer to known OS types.
+	 */
+	public static <E extends Exception> void forEach(Excepts.Consumer<E, FfmOs> consumer) throws E {
+		Iterables.forEach(KNOWN, os -> os.accept(consumer));
+	}
+
+	/**
+	 * Returns true if the given OS types are compatible.
+	 */
+	public static boolean compatible(FfmOs os1, FfmOs os2) {
+		return !known(os1) || !known(os2) || os1 == os2;
+	}
+
+	/**
+	 * Returns true if the given OS type is compatible with the current OS type.
+	 */
+	public static boolean current(FfmOs os) {
+		return !known(os) || compatible(os, current());
+	}
+
+	/**
+	 * Determine the current OS type.
+	 */
+	public static FfmOs current() {
+		return from(Os.info());
+	}
+
+	/**
+	 * Determine the OS type.
+	 */
+	public static FfmOs from(Os.Info info) {
+		if (info == null) return unknown;
+		if (info.mac) return mac;
+		if (info.linux) return linux;
+		return unknown;
+	}
+
+	/**
+	 * Determine the current OS type, throw an exception if unknown.
+	 */
+	public static FfmOs validCurrent() {
+		var os = current();
+		if (os.known()) return os;
+		throw new IllegalStateException("Unsupported OS: " + Os.info());
+	}
+
+	private FfmOs(String name, String cdefine) {
+		this.name = name;
+		this.cdefine = cdefine;
+	}
+
+	/**
+	 * Returns true if this OS is supported.
+	 */
+	public boolean known() {
+		return this != unknown;
+	}
+
+	/**
+	 * Overrides the current OS type with this OS type. Close to revert the override.
+	 */
+	public Functions.Closeable override() {
+		return Os.info(name, null, null);
+	}
+
+	/**
+	 * Overrides the current OS to execute the function, passing in this OS type.
+	 */
+	@Override
+	public <E extends Exception, T> T apply(Excepts.Function<E, ? super FfmOs, T> function)
+		throws E {
+		try (var _ = override()) {
+			return function.apply(this);
+		}
+	}
+
+	/**
+	 * Adds the OS name to the end of the filename.
+	 */
+	public String file(String file) {
+		if (file == null || !known()) return file;
+		int i = file.lastIndexOf('.');
+		if (i < 0) return file + "-" + name();
+		return file.substring(0, i) + "-" + name() + file.substring(i);
+	}
+}

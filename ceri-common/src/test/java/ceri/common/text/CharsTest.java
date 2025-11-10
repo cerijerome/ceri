@@ -26,7 +26,7 @@ public class CharsTest {
 
 	@Test
 	public void testSafe() {
-		Assert.string(Chars.safe(null), "");
+		Assert.string(Chars.safe((String) null), "");
 		Assert.same(Chars.safe(b("")), b);
 	}
 

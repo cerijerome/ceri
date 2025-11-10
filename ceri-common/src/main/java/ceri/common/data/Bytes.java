@@ -37,6 +37,44 @@ public class Bytes {
 	private Bytes() {}
 
 	/**
+	 * Byte order as an enum.
+	 */
+	public enum Order {
+		unspecified(null),
+		platform(ByteOrder.nativeOrder()),
+		big(ByteOrder.BIG_ENDIAN),
+		little(ByteOrder.LITTLE_ENDIAN);
+
+		public static final Order PLATFORM = platform.order == big.order ? big : little;
+		private final ByteOrder order;
+
+		public static String symbol(Order order) {
+			return isSpecific(order) ? symbol(order.order) : "";
+		}
+
+		public static String symbol(ByteOrder order) {
+			if (order == null) return "";
+			return order == ByteOrder.BIG_ENDIAN ? ">" : "<";
+		}
+
+		public static boolean isValid(Order order) {
+			return order != null && order != unspecified;
+		}
+
+		public static boolean isSpecific(Order order) {
+			return order == big || order == little;
+		}
+
+		public static ByteOrder order(Order order) {
+			return isSpecific(order) ? order.order : platform.order;
+		}
+
+		private Order(ByteOrder order) {
+			this.order = order;
+		}
+	}
+
+	/**
 	 * Functional interface to iterate over mask bits and modify a value.
 	 */
 	public interface BitReducerLong<E extends Exception> {
@@ -136,7 +174,8 @@ public class Bytes {
 	/**
 	 * Creates a hex string from bytes, with given delimiter.
 	 */
-	public static <E extends Exception> String toHex(IntStream<E> stream, String delimiter) throws E {
+	public static <E extends Exception> String toHex(IntStream<E> stream, String delimiter)
+		throws E {
 		return stream.mapToObj(b -> Format.hex(b, "", Radix.HEX.digits.ubyte()))
 			.collect(Collectors.joining(delimiter));
 	}
@@ -178,7 +217,7 @@ public class Bytes {
 
 	/**
 	 * Capture the integer stream as bytes.
-	 * @throws E 
+	 * @throws E
 	 */
 	public static <E extends Exception> byte[] bytes(Stream<E, Integer> stream) throws E {
 		return bytes(stream.mapToInt(Integer::intValue));
@@ -186,7 +225,7 @@ public class Bytes {
 
 	/**
 	 * Capture the int stream as bytes.
-	 * @throws E 
+	 * @throws E
 	 */
 	public static <E extends Exception> byte[] bytes(IntStream<E> stream) throws E {
 		var out = new ByteArrayOutputStream();

@@ -13,7 +13,6 @@ import ceri.common.text.Strings;
 
 /**
  * Utility methods to test and manipulate arrays.
- * @see ceri.common.collection.CollectionUtil
  */
 public class Array {
 	private Array() {}

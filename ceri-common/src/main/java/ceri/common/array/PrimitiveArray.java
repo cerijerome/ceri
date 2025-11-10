@@ -5,12 +5,15 @@ import java.util.Collection;
 import java.util.List;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.math.Maths;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
+import ceri.common.text.Strings;
 import ceri.common.util.Hasher;
 
 /**
- * Provides typed primitive array support.
+ * Provides typed primitive array support. WARNING: many classes rely on the array classes in this
+ * package; avoid calling these classes to prevent initialization failures.
  */
 public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	private final Class<T> cls;
@@ -199,7 +202,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<char[]> {
 		public final char[] empty = new char[0];
 		public final TypedArray.Type.Integral<Character> box =
-			TypedArray.integral(Character[]::new, Format.HEX::apply);
+			TypedArray.integral(Character[]::new, hexFn(c -> c));
 
 		OfChar() {
 			super(char[].class, char[]::new);
@@ -389,7 +392,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<byte[]> {
 		public final byte[] empty = new byte[0];
 		public final TypedArray.Type.Integral<Byte> box =
-			TypedArray.integral(Byte[]::new, Format.HEX::ubyte);
+			TypedArray.integral(Byte[]::new, hexFn(b -> Maths.ubyte(b)));
 
 		OfByte() {
 			super(byte[].class, byte[]::new);
@@ -586,7 +589,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<short[]> {
 		public final short[] empty = new short[0];
 		public final TypedArray.Type.Integral<Short> box =
-			TypedArray.integral(Short[]::new, Format.HEX::ushort);
+			TypedArray.integral(Short[]::new, hexFn(s -> Maths.ushort(s)));
 
 		OfShort() {
 			super(short[].class, short[]::new);
@@ -783,7 +786,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<int[]> {
 		public final int[] empty = new int[0];
 		public final TypedArray.Type.Integral<Integer> box =
-			TypedArray.integral(Integer[]::new, Format.HEX::uint);
+			TypedArray.integral(Integer[]::new, hexFn(i -> Maths.uint(i)));
 
 		OfInt() {
 			super(int[].class, int[]::new);
@@ -970,7 +973,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<long[]> {
 		public final long[] empty = new long[0];
 		public final TypedArray.Type.Integral<Long> box =
-			TypedArray.integral(Long[]::new, Format.HEX::apply);
+			TypedArray.integral(Long[]::new, Format::hex);
 
 		OfLong() {
 			super(long[].class, long[]::new);
@@ -1666,6 +1669,10 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	protected abstract Functions.ObjBiIntConsumer<T> sorter();
 
 	// support
+
+	private static <T> Functions.Function<T, String> hexFn(Functions.ToLongFunction<T> longFn) {
+		return t -> t == null ? Strings.NULL : Format.hex(longFn.applyAsLong(t));
+	}
 
 	private static <T, U> boolean equivalent(T lhs, U rhs, Functions.IntPredicate equivalence) {
 		if (lhs == null && rhs == null) return true;

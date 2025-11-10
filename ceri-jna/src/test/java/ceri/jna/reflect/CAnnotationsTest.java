@@ -37,6 +37,8 @@ public class CAnnotationsTest {
 
 	@Test
 	public void testCGenFromAnnotation() {
+		assertCGen(CAnnotations.CGen.Value.from(null), CGen.Value.NONE);
+		assertCGen(CAnnotations.cgen(null), CGen.Value.NONE);
 		assertCGen(CAnnotations.cgen(String.class), CGen.Value.NONE);
 		assertCGen(CAnnotations.cgen(Gen.class), CGen.Value.builder(Integer.class).os(JnaOs.linux)
 			.reload(Long.class).location("test").value());

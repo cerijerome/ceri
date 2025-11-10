@@ -1,4 +1,4 @@
-package ceri.ffm;
+package ceri.ffm.util;
 
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import java.lang.foreign.Arena;

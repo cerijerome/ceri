@@ -721,7 +721,7 @@ public abstract class CallSync<T, R> {
 			() -> s.fields("calls", calls, "response", responseString(), "values",
 				values + ";" + valueDef)))
 			s.fields("calls", "[locked]", "response", "[locked]", "values", "[locked]");
-		return s.field("error", error).toString();
+		return s.toString();
 	}
 
 	private String responseString() {

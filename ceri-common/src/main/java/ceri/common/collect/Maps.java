@@ -18,6 +18,7 @@ import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Stream;
+import ceri.common.util.Validate;
 
 /**
  * Support for mutable maps.
@@ -159,6 +160,13 @@ public class Maps {
 	public static class Builder<K, V, M extends Map<K, V>> {
 		private final M map;
 		private Put put = Put.def;
+
+		/**
+		 * Start building a new map.
+		 */
+		public static <K, V> Builder<K, V, Map<K, V>> of() {
+			return of(Maps.of());
+		}
 
 		/**
 		 * Start building a new map.
@@ -566,6 +574,15 @@ public class Maps {
 	 */
 	public static <K, V> V get(Map<K, V> map, K key, V def) {
 		return isEmpty(map) ? def : map.getOrDefault(key, def);
+	}
+
+	/**
+	 * Returns the mapped value for the key; returns null if no mapping, or the map is null.
+	 */
+	public static <K, V> V getOrThrow(Map<K, V> map, K key) {
+		return Validate.nonNull(map, "map").computeIfAbsent(key, _ -> {
+			throw new IllegalArgumentException("Key not found: " + key);
+		});
 	}
 
 	/**

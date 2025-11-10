@@ -1,4 +1,4 @@
-package ceri.jna.reflect;
+package ceri.ffm.reflect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
@@ -8,11 +8,9 @@ import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import ceri.common.array.Array;
-import ceri.common.collect.Collectable;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
@@ -20,7 +18,7 @@ import ceri.common.except.Exceptions;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
-import ceri.jna.util.JnaOs;
+import ceri.ffm.util.FfmOs;
 
 /**
  * Annotations declaring c code features.
@@ -36,7 +34,7 @@ public class CAnnotations {
 	@Target({ ElementType.TYPE })
 	public @interface CGen {
 		/** The OS array used to generate c code; empty for all. */
-		JnaOs[] os() default {};
+		FfmOs[] os() default {};
 
 		/** The classes used to generate c code. */
 		Class<?>[] target();
@@ -50,11 +48,11 @@ public class CAnnotations {
 		/**
 		 * For manual creation of settings.
 		 */
-		record Value(JnaOs[] os, Class<?>[] target, Class<?>[] reload, String location) {
+		record Value(FfmOs[] os, Class<?>[] target, Class<?>[] reload, String location) {
 
 			/** No targets to process. */
 			public static final Value NONE =
-				new Value(JnaOs.NONE, Array.Empty.classes, Array.Empty.classes, "");
+				new Value(FfmOs.NONE, Array.Empty.classes, Array.Empty.classes, "");
 
 			/**
 			 * Create from annotation.
@@ -69,7 +67,7 @@ public class CAnnotations {
 			 * Builder for c code generation settings.
 			 */
 			public static class Builder {
-				private JnaOs[] os = {};
+				private FfmOs[] os = {};
 				private final Class<?>[] target;
 				private Class<?>[] reload = {};
 				private String location = "";
@@ -81,7 +79,7 @@ public class CAnnotations {
 				/**
 				 * Set OS.
 				 */
-				public Builder os(JnaOs... os) {
+				public Builder os(FfmOs... os) {
 					this.os = os;
 					return this;
 				}
@@ -134,7 +132,7 @@ public class CAnnotations {
 	 * Return annotated c code generation settings.
 	 */
 	public static CGen.Value cgen(Class<?> cls) {
-		return Annotations.value(cls, CGen.class, CGen.Value::from, CGen.Value.NONE);
+		return CGen.Value.from(Annotations.annotation(cls, CGen.class));
 	}
 
 	/**
@@ -145,7 +143,7 @@ public class CAnnotations {
 	@Repeatable(CIncludes.class)
 	public @interface CInclude {
 		/** For OS-specific includes; unknown for all OS types. */
-		JnaOs[] os() default {};
+		FfmOs[] os() default {};
 
 		/** Array of include paths. */
 		String[] value();
@@ -153,14 +151,14 @@ public class CAnnotations {
 		/**
 		 * Container for includes by OS.
 		 */
-		record Value(Map<JnaOs, Set<String>> map) {
+		record Value(Map<FfmOs, Set<String>> map) {
 			public static final Value NONE = new Value(Map.of());
 
 			/**
 			 * Create from annotations.
 			 */
-			public static Value from(List<CInclude> includes) {
-				if (Collectable.isEmpty(includes)) return NONE;
+			public static Value from(CInclude[] includes) {
+				if (includes.length == 0) return NONE;
 				var b = builder();
 				for (var include : includes) {
 					var os = include.os();
@@ -182,7 +180,7 @@ public class CAnnotations {
 			 * Builder for includes by OS.
 			 */
 			public static class Builder {
-				private final Map<JnaOs, Set<String>> map = Maps.tree();
+				private final Map<FfmOs, Set<String>> map = Maps.tree();
 
 				private Builder() {}
 
@@ -197,7 +195,7 @@ public class CAnnotations {
 				 * Add includes for each OS.
 				 */
 				public Builder add(Collection<String> includes) {
-					for (var os : JnaOs.KNOWN)
+					for (var os : FfmOs.KNOWN)
 						add(os, includes);
 					return this;
 				}
@@ -205,14 +203,14 @@ public class CAnnotations {
 				/**
 				 * Add includes for the OS.
 				 */
-				public Builder add(JnaOs os, String... includes) {
+				public Builder add(FfmOs os, String... includes) {
 					return add(os, Arrays.asList(includes));
 				}
 
 				/**
 				 * Add includes for the OS.
 				 */
-				public Builder add(JnaOs os, Collection<String> includes) {
+				public Builder add(FfmOs os, Collection<String> includes) {
 					if (!includes.isEmpty())
 						map.computeIfAbsent(os, _ -> Sets.link()).addAll(includes);
 					return this;
@@ -233,7 +231,7 @@ public class CAnnotations {
 			/**
 			 * Provides the includes for the OS.
 			 */
-			public Set<String> includes(JnaOs os) {
+			public Set<String> includes(FfmOs os) {
 				return map.getOrDefault(os, Set.of());
 			}
 		}
@@ -249,7 +247,7 @@ public class CAnnotations {
 	 * Return a map of c includes by OS.
 	 */
 	public static CInclude.Value cincludes(Class<?> cls) {
-		return Annotations.listValue(cls, CInclude.class, CInclude.Value::from);
+		return CInclude.Value.from(cls.getAnnotationsByType(CInclude.class));
 	}
 
 	/**
@@ -267,7 +265,7 @@ public class CAnnotations {
 	@Repeatable(CTypes.class)
 	public @interface CType {
 		/** The OS that defines this type; empty for every OS. */
-		JnaOs[] os() default {};
+		FfmOs[] os() default {};
 
 		/** The type name in c code. Empty string to use type name. */
 		String name() default "";
@@ -290,12 +288,12 @@ public class CAnnotations {
 		/**
 		 * For manual creation of a c type.
 		 */
-		record Value(JnaOs[] os, String name, String valueField, Attr... attrs) {
+		record Value(FfmOs[] os, String name, String valueField, Attr... attrs) {
 
 			private static final String VALUE_FIELD = "value";
 			/** Equivalent to the undefined annotation. */
 			public static final Value UNDEFINED = new Value(null, "", "");
-			public static final Value DEFAULT = new Value(JnaOs.NONE, "", "");
+			public static final Value DEFAULT = new Value(FfmOs.NONE, "", "");
 
 			/**
 			 * Creates a value from the annotation.
@@ -323,29 +321,29 @@ public class CAnnotations {
 			 */
 			public static CType.Value of(String name, String valueField, CType.Attr... attrs) {
 				if (name.isEmpty() && valueField.isEmpty() && attrs.length == 0) return DEFAULT;
-				return new CType.Value(JnaOs.NONE, name, valueField, attrs);
+				return new CType.Value(FfmOs.NONE, name, valueField, attrs);
 			}
 
 			/**
 			 * Create new c type settings.
 			 */
-			public static CType.Value of(JnaOs os, CType.Attr... attrs) {
+			public static CType.Value of(FfmOs os, CType.Attr... attrs) {
 				return of(os, "", attrs);
 			}
 
 			/**
 			 * Create new c type settings.
 			 */
-			public static CType.Value of(JnaOs os, String name, CType.Attr... attrs) {
+			public static CType.Value of(FfmOs os, String name, CType.Attr... attrs) {
 				return of(os, name, "", attrs);
 			}
 
 			/**
 			 * Create new c type settings.
 			 */
-			public static CType.Value of(JnaOs os, String name, String valueField,
+			public static CType.Value of(FfmOs os, String name, String valueField,
 				CType.Attr... attrs) {
-				return new CType.Value(new JnaOs[] { os }, name, valueField, attrs);
+				return new CType.Value(new FfmOs[] { os }, name, valueField, attrs);
 			}
 
 			/**
@@ -402,14 +400,14 @@ public class CAnnotations {
 	/**
 	 * Find c type settings by annotation for the OS.
 	 */
-	public static CType.Value ctype(Enum<?> en, JnaOs os) {
+	public static CType.Value ctype(Enum<?> en, FfmOs os) {
 		return ctype(Reflect.enumToField(en), os);
 	}
 
 	/**
 	 * Find c type settings by annotation for the OS.
 	 */
-	public static CType.Value ctype(AnnotatedElement element, JnaOs os) {
+	public static CType.Value ctype(AnnotatedElement element, FfmOs os) {
 		if (element == null) return CType.Value.UNDEFINED;
 		var ctypes = element.getAnnotationsByType(CType.class);
 		var undefined = element.isAnnotationPresent(CUndefined.class);
@@ -422,7 +420,7 @@ public class CAnnotations {
 		return ctypeForOs(ctypes, os);
 	}
 
-	private static CType.Value ctypeForOs(CType[] ctypes, JnaOs os) {
+	private static CType.Value ctypeForOs(CType[] ctypes, FfmOs os) {
 		// Type annotation for OS => type
 		// Type annotation without OS => type
 		// Otherwise undefined
@@ -433,8 +431,8 @@ public class CAnnotations {
 		return CType.Value.UNDEFINED;
 	}
 
-	private static JnaOs[] knownOs(JnaOs[] os) {
+	private static FfmOs[] knownOs(FfmOs[] os) {
 		if (os.length > 0) return os;
-		return JnaOs.KNOWN.toArray(JnaOs[]::new);
+		return FfmOs.KNOWN.toArray(FfmOs[]::new);
 	}
 }

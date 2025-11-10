@@ -1,5 +1,6 @@
 package ceri.common.text;
 
+import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 import ceri.common.math.Radix;
 import ceri.common.util.Validate;
@@ -47,6 +48,31 @@ public class Chars {
 		public static final String BSLASH = "\\\\";
 
 		private Escape() {}
+	}
+
+	/**
+	 * Finds the named charset.
+	 */
+	public static Charset charset(String name) {
+		return Strings.nonEmpty(name) ? Charset.forName(name) : Charset.defaultCharset();
+	}
+	
+	/**
+	 * Returns a compact name for the charset.
+	 */
+	public static String compactName(Charset charset) {
+		if (charset == null) return "";
+		var b = new StringBuilder();
+		for (char c : charset.name().toCharArray())
+			if (Character.isLetterOrDigit(c)) b.append(Character.toLowerCase(c));
+		return b.toString();
+	}
+	
+	/**
+	 * Returns default charset if null.
+	 */
+	public static Charset safe(Charset charset) {
+		return charset == null ? Charset.defaultCharset() : charset;
 	}
 
 	/**

@@ -1,16 +1,15 @@
 package ceri.common.function;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.WeakHashMap;
+import ceri.common.collect.Maps;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Strings;
 
 /**
  * Utilities for functional interfaces.
  */
 public class Lambdas {
-	private static final Map<Object, Functions.Function<Object, String>> namers =
-		Collections.synchronizedMap(new WeakHashMap<>());
+	private static final Map<Object, Functions.Function<Object, String>> namers = Maps.syncWeak();
 	private static final String ANON_LAMBDA_LABEL = "$$Lambda/";
 	public static final String LAMBDA_SYMBOL = "\u03bb";
 	public static final String LAMBDA_NAME_DEF = "[lambda]";
@@ -20,7 +19,8 @@ public class Lambdas {
 	/**
 	 * Register a global name for an object; typically used for naming lambdas.
 	 */
-	public static <T> T register(T t, String name) {
+	public static <T> T register(T t, String format, Object... args) {
+		var name = Strings.format(format, args);
 		return register(t, _ -> name);
 	}
 

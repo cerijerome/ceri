@@ -34,7 +34,7 @@ public class Functional {
 				return response;
 			};
 		}
-		
+
 		/**
 		 * Adapts a runnable as a supplier with fixed response.
 		 */
@@ -44,14 +44,13 @@ public class Functional {
 				if (runnable != null) runnable.run();
 				return response;
 			};
-		}		
+		}
 	}
 
 	/**
 	 * Interface that accepts various functions, passing an instance to the function.
 	 */
 	public interface Access<T> {
-
 		/**
 		 * Applies the function.
 		 */
@@ -60,7 +59,8 @@ public class Functional {
 		/**
 		 * Accepts the consumer.
 		 */
-		default <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer) throws E {
+		default <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer)
+			throws E {
 			apply(Adapt.acceptFunction(consumer, null));
 		}
 
@@ -78,7 +78,7 @@ public class Functional {
 			};
 		}
 	}
-	
+
 	/**
 	 * Gets result from function and operand; returns null if function or operand is null.
 	 */

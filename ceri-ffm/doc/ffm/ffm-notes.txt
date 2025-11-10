@@ -1,27 +1,310 @@
 
+Java Foreign Function & Memory API
+==================================
+JEP: https://openjdk.org/jeps/454
+Doc: https://docs.oracle.com/en/java/javase/25/core/foreign-function-and-memory-api.html
+API: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/foreign/package-summary.html
+Alignment: https://c-faq.com/struct/align.esr.html
 
-Arena
-- allocates memory segments
-- determines lifecycle of memory segments
-- global: never deallocated, available to any thread (close() => exception)
-- automatic: managed by gc, available to any thread (close() => exception)
-  - segments deallocated after arena is unreachable
-- confined: manually closed, available to single thread
-- shared: manually closed, available to any thread
+
+Todo:
+- test jextract on clib
+- understand how to handle:
+  - struct padding = manually set in struct layouts?
+  - ABI in general
+- test out struct alignment offsets
+- convert struct <-> object?
+- callback testing
+
+
+Questions:
+- why doesn't ffm stop actions on null address => SIGSEGV?
+  - AddressLayout.withTargetLayout causes SIGSEGV if address = 0
+  - faixed in later JDK?
+- how to specify platform alignment in ffm?
+  - can't go back once changed
+  - JNA: platform def, 1, gnuc (field <= 4), msvc (field)
+- how to get linker apart from Linker.nativeLinker?
+- how to handle function pointers? linker.upcallStub
+- when is Linker.Option.critical() used?
+
+
+Design considerations
+---------------------
+- each type has a natural layout (size, alignment, byte order = natural)
+- config on type, method, arg, struct to override alignment, byte order
+  - also specific arg type settings, such as charset for strings
+- method call building:
+  1) get natural layout from class
+  2) apply config to get final layout
+  3) get adapter in/out processing (arrays, structs, typed pointers)
+- method call:
+  1) create native objs from args, apply adapters IN
+  2) call method
+  3) apply resolvers on args OUT (read values back to arrays, structs)
+  4) create return obj from method return obj
+
+
+General
+-------
+- off-heap (non-gc) memory required for native sharing
+- on-heap from MemorySegment.ofArray (wraps array)
+- off-heap from SegmentAllocator.allocate/From
+- Arena used to allocate segments with lifecycle/access limits
+- MemoryLayout specifies byte alignment (1 = none)
+- ValueLayout specifies byte order (extends MemoryLayout)
+  - ValueLayout.JAVA_xxx.withByteAlignment/Order/Name
+- variadic functions require a FunctionDesctiptor for each call type
+  - c type promotion may not permit smaller int types
+
+
+Troubleshooting
+---------------
+- don't use withTargetLayout for return address layout
+  - 0 address => SIGSEGV
+- also don't reinterpret 0 address with new length => SIGSEGV
+- MethodHandle and VarHandle won't accept Object[] as varargs
+  - due to @PolymorphicSignature
+
+
+Alignment
+---------
+- "self-align" = padding before, so start is on multiple of type size
+  - byte, byte[] = 1, short = 2, int = 4, long = 8, clong = word
+  - struct = largest member, with end padding if needed
+- __packed__ = no padding (1)
+- JNA: platform def, 1, gnuc (field <= 4), msvc (field)
+- current issue with Windows ABI compatibility?
+  - upcall with struct + pointer fails inconsistently
+
+
+Type Mapping
+------------
+- Linker.nativeLinker().canonicalLayouts()
+- Mac aarch64:
+  - bool = z1 ValueLayout.OfBoolean
+  - char = b1 ValueLayout.OfByte
+  - short = s2 ValueLayout.OfShort
+  - int = i4 ValueLayout.OfInt
+  - int8_t = b1 ValueLayout.OfByte
+  - int16_t = s2 ValueLayout.OfShort
+  - int32_t = i4 ValueLayout.OfInt
+  - int64_t = j8 ValueLayout.OfLong
+  - long = j8 ValueLayout.OfLong
+  - long long = j8 ValueLayout.OfLong
+  - float = f4 ValueLayout.OfFloat
+  - double = d8 ValueLayout.OfDouble
+  - size_t = j8 ValueLayout.OfLong
+  - wchar_t = i4 ValueLayout.OfInt
+  - void* = a8 ValueLayout.OfAddress
+
+
+API Types
+---------
+Summary:
+- Only 14 public top-level interfaces declared in java.lang.foreign
+- Functional interfaces: SegmentAllocator, SymbolLookup
+- MemorySegment
+  - (AbstractMemorySegmentImpl)
+    - (HeapMemorySegmentImpl)
+      - (HeapMemorySegmentImpl.OfByte/Char/Short/Int/Long/Float/Double)
+    - (NativeMemorySegmentImpl)
+      - (MappedMemorySegmentImpl)
+- SegmentAllocator
+  - Arena
+    - (ArenaImpl)
+  - (AbstractMemorySegmentImpl)
+  - (SlicingAllocator)
+- MemoryLayout
+  - SequenceLayout
+    - (SequenceLayoutImpl)
+  - GroupLayout
+    - StructLayout
+      - (StructLayoutImpl)
+    - UnionLayout
+      - (UnionLayoutImpl)
+  - PaddingLayout
+    - (PaddingLayoutImpl)
+  - ValueLayout
+    - AddressLayout
+      - (ValueLayouts.OfAddressImpl)
+    - ValueLayout.OfBoolean/Char/Byte/Short/Int/Long/Float/Double
+      - (ValueLayouts.OfBooleanImpl/...)
+- Linker
+  - (AbstractLinker)
+    - (FallbackLinker/MacOsAArch64Linker/LinuxAArch64Linker/...)
+- SymbolLookup
+  - (SystemLookup)
+- FunctionDescriptor
+  - (FunctionDescriptorImpl)
+- MethodHandle (java.lang.invoke)
+  - (NativeMethodHandle)
+- FileChannel (java.nio.channels)
 
 MemorySegment
 - contiguous region of memory
-- inside or outside java heap
-- cannot be manually deallocated
-  - set to null for automatic arena GC
-- reinterpret
+- on-heap or off-heap (native)
+- also used to represent an address/pointer (can be zero-length)
+- not directly deallocated; see Arena
+  - set to null for automatic Arena GC
+- nio FileChannel can map a MemorySegment
+- heap address = offset, off-heap address = physical
+- has max byte alignment for access
+- static methods:
+  - copy, mismatch
+  - ofArray (primitive, on-heap), ofBuffer
+- non-static methods:
+  - address (=long), byteSize, scope, isNative
+  - get(layout, offset), getAtIndex(layout, index)
+  - set(layout, offset, segment/prim), setAtIndex(layout, index, segment/prim)
+  - toArray(layout), asByteBuffer()
+  - reinterpret(len) = resize a segment passed from native call
+  - asSlice, asReadOnly, isReadOnly
+- Scope non-static methods: isAlive()
 
+SegmentAllocator:
+- off-heap memory segment allocation
+- static methods:
+  - prefixAllocator: reallocate from segment, at index 0
+  - slicingAllocator: allocate from segment, at next available index
+- non-static methods:
+  - allocate(size, [alignment=1])
+  - allocate(layout, count) = allocate layout x count
+  - allocateFrom(layout, prim/prim[]) = allocate and copy
+  - allocateFrom(addr-layout, segment) = allocate and copy address of segment
+  - allocateFrom(string, [charset]) = allocate and copy as nul-term bytes
+  - allocateFrom(layout, segment, ...) = allocate and copy over with new settings
 
-MemoryLayout
-- query sizes, offsets, alignment
+Arena:
+- extends SegmentAllocator
+- determines lifecycle and thread access of memory segments
+- global: never deallocated, available to any thread (close() => exception)
+- auto: managed by gc, available to any thread (close() => exception)
+  - segments deallocated after arena is unreachable
+- confined: manually closed, available to single thread
+- shared: manually closed, available to any thread
+- custom: implement interface as needed
+
+MemoryLayout:
+- describes contents of a memory segment
+- size, offsets, alignment
+- alignment as natural (field size) or specified
 - access memory segments with var handles, layout paths
+- static methods:
+  - paddingLayout(size) = padding with alignment 1
+  - sequenceLayout(count, layout) = repeated
+  - structLayout(layouts) = struct members
+  - unionLayout(layouts) = union members
+- non-static methods:
+  - byteSize, byteAlignment, name
+  - byteOffset(path-elements) = byte offset of path
+  - scale(offset, index) = calculate offset + (size * index)
+  - varHandle(path-elements) = to access segment at path offset
+  - arrayElementVarHandle(path-elements) = to access adjacent elements
+  - select(path-elements) = relative layout following path
+  - withByteAlignment/Name = modify as new layout
+- PathElement: nested layout paths; static methods:
+  - group element index/name
+  - sequence element open/index/range
+  - dereference element
+
+SequenceLayout:
+- extends MemoryLayout
+- additional methods:
+  - elementLayout, elementCount
+  - flatten() = merges sequence sub-layouts to this layout?
+  - reshape(counts[]) = splits into sequence sub-layouts?
+  - withElementCount(count) = modify as new layout
+
+GroupLayout:
+- extends MemoryLayout
+- additional methods:
+  - memberLayouts() = list of layouts
+- StructLayout/UnionLayout
+
+PaddingLayout:
+- extends MemoryLayout
+- additional methods:
+  - withByteAlignment(alignment) = modify as new layout
+
+ValueLayout:
+- extends MemoryLayout
+- static fields: (_UNALIGNED = byte alignment 1)
+  - ADDRESS, JAVA_BOOLEAN/CHAR/BYTE/SHORT/INT/LONG/FLOAT/DOUBLE
+- additional methods:
+  - order() = byte order
+  - carrier() = class of value
+  - varHandle() = to access value in segment at offset
+  - withOrder(byte-order) = modify as new layout
+
+AddressLayout:
+- extends ValueLayout
+- additional methods:
+  - targetLayout() = memory layout for this address if known
+  - withTargetLayout(layout) = modify as new layout
 
 Linker
+- core function interop java <-> native
+- enables downcalls (java->native) and upcalls (native->java)
+- static methods:
+  - nativeLinker() = instance for ABI of native platform
+- non-static methods:
+  - defaultLookup() = common lib symbol lookup
+  - canonicalLayouts() = map of c type name to layout
+  - downcallHandle([seg], fn-desc, options) = to call native method
+  - upcallStub(target, fn-desc, arena, options)
+    = create fn ptr seg to pass to native call
+- Option: linkage parameters; static methods:
+  - firstVariadicArg(index) = index of variadic arg in c fn
+  - captureCallSate(states) = save part of exec state
+  - captureStateLayout() = layout of capture state
+  - critical(heap-access) = to optimize simple, fast call
+
 SymbolLookup
+- look up function or global var
+- address is zero-length segment
+- static methods:
+  - loaderLookup() = look in classloader from System.load[Library]
+  - libraryLookup(name/path, arena) = load if not already
+- non-static methods:
+  - find/OrThrow(name) = address of symbol
+  - or(lookup) = new instance using lookup if not found
+
 FunctionDescriptor
-MethodHandle
+- signature of a native function
+- used for downcall handles and upcall stubs
+- static methods:
+  - of(layout, layout) = from return and arg layouts
+  - ofVoid(layout) = from arg layouts
+- non-static methods:
+  - returnLayout() = function return
+  - argumentLayout() = arg list
+  - appendArgumentLayouts(layouts) = desc with added args
+  - insertArgumentLayouts(i, layouts) = desc with inserted args
+  - changeReturnLayout(layout) = desc with new return
+  - dropReturnLayout() = desc as void
+  - toMethodType() = convert to method type
+
+MethodHandle (java.lang.invoke)
+- invoke method as a native call
+- typed args are verified
+- invoke exact, or try to map with asType()
+- available through MethodHandles.Lookup
+
+MethodType (java.lang.invoke)
+- args and return type for method handle
+
+VarHandle (java.lang.invoke)
+- reference to a variable
+- access with memory semantics such as volatile
+
+FileChannel (java.nio.channels)
+- nio channel for a file
+- absolute or current positional read/write
+- can map range to a new MemorySegment (private/r/rw)
+
+Interesing support classes (non-public):
+- j.i.f.Utils
+- j.i.f.abi.SharedUtils
+- j.i.f.CABI (enum)
+

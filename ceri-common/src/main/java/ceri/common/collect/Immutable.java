@@ -1,6 +1,5 @@
 package ceri.common.collect;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,6 +15,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
@@ -256,8 +256,7 @@ public class Immutable {
 	 */
 	@SafeVarargs
 	public static <T> List<T> wrapListOf(T... values) {
-		if (values == null || values.length == 0) return List.of();
-		return wrap(Arrays.asList(values));
+		return wrap(Lists.wrap(values));
 	}
 
 	/**
@@ -271,9 +270,9 @@ public class Immutable {
 	 * Wraps an array region as an unmodifiable list.
 	 */
 	public static <T> List<T> wrapList(T[] array, int offset, int length) {
-		if (array == null || array.length == 0) return List.of();
+		if (Array.isEmpty(array)) return list();
 		return RawArray.applySlice(array, offset, length,
-			(o, l) -> wrap(Arrays.asList(array).subList(o, o + l)));
+			(o, l) -> wrap(Lists.wrap(array).subList(o, o + l)));
 	}
 
 	/**

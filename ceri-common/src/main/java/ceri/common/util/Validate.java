@@ -5,6 +5,7 @@ import java.util.Objects;
 import ceri.common.collect.Lists;
 import ceri.common.except.Exceptions;
 import ceri.common.math.Maths;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
@@ -45,6 +46,14 @@ public class Validate {
 
 	// objects
 
+	/**
+	 * Fails if the object is not an instance of the type.
+	 */
+	public static <T> T instance(Object obj, Class<T> cls) {
+		if (cls.isInstance(obj)) return Reflect.unchecked(obj);
+		throw failed("Must be %s: %s", Reflect.name(cls), obj);
+	}
+	
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */

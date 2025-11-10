@@ -3,9 +3,6 @@ package ceri.common.reflect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Functions;
 
@@ -16,6 +13,14 @@ public class Annotations {
 
 	private Annotations() {}
 
+	/**
+	 * Returns true if the element has the annotation type.
+	 */
+	public static boolean has(AnnotatedElement element,
+		Class<? extends Annotation> annotationCls) {
+		return element != null && element.getAnnotation(annotationCls) != null;
+	}
+	
 	/**
 	 * Get annotation from element, or return null.
 	 */
@@ -71,7 +76,7 @@ public class Annotations {
 	 * </pre>
 	 */
 	public static <T extends Annotation> T annotationFromClass(
-		Supplier<? extends AnnotatedElement> elementSupplier, Class<T> annotationCls) {
+		Functions.Supplier<? extends AnnotatedElement> elementSupplier, Class<T> annotationCls) {
 		return elementSupplier == null ? null : annotation(elementSupplier.get(), annotationCls);
 	}
 
@@ -100,8 +105,8 @@ public class Annotations {
 	 * }
 	 * </pre>
 	 */
-	public static <T extends Annotation> T annotationFromEnum(Supplier<Enum<?>> enumSupplier,
-		Class<T> annotationCls) {
+	public static <T extends Annotation> T
+		annotationFromEnum(Functions.Supplier<Enum<?>> enumSupplier, Class<T> annotationCls) {
 		return enumSupplier == null ? null : annotation(enumSupplier.get(), annotationCls);
 	}
 
@@ -109,7 +114,7 @@ public class Annotations {
 	 * Apply accessor to annotation, return null if not found.
 	 */
 	public static <T extends Annotation, R> R value(AnnotatedElement element,
-		Class<T> annotationCls, Function<T, R> valueAccessor) {
+		Class<T> annotationCls, Functions.Function<T, R> valueAccessor) {
 		return value(element, annotationCls, valueAccessor, null);
 	}
 
@@ -117,7 +122,7 @@ public class Annotations {
 	 * Apply accessor to annotation, return default if not found.
 	 */
 	public static <T extends Annotation, R> R value(AnnotatedElement element,
-		Class<T> annotationCls, Function<T, R> valueAccessor, R def) {
+		Class<T> annotationCls, Functions.Function<T, R> valueAccessor, R def) {
 		T annotation = annotation(element, annotationCls);
 		return annotation == null ? def : valueAccessor.apply(annotation);
 	}
@@ -135,7 +140,7 @@ public class Annotations {
 	 * Apply accessor to annotation, return default if not found.
 	 */
 	public static <T extends Annotation> int value(AnnotatedElement element, Class<T> annotationCls,
-		ToIntFunction<T> valueAccessor, int def) {
+		Functions.ToIntFunction<T> valueAccessor, int def) {
 		T annotation = annotation(element, annotationCls);
 		return annotation == null ? def : valueAccessor.applyAsInt(annotation);
 	}
@@ -144,7 +149,7 @@ public class Annotations {
 	 * Apply accessor to field annotation, return null if not found.
 	 */
 	public static <T extends Annotation, R> R value(Enum<?> en, Class<T> annotationCls,
-		Function<T, R> valueAccessor) {
+		Functions.Function<T, R> valueAccessor) {
 		return value(en, annotationCls, valueAccessor, null);
 	}
 
@@ -152,7 +157,7 @@ public class Annotations {
 	 * Apply accessor to field annotation, return default if not found.
 	 */
 	public static <T extends Annotation, R> R value(Enum<?> en, Class<T> annotationCls,
-		Function<T, R> valueAccessor, R def) {
+		Functions.Function<T, R> valueAccessor, R def) {
 		T annotation = annotation(en, annotationCls);
 		return annotation == null ? def : valueAccessor.apply(annotation);
 	}
@@ -170,8 +175,17 @@ public class Annotations {
 	 * Apply accessor to field annotation, return default if not found.
 	 */
 	public static <T extends Annotation> int value(Enum<?> en, Class<T> annotationCls,
-		ToIntFunction<T> valueAccessor, int def) {
+		Functions.ToIntFunction<T> valueAccessor, int def) {
 		T annotation = annotation(en, annotationCls);
 		return annotation == null ? def : valueAccessor.applyAsInt(annotation);
+	}
+
+	/**
+	 * Apply accessor to annotation list.
+	 */
+	public static <T extends Annotation, R> R listValue(AnnotatedElement element,
+		Class<T> annotationCls, Functions.Function<List<T>, R> valueAccessor) {
+		var annotations = annotations(element, annotationCls);
+		return valueAccessor.apply(annotations);
 	}
 }

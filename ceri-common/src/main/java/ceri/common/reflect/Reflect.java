@@ -486,6 +486,13 @@ public class Reflect {
 	}
 
 	/**
+	 * Returns true if the method has no return type. 
+	 */
+	public static boolean isVoid(Method method) {
+		return method != null && method.getReturnType() == void.class;
+	}
+
+	/**
 	 * Determines if the field/method is static.
 	 */
 	public static boolean isStatic(Member member) {
@@ -506,6 +513,13 @@ public class Reflect {
 		return cls != null && Modifier.isPublic(cls.getModifiers());
 	}
 
+	/**
+	 * Determines if the class is an array.
+	 */
+	public static boolean isArray(Class<?> cls) {
+		return cls != null && cls.isArray();
+	}
+	
 	/**
 	 * Returns the public field from the class, including super-types. Returns null if not found.
 	 */
