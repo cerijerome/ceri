@@ -11,6 +11,7 @@ import ceri.common.test.Testing;
 @Suite.SuiteClasses({
 	// array
 	ceri.common.array.ArrayTest.class, //
+	ceri.common.array.DimensionsBehavior.class, //
 	ceri.common.array.DynamicArrayBehavior.class, //
 	ceri.common.array.PrimitiveArrayBehavior.class, //
 	ceri.common.array.RawArrayTest.class, //
@@ -68,8 +69,8 @@ import ceri.common.test.Testing;
 	ceri.common.data.ByteReaderBehavior.class, //
 	ceri.common.data.ByteReceiverBehavior.class, //
 	ceri.common.data.ByteStreamBehavior.class, //
-	ceri.common.data.BytesTest.class, //
 	ceri.common.data.ByteWriterBehavior.class, //
+	ceri.common.data.BytesTest.class, //
 	ceri.common.data.CrcAlgorithmBehavior.class, //
 	ceri.common.data.CrcBehavior.class, //
 	ceri.common.data.DataTest.class, //
@@ -195,12 +196,12 @@ import ceri.common.test.Testing;
 	ceri.common.property.SeparatorBehavior.class, //
 	ceri.common.property.TypedPropertiesBehavior.class, //
 	// reflect
-	ceri.common.reflect.AnnotationUtilTest.class, //
+	ceri.common.reflect.AnnotationsTest.class, //
 	ceri.common.reflect.CallerBehavior.class, //
 	ceri.common.reflect.ClassReInitializerBehavior.class, //
 	ceri.common.reflect.ClassReloaderBehavior.class, //
+	ceri.common.reflect.GenericsTest.class, //
 	ceri.common.reflect.ReflectTest.class, //
-	ceri.common.reflect.RuntimeInvocationExceptionBehavior.class, //
 	// sql
 	ceri.common.sql.SqlStatementBehavior.class, //
 	ceri.common.sql.SqlTest.class, //

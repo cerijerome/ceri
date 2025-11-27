@@ -33,6 +33,15 @@ public class ValidateTest {
 	}
 
 	@Test
+	public void testInstance() {
+		assertInvalid(() -> Validate.instance(null, Object.class));
+		assertInvalid(() -> Validate.instance("test", Number.class));
+		Assert.equal(Validate.instance("test", Object.class), "test");
+		Assert.equal(Validate.instance("test", CharSequence.class), "test");
+		Assert.equal(Validate.instance("test", String.class), "test");
+	}
+
+	@Test
 	public void testEqual() {
 		Assert.equal(Validate.equals(null, null), null);
 		Assert.equal(Validate.equals(OBJ, OBJ), OBJ);

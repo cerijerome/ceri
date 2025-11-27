@@ -1,5 +1,7 @@
 package ceri.common.text;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -25,7 +27,26 @@ public class CharsTest {
 	}
 
 	@Test
-	public void testSafe() {
+	public void testCharset() {
+		Assert.same(Chars.charset(null), Charset.defaultCharset());
+		Assert.same(Chars.charset(""), Charset.defaultCharset());
+		Assert.same(Chars.charset("UTF-8"), StandardCharsets.UTF_8);
+	}
+
+	@Test
+	public void testCompactName() {
+		Assert.string(Chars.compactName(null), "");
+		Assert.string(Chars.compactName(StandardCharsets.ISO_8859_1), "iso88591");
+	}
+
+	@Test
+	public void testSafeCharset() {
+		Assert.same(Chars.safe((Charset) null), Charset.defaultCharset());
+		Assert.same(Chars.safe(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+	}
+
+	@Test
+	public void testSafeCharSequence() {
 		Assert.string(Chars.safe((String) null), "");
 		Assert.same(Chars.safe(b("")), b);
 	}
@@ -42,6 +63,16 @@ public class CharsTest {
 		Assert.equal(Chars.at("test", -1, 'x'), 'x');
 		Assert.equal(Chars.at("test", 4, 'x'), 'x');
 		Assert.equal(Chars.at("test", 2, 'x'), 's');
+	}
+
+	@Test
+	public void testLast() {
+		Assert.equal(Chars.last(null), null);
+		Assert.equal(Chars.last(""), null);
+		Assert.equal(Chars.last("test\0"), '\0');
+		Assert.equal(Chars.last(null, 'a'), 'a');
+		Assert.equal(Chars.last("", 'a'), 'a');
+		Assert.equal(Chars.last("test\0", 'a'), '\0');
 	}
 
 	@Test

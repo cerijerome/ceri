@@ -1,5 +1,11 @@
 package ceri.common.array;
 
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.IntArray;
+import ceri.common.data.IntProvider;
+import ceri.common.data.LongArray;
+import ceri.common.data.LongProvider;
 import ceri.common.function.Functions;
 
 /**
@@ -182,7 +188,23 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public T get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		@SafeVarargs
+		public final int set(int index, T... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		@SafeVarargs
 		public final int append(T... values) {
@@ -204,7 +226,22 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public boolean get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, boolean... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		public int append(boolean... values) {
 			return append(values, 0);
@@ -225,28 +262,64 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends chars and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public char get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, char... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, CharSequence s) {
+			return set(index, s, 0);
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, CharSequence s, int offset) {
+			return set(index, s, offset, Integer.MAX_VALUE);
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, CharSequence s, int offset, int length) {
+			return super.set(index, s.length(), offset, length, (a, i, j) -> a[i] = s.charAt(j));
+		}
+
+		/**
+		 * Appends chars and returns the new index.
 		 */
 		public int append(CharSequence s) {
 			return append(s, 0);
 		}
 
 		/**
-		 * Appends chars and returns the index.
+		 * Appends chars and returns the new index.
 		 */
 		public int append(CharSequence s, int offset) {
 			return append(s, offset, Integer.MAX_VALUE);
 		}
 
 		/**
-		 * Appends chars and returns the index.
+		 * Appends chars and returns the new index.
 		 */
 		public int append(CharSequence s, int offset, int length) {
-			return super.append(s.length(), offset, length, (a, i, j) -> a[i] = s.charAt(j));
+			return set(index(), s, offset, length);
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Appends the values and returns the new index.
 		 */
 		public int append(char... values) {
 			return append(values, 0);
@@ -272,17 +345,46 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public byte get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, byte... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, int... values) {
+			return super.set(index, values, (a, i, j) -> a[i] = (byte) values[j]);
+		}
+
+		/**
+		 * v * Appends the values and returns the new index.
 		 */
 		public int append(byte... values) {
 			return append(values, 0);
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Appends the values and returns the new index.
 		 */
 		public int append(int... values) {
-			return super.append(values, (a, i, j) -> a[i] = (byte) values[j]);
+			return set(index(), values);
+		}
+
+		/**
+		 * Returns an immutable wrapper.
+		 */
+		public ByteProvider wrap() {
+			return ByteArray.Immutable.wrap(array(), 0, index());
 		}
 	}
 
@@ -300,17 +402,39 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public short get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, short... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, int... values) {
+			return super.set(index, values, (a, i, j) -> a[i] = (short) values[j]);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		public int append(short... values) {
 			return append(values, 0);
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Appends the values and returns the new index.
 		 */
 		public int append(int... values) {
-			return super.append(values, (a, i, j) -> a[i] = (short) values[j]);
+			return set(index(), values);
 		}
 	}
 
@@ -328,10 +452,32 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public int get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, int... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		public int append(int... values) {
 			return append(values, 0);
+		}
+
+		/**
+		 * Returns an immutable wrapper.
+		 */
+		public IntProvider wrap() {
+			return IntArray.Immutable.wrap(array(), 0, index());
 		}
 	}
 
@@ -349,10 +495,32 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public long get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, long... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		public int append(long... values) {
 			return append(values, 0);
+		}
+
+		/**
+		 * Returns an immutable wrapper.
+		 */
+		public LongProvider wrap() {
+			return LongArray.Immutable.wrap(array(), 0, index());
 		}
 	}
 
@@ -370,7 +538,22 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public float get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, float... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		public int append(float... values) {
 			return append(values, 0);
@@ -392,7 +575,22 @@ public abstract class DynamicArray<T> {
 		}
 
 		/**
-		 * Appends the values and returns the index.
+		 * Get the value at index, expanding the array if needed.
+		 */
+		public double get(int index) {
+			index = ensureIndex(index);
+			return array()[index];
+		}
+
+		/**
+		 * Sets the values at the index and returns the new index.
+		 */
+		public int set(int index, double... values) {
+			return set(index, values, 0);
+		}
+
+		/**
+		 * Appends the values and returns the new index.
 		 */
 		public int append(double... values) {
 			return append(values, 0);
@@ -413,6 +611,16 @@ public abstract class DynamicArray<T> {
 	}
 
 	/**
+	 * Updates the current array index, expanding the array if needed.
+	 */
+	public int index(int index) {
+		if (index < 0) index = Math.max(0, this.index + index);
+		ensureSize(index);
+		this.index = index;
+		return index;
+	}
+
+	/**
 	 * Returns the actual array, including padding.
 	 */
 	public T array() {
@@ -428,21 +636,47 @@ public abstract class DynamicArray<T> {
 	}
 
 	/**
-	 * Appends the array and returns the index.
+	 * Sets the values at the index and returns the new index.
+	 */
+	public int set(int index, T array, int offset) {
+		return set(index, array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Sets the values at the index and returns the new index.
+	 */
+	public int set(int index, T array, int offset, int length) {
+		int i = resolveIndex(index);
+		RawArray.acceptSlice(array, offset, length, (o, l) -> {
+			ensureSize(i + l);
+			typed.copy(array, o, this.array, i, l);
+			this.index = Math.max(this.index, i + l);
+		});
+		return this.index;
+	}
+
+	/**
+	 * Appends the values and returns the new index.
 	 */
 	public int append(T array, int offset) {
 		return append(array, offset, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Appends the array and returns the index.
+	 * Appends the values and returns the new index.
 	 */
 	public int append(T array, int offset, int length) {
-		RawArray.acceptSlice(array, offset, length, (o, l) -> {
-			ensureSize(index + l);
-			typed.copy(array, o, this.array, index, l);
-			index += l;
-		});
+		return set(index, array, offset, length);
+	}
+
+	private int resolveIndex(int index) {
+		return index >= 0 ? index : Math.max(0, index() + index);
+	}
+
+	public int ensureIndex(int index) {
+		index = resolveIndex(index);
+		ensureSize(index + 1);
+		this.index = Math.max(this.index, index + 1);
 		return index;
 	}
 
@@ -453,18 +687,20 @@ public abstract class DynamicArray<T> {
 		array = typed.resize(array, len);
 	}
 
-	private <U> int append(U array, Functions.ObjBiIntConsumer<T> consumer) {
-		return append(RawArray.length(array), 0, Integer.MAX_VALUE, consumer);
+	private <U> int set(int index, U array, Functions.ObjBiIntConsumer<T> consumer) {
+		return set(index, RawArray.length(array), 0, Integer.MAX_VALUE, consumer);
 	}
 
-	private int append(int arrayLen, int offset, int length,
+	private int set(int index, int arrayLen, int offset, int length,
 		Functions.ObjBiIntConsumer<T> consumer) {
+		int i = resolveIndex(index);
 		Array.acceptSlice(arrayLen, offset, length, (o, l) -> {
-			ensureSize(index + l);
-			for (int i = 0; i < l; i++)
-				consumer.accept(this.array, index++, o + i);
+			ensureSize(i + l);
+			for (int j = 0; j < l; j++)
+				consumer.accept(this.array, i + j, o + j);
+			this.index = Math.max(this.index, i + l);
 		});
-		return index;
+		return this.index;
 	}
 
 	private void accept(Functions.ObjIntConsumer<T> consumer) {

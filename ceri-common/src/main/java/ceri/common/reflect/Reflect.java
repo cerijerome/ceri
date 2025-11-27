@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
@@ -34,16 +35,31 @@ import ceri.common.util.Basics;
  * Utility methods related to reflection
  */
 public class Reflect {
-	private static final Set<Class<?>> PRIMITIVES = Set.of(boolean.class, char.class, byte.class,
+	public static final Set<Class<?>> PRIMITIVES = Set.of(boolean.class, char.class, byte.class,
 		short.class, int.class, long.class, float.class, double.class);
-	private static final Set<Class<?>> PRIMITIVE_NUMBERS =
+	public static final Set<Class<?>> PRIMITIVE_NUMBERS =
 		Set.of(byte.class, short.class, int.class, long.class, float.class, double.class);
-	private static final Set<Class<?>> PRIMITIVE_INTS =
+	public static final Set<Class<?>> PRIMITIVE_INTS =
 		Set.of(byte.class, short.class, int.class, long.class);
 	public static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
 	private Reflect() {}
+
+	/**
+	 * Exception thrown by application code when creation of an object fails.
+	 */
+	@SuppressWarnings("serial")
+	public static class InvocationException extends RuntimeException {
+
+		public static InvocationException of(Throwable cause, String format, Object... args) {
+			return new InvocationException(Strings.format(format, args), cause);
+		}
+
+		public InvocationException(String message, Throwable cause) {
+			super(message, cause);
+		}
+	}
 
 	/**
 	 * A thread and stack trace element.
@@ -116,6 +132,33 @@ public class Reflect {
 	 */
 	public static String className(Object obj) {
 		return name(getClass(obj));
+	}
+
+	/**
+	 * Returns the simple class name.
+	 */
+	public static String simple(Class<?> cls) {
+		if (cls == null) return Strings.NULL;
+		return cls.getSimpleName();
+	}
+
+	/**
+	 * Returns the field name with class simple name prefix.
+	 */
+	public static String simple(Field field) {
+		if (field == null) return Strings.NULL;
+		return simple(field.getDeclaringClass()) + "." + field.getName();
+	}
+
+	/**
+	 * Returns the field name with class simple name prefix.
+	 */
+	public static String simple(Executable executable) {
+		return switch (executable) {
+			case null -> Strings.NULL;
+			case Constructor<?> _ -> "new " + simple(executable.getDeclaringClass());
+			default -> simple(executable.getDeclaringClass()) + "." + executable.getName();
+		};
 	}
 
 	/**
@@ -409,8 +452,7 @@ public class Reflect {
 	 * Returns the constructor matching the argument types, or null if no matching constructor is
 	 * found.
 	 */
-	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes)
-		throws RuntimeInvocationException {
+	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes) {
 		try {
 			return cls.getConstructor(argTypes);
 		} catch (NoSuchMethodException e) {
@@ -421,8 +463,7 @@ public class Reflect {
 	/**
 	 * Wraps class getConstructor with unchecked exception.
 	 */
-	public static <T> Constructor<T> validConstructor(Class<T> cls, Class<?>... argTypes)
-		throws RuntimeInvocationException {
+	public static <T> Constructor<T> validConstructor(Class<T> cls, Class<?>... argTypes) {
 		var constructor = constructor(cls, argTypes);
 		if (constructor != null) return constructor;
 		throw new IllegalArgumentException(String.format("constructor %s%s not found",
@@ -432,7 +473,7 @@ public class Reflect {
 	/**
 	 * Creates an object of given type, using default constructor
 	 */
-	public static <T> T create(Class<T> classType) throws RuntimeInvocationException {
+	public static <T> T create(Class<T> classType) {
 		return create(classType, Array.Empty.classes);
 	}
 
@@ -463,9 +504,8 @@ public class Reflect {
 		} catch (InvocationTargetException e) {
 			t = Basics.def(e.getCause(), e);
 		}
-		throw new RuntimeInvocationException(String.format("new %s(%s) failed with args %s",
-			constructor.getDeclaringClass().getSimpleName(), types(constructor.getParameterTypes()),
-			args(args)), t);
+		throw InvocationException.of(t, "%s(%s) failed with args (%s)", simple(constructor),
+			types(constructor.getParameterTypes()), args(args));
 	}
 
 	/**
@@ -480,13 +520,12 @@ public class Reflect {
 		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			t = e;
 		}
-		throw new RuntimeInvocationException(String.format("%s.%s(%s) failed with args (%s) on %s",
-			method.getDeclaringClass().getSimpleName(), method.getName(),
-			types(method.getParameterTypes()), args(args), subject), t);
+		throw InvocationException.of(t, "%s(%s) failed with args (%s) on %s", simple(method),
+			types(method.getParameterTypes()), args(args), subject);
 	}
 
 	/**
-	 * Returns true if the method has no return type. 
+	 * Returns true if the method has no return type.
 	 */
 	public static boolean isVoid(Method method) {
 		return method != null && method.getReturnType() == void.class;
@@ -519,7 +558,7 @@ public class Reflect {
 	public static boolean isArray(Class<?> cls) {
 		return cls != null && cls.isArray();
 	}
-	
+
 	/**
 	 * Returns the public field from the class, including super-types. Returns null if not found.
 	 */
@@ -575,17 +614,12 @@ public class Reflect {
 			.instances(type);
 	}
 
-	private static StackTraceElement previousStackTraceElement(String callingMethodName,
-		int countBack) {
-		StackTraceElement[] e = Thread.currentThread().getStackTrace();
-		int count = countBack;
-		for (StackTraceElement s : e) {
-			if (count < 0) return s;
-			String methodName = s.getMethodName();
-			if (count < countBack || methodName.equals(callingMethodName)) {
-				count--;
-			}
-		}
+	/**
+	 * Returns the first method matching the name, or null.
+	 */
+	public static Method publicMethod(Class<?> cls, String name) {
+		if (cls != null && !Strings.isEmpty(name)) for (var method : cls.getMethods())
+			if (method.getName().equals(name)) return method;
 		return null;
 	}
 
@@ -680,6 +714,22 @@ public class Reflect {
 		return methodInterceptor(delegate, consumer, delegate.getClass().getInterfaces());
 	}
 
+	// support
+
+	private static StackTraceElement previousStackTraceElement(String callingMethodName,
+		int countBack) {
+		StackTraceElement[] e = Thread.currentThread().getStackTrace();
+		int count = countBack;
+		for (StackTraceElement s : e) {
+			if (count < 0) return s;
+			String methodName = s.getMethodName();
+			if (count < countBack || methodName.equals(callingMethodName)) {
+				count--;
+			}
+		}
+		return null;
+	}
+
 	private static <T> T methodInterceptor(T delegate,
 		Functions.BiConsumer<Method, Object[]> consumer, Class<?>... ifaces) {
 		var cls = delegate.getClass();
@@ -691,10 +741,10 @@ public class Reflect {
 	}
 
 	private static String args(Object[] args) {
-		return Joiner.COMMA.joinAll(args);
+		return Joiner.COMMA_COMPACT.joinAll(args);
 	}
 
 	private static String types(Class<?>[] types) {
-		return Joiner.COMMA.joinAll(Class::getSimpleName, types);
+		return Joiner.COMMA_COMPACT.joinAll(Class::getSimpleName, types);
 	}
 }

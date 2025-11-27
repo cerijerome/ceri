@@ -32,11 +32,15 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	/** Quote each item, separated by comma. */
 	public static final Joiner QUOTE = of("\"", "\", \"", "\"");
 	/** Comma separator without prefix or suffix. */
-	public static final Joiner COMMA = of(",");
+	public static final Joiner COMMA = of(", ");
+	/** Comma separator without prefix or suffix. */
+	public static final Joiner COMMA_COMPACT = of(",");
 	/** Pipe separator without prefix or suffix. */
 	public static final Joiner OR = of("|");
 	/** Colon separator without prefix or suffix. */
 	public static final Joiner COLON = of(":");
+	/** Colon separator without prefix or suffix. */
+	public static final Joiner SLASH = of("/");
 	/** Space separator without prefix or suffix. */
 	public static final Joiner SPACE = of(" ");
 	/** Native line joiner. */

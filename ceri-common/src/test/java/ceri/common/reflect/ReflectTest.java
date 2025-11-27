@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -79,34 +80,27 @@ public class ReflectTest {
 		public static class B {}
 	}
 
-	@Test
-	public void testConstructorIsPrivate() {
-		Assert.privateConstructor(Reflect.class);
-	}
-
 	static class SuperA {}
 
 	static class SuperB extends SuperA {}
 
 	static class SuperC extends SuperB {}
 
+	static class General {
+		public void voidMethod() {}
+
+		public Void voidMethod2() {
+			return null;
+		}
+
+		public int intMethod() {
+			return 0;
+		}
+	}
+
 	@Test
-	public void testSuperclass() {
-		SuperC[][] obj = new SuperC[0][];
-		Class<?> cls = obj.getClass();
-		Assert.same(cls, SuperC[][].class);
-		cls = Reflect.superClass(cls);
-		Assert.same(cls, SuperB[][].class);
-		cls = Reflect.superClass(cls);
-		Assert.same(cls, SuperA[][].class);
-		cls = Reflect.superClass(cls);
-		Assert.same(cls, Object[][].class);
-		cls = Reflect.superClass(cls);
-		Assert.same(cls, Object[].class);
-		cls = Reflect.superClass(cls);
-		Assert.same(cls, Object.class);
-		cls = Reflect.superClass(cls);
-		Assert.same(cls, null);
+	public void testConstructorIsPrivate() {
+		Assert.privateConstructor(Reflect.class);
 	}
 
 	@Test
@@ -137,10 +131,39 @@ public class ReflectTest {
 	}
 
 	@Test
+	public void testPackageLevels() {
+		Assert.equal(Reflect.packageLevels((Class<?>) null), 0);
+		Assert.equal(Reflect.packageLevels(getClass()), 3);
+		Assert.equal(Reflect.packageLevels((String) null), 0);
+		Assert.equal(Reflect.packageLevels(""), 0);
+		Assert.equal(Reflect.packageLevels("a"), 1);
+		Assert.equal(Reflect.packageLevels("a.b.c.d"), 4);
+	}
+
+	@Test
+	public void testSuperclass() {
+		SuperC[][] obj = new SuperC[0][];
+		Class<?> cls = obj.getClass();
+		Assert.same(cls, SuperC[][].class);
+		cls = Reflect.superClass(cls);
+		Assert.same(cls, SuperB[][].class);
+		cls = Reflect.superClass(cls);
+		Assert.same(cls, SuperA[][].class);
+		cls = Reflect.superClass(cls);
+		Assert.same(cls, Object[][].class);
+		cls = Reflect.superClass(cls);
+		Assert.same(cls, Object[].class);
+		cls = Reflect.superClass(cls);
+		Assert.same(cls, Object.class);
+		cls = Reflect.superClass(cls);
+		Assert.same(cls, null);
+	}
+
+	@Test
 	public void testNested() {
 		Assert.ordered(Reflect.nested());
-		Assert.ordered(Reflect.nested(Nested.class), Nested.class, Nested.A.class, Nested.A.AA.class,
-			Nested.A.AB.class, Nested.B.class);
+		Assert.ordered(Reflect.nested(Nested.class), Nested.class, Nested.A.class,
+			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
 		Assert.ordered(Reflect.nested(Nested.A.class, Nested.B.class), Nested.A.class,
 			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
 	}
@@ -230,13 +253,11 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testPackageLevels() {
-		Assert.equal(Reflect.packageLevels((Class<?>) null), 0);
-		Assert.equal(Reflect.packageLevels(getClass()), 3);
-		Assert.equal(Reflect.packageLevels((String) null), 0);
-		Assert.equal(Reflect.packageLevels(""), 0);
-		Assert.equal(Reflect.packageLevels("a"), 1);
-		Assert.equal(Reflect.packageLevels("a.b.c.d"), 4);
+	public void testPublicMethod() {
+		Assert.equal(Reflect.publicMethod(null, "voidMethod"), null);
+		Assert.equal(Reflect.publicMethod(Init.class, "init"), null);
+		Assert.equal(Reflect.publicMethod(General.class, ""), null);
+		Assert.equal(Reflect.publicMethod(General.class, "voidMethod").getName(), "voidMethod");
 	}
 
 	@Test
@@ -297,6 +318,16 @@ public class ReflectTest {
 	}
 
 	@Test
+	public void testSimple() throws ReflectiveOperationException {
+		Assert.equal(Reflect.simple((Class<?>) null), "null");
+		Assert.equal(Reflect.simple((Field) null), "null");
+		Assert.equal(Reflect.simple((Executable) null), "null");
+		Assert.equal(Reflect.simple(Error.class.getConstructor()), "new Error");
+		Assert.equal(Reflect.simple(Reflect.publicMethod(General.class, "intMethod")),
+			"General.intMethod");
+	}
+
+	@Test
 	public void testHashId() {
 		Assert.isNull(Reflect.hashId(null));
 		Assert.match(Reflect.hashId(new Object()), "@[0-9a-fA-F]+");
@@ -343,7 +374,7 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testCreateObject() throws RuntimeInvocationException {
+	public void testCreateObject() {
 		Class<?>[] argTypes = {};
 		Object[] args = {};
 		Assert.equal(Reflect.create(String.class, argTypes, args), "");
@@ -357,8 +388,8 @@ public class ReflectTest {
 	public void testInvokeMethodError() throws NoSuchMethodException {
 		Method m = Error.class.getMethod("error", int.class);
 		var err = new Error(null);
-		Assert.thrown(RuntimeInvocationException.class, () -> Reflect.invoke(m, err));
-		Assert.thrown(RuntimeInvocationException.class, () -> Reflect.invoke(m, err, 0));
+		Assert.thrown(Reflect.InvocationException.class, () -> Reflect.invoke(m, err));
+		Assert.thrown(Reflect.InvocationException.class, () -> Reflect.invoke(m, err, 0));
 		Assert.thrown(NullPointerException.class, () -> Reflect.invoke(m, null, 0));
 	}
 
@@ -385,6 +416,14 @@ public class ReflectTest {
 		Assert.no(Reflect.assignableFromAny(Number.class, Long.class));
 		Assert.yes(Reflect.assignableFromAny(Number.class, Long.class, Serializable.class));
 		Assert.no(Reflect.assignableFromAny(Serializable.class, Number.class, Long.class));
+	}
+
+	@Test
+	public void testIsVoid() {
+		Assert.equal(Reflect.isVoid(null), false);
+		Assert.equal(Reflect.isVoid(Reflect.publicMethod(General.class, "voidMethod")), true);
+		Assert.equal(Reflect.isVoid(Reflect.publicMethod(General.class, "voidMethod2")), false);
+		Assert.equal(Reflect.isVoid(Reflect.publicMethod(General.class, "intMethod")), false);
 	}
 
 	@Test
@@ -419,6 +458,15 @@ public class ReflectTest {
 		Assert.equal(Reflect.isNumber(Integer.class), true);
 		Assert.equal(Reflect.isNumber(Float.class), true);
 		Assert.equal(Reflect.isNumber(String.class), false);
+	}
+
+	@Test
+	public void testIsArray() {
+		Assert.equal(Reflect.isArray(null), false);
+		Assert.equal(Reflect.isArray(Object.class), false);
+		Assert.equal(Reflect.isArray(Object[].class), true);
+		Assert.equal(Reflect.isArray(int[].class), true);
+		Assert.equal(Reflect.isArray(int[][].class), true);
 	}
 
 	@Test

@@ -83,6 +83,8 @@ public class MapsTest {
 
 	@Test
 	public void testBuilder() {
+		Assert.map(Maps.Builder.of().put(nullMap).get());
+		Assert.map(Maps.Builder.of().put(map).get(), -1, "A", null, "B", 1, null);
 		Assert.map(Maps.build(-1, "").put(nullMap).get(), -1, "");
 		Assert.map(Maps.build(-1, "").put(map).get(), -1, "A", null, "B", 1, null);
 		Assert.map(Maps.build(-1, "").put(null, "B").get(), -1, "", null, "B");
@@ -218,6 +220,16 @@ public class MapsTest {
 		Assert.equal(Maps.get(map, null, ""), "B");
 	}
 
+	@Test
+	public void testGetOrThrow() {
+		Assert.illegalArg(() -> Maps.getOrThrow(nullMap, -1));
+		Assert.illegalArg(() -> Maps.getOrThrow(emptyMap, -1));
+		Assert.illegalArg(() -> Maps.getOrThrow(map, 0));
+		Assert.equal(Maps.getOrThrow(map, -1), "A");
+		Assert.equal(Maps.getOrThrow(map, null), "B");
+		Assert.equal(Maps.getOrThrow(map, 1), null);
+	}
+	
 	@Test
 	public void testFirstKey() {
 		Assert.equal(Maps.firstKey(nullMap), null);

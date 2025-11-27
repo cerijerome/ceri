@@ -45,7 +45,6 @@ public class Bytes {
 		big(ByteOrder.BIG_ENDIAN),
 		little(ByteOrder.LITTLE_ENDIAN);
 
-		public static final Order PLATFORM = platform.order == big.order ? big : little;
 		private final ByteOrder order;
 
 		public static String symbol(Order order) {

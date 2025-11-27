@@ -16,11 +16,11 @@ public class Annotations {
 	/**
 	 * Returns true if the element has the annotation type.
 	 */
-	public static boolean has(AnnotatedElement element,
-		Class<? extends Annotation> annotationCls) {
-		return element != null && element.getAnnotation(annotationCls) != null;
+	public static boolean has(AnnotatedElement element, Class<? extends Annotation> annotationCls) {
+		return element != null && annotationCls != null
+			&& element.getAnnotation(annotationCls) != null;
 	}
-	
+
 	/**
 	 * Get annotation from element, or return null.
 	 */
@@ -183,7 +183,7 @@ public class Annotations {
 	/**
 	 * Apply accessor to annotation list.
 	 */
-	public static <T extends Annotation, R> R listValue(AnnotatedElement element,
+	public static <T extends Annotation, R> R reduceValue(AnnotatedElement element,
 		Class<T> annotationCls, Functions.Function<List<T>, R> valueAccessor) {
 		var annotations = annotations(element, annotationCls);
 		return valueAccessor.apply(annotations);

@@ -5,11 +5,12 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 import org.junit.Test;
 import ceri.common.log.Level;
 import ceri.common.test.Assert;
 
-public class AnnotationUtilTest {
+public class AnnotationsTest {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.FIELD, ElementType.TYPE })
@@ -41,6 +42,14 @@ public class AnnotationUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		Assert.privateConstructor(Annotations.class);
+	}
+
+	@Test
+	public void testHasAnnotation() {
+		Assert.equal(Annotations.has((Class<?>) null, A.class), false);
+		Assert.equal(Annotations.has(E.class, null), false);
+		Assert.equal(Annotations.has(E.class, A.class), true);
+		Assert.equal(Annotations.has(getClass(), A.class), false);
 	}
 
 	@Test
@@ -130,6 +139,12 @@ public class AnnotationUtilTest {
 		Assert.equal(Annotations.value(E.b, A.class, A::s, "x"), "b");
 		Assert.equal(Annotations.value(E.b, A.class, A::i, 1), -1);
 		Assert.equal(Annotations.value(E.b, A.class, A::b, false), true);
+	}
+
+	@Test
+	public void testListValue() {
+		var c = Reflect.enumToField(E.c);
+		Assert.equal(Annotations.reduceValue(c, A.class, List::size), 2);
 	}
 
 	private static void assertA(A anno, String s, int i) {

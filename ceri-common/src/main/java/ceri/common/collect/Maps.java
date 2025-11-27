@@ -580,9 +580,9 @@ public class Maps {
 	 * Returns the mapped value for the key; returns null if no mapping, or the map is null.
 	 */
 	public static <K, V> V getOrThrow(Map<K, V> map, K key) {
-		return Validate.nonNull(map, "map").computeIfAbsent(key, _ -> {
-			throw new IllegalArgumentException("Key not found: " + key);
-		});
+		var value = Validate.nonNull(map, "map").get(key);
+		if (value != null || map.containsKey(key)) return value; // not atomic for null value
+		throw new IllegalArgumentException("Key not found: " + key);
 	}
 
 	/**

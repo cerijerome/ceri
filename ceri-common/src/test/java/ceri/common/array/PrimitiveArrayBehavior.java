@@ -110,14 +110,13 @@ public class PrimitiveArrayBehavior {
 	public void shouldAppendElements() {
 		Assert.array(Array.bools.append(bools, false), true, false, true, false);
 		Assert.array(Array.chars.append(chars, (char) -1), 'a', '\0', 'c', (char) -1);
-		Assert.array(Array.bytes.append(bytes, (byte) -1), Byte.MIN_VALUE, Byte.MAX_VALUE,
-			(byte) 0, (byte) -1);
+		Assert.array(Array.bytes.append(bytes, (byte) -1), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0,
+			(byte) -1);
 		Assert.array(Array.shorts.append(shorts, (short) -1), Short.MIN_VALUE, Short.MAX_VALUE,
 			(short) 0, (short) -1);
 		Assert.array(Array.ints.append(ints, -1), Integer.MIN_VALUE, Integer.MAX_VALUE, 0, -1);
 		Assert.array(Array.longs.append(longs, -1), Long.MIN_VALUE, Long.MAX_VALUE, 0L, -1L);
-		Assert.array(Array.floats.append(floats, -1), Float.MIN_VALUE, Float.MAX_VALUE, 0f,
-			-1f);
+		Assert.array(Array.floats.append(floats, -1), Float.MIN_VALUE, Float.MAX_VALUE, 0f, -1f);
 		Assert.array(Array.doubles.append(doubles, -1), Double.MIN_VALUE, Double.MAX_VALUE, 0.0,
 			-1.0);
 	}
@@ -130,13 +129,11 @@ public class PrimitiveArrayBehavior {
 			Byte.MAX_VALUE, (byte) 0);
 		Assert.array(Array.shorts.insert(shorts, 1, (short) -1), Short.MIN_VALUE, (short) -1,
 			Short.MAX_VALUE, (short) 0);
-		Assert.array(Array.ints.insert(ints, 1, -1), Integer.MIN_VALUE, -1, Integer.MAX_VALUE,
-			0);
+		Assert.array(Array.ints.insert(ints, 1, -1), Integer.MIN_VALUE, -1, Integer.MAX_VALUE, 0);
 		Assert.array(Array.longs.insert(longs, 1, -1), Long.MIN_VALUE, -1L, Long.MAX_VALUE, 0L);
-		Assert.array(Array.floats.insert(floats, 1, -1), Float.MIN_VALUE, -1f, Float.MAX_VALUE,
-			0f);
-		Assert.array(Array.doubles.insert(doubles, 1, -1), Double.MIN_VALUE, -1.0,
-			Double.MAX_VALUE, 0.0);
+		Assert.array(Array.floats.insert(floats, 1, -1), Float.MIN_VALUE, -1f, Float.MAX_VALUE, 0f);
+		Assert.array(Array.doubles.insert(doubles, 1, -1), Double.MIN_VALUE, -1.0, Double.MAX_VALUE,
+			0.0);
 	}
 
 	@Test
@@ -197,8 +194,7 @@ public class PrimitiveArrayBehavior {
 		Assert.array(Array.ints.reverse(ints.clone()), 0, Integer.MAX_VALUE, Integer.MIN_VALUE);
 		Assert.array(Array.longs.reverse(longs.clone()), 0, Long.MAX_VALUE, Long.MIN_VALUE);
 		Assert.array(Array.floats.reverse(floats.clone()), 0, Float.MAX_VALUE, Float.MIN_VALUE);
-		Assert.array(Array.doubles.reverse(doubles.clone()), 0, Double.MAX_VALUE,
-			Double.MIN_VALUE);
+		Assert.array(Array.doubles.reverse(doubles.clone()), 0, Double.MAX_VALUE, Double.MIN_VALUE);
 	}
 
 	@Test
@@ -206,29 +202,27 @@ public class PrimitiveArrayBehavior {
 		Captor.of().apply(c -> Array.bools.forEach(bools, c::accept)).verify(true, false, true);
 		Captor.of().apply(c -> Array.chars.forEach(chars, c::accept)).verify(97, 0, 99);
 		Captor.of().apply(c -> Array.bytes.forEach(bytes, c::accept)).verify(-0x80, 0x7f, 0);
-		Captor.of().apply(c -> Array.shorts.forEach(shorts, c::accept)).verify(-0x8000, 0x7fff,
-			0);
+		Captor.of().apply(c -> Array.shorts.forEach(shorts, c::accept)).verify(-0x8000, 0x7fff, 0);
 		Captor.of().apply(c -> Array.ints.forEach(ints, c::accept)).verify(Integer.MIN_VALUE,
 			Integer.MAX_VALUE, 0);
 		Captor.of().apply(c -> Array.longs.forEach(longs, c::accept)).verify(Long.MIN_VALUE,
 			Long.MAX_VALUE, 0L);
 		Captor.of().apply(c -> Array.floats.forEach(floats, c::accept))
 			.verify((double) Float.MIN_VALUE, (double) Float.MAX_VALUE, 0.0);
-		Captor.of().apply(c -> Array.doubles.forEach(doubles, c::accept))
-			.verify(Double.MIN_VALUE, Double.MAX_VALUE, 0.0);
+		Captor.of().apply(c -> Array.doubles.forEach(doubles, c::accept)).verify(Double.MIN_VALUE,
+			Double.MAX_VALUE, 0.0);
 	}
 
 	@Test
 	public void shouldConsumeBoxedElements() {
-		Captor.of().apply(c -> Array.bools.forEachBox(bools, c::accept)).verify(true, false,
-			true);
+		Captor.of().apply(c -> Array.bools.forEachBox(bools, c::accept)).verify(true, false, true);
 		Captor.of().apply(c -> Array.chars.forEachBox(chars, c::accept)).verify('a', '\0', 'c');
 	}
 
 	@Test
 	public void shouldConsumeIndexedBoxedElements() {
-		Captor.ofBi().apply(c -> Array.bools.forEachBoxIndexed(bools, c::accept)).verify(true,
-			0, false, 1, true, 2);
+		Captor.ofBi().apply(c -> Array.bools.forEachBoxIndexed(bools, c::accept)).verify(true, 0,
+			false, 1, true, 2);
 		Captor.ofBi().apply(c -> Array.chars.forEachBoxIndexed(chars, c::accept)).verify('a', 0,
 			'\0', 1, 'c', 2);
 	}
@@ -242,8 +236,7 @@ public class PrimitiveArrayBehavior {
 		Assert.array(Array.ints.sort(ints.clone()), Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 		Assert.array(Array.longs.sort(longs.clone()), Long.MIN_VALUE, 0, Long.MAX_VALUE);
 		Assert.array(Array.floats.sort(floats.clone()), 0, Float.MIN_VALUE, Float.MAX_VALUE);
-		Assert.array(Array.doubles.sort(doubles.clone()), 0, Double.MIN_VALUE,
-			Double.MAX_VALUE);
+		Assert.array(Array.doubles.sort(doubles.clone()), 0, Double.MIN_VALUE, Double.MAX_VALUE);
 	}
 
 	@Test
@@ -268,8 +261,7 @@ public class PrimitiveArrayBehavior {
 		Assert.equal(Array.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 0), true);
 		Assert.equal(Array.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 0L), true);
 		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0f), true);
-		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, 0.0),
-			true);
+		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, 0.0), true);
 	}
 
 	@Test
@@ -280,8 +272,7 @@ public class PrimitiveArrayBehavior {
 		Assert.equal(Array.chars.equals(chars, 'a', '\0'), false);
 		Assert.equal(Array.chars.equals(chars, 'a', '\0', 'd'), false);
 		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE), false);
-		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 1),
-			false);
+		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 1), false);
 		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE), false);
 		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 1),
 			false);
@@ -292,8 +283,7 @@ public class PrimitiveArrayBehavior {
 		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE), false);
 		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1f), false);
 		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE), false);
-		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, .1),
-			false);
+		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, .1), false);
 	}
 
 	@Test
@@ -323,6 +313,16 @@ public class PrimitiveArrayBehavior {
 		Assert.equal(Array.shorts.toHex(shorts), "[0x8000, 0x7fff, 0x0]");
 		Assert.equal(Array.ints.toHex(ints), "[0x80000000, 0x7fffffff, 0x0]");
 		Assert.equal(Array.longs.toHex(longs), "[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
+	}
+
+	@Test
+	public void shouldProvideBoxedHexStrings() {
+		Assert.equal(Array.chars.box.toHex(Array.chars.boxed(chars)), "[0x61, 0x0, 0x63]");
+		Assert.equal(Array.bytes.box.toHex(Array.bytes.boxed(bytes)), "[0x80, 0x7f, 0x0]");
+		Assert.equal(Array.shorts.box.toHex(Array.shorts.boxed(shorts)), "[0x8000, 0x7fff, 0x0]");
+		Assert.equal(Array.ints.box.toHex(Array.ints.boxed(ints)), "[0x80000000, 0x7fffffff, 0x0]");
+		Assert.equal(Array.longs.box.toHex(Array.longs.boxed(longs)),
+			"[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
 	}
 
 	@SafeVarargs

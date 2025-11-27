@@ -249,8 +249,8 @@ public class Enums {
 		if (field != null && Reflect.isNumber(field.getType())) return field;
 		if (field == null)
 			throw Exceptions.illegalArg("No such field: %s.%s", cls.getSimpleName(), fieldName);
-		throw Exceptions.illegalArg("Unsupported type for %s.%s: %s", cls.getSimpleName(),
-			field.getName(), field.getType().getSimpleName());
+		throw Exceptions.illegalArg("Unsupported type for %s: %s", Reflect.simple(field),
+			field.getType().getSimpleName());
 	}
 
 	private static Integer prefixLen(List<? extends Enum<?>> enums) {

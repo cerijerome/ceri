@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
@@ -19,6 +20,28 @@ public class BytesTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		Assert.privateConstructor(Bytes.class);
+	}
+
+	@Test
+	public void testByteOrderSymbol() {
+		Assert.string(Bytes.Order.symbol((Bytes.Order) null), "");
+		Assert.string(Bytes.Order.symbol(Bytes.Order.big), ">");
+		Assert.string(Bytes.Order.symbol(Bytes.Order.little), "<");
+		Assert.string(Bytes.Order.symbol((ByteOrder) null), "");
+	}
+
+	@Test
+	public void testByteOrderIsValid() {
+		Assert.equal(Bytes.Order.isValid(null), false);
+		Assert.equal(Bytes.Order.isValid(Bytes.Order.unspecified), false);
+		Assert.equal(Bytes.Order.isValid(Bytes.Order.platform), true);
+	}
+
+	@Test
+	public void testByteOrder() {
+		Assert.equal(Bytes.Order.order(null), ByteOrder.nativeOrder());
+		Assert.equal(Bytes.Order.order(Bytes.Order.big), ByteOrder.BIG_ENDIAN);
+		Assert.equal(Bytes.Order.order(Bytes.Order.little), ByteOrder.LITTLE_ENDIAN);
 	}
 
 	@Test
@@ -195,10 +218,10 @@ public class BytesTest {
 	public void testFromNullTerm() {
 		Assert.equal(Bytes.fromNullTerm(Array.bytes.of(0, 't', 'e', 's', 't'), UTF_8), "");
 		Assert.equal(Bytes.fromNullTerm(Array.bytes.of('t', 'e', 's', 't'), UTF_8), "test");
-		Assert.equal(Bytes.fromNullTerm(
-			Array.bytes.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8), "\t\r\n");
-		Assert.equal(Bytes.fromNullTerm(ByteProvider.of('t', 'e', 's', 't', 0, 0), UTF_8),
-			"test");
+		Assert.equal(
+			Bytes.fromNullTerm(Array.bytes.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8),
+			"\t\r\n");
+		Assert.equal(Bytes.fromNullTerm(ByteProvider.of('t', 'e', 's', 't', 0, 0), UTF_8), "test");
 	}
 
 	@Test
@@ -313,8 +336,7 @@ public class BytesTest {
 	public void testMaskOfBits() {
 		Assert.equal(Bytes.maskOfBits((int[]) null), 0L);
 		Assert.equal(Bytes.maskOfBits((List<Integer>) null), 0L);
-		Assert.equal(Bytes.maskOfBits(64, 63, 32, 31, 16, 15, 8, 7, 0, -1),
-			0x8000_0001_8001_8181L);
+		Assert.equal(Bytes.maskOfBits(64, 63, 32, 31, 16, 15, 8, 7, 0, -1), 0x8000_0001_8001_8181L);
 		Assert.equal(Bytes.maskOfBits(List.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
 			0x8000_0001_8001_8181L);
 	}
@@ -420,8 +442,9 @@ public class BytesTest {
 	public void testFromMsb() {
 		Assert.equal(Bytes.fromMsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0xabcd_ef01_2345_6789L);
-		Assert.equal(Bytes.fromMsb(
-			Array.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0xcdef01L);
+		Assert.equal(
+			Bytes.fromMsb(Array.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3),
+			0xcdef01L);
 	}
 
 	@Test

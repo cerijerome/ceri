@@ -99,6 +99,22 @@ public class Chars {
 	}
 
 	/**
+	 * Returns the last char, or null if empty.
+	 */
+	public static Character last(CharSequence s) {
+		if (s == null) return null;
+		return at(s, s.length() - 1);
+	}
+
+	/**
+	 * Returns the last char, or default if empty.
+	 */
+	public static char last(CharSequence s, char def) {
+		if (s == null) return def;
+		return at(s, s.length() - 1, def);
+	}
+
+	/**
 	 * Converts each char to lower case.
 	 */
 	public static CharSequence lower(CharSequence s) {
