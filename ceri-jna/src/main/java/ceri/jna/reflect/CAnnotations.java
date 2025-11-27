@@ -249,7 +249,7 @@ public class CAnnotations {
 	 * Return a map of c includes by OS.
 	 */
 	public static CInclude.Value cincludes(Class<?> cls) {
-		return Annotations.listValue(cls, CInclude.class, CInclude.Value::from);
+		return Annotations.reduceValue(cls, CInclude.class, CInclude.Value::from);
 	}
 
 	/**

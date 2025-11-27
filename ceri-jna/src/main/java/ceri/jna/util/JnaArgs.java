@@ -198,7 +198,7 @@ public class JnaArgs {
 	 * Creates a comma-separated string from given arguments.
 	 */
 	public String args(Object... args) {
-		return Joiner.COMMA.joinAll(this::arg, args);
+		return Joiner.COMMA_COMPACT.joinAll(this::arg, args);
 	}
 
 	/**

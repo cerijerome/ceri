@@ -80,6 +80,6 @@ public class HostList {
 
 	@Override
 	public String toString() {
-		return Joiner.COMMA.join(hosts);
+		return Joiner.COMMA_COMPACT.join(hosts);
 	}
 }
