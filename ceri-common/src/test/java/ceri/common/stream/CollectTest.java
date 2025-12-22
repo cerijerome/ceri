@@ -34,7 +34,7 @@ public class CollectTest {
 
 	@Test
 	public void testSortedArray() {
-		Assert.array(stream(1, -1, 0).collect(Collect.sortedArray(Integer[]::new)), -1, 0, 1);
+		Assert.array(stream(1, -1, 0).collect(Collect.sortedArray(Integer.class)), -1, 0, 1);
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package ceri.common.array;
 
 import java.util.Arrays;
 import ceri.common.function.Functions;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Joiner;
 import ceri.common.util.Hasher;
 
@@ -9,22 +10,24 @@ import ceri.common.util.Hasher;
  * Typed (non-raw) array support, including primitive and object arrays.
  */
 public abstract class TypedArray<T> {
-	public static final Type<Object> OBJ = type(Object[]::new);
+	public static final Type<Object> OBJ = type(Object.class);
+	private final Class<?> component;
+	private final Class<T> cls;
 	public final Functions.IntFunction<T> constructor;
 
 	/**
 	 * Creates an instance for typed integer-based objects.
 	 */
-	public static <T> Type.Integral<T> integral(Functions.IntFunction<T[]> constructor,
+	public static <T> Type.Integral<T> integral(Class<T> component,
 		Functions.Function<T, String> hexFn) {
-		return new Type.Integral<>(constructor, hexFn);
+		return new Type.Integral<>(component, hexFn);
 	}
 
 	/**
 	 * Creates an instance for typed objects.
 	 */
-	public static <T> Type<T> type(Functions.IntFunction<T[]> constructor) {
-		return new Type<>(constructor);
+	public static <T> Type<T> type(Class<T> component) {
+		return new Type<>(component);
 	}
 
 	/**
@@ -84,9 +87,8 @@ public abstract class TypedArray<T> {
 		static class Integral<T> extends Type<T> implements TypedArray.Integral<T[]> {
 			private final Functions.Function<T, String> hexFn;
 
-			private Integral(Functions.IntFunction<T[]> constructor,
-				Functions.Function<T, String> hexFn) {
-				super(constructor);
+			private Integral(Class<T> component, Functions.Function<T, String> hexFn) {
+				super(component);
 				this.hexFn = hexFn;
 			}
 
@@ -96,8 +98,13 @@ public abstract class TypedArray<T> {
 			}
 		}
 
-		private Type(Functions.IntFunction<T[]> constructor) {
-			super(constructor);
+		private Type(Class<T> component) {
+			super(component);
+		}
+
+		@Override
+		public Class<T> component() {
+			return Reflect.unchecked(super.component());
 		}
 
 		/**
@@ -196,7 +203,7 @@ public abstract class TypedArray<T> {
 		public final boolean equals(T[] array, T... values) {
 			return super.equals(array, 0, values, 0);
 		}
-		
+
 		@Override
 		protected void hash(Hasher hasher, T[] array, int index) {
 			hasher.hash(array[index]);
@@ -208,8 +215,24 @@ public abstract class TypedArray<T> {
 		}
 	}
 
-	protected TypedArray(Functions.IntFunction<T> constructor) {
-		this.constructor = constructor;
+	protected TypedArray(Class<?> component) {
+		this.component = component;
+		cls = Reflect.unchecked(component.arrayType());
+		constructor = n -> RawArray.ofType(component, n);
+	}
+
+	/**
+	 * Returns the component type.
+	 */
+	public Class<?> component() {
+		return component;
+	}
+
+	/**
+	 * Returns the array class type.
+	 */
+	public Class<T> type() {
+		return cls;
 	}
 
 	/**

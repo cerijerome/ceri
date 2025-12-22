@@ -24,7 +24,7 @@ public class Collect {
 	private static final Functions.BiOperator<Object> NO_COMBINER = (_, _) -> {
 		throw Exceptions.unsupportedOp("Combining is not supported");
 	};
-	private static final Collector<?, ?, Object[]> ARRAY = array(Object[]::new);
+	private static final Collector<?, ?, Object[]> ARRAY = array(Object.class);
 	private static final Collector<?, List<Object>, List<Object>> LIST =
 		of(Lists::of, Collection::add, Immutable::wrap);
 	private static final Collector<?, ?, List<?>> SORTED_LIST =
@@ -174,9 +174,8 @@ public class Collect {
 	/**
 	 * Collects elements into an array.
 	 */
-	public static <R, T extends R> Collector<T, ?, R[]>
-		array(Functions.IntFunction<R[]> constructor) {
-		return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
+	public static <R, T extends R> Collector<T, ?, R[]> array(Class<R> component) {
+		return of(() -> DynamicArray.of(component), DynamicArray.OfType::accept,
 			DynamicArray::truncate);
 	}
 
@@ -184,16 +183,16 @@ public class Collect {
 	 * Collects elements into a sorted array.
 	 */
 	public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, R[]>
-		sortedArray(Functions.IntFunction<R[]> constructor) {
-		return sortedArray(constructor, Comparator.naturalOrder());
+		sortedArray(Class<R> component) {
+		return sortedArray(component, Comparator.naturalOrder());
 	}
 
 	/**
 	 * Collects elements into a sorted array.
 	 */
 	public static <R, T extends R> Collector<T, ?, R[]>
-		sortedArray(Functions.IntFunction<R[]> constructor, Comparator<? super R> comparator) {
-		return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
+		sortedArray(Class<R> component, Comparator<? super R> comparator) {
+		return of(() -> DynamicArray.of(component), DynamicArray.OfType::accept,
 			a -> Array.sort(a.truncate(), comparator));
 	}
 

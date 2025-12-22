@@ -3,6 +3,7 @@ package ceri.common.reflect;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -10,6 +11,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.List;
 import java.util.Objects;
+import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.text.Joiner;
@@ -20,16 +22,38 @@ import ceri.common.text.Joiner;
 public class Generics {
 	private static final Joiner GENERIC = Joiner.of("<", ", ", ">");
 	private static final Joiner AND = Joiner.of(" & ");
-	private static final Typed OBJ = new Typed(Object.class);
-	private static final List<Typed> UPPER = Immutable.listOf(OBJ);
-	private static final List<Typed> NO_TYPES = Immutable.list();
 
 	private Generics() {}
 
 	/**
-	 * Represents a generic array type with component and number of dimensions.
+	 * Represents a generic array type with component and number of dimensions, or non-array type if
+	 * the number of dimensions is zero.
 	 */
 	public record Array(Typed component, int dimensions) {
+		public static final Array NULL = new Array(null, 0);
+
+		/**
+		 * Returns true if the array or component is null.
+		 */
+		public static boolean isNull(Array array) {
+			return array == null || Typed.isNull(array.component());
+		}
+
+		/**
+		 * Returns true if this represents an array (dimensions > 0).
+		 */
+		public boolean isArray() {
+			return dimensions() > 0;
+		}
+
+		/**
+		 * Returns the class if the component type is a class or class-based parameterized type, or
+		 * null.
+		 */
+		public Class<?> cls() {
+			return component() == null ? null : component().cls();
+		}
+
 		@Override
 		public final String toString() {
 			return component() + "[]".repeat(dimensions());
@@ -41,6 +65,10 @@ public class Generics {
 	 */
 	public static class Typed {
 		public static final Typed NULL = new Typed(null);
+		public static final Typed OBJECT = new Typed(Object.class);
+		public static final Typed VOID = new Typed(void.class);
+		private static final List<Typed> UPPER = Immutable.listOf(OBJECT);
+		private static final List<Typed> NO_TYPES = Immutable.list();
 		private final Type type;
 		private final Class<?> cls;
 		private volatile List<Typed> types = null;
@@ -48,11 +76,26 @@ public class Generics {
 		private volatile List<Typed> lower = null;
 
 		/**
+		 * Returns true if null or null type.
+		 */
+		public static boolean isNull(Typed typed) {
+			return typed == null || typed.isNull();
+		}
+
+		/**
+		 * Returns an instance for the object's type.
+		 */
+		public static Typed from(Object obj) {
+			return obj == null ? NULL : of(obj.getClass());
+		}
+
+		/**
 		 * Returns an instance for the type.
 		 */
 		public static Typed of(Type type) {
 			if (type == null) return Typed.NULL;
-			if (Object.class.equals(type)) return OBJ;
+			if (Objects.equals(type, OBJECT.type)) return OBJECT;
+			if (Objects.equals(type, VOID.type)) return VOID;
 			return new Typed(type);
 		}
 
@@ -277,6 +320,14 @@ public class Generics {
 	}
 
 	/**
+	 * Provides class and generic types from the method return type.
+	 */
+	public static Typed typedReturn(Method method) {
+		if (method == null) return Typed.NULL;
+		return Typed.of(method.getGenericReturnType());
+	}
+
+	/**
 	 * Provides class and generic types from the field.
 	 */
 	public static Typed typed(Field field) {
@@ -325,28 +376,28 @@ public class Generics {
 	private static List<Typed> resolveUpper(Type type) {
 		return switch (type) {
 			case Class<?> _ -> listOf(type);
-			case GenericArrayType _ -> listOf(type); // code coverage only if split
+			case GenericArrayType _ -> listOf(type); // cases split for code coverage
 			case ParameterizedType p -> listOf(p.getRawType());
 			case WildcardType w -> listOf(w.getUpperBounds());
 			case TypeVariable<?> v -> listOf(v.getBounds());
-			case null -> NO_TYPES;
-			default -> UPPER;
+			case null -> Typed.NO_TYPES;
+			default -> Typed.UPPER;
 		};
 	}
 
 	private static List<Typed> resolveLower(Type type) {
 		return switch (type) {
 			case Class<?> _ -> listOf(type);
-			case GenericArrayType _ -> listOf(type); // code coverage only if split
+			case GenericArrayType _ -> listOf(type); // cases split for code coverage
 			case ParameterizedType p -> listOf(p.getRawType());
 			case WildcardType w -> listOf(w.getLowerBounds());
-			case null, default -> NO_TYPES;
+			case null, default -> Typed.NO_TYPES;
 		};
 	}
 
 	private static List<Typed> listOf(Type... types) {
-		if (ceri.common.array.Array.isEmpty(types)) return NO_TYPES;
-		if (types.length == 1 && Object.class.equals(types[0])) return UPPER;
+		if (RawArray.isEmpty(types)) return Typed.NO_TYPES;
+		if (types.length == 1 && Object.class.equals(types[0])) return Typed.UPPER;
 		return Immutable.adaptListOf(Typed::of, types);
 	}
 }

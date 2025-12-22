@@ -1,5 +1,12 @@
 package ceri.common.array;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.IntArray;
@@ -13,8 +20,9 @@ import ceri.common.function.Functions;
  */
 public abstract class DynamicArray<T> {
 	/** Default growth function. */
-	public static final Functions.IntOperator GROWTH = growX2(8);
-	private final Functions.IntOperator growth;
+	public static final Functions.IntBiOperator GROW_DEF = growX2(8);
+	public static final Functions.IntBiOperator GROW_EXACT = (_, s) -> s; // expands only to size
+	private final Functions.IntBiOperator growth;
 	public final TypedArray<T> typed;
 	private T array;
 	private int index = 0;
@@ -22,57 +30,63 @@ public abstract class DynamicArray<T> {
 	/**
 	 * A growth function that starts with min, then doubles its size.
 	 */
-	public static Functions.IntOperator growX2(int min) {
-		return i -> (i < min ? min : i << 1);
+	public static Functions.IntBiOperator growX2(int min) {
+		return (i, _) -> (i < min ? min : i << 1);
 	}
 
 	/**
 	 * A growth function that starts with min, then increases by step size.
 	 */
-	public static Functions.IntOperator growByStep(int min, int step) {
-		return i -> (i < min ? min : i + step);
+	public static Functions.IntBiOperator growByStep(int min, int step) {
+		return (i, _) -> (i < min ? min : i + step);
+	}
+
+	/**
+	 * A growth function that starts with min, and only increases to the exact size required.
+	 */
+	public static Functions.IntBiOperator growExact(int min) {
+		return (_, s) -> Math.max(min, s);
 	}
 
 	/**
 	 * Create an object array builder with default growth.
 	 */
 	public static OfType<Object> of() {
-		return of(GROWTH);
+		return of(GROW_DEF);
 	}
 
 	/**
 	 * Create an object array builder with given growth.
 	 */
-	public static OfType<Object> of(Functions.IntOperator growth) {
-		return of(Object[]::new, growth);
+	public static OfType<Object> of(Functions.IntBiOperator growth) {
+		return of(Object.class, growth);
 	}
 
 	/**
 	 * Create a type array builder with default growth.
 	 */
-	public static <T> OfType<T> of(Functions.IntFunction<T[]> constructor) {
-		return of(constructor, GROWTH);
+	public static <T> OfType<T> of(Class<T> component) {
+		return of(component, GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static <T> OfType<T> of(Functions.IntFunction<T[]> constructor,
-		Functions.IntOperator growth) {
-		return new OfType<>(constructor, growth);
+	public static <T> OfType<T> of(Class<T> component, Functions.IntBiOperator growth) {
+		return new OfType<>(component, growth);
 	}
 
 	/**
 	 * Create a type array builder with default growth.
 	 */
 	public static OfBool bools() {
-		return bools(GROWTH);
+		return bools(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfBool bools(Functions.IntOperator growth) {
+	public static OfBool bools(Functions.IntBiOperator growth) {
 		return new OfBool(growth);
 	}
 
@@ -80,13 +94,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfChar chars() {
-		return chars(GROWTH);
+		return chars(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfChar chars(Functions.IntOperator growth) {
+	public static OfChar chars(Functions.IntBiOperator growth) {
 		return new OfChar(growth);
 	}
 
@@ -94,13 +108,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfByte bytes() {
-		return bytes(GROWTH);
+		return bytes(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfByte bytes(Functions.IntOperator growth) {
+	public static OfByte bytes(Functions.IntBiOperator growth) {
 		return new OfByte(growth);
 	}
 
@@ -108,13 +122,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfShort shorts() {
-		return shorts(GROWTH);
+		return shorts(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfShort shorts(Functions.IntOperator growth) {
+	public static OfShort shorts(Functions.IntBiOperator growth) {
 		return new OfShort(growth);
 	}
 
@@ -122,13 +136,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfInt ints() {
-		return ints(GROWTH);
+		return ints(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfInt ints(Functions.IntOperator growth) {
+	public static OfInt ints(Functions.IntBiOperator growth) {
 		return new OfInt(growth);
 	}
 
@@ -136,13 +150,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfLong longs() {
-		return longs(GROWTH);
+		return longs(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfLong longs(Functions.IntOperator growth) {
+	public static OfLong longs(Functions.IntBiOperator growth) {
 		return new OfLong(growth);
 	}
 
@@ -150,13 +164,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfFloat floats() {
-		return floats(GROWTH);
+		return floats(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfFloat floats(Functions.IntOperator growth) {
+	public static OfFloat floats(Functions.IntBiOperator growth) {
 		return new OfFloat(growth);
 	}
 
@@ -164,13 +178,13 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with default growth.
 	 */
 	public static OfDouble doubles() {
-		return doubles(GROWTH);
+		return doubles(GROW_DEF);
 	}
 
 	/**
 	 * Create a type array builder with given growth.
 	 */
-	public static OfDouble doubles(Functions.IntOperator growth) {
+	public static OfDouble doubles(Functions.IntBiOperator growth) {
 		return new OfDouble(growth);
 	}
 
@@ -178,8 +192,8 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfType<T> extends DynamicArray<T[]> implements Functions.Consumer<T> {
-		private OfType(Functions.IntFunction<T[]> constructor, Functions.IntOperator growth) {
-			super(TypedArray.type(constructor), growth);
+		private OfType(Class<T> component, Functions.IntBiOperator growth) {
+			super(TypedArray.type(component), growth);
 		}
 
 		@Override
@@ -216,7 +230,7 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfBool extends DynamicArray<boolean[]> implements Functions.BoolConsumer {
-		private OfBool(Functions.IntOperator growth) {
+		private OfBool(Functions.IntBiOperator growth) {
 			super(Array.bools, growth);
 		}
 
@@ -252,7 +266,7 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfChar extends DynamicArray<char[]> implements Functions.IntConsumer {
-		private OfChar(Functions.IntOperator growth) {
+		private OfChar(Functions.IntBiOperator growth) {
 			super(Array.chars, growth);
 		}
 
@@ -325,6 +339,13 @@ public abstract class DynamicArray<T> {
 			return append(values, 0);
 		}
 
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public CharBuffer buffer() {
+			return CharBuffer.wrap(array(), 0, index());
+		}
+
 		@Override
 		public String toString() {
 			return String.valueOf(array(), 0, index());
@@ -335,7 +356,7 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfByte extends DynamicArray<byte[]> implements Functions.IntConsumer {
-		private OfByte(Functions.IntOperator growth) {
+		private OfByte(Functions.IntBiOperator growth) {
 			super(Array.bytes, growth);
 		}
 
@@ -386,13 +407,20 @@ public abstract class DynamicArray<T> {
 		public ByteProvider wrap() {
 			return ByteArray.Immutable.wrap(array(), 0, index());
 		}
+
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public ByteBuffer buffer() {
+			return ByteBuffer.wrap(array(), 0, index());
+		}
 	}
 
 	/**
 	 * For building typed arrays.
 	 */
 	public static class OfShort extends DynamicArray<short[]> implements Functions.IntConsumer {
-		private OfShort(Functions.IntOperator growth) {
+		private OfShort(Functions.IntBiOperator growth) {
 			super(Array.shorts, growth);
 		}
 
@@ -436,13 +464,20 @@ public abstract class DynamicArray<T> {
 		public int append(int... values) {
 			return set(index(), values);
 		}
+
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public ShortBuffer buffer() {
+			return ShortBuffer.wrap(array(), 0, index());
+		}
 	}
 
 	/**
 	 * For building typed arrays.
 	 */
 	public static class OfInt extends DynamicArray<int[]> implements Functions.IntConsumer {
-		private OfInt(Functions.IntOperator growth) {
+		private OfInt(Functions.IntBiOperator growth) {
 			super(Array.ints, growth);
 		}
 
@@ -479,13 +514,20 @@ public abstract class DynamicArray<T> {
 		public IntProvider wrap() {
 			return IntArray.Immutable.wrap(array(), 0, index());
 		}
+
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public IntBuffer buffer() {
+			return IntBuffer.wrap(array(), 0, index());
+		}
 	}
 
 	/**
 	 * For building typed arrays.
 	 */
 	public static class OfLong extends DynamicArray<long[]> implements Functions.LongConsumer {
-		private OfLong(Functions.IntOperator growth) {
+		private OfLong(Functions.IntBiOperator growth) {
 			super(Array.longs, growth);
 		}
 
@@ -522,13 +564,20 @@ public abstract class DynamicArray<T> {
 		public LongProvider wrap() {
 			return LongArray.Immutable.wrap(array(), 0, index());
 		}
+
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public LongBuffer buffer() {
+			return LongBuffer.wrap(array(), 0, index());
+		}
 	}
 
 	/**
 	 * For building typed arrays.
 	 */
 	public static class OfFloat extends DynamicArray<float[]> implements Functions.DoubleConsumer {
-		private OfFloat(Functions.IntOperator growth) {
+		private OfFloat(Functions.IntBiOperator growth) {
 			super(Array.floats, growth);
 		}
 
@@ -558,6 +607,13 @@ public abstract class DynamicArray<T> {
 		public int append(float... values) {
 			return append(values, 0);
 		}
+
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public FloatBuffer buffer() {
+			return FloatBuffer.wrap(array(), 0, index());
+		}
 	}
 
 	/**
@@ -565,7 +621,7 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfDouble extends DynamicArray<double[]>
 		implements Functions.DoubleConsumer {
-		private OfDouble(Functions.IntOperator growth) {
+		private OfDouble(Functions.IntBiOperator growth) {
 			super(Array.doubles, growth);
 		}
 
@@ -595,12 +651,19 @@ public abstract class DynamicArray<T> {
 		public int append(double... values) {
 			return append(values, 0);
 		}
+
+		/**
+		 * Returns a buffer wrapper.
+		 */
+		public DoubleBuffer buffer() {
+			return DoubleBuffer.wrap(array(), 0, index());
+		}
 	}
 
-	private DynamicArray(TypedArray<T> typed, Functions.IntOperator growth) {
+	private DynamicArray(TypedArray<T> typed, Functions.IntBiOperator growth) {
 		this.typed = typed;
 		this.growth = growth;
-		this.array = typed.resize(null, growth.applyAsInt(0));
+		this.array = typed.resize(null, growth.applyAsInt(0, 0));
 	}
 
 	/**
@@ -683,7 +746,7 @@ public abstract class DynamicArray<T> {
 	private void ensureSize(int size) {
 		int len = RawArray.length(array);
 		while (len < size)
-			len = growth.applyAsInt(len);
+			len = growth.applyAsInt(len, size);
 		array = typed.resize(array, len);
 	}
 

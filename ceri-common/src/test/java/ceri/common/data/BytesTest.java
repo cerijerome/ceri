@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -46,7 +45,7 @@ public class BytesTest {
 
 	@Test
 	public void testBitIteratorHigh() {
-		Captor<Boolean> captor = Captor.of();
+		var captor = Captor.<Boolean>of();
 		for (boolean b : Iterables.of(Bytes.bitIterator(true, ByteProvider.of(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, true, false, true, false, false, true, //
@@ -56,7 +55,7 @@ public class BytesTest {
 
 	@Test
 	public void testBitIteratorLow() {
-		Captor<Boolean> captor = Captor.of();
+		var captor = Captor.<Boolean>of();
 		for (boolean b : Iterables.of(Bytes.bitIterator(false, ByteProvider.of(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, false, true, false, true, false, true, //
@@ -66,7 +65,7 @@ public class BytesTest {
 
 	@Test
 	public void testIterateMaskInt() {
-		Captor.OfInt captor = Captor.ofInt();
+		var captor = Captor.ofInt();
 		Bytes.iterateMask(true, 0x84211248, captor::accept);
 		captor.verifyInt(31, 26, 21, 16, 12, 9, 6, 3);
 		captor.reset();
@@ -76,7 +75,7 @@ public class BytesTest {
 
 	@Test
 	public void testIterateMaskLong() {
-		Captor.OfInt captor = Captor.ofInt();
+		var captor = Captor.ofInt();
 		Bytes.iterateMask(true, 0x8040201010204080L, captor::accept);
 		captor.verifyInt(63, 54, 45, 36, 28, 21, 14, 7);
 		captor.reset();
@@ -129,7 +128,7 @@ public class BytesTest {
 
 	@Test
 	public void testBytesFromBuffer() {
-		ByteBuffer buffer = ByteBuffer.wrap(Array.bytes.of(1, 2, 3, 4, 5));
+		var buffer = Bytes.buffer(1, 2, 3, 4, 5);
 		buffer.position(2).limit(4);
 		Assert.array(Bytes.bytes(buffer), 3, 4);
 	}
@@ -143,13 +142,13 @@ public class BytesTest {
 	@Test
 	public void testReadByteArrayFromByteBuffer() {
 		Assert.array(Bytes.readFrom(null, 1, 0));
-		ByteBuffer buffer = ByteBuffer.wrap(Array.bytes.of(1, 2, 3, 4, 5));
+		var buffer = Bytes.buffer(1, 2, 3, 4, 5);
 		Assert.array(Bytes.readFrom(buffer, 1, 3), 2, 3, 4);
 	}
 
 	@Test
 	public void testReadFromByteBuffer() {
-		ByteBuffer buffer = ByteBuffer.wrap(Array.bytes.of(1, 2, 3, 4, 5));
+		var buffer = Bytes.buffer(1, 2, 3, 4, 5);
 		byte[] bytes = new byte[3];
 		Assert.equal(Bytes.readFrom(buffer, 1, bytes), 3);
 		Assert.array(bytes, 2, 3, 4);
@@ -158,15 +157,15 @@ public class BytesTest {
 	@Test
 	public void testWriteToByteBuffer() {
 		byte[] bytes = new byte[5];
-		ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		var buffer = Bytes.buffer(bytes);
 		Assert.equal(Bytes.writeTo(buffer, 1, 1, 2, 3), 3);
 		Assert.array(bytes, 0, 1, 2, 3, 0);
 	}
 
 	@Test
 	public void testWriteTo() {
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		ByteProvider im = ByteProvider.of(-1, 0, 128);
+		var b = new ByteArrayOutputStream();
+		var im = ByteProvider.of(-1, 0, 128);
 		Bytes.writeTo(b, -1, 2);
 		Bytes.writeTo(b, new byte[] { 3, 4, 5 }, 1);
 		Bytes.writeTo(b, im);
@@ -177,8 +176,8 @@ public class BytesTest {
 
 	@Test
 	public void testWriteToWithExceptions() {
-		ByteProvider badProvider = badProvider(3);
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		var badProvider = badProvider(3);
+		var b = new ByteArrayOutputStream();
 		Assert.thrown(() -> Bytes.writeTo(b, badProvider));
 		Assert.thrown(() -> Bytes.writeTo(b, badProvider, 1));
 		Assert.thrown(() -> Bytes.writeTo(b, badProvider, 0, 2));

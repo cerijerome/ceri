@@ -1,7 +1,15 @@
 package ceri.common.text;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.regex.Pattern;
+import ceri.common.array.RawArray;
+import ceri.common.collect.Maps;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.Bytes;
 import ceri.common.math.Radix;
 import ceri.common.util.Validate;
 
@@ -19,6 +27,42 @@ public class Chars {
 	public static final char BSLASH = '\\';
 
 	private Chars() {}
+
+	/**
+	 * Charset information.
+	 */
+	public record Info(ByteProvider bom, ByteProvider term, float bytesPerChar) {
+		private static final Map<Charset, Info> cache = Maps.syncWeak();
+
+		public static Info of(Charset charset) {
+			return cache.computeIfAbsent(safe(charset), Info::from);
+		}
+
+		static Info from(Charset charset) {
+			var bytes = "\0".getBytes(charset);
+			int n = 0; // number of zeroes
+			for (int i = 0; i < bytes.length; i++)
+				if (bytes[i] == 0) n++;
+			var bom = bom(bytes, n);
+			var term = term(bytes, n);
+			var bytesPerChar = charset.newEncoder().averageBytesPerChar();
+			return new Info(bom, term, bytesPerChar);
+		}
+
+		private static ByteProvider bom(byte[] bytes, int n) {
+			// Pragmatic BOM finder
+			if (n == bytes.length || n == 0) return ByteProvider.empty(); // no BOM
+			if (n == 1) return ByteArray.Immutable.wrap(bytes, 0, bytes.length - 1); // UTF8 BOM
+			return ByteArray.Immutable.wrap(bytes, 0, bytes.length >> 1); // UTF16/32 BOM
+		}
+
+		private static ByteProvider term(byte[] bytes, int n) {
+			// Pragmatic nul-terminator finder
+			if (n == bytes.length) return ByteProvider.of(bytes); // no BOM
+			if (n <= 1) return ByteProvider.of(0); // UTF8 with BOM or non-standard charset
+			return ByteArray.Immutable.wrap(bytes, bytes.length >> 1); // UTF16/32 with BOM
+		}
+	}
 
 	/**
 	 * Operates on a char and returns a char.
@@ -56,7 +100,7 @@ public class Chars {
 	public static Charset charset(String name) {
 		return Strings.nonEmpty(name) ? Charset.forName(name) : Charset.defaultCharset();
 	}
-	
+
 	/**
 	 * Returns a compact name for the charset.
 	 */
@@ -67,7 +111,7 @@ public class Chars {
 			if (Character.isLetterOrDigit(c)) b.append(Character.toLowerCase(c));
 		return b.toString();
 	}
-	
+
 	/**
 	 * Returns default charset if null.
 	 */
@@ -135,6 +179,15 @@ public class Chars {
 	}
 
 	/**
+	 * Copies buffer into a new array.
+	 */
+	public static char[] chars(CharBuffer buffer) {
+		var chars = new char[buffer.remaining()];
+		buffer.get(chars);
+		return chars;
+	}
+
+	/**
 	 * Returns true if the chars at each index are in range and the same value.
 	 */
 	public static boolean equals(CharSequence ls, int li, CharSequence rs, int ri) {
@@ -195,6 +248,80 @@ public class Chars {
 			(b, m) -> appendUnescape(b, m.start(), m.group())).toString();
 	}
 
+	/**
+	 * Encodes the string to byte array within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the array slice has no space for the next full
+	 * char, or the char sequence is malformed.
+	 */
+	public static int encode(CharSequence s, Charset charset, byte[] bytes) {
+		return encode(s, charset, bytes, 0);
+	}
+
+	/**
+	 * Encodes the string to byte array within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the array slice has no space for the next full
+	 * char, or the char sequence is malformed.
+	 */
+	public static int encode(CharSequence s, Charset charset, byte[] bytes, int index) {
+		return encode(s, charset, bytes, index, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Encodes the string to byte array within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the array slice has no space for the next full
+	 * char, or the char sequence is malformed.
+	 */
+	public static int encode(CharSequence s, Charset charset, byte[] bytes, int index, int len) {
+		return encode(s, charset, Bytes.buffer(bytes, index, len));
+	}
+
+	/**
+	 * Encodes the string to the buffer within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the buffer has no space for the next full char,
+	 * or the char sequence is malformed.
+	 */
+	public static int encode(CharSequence s, Charset charset, ByteBuffer buffer) {
+		if (s == null || buffer == null || buffer.remaining() == 0) return 0;
+		int i = buffer.position();
+		safe(charset).newEncoder().encode(CharBuffer.wrap(s), buffer, true);
+		return buffer.position() - i;
+	}
+
+	/**
+	 * Decodes the byte array to a string, replacing malformed chars, and dropping any trailing
+	 * partial char encoding.
+	 */
+	public static String decode(Charset charset, byte[] bytes) {
+		return decode(charset, bytes, 0);
+	}
+
+	/**
+	 * Decodes the byte array slice to a string, replacing malformed chars, and dropping any
+	 * trailing partial char encoding.
+	 */
+	public static String decode(Charset charset, byte[] bytes, int index) {
+		return decode(charset, bytes, index, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Decodes the byte array slice to a string, replacing malformed chars, and dropping any
+	 * trailing partial char encoding.
+	 */
+	public static String decode(Charset charset, byte[] bytes, int index, int len) {
+		if (bytes == null) return "";
+		return RawArray.applySlice(bytes, index, len,
+			(i, l) -> decode(charset, ByteBuffer.wrap(bytes, i, l)));
+	}
+
+	/**
+	 * Decodes the buffer to a string, replacing malformed chars, and dropping any trailing partial
+	 * char encoding.
+	 */
+	public static String decode(Charset charset, ByteBuffer buffer) {
+		if (buffer == null || !buffer.hasRemaining()) return "";
+		return safe(charset).decode(buffer).toString();
+	}
+
 	// support
 
 	private static StringBuilders.State appendEscape(StringBuilders.State b, int i, char c) {
@@ -226,20 +353,20 @@ public class Chars {
 			case Escape.CR -> b.ensure(i).append(CR);
 			case Escape.TAB -> b.ensure(i).append(TAB);
 			case Escape.NUL -> b.ensure(i).append(NUL);
-			default -> b.append(i, decode(escapedChar));
+			default -> b.append(i, unescape(escapedChar));
 		}
 		return b;
 	}
 
-	private static char decode(String escapedChar) {
-		int c = decode(escapedChar, Escape.UTF16);
-		if (c == -1) c = decode(escapedChar, Escape.HEX);
-		if (c == -1) c = decode(escapedChar, Escape.OCT);
+	private static char unescape(String escapedChar) {
+		int c = unescape(escapedChar, Escape.UTF16);
+		if (c == -1) c = unescape(escapedChar, Escape.HEX);
+		if (c == -1) c = unescape(escapedChar, Escape.OCT);
 		Validate.min(c, 0, "Escaped char");
 		return (char) c;
 	}
 
-	private static int decode(String escapedChar, Format.OfLong format) {
+	private static int unescape(String escapedChar, Format.OfLong format) {
 		if (!escapedChar.startsWith(format.prefix())) return -1;
 		return Integer.parseUnsignedInt(escapedChar, format.prefix().length(), escapedChar.length(),
 			format.radix());

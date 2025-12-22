@@ -617,7 +617,7 @@ public class Colors {
 	 * Collect argb int stream as a color array.
 	 */
 	public static Color[] colors(IntStream<RuntimeException> argbStream) {
-		return argbStream.mapToObj(Colors::color).toArray(Color[]::new);
+		return argbStream.mapToObj(Colors::color).toArray(Color.class);
 	}
 
 	/**

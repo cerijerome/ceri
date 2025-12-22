@@ -84,7 +84,7 @@ public class PointersTest {
 
 	@Test
 	public void testMallocPointerTypeArray() {
-		var array = Pointers.mallocArray(TestPointer::new, TestPointer[]::new, 3);
+		var array = Pointers.mallocArray(TestPointer::new, TestPointer.class, 3);
 		Assert.equal(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
 		Assert.equal(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
 		Assert.equal(array.length, 3);
@@ -102,7 +102,7 @@ public class PointersTest {
 
 	@Test
 	public void testCallocPointerTypeArray() {
-		var array = Pointers.callocArray(TestPointer::new, TestPointer[]::new, 3);
+		var array = Pointers.callocArray(TestPointer::new, TestPointer.class, 3);
 		Assert.equal(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
 		Assert.equal(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
 		Assert.equal(array.length, 3);
@@ -148,10 +148,10 @@ public class PointersTest {
 
 	@Test
 	public void testArrayByValForPointerTypes() {
-		Assert.array(Pointers.arrayByVal(null, TestPointer::new, TestPointer[]::new, 1),
+		Assert.array(Pointers.arrayByVal(null, TestPointer::new, TestPointer.class, 1),
 			new TestPointer[1]);
 		var array0 = Pointers.callocArray(3);
-		var array = Pointers.arrayByVal(array0[0], TestPointer::new, TestPointer[]::new, 2);
+		var array = Pointers.arrayByVal(array0[0], TestPointer::new, TestPointer.class, 2);
 		JnaAssert.pointer(array[0], array0[0]);
 		JnaAssert.pointer(array[1], array0[1]);
 		Assert.equal(array.length, 2);

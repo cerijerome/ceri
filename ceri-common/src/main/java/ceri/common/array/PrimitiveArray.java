@@ -16,17 +16,16 @@ import ceri.common.util.Hasher;
  * package; avoid calling these classes to prevent initialization failures.
  */
 public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
-	private final Class<T> cls;
+	private final TypedArray.Type<C> box;
+	public final T empty;
 
 	/**
 	 * Typed primitive array support.
 	 */
 	public static class OfBool extends PrimitiveArray<boolean[], Boolean> {
-		public final boolean[] empty = new boolean[0];
-		public final TypedArray.Type<Boolean> box = TypedArray.type(Boolean[]::new);
-
+		
 		OfBool() {
-			super(boolean[].class, boolean[]::new);
+			super(boolean.class, TypedArray.type(Boolean.class));
 		}
 
 		/**
@@ -45,7 +44,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Boolean[] boxed(boolean[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -200,12 +199,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public static class OfChar extends PrimitiveArray<char[], Character>
 		implements TypedArray.Integral<char[]> {
-		public final char[] empty = new char[0];
-		public final TypedArray.Type.Integral<Character> box =
-			TypedArray.integral(Character[]::new, hexFn(c -> c));
 
 		OfChar() {
-			super(char[].class, char[]::new);
+			super(char.class, TypedArray.integral(Character.class, hexFn(c -> c)));
 		}
 
 		/**
@@ -222,6 +218,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return copyValues(values, (a, v, i) -> a[i] = (char) v[i]);
 		}
 
+		@Override
+		public TypedArray.Type.Integral<Character> box() {
+			return (TypedArray.Type.Integral<Character>) super.box();
+		}
+
 		/**
 		 * Converts an unboxed array to a boxed array.
 		 */
@@ -231,7 +232,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Character[] boxed(char[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -390,12 +391,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public static class OfByte extends PrimitiveArray<byte[], Byte>
 		implements TypedArray.Integral<byte[]> {
-		public final byte[] empty = new byte[0];
-		public final TypedArray.Type.Integral<Byte> box =
-			TypedArray.integral(Byte[]::new, hexFn(b -> Maths.ubyte(b)));
 
 		OfByte() {
-			super(byte[].class, byte[]::new);
+			super(byte.class, TypedArray.integral(Byte.class, hexFn(b -> Maths.ubyte(b))));
 		}
 
 		/**
@@ -412,6 +410,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return copyValues(values, (a, v, i) -> a[i] = (byte) v[i]);
 		}
 
+		@Override
+		public TypedArray.Type.Integral<Byte> box() {
+			return (TypedArray.Type.Integral<Byte>) super.box();
+		}
+
 		/**
 		 * Converts unboxed values to a boxed array.
 		 */
@@ -423,12 +426,12 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Converts unboxed values to a boxed array.
 		 */
 		public Byte[] boxed(int... values) {
-			return box.copyValues(values, (a, v, i) -> a[i] = (byte) v[i]);
+			return box().copyValues(values, (a, v, i) -> a[i] = (byte) v[i]);
 		}
 
 		@Override
 		public Byte[] boxed(byte[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -587,12 +590,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public static class OfShort extends PrimitiveArray<short[], Short>
 		implements TypedArray.Integral<short[]> {
-		public final short[] empty = new short[0];
-		public final TypedArray.Type.Integral<Short> box =
-			TypedArray.integral(Short[]::new, hexFn(s -> Maths.ushort(s)));
 
 		OfShort() {
-			super(short[].class, short[]::new);
+			super(short.class, TypedArray.integral(Short.class, hexFn(s -> Maths.ushort(s))));
 		}
 
 		/**
@@ -609,6 +609,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return copyValues(values, (a, v, i) -> a[i] = (short) v[i]);
 		}
 
+		@Override
+		public TypedArray.Type.Integral<Short> box() {
+			return (TypedArray.Type.Integral<Short>) super.box();
+		}
+
 		/**
 		 * Converts unboxed values to a boxed array.
 		 */
@@ -620,12 +625,12 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Converts unboxed values to a boxed array.
 		 */
 		public Short[] boxed(int... values) {
-			return box.copyValues(values, (a, v, i) -> a[i] = (short) v[i]);
+			return box().copyValues(values, (a, v, i) -> a[i] = (short) v[i]);
 		}
 
 		@Override
 		public Short[] boxed(short[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -784,12 +789,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public static class OfInt extends PrimitiveArray<int[], Integer>
 		implements TypedArray.Integral<int[]> {
-		public final int[] empty = new int[0];
-		public final TypedArray.Type.Integral<Integer> box =
-			TypedArray.integral(Integer[]::new, hexFn(i -> Maths.uint(i)));
 
 		OfInt() {
-			super(int[].class, int[]::new);
+			super(int.class, TypedArray.integral(Integer.class, hexFn(i -> Maths.uint(i))));
 		}
 
 		/**
@@ -810,6 +812,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return array;
 		}
 
+		@Override
+		public TypedArray.Type.Integral<Integer> box() {
+			return (TypedArray.Type.Integral<Integer>) super.box();
+		}
+
 		/**
 		 * Converts unboxed values to a boxed array.
 		 */
@@ -819,7 +826,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Integer[] boxed(int[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -971,12 +978,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public static class OfLong extends PrimitiveArray<long[], Long>
 		implements TypedArray.Integral<long[]> {
-		public final long[] empty = new long[0];
-		public final TypedArray.Type.Integral<Long> box =
-			TypedArray.integral(Long[]::new, Format::hex);
 
 		OfLong() {
-			super(long[].class, long[]::new);
+			super(long.class, TypedArray.integral(Long.class, Format::hex));
 		}
 
 		/**
@@ -997,6 +1001,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return array;
 		}
 
+		@Override
+		public TypedArray.Type.Integral<Long> box() {
+			return (TypedArray.Type.Integral<Long>) super.box();
+		}
+
 		/**
 		 * Converts an unboxed array to a boxed array.
 		 */
@@ -1006,7 +1015,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Long[] boxed(long[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -1157,11 +1166,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 * Typed primitive array support.
 	 */
 	public static class OfFloat extends PrimitiveArray<float[], Float> {
-		public final float[] empty = new float[0];
-		public final TypedArray.Type<Float> box = TypedArray.type(Float[]::new);
 
 		OfFloat() {
-			super(float[].class, float[]::new);
+			super(float.class, TypedArray.type(Float.class));
 		}
 
 		/**
@@ -1189,12 +1196,12 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Converts an unboxed values to a boxed array.
 		 */
 		public Float[] boxed(double... values) {
-			return box.copyValues(values, (a, v, i) -> a[i] = (float) v[i]);
+			return box().copyValues(values, (a, v, i) -> a[i] = (float) v[i]);
 		}
 
 		@Override
 		public Float[] boxed(float[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -1347,11 +1354,9 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 * Typed primitive array support.
 	 */
 	public static class OfDouble extends PrimitiveArray<double[], Double> {
-		public final double[] empty = new double[0];
-		public final TypedArray.Type<Double> box = TypedArray.type(Double[]::new);
 
 		OfDouble() {
-			super(double[].class, double[]::new);
+			super(double.class, TypedArray.type(Double.class));
 		}
 
 		/**
@@ -1370,7 +1375,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Double[] boxed(double[] array, int offset, int length) {
-			return RawArray.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -1512,16 +1517,17 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 	}
 
-	private PrimitiveArray(Class<T> cls, Functions.IntFunction<T> constructor) {
-		super(constructor);
-		this.cls = cls;
+	private PrimitiveArray(Class<?> component, TypedArray.Type<C> box) {
+		super(component);
+		this.box = box;
+		empty = constructor.apply(0);
 	}
 
 	/**
-	 * Returns the primitive array class type.
+	 * Provides the boxed array accessor.
 	 */
-	public Class<T> type() {
-		return cls;
+	public TypedArray.Type<C> box() {
+		return box;
 	}
 
 	/**

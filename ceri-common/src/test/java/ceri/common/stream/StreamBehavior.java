@@ -297,10 +297,10 @@ public class StreamBehavior {
 	@Test
 	public void shouldCollectToArray() throws Exception {
 		Assert.array(Stream.empty().toArray());
-		Assert.array(Stream.empty().toArray(Object[]::new));
+		Assert.array(Stream.empty().toArray(Object.class));
 		Assert.array(testStream().toArray(), -1, null, 1, 0);
 		Assert.equal(testStream().toArray(null), null);
-		Assert.array(testStream().toArray(Integer[]::new), -1, null, 1, 0);
+		Assert.array(testStream().toArray(Integer.class), -1, null, 1, 0);
 	}
 
 	@Test

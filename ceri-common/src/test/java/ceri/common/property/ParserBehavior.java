@@ -15,7 +15,7 @@ public class ParserBehavior {
 	private static final Excepts.Function<RuntimeException, Integer, List<Integer>> BIT_LIST =
 		i -> Streams.ints(Bytes.bits(i)).boxed().toList();
 	private static final Excepts.Function<RuntimeException, Integer, Integer[]> BIT_ARRAY =
-		i -> Streams.ints(Bytes.bits(i)).boxed().toArray(Integer[]::new);
+		i -> Streams.ints(Bytes.bits(i)).boxed().toArray(Integer.class);
 
 	@Test
 	public void shouldAllowNullValue() {

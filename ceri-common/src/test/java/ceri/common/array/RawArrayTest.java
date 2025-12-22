@@ -29,8 +29,30 @@ public class RawArrayTest {
 	@Test
 	public void testOfType() {
 		Assert.equal(RawArray.ofType(null, 0), null);
-		Assert.array((int[]) RawArray.ofType(int.class, 1), new int[] { 0 });
+		Assert.equal(RawArray.ofType(int.class), null);
+		Assert.array(RawArray.<int[]>ofType(int.class, 1), new int[] { 0 });
+		Assert.array(RawArray.<int[][][]>ofType(int.class, 2, 2, 1),
+			new int[][][] { { { 0 }, { 0 } }, { { 0 }, { 0 } } });
 		Assert.array(RawArray.ofType(Object.class, 1), objs);
+	}
+
+	@Test
+	public void testGet() {
+		Assert.equal(RawArray.get(null, 0), null);
+		Assert.equal(RawArray.get(ints, -1), null);
+		Assert.equal(RawArray.get(ints, 3), null);
+		Assert.equal(RawArray.get(ints, 1), 1);
+		Assert.equal(RawArray.get(objs, 0), null);
+	}
+
+	@Test
+	public void testSet() {
+		var ints = this.ints.clone();
+		Assert.equal(RawArray.set(null, 0, 1), false);
+		Assert.equal(RawArray.set(ints, -1, 0), false);
+		Assert.equal(RawArray.set(ints, 3, 0), false);
+		Assert.equal(RawArray.set(ints, 1, 2), true);
+		Assert.equal(ints[1], 2);
 	}
 
 	@Test
@@ -40,6 +62,50 @@ public class RawArrayTest {
 		var i = RawArray.iterable(ints, 1, 1).iterator();
 		Assert.equal(i.next(), 1);
 		Assert.noSuchElement(() -> i.next());
+	}
+
+	@Test
+	public void testDimensions() {
+		Assert.equal(RawArray.dimensions(null), 0);
+		Assert.equal(RawArray.dimensions((int[]) null), 0);
+		Assert.equal(RawArray.dimensions(obj), 0);
+		Assert.equal(RawArray.dimensions(objs), 1);
+		Assert.equal(RawArray.dimensions(new int[2][1][0]), 3);
+		int[][][] array = { null, null };
+		Assert.equal(RawArray.dimensions(array), 3);
+	}
+
+	@Test
+	public void testLeaves() {
+		Assert.equal(RawArray.leaves(null), 1);
+		Assert.equal(RawArray.leaves(obj), 1);
+		Assert.equal(RawArray.leaves(ints), 3);
+		Assert.equal(RawArray.leaves(new int[0]), 0);
+		Assert.equal(RawArray.leaves(new int[3][1][2]), 6);
+		int[][][] array = { null, { null }, { { -1, 1, 0 }, null, {}, { 1 } } };
+		Assert.equal(RawArray.leaves(array), 4);
+	}
+
+	@Test
+	public void testForEachLeaf() {
+		Assert.equal(RawArray.forEachLeaf(null, null), 0);
+		Assert.equal(RawArray.forEachLeaf(obj, null), 0);
+		Assert.equal(RawArray.forEachLeaf(ints, null), 3);
+		var captor = Captor.of();
+		var array = new int[][][] { { { -1, 0 } }, null, {}, { {}, null }, { { 1 }, null } };
+		Assert.equal(RawArray.<int[]>forEachLeaf(array, (a, i) -> captor.accept(a[i])), 3);
+		captor.verify(-1, 0, 1);
+	}
+
+	@Test
+	public void testAdapLeaves() {
+		Assert.ordered(RawArray.adaptLeaves(null, null));
+		Assert.ordered(RawArray.adaptLeaves(obj, null));
+		Assert.ordered(RawArray.adaptLeaves(objs, null));
+		Assert.ordered(RawArray.adaptLeaves(null, (_, i) -> i));
+		var array = new int[][][] { { { -1, 0 } }, null, {}, { {}, null }, { { 1 }, null } };
+		Assert.ordered(RawArray.<int[], String>adaptLeaves(array, (a, i) -> String.valueOf(a[i])),
+			"-1", "0", "1");
 	}
 
 	@Test
@@ -54,8 +120,8 @@ public class RawArrayTest {
 		Assert.array((int[]) RawArray.arrayCopy(null, 0, new int[1], 0, 1), 0);
 		Assert.equal((int[]) RawArray.arrayCopy(ints, 0, null, 0, 1), null);
 		Assert.array((Integer[]) RawArray.arrayCopy(ints, 1, new Integer[3], 0, 2), 1, 0, null);
-		Assert.array((int[]) RawArray.arrayCopy(new Integer[] { -1, 1, 2 }, 0, new int[3], 0, 2), -1,
-			1, 0);
+		Assert.array((int[]) RawArray.arrayCopy(new Integer[] { -1, 1, 2 }, 0, new int[3], 0, 2),
+			-1, 1, 0);
 	}
 
 	@Test
@@ -143,6 +209,21 @@ public class RawArrayTest {
 		Assert.equal(RawArray.toString((a, i) -> "" + a[i], null, ints, 0, 2), "null");
 		Assert.equal(RawArray.toString((a, i) -> "" + a[i], Joiner.OR, (int[]) null, 0, 2), "null");
 		Assert.equal(RawArray.toString((a, i) -> "" + a[i], Joiner.OR, ints, 0, 2), "-1|1");
+	}
+
+	@Test
+	public void testDeepToString() {
+		Assert.equal(RawArray.toString(null), "null");
+		Assert.equal(RawArray.toString(-1), "-1");
+		Assert.equal(RawArray.toString(new boolean[] { true, false }), "[true, false]");
+		Assert.equal(RawArray.toString(new char[] { 'a', '\0' }), "[a, \0]");
+		Assert.equal(RawArray.toString(new byte[] { -1, 0 }), "[-1, 0]");
+		Assert.equal(RawArray.toString(new short[] { -1, 0 }), "[-1, 0]");
+		Assert.equal(RawArray.toString(new int[] { -1, 0 }), "[-1, 0]");
+		Assert.equal(RawArray.toString(new long[] { -1, 0 }), "[-1, 0]");
+		Assert.equal(RawArray.toString(new float[] { -1, 0 }), "[-1.0, 0.0]");
+		Assert.equal(RawArray.toString(new double[] { -1, 0 }), "[-1.0, 0.0]");
+		Assert.equal(RawArray.toString(new int[2][2][1]), "[[[0], [0]], [[0], [0]]]");
 	}
 
 }

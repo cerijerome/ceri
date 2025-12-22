@@ -1,10 +1,13 @@
 package ceri.common.array;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import ceri.common.collect.Immutable;
 import ceri.common.collect.Iterables;
+import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
@@ -71,11 +74,11 @@ public class RawArray {
 	}
 
 	/**
-	 * Creates an array of given size.
+	 * Creates an array of given dimensions.
 	 */
-	public static <T> T ofType(Class<?> type, int size) {
-		return type == null ? null :
-			Reflect.unchecked(java.lang.reflect.Array.newInstance(type, size));
+	public static <T> T ofType(Class<?> type, int... sizes) {
+		return type == null || sizes.length == 0 ? null :
+			Reflect.unchecked(java.lang.reflect.Array.newInstance(type, sizes));
 	}
 
 	/**
@@ -93,17 +96,20 @@ public class RawArray {
 	}
 
 	/**
-	 * Sets the value at index.
+	 * Gets the value at index. Returns null if out of bounds.
 	 */
-	public static void set(Object array, int index, Object value) {
-		java.lang.reflect.Array.set(array, index, value);
+	public static <T> T get(Object array, int index) {
+		if (array == null || index < 0 || index >= length(array)) return null;
+		return Reflect.unchecked(java.lang.reflect.Array.get(array, index));
 	}
 
 	/**
-	 * Gets the value at index.
+	 * Sets the value at index, and returns true. Returns false if out of bounds.
 	 */
-	public static <T> T get(Object array, int index) {
-		return Reflect.unchecked(java.lang.reflect.Array.get(array, index));
+	public static boolean set(Object array, int index, Object value) {
+		if (array == null || index < 0 || index >= length(array)) return false;
+		java.lang.reflect.Array.set(array, index, value);
+		return true;
 	}
 
 	/**
@@ -139,6 +145,51 @@ public class RawArray {
 				return get(array, o + i++);
 			}
 		});
+	}
+
+	/**
+	 * Returns the number of dimensions of an n-dimension array; returns 0 if null or non-array.
+	 */
+	public static int dimensions(Object array) {
+		if (array == null) return 0;
+		var cls = Reflect.getClass(array);
+		for (int dims = 0;; dims++) {
+			cls = componentType(cls);
+			if (cls == null) return dims;
+		}
+	}
+
+	/**
+	 * Returns the total number of leaf elements for an n-dimensional array; 1 if null or non-array,
+	 * 0 for empty array.
+	 */
+	public static int leaves(Object array) {
+		return leaves(array, dimensions(array));
+	}
+
+	/**
+	 * Iterates over leaf elements of an n-dimensional array, passing the parent array and element
+	 * index to the consumer. Does nothing for null or non-arrays. Returns the number of leaves.
+	 */
+	public static <A> int forEachLeaf(Object array, Functions.ObjIntConsumer<A> consumer) {
+		int dims = dimensions(array);
+		if (dims == 0) return 0;
+		if (consumer == null) consumer = (_, _) -> {};
+		return forEachLeaf(array, dims, 0, consumer);
+	}
+
+	/**
+	 * Iterates over leaf elements of an n-dimensional array, passing the parent array and element
+	 * index to the function, and collecting the results into a list. Returns an empty list for null
+	 * or non-arrays.
+	 */
+	public static <A, R> List<R> adaptLeaves(Object array,
+		Functions.ObjIntFunction<A, R> function) {
+		int dims = dimensions(array);
+		if (dims == 0 || function == null) return Immutable.list();
+		var list = Lists.<R>of();
+		RawArray.<A>forEachLeaf(array, dims, 0, (a, i) -> list.add(function.apply(a, i)));
+		return list;
 	}
 
 	/**
@@ -463,5 +514,45 @@ public class RawArray {
 		return applySlice(array, offset, length, (o, l) -> {
 			return joiner.joinIndex((b, i) -> b.append(stringFn.apply(array, i)), o, l);
 		});
+	}
+
+	/**
+	 * Returns a string representation of the object, with array elements expanded.
+	 */
+	public static String toString(Object obj) {
+		if (!isArray(obj)) return String.valueOf(obj);
+		return switch (obj) {
+			case boolean[] a -> Arrays.toString(a);
+			case char[] a -> Arrays.toString(a);
+			case byte[] a -> Arrays.toString(a);
+			case short[] a -> Arrays.toString(a);
+			case int[] a -> Arrays.toString(a);
+			case long[] a -> Arrays.toString(a);
+			case float[] a -> Arrays.toString(a);
+			case double[] a -> Arrays.toString(a);
+			default -> Arrays.deepToString(Reflect.unchecked(obj));
+		};
+	}
+
+	// support
+
+	private static int leaves(Object array, int dims) {
+		if (dims == 0) return 1;
+		if (dims == 1) return length(array);
+		if (array == null) return 0;
+		dims--;
+		int n = 0;
+		for (int i = 0; i < length(array); i++)
+			n += leaves(get(array, i), dims);
+		return n;
+	}
+
+	private static <A> int forEachLeaf(Object array, int dims, int index,
+		Functions.ObjIntConsumer<A> consumer) {
+		if (dims-- > 1) for (int i = 0; i < length(array); i++)
+			index = forEachLeaf(get(array, i), dims, index, consumer);
+		else for (int i = 0; i < length(array); i++, index++)
+			consumer.accept(Reflect.unchecked(array), i);
+		return index;
 	}
 }

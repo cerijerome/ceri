@@ -21,6 +21,12 @@ public class DynamicArrayBehavior {
 	}
 
 	@Test
+	public void shouldGrowExact() {
+		assertGrowth(DynamicArray.GROW_EXACT, 0, 1, 2, 3);
+		assertGrowth(DynamicArray.growExact(2), 2, 2, 2, 3);
+	}
+
+	@Test
 	public void shouldGrowObjectArray() {
 		var d = DynamicArray.of();
 		Assert.array(d.array(), null, null, null, null, null, null, null, null);
@@ -82,6 +88,14 @@ public class DynamicArrayBehavior {
 		Assert.equal(d.get(2), 'b');
 		Assert.equal(d.get(9), '\0');
 		Assert.array(d.truncate(), '\0', 'a', 'b', '\0', '\0', '\0', '\0', '\0', 'c', '\0');
+		Assert.buffer(d.buffer(), '\0', 'a', 'b', '\0', '\0', '\0', '\0', '\0', 'c', '\0');
+	}
+
+	@Test
+	public void shouldProvideCharBuffer() {
+		var d = DynamicArray.chars();
+		d.append("abc");
+		Assert.buffer(d.buffer(), 'a', 'b', 'c');
 	}
 
 	@Test
@@ -106,6 +120,13 @@ public class DynamicArrayBehavior {
 	}
 
 	@Test
+	public void shouldProvideByteBuffer() {
+		var d = DynamicArray.bytes();
+		d.append(Byte.MIN_VALUE, 0, Byte.MAX_VALUE);
+		Assert.buffer(d.buffer(), Byte.MIN_VALUE, 0, Byte.MAX_VALUE);
+	}
+
+	@Test
 	public void shouldGrowShorts() {
 		var d = DynamicArray.shorts();
 		d.accept(-1);
@@ -127,6 +148,13 @@ public class DynamicArrayBehavior {
 	}
 
 	@Test
+	public void shouldProvideShortBuffer() {
+		var d = DynamicArray.shorts();
+		d.append(Short.MIN_VALUE, 0, Short.MAX_VALUE);
+		Assert.buffer(d.buffer(), Short.MIN_VALUE, 0, Short.MAX_VALUE);
+	}
+
+	@Test
 	public void shouldGrowInts() {
 		var d = DynamicArray.ints();
 		d.accept(-1);
@@ -145,6 +173,13 @@ public class DynamicArrayBehavior {
 		Assert.equal(d.get(2), -1);
 		Assert.equal(d.get(9), 0);
 		Assert.array(d.wrap(), 0, -1, -1, 0, 0, 0, 0, 0, 1, 0);
+	}
+
+	@Test
+	public void shouldProvideIntBuffer() {
+		var d = DynamicArray.ints();
+		d.append(Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		Assert.buffer(d.buffer(), Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 	}
 
 	@Test
@@ -170,6 +205,13 @@ public class DynamicArrayBehavior {
 	}
 
 	@Test
+	public void shouldProvideLongBuffer() {
+		var d = DynamicArray.longs();
+		d.append(Long.MIN_VALUE, 0, Long.MAX_VALUE);
+		Assert.buffer(d.buffer(), Long.MIN_VALUE, 0, Long.MAX_VALUE);
+	}
+
+	@Test
 	public void shouldGrowFloats() {
 		var d = DynamicArray.floats();
 		d.accept(-1);
@@ -189,6 +231,13 @@ public class DynamicArrayBehavior {
 		Assert.equal(d.get(2), -1.0f);
 		Assert.equal(d.get(9), 0.0f);
 		Assert.array(d.truncate(), 0, -1, -1, 0, 0, 0, 0, 0, 1, 0);
+	}
+
+	@Test
+	public void shouldProvideFloatBuffer() {
+		var d = DynamicArray.floats();
+		d.append(Float.MIN_VALUE, 0, Float.MAX_VALUE);
+		Assert.buffer(d.buffer(), Float.MIN_VALUE, 0, Float.MAX_VALUE);
 	}
 
 	@Test
@@ -214,6 +263,13 @@ public class DynamicArrayBehavior {
 	}
 
 	@Test
+	public void shouldProvideDoubleBuffer() {
+		var d = DynamicArray.doubles();
+		d.append(Double.MIN_VALUE, 0, Double.MAX_VALUE);
+		Assert.buffer(d.buffer(), Double.MIN_VALUE, 0, Double.MAX_VALUE);
+	}
+
+	@Test
 	public void shouldSetIndex() {
 		var d = DynamicArray.ints();
 		d.index(2);
@@ -231,8 +287,8 @@ public class DynamicArrayBehavior {
 		Assert.array(d.wrap(), 1, 2, 3, 6, 7, 8);
 	}
 
-	private static void assertGrowth(Functions.IntOperator growth, int... expecteds) {
+	private static void assertGrowth(Functions.IntBiOperator growth, int... expecteds) {
 		for (int i = 0; i < expecteds.length; i++)
-			Assert.equal(growth.applyAsInt(i), expecteds[i]);
+			Assert.equal(growth.applyAsInt(i, i), expecteds[i]);
 	}
 }

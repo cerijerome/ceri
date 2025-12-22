@@ -4,7 +4,7 @@ import java.util.Objects;
 import ceri.common.data.IntProvider;
 
 /**
- * Encapsulates array dimensions, starting with outer dimension.
+ * Encapsulates maximum array dimensions, starting with outer dimension.
  */
 public class Dimensions {
 	public static final Dimensions NONE = new Dimensions(IntProvider.empty());
@@ -71,11 +71,10 @@ public class Dimensions {
 	/**
 	 * Creates an array instance of the component type, using the dimension sizes.
 	 */
-	public Object create(Class<?> component) {
-		if (component == null) return null;
-		return java.lang.reflect.Array.newInstance(component, array());
+	public <T> T create(Class<?> component) {
+		return RawArray.ofType(component, array());
 	}
-	
+
 	/**
 	 * Returns an array copy of the dimensions.
 	 */
@@ -86,7 +85,7 @@ public class Dimensions {
 	public boolean isEmpty() {
 		return count() <= 0;
 	}
-	
+
 	/**
 	 * Returns the number of dimensions.
 	 */

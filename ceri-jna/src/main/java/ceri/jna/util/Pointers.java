@@ -118,8 +118,8 @@ public class Pointers {
 	 * Creates a fixed-length contiguous pointer type array. For {@code void*} array types.
 	 */
 	public static <T extends PointerType> T[] mallocArray(Functions.Supplier<T> constructor,
-		Functions.IntFunction<T[]> arrayFn, int count) {
-		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.get()).m, constructor, arrayFn,
+		Class<T> component, int count) {
+		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.get()).m, constructor, component,
 			count);
 	}
 
@@ -142,9 +142,9 @@ public class Pointers {
 	 * Creates a zeroed fixed-length contiguous pointer type array. For {@code void*} array types.
 	 */
 	public static <T extends PointerType> T[] callocArray(Functions.Supplier<T> constructor,
-		Functions.IntFunction<T[]> arrayFn, int count) {
+		Class<T> component, int count) {
 		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.get()).clear().m, constructor,
-			arrayFn, count);
+			component, count);
 	}
 
 	/**
@@ -206,9 +206,9 @@ public class Pointers {
 	 * null pointers if the pointer is null. For {@code void*} array types.
 	 */
 	public static <T extends PointerType> T[] arrayByVal(Pointer p,
-		Functions.Supplier<T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
+		Functions.Supplier<T> constructor, Class<T> component, int count) {
 		return Streams.of(Pointers.arrayByVal(p, count)).map(Jna.typeFn(adapt(constructor)))
-			.toArray(arrayFn);
+			.toArray(component);
 	}
 
 	/**

@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -26,7 +32,9 @@ import ceri.common.collect.Lists;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.Bytes;
+import ceri.common.data.Doubles;
 import ceri.common.data.IntProvider;
+import ceri.common.data.Ints;
 import ceri.common.data.LongProvider;
 import ceri.common.data.TypeValue;
 import ceri.common.function.Excepts;
@@ -682,8 +690,8 @@ public class Assert {
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(short[] array, int... values) {
-		array(array, Array.shorts.of(values));
+	public static void array(short[] array, int... expected) {
+		array(array, Array.shorts.of(expected));
 	}
 
 	/**
@@ -705,6 +713,13 @@ public class Assert {
 	 */
 	public static void array(float[] array, float... expected) {
 		rawArray(array, expected);
+	}
+
+	/**
+	 * Fails if the array does not equal the given value array.
+	 */
+	public static void array(float[] array, double... expected) {
+		array(array, Array.floats.of(expected));
 	}
 
 	/**
@@ -1284,33 +1299,78 @@ public class Assert {
 	
 	// I/O
 
-	public static void buffer(ByteBuffer buffer, int... bytes) {
-		array(Bytes.bytes(buffer), bytes);
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(CharBuffer buffer, char... array) {
+		array(Chars.chars(buffer), array);
 	}
 
 	/**
-	 * Check bytes read from input stream.
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(ByteBuffer buffer, int... array) {
+		array(Bytes.bytes(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(ShortBuffer buffer, int... array) {
+		array(Ints.shorts(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(IntBuffer buffer, int... array) {
+		array(Ints.ints(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(LongBuffer buffer, long... array) {
+		array(Ints.longs(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(FloatBuffer buffer, double... array) {
+		array(Doubles.floats(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(DoubleBuffer buffer, double... array) {
+		array(Doubles.doubles(buffer), array);
+	}
+
+	/**
+	 * Checks bytes read from input stream.
 	 */
 	public static void read(InputStream in, ByteProvider bytes) throws IOException {
 		read(in, bytes.copy(0));
 	}
 
 	/**
-	 * Check bytes read from input stream.
+	 * Checks bytes read from input stream.
 	 */
 	public static void read(InputStream in, int... bytes) throws IOException {
 		read(in, Array.bytes.of(bytes));
 	}
 
 	/**
-	 * Check bytes read from input stream.
+	 * Checks bytes read from input stream.
 	 */
 	public static void read(InputStream in, byte[] bytes) throws IOException {
 		array(in.readNBytes(bytes.length), bytes);
 	}
 
 	/**
-	 * Check if file exists.
+	 * Checks if file exists.
 	 */
 	public static void exists(Path path, boolean exists) {
 		if (Files.exists(path) == exists) return;
@@ -1318,7 +1378,7 @@ public class Assert {
 	}
 
 	/**
-	 * Check if file exists.
+	 * Checks if file exists.
 	 */
 	public static void dir(Path path, boolean isDir) {
 		if (Files.isDirectory(path) == isDir) return;

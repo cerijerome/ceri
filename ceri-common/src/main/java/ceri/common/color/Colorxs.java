@@ -427,7 +427,7 @@ public class Colorxs {
 	 * Collect xargb stream as a colorx array.
 	 */
 	public static Colorx[] colorxs(LongStream<RuntimeException> xargbStream) {
-		return xargbStream.mapToObj(Colorx::of).toArray(Colorx[]::new);
+		return xargbStream.mapToObj(Colorx::of).toArray(Colorx.class);
 	}
 
 	/**

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import ceri.common.reflect.Generics.Typed;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 
@@ -47,14 +48,29 @@ public class GenericsTest {
 		var ne0 = new Generics.Token<List<?>>() {}.typed;
 		var ne1 = new Generics.Token<ArrayList<String>>() {}.typed;
 		var ne2 = new Generics.Token<List<? super String>>() {}.typed;
+		var ne3 = Generics.Typed.of(void.class);
 		Testing.exerciseEquals(t, eq);
-		Assert.notEqualAll(t, ne0, ne1, ne2);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
+	}
+
+	@Test
+	public void testTypedFrom() {
+		Assert.equal(Generics.Typed.from(null), Typed.NULL);
+		Assert.equal(Generics.Typed.from(new int[1][1]).array(),
+			new Generics.Array(Typed.of(int.class), 2));
 	}
 
 	@Test
 	public void testTypedParameter() {
 		Assert.equal(Generics.typed((Parameter) null).isNull(), true);
 		Assert.equal(Generics.typed(t2d).component().component().varName(), "T");
+	}
+
+	@Test
+	public void testTypedReturn() {
+		Assert.equal(Generics.typedReturn((Method) null).isNull(), true);
+		Assert.equal(Generics.typedReturn(method).cls(), List.class);
+		Assert.equal(Generics.typedReturn(method).type(0).varName(), "T");
 	}
 
 	@Test
@@ -103,6 +119,31 @@ public class GenericsTest {
 	}
 
 	@Test
+	public void testGenericArrayIsNull() {
+		Assert.equal(Generics.Array.isNull(null), true);
+		Assert.equal(Generics.Array.isNull(Generics.Array.NULL), true);
+		Assert.equal(Generics.Array.isNull(Generics.Typed.NULL.array()), true);
+		Assert.equal(Generics.Array.isNull(Generics.Typed.VOID.array()), false);
+		Assert.equal(Generics.Array.isNull(Generics.Typed.of(int[].class).array()), false);
+	}
+
+	@Test
+	public void testGenericArrayIsArray() {
+		Assert.equal(Generics.Array.NULL.isArray(), false);
+		Assert.equal(Generics.Typed.NULL.array().isArray(), false);
+		Assert.equal(Generics.Typed.VOID.array().isArray(), false);
+		Assert.equal(Generics.Typed.of(int[].class).array().isArray(), true);
+	}
+
+	@Test
+	public void testGenericArrayClass() {
+		Assert.equal(Generics.Array.NULL.cls(), null);
+		Assert.equal(Generics.Typed.NULL.array().cls(), null);
+		Assert.equal(Generics.Typed.VOID.array().cls(), void.class);
+		Assert.equal(Generics.Typed.of(int[].class).array().cls(), int.class);
+	}
+
+	@Test
 	public void testTypedType() {
 		Assert.equal(Generics.Typed.NULL.type(0), Generics.Typed.NULL);
 		Assert.equal(Generics.Typed.NULL.type(1), Generics.Typed.NULL);
@@ -129,7 +170,7 @@ public class GenericsTest {
 		Assert.equal(new Generics.Token<List<?>[]>() {}.typed.lower(0).component().cls(),
 			List.class);
 	}
-	
+
 	@Test
 	public void testTypedFullString() {
 		Assert.string(Generics.typed(listN2d).fullString(),
@@ -167,8 +208,8 @@ public class GenericsTest {
 		Assert.string(Generics.fullString(u),
 			"U extends java.lang.Number & java.lang.Comparable<U>");
 		Assert.string(Generics.fullString(method),
-			"public <%s> java.util.List<T> %s.method(T[][],U)",
-			Generics.fullString(u), Types.class.getName());
+			"public <%s> java.util.List<T> %s.method(T[][],U)", Generics.fullString(u),
+			Types.class.getName());
 		Assert.string(Generics.fullString(listN2d.getGenericType()),
 			"java.util.List<? extends java.lang.Number>[][]");
 

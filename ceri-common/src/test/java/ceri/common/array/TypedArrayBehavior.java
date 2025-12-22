@@ -10,7 +10,14 @@ public class TypedArrayBehavior {
 	private static final Integer[] NULL = null;
 	private static final Integer[] EMPTY = new Integer[0];
 	private final Integer[] ints = Array.of(-1, null, 1, null, 1);
-	private final TypedArray.Type.Integral<Integer> typed = Array.ints.box;
+	private final TypedArray.Type.Integral<Integer> typed = Array.ints.box();
+
+	@Test
+	public void shouldProvideComponentType() {
+		Assert.equal(TypedArray.OBJ.component(), Object.class);
+		Assert.equal(Array.ints.component(), int.class);
+		Assert.equal(typed.component(), Integer.class);
+	}
 
 	@Test
 	public void shouldCreateArray() {

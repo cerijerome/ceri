@@ -317,11 +317,12 @@ public class PrimitiveArrayBehavior {
 
 	@Test
 	public void shouldProvideBoxedHexStrings() {
-		Assert.equal(Array.chars.box.toHex(Array.chars.boxed(chars)), "[0x61, 0x0, 0x63]");
-		Assert.equal(Array.bytes.box.toHex(Array.bytes.boxed(bytes)), "[0x80, 0x7f, 0x0]");
-		Assert.equal(Array.shorts.box.toHex(Array.shorts.boxed(shorts)), "[0x8000, 0x7fff, 0x0]");
-		Assert.equal(Array.ints.box.toHex(Array.ints.boxed(ints)), "[0x80000000, 0x7fffffff, 0x0]");
-		Assert.equal(Array.longs.box.toHex(Array.longs.boxed(longs)),
+		Assert.equal(Array.chars.box().toHex(Array.chars.boxed(chars)), "[0x61, 0x0, 0x63]");
+		Assert.equal(Array.bytes.box().toHex(Array.bytes.boxed(bytes)), "[0x80, 0x7f, 0x0]");
+		Assert.equal(Array.shorts.box().toHex(Array.shorts.boxed(shorts)), "[0x8000, 0x7fff, 0x0]");
+		Assert.equal(Array.ints.box().toHex(Array.ints.boxed(ints)),
+			"[0x80000000, 0x7fffffff, 0x0]");
+		Assert.equal(Array.longs.box().toHex(Array.longs.boxed(longs)),
 			"[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
 	}
 

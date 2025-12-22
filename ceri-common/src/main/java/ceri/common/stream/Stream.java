@@ -22,7 +22,6 @@ import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
-import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.common.util.Counter;
@@ -425,9 +424,9 @@ public class Stream<E extends Exception, T> {
 	/**
 	 * Collects elements into an array.
 	 */
-	public T[] toArray(Functions.IntFunction<T[]> generator) throws E {
-		if (generator == null) return null;
-		return collect(Collect.array(generator));
+	public T[] toArray(Class<T> component) throws E {
+		if (component == null) return null;
+		return collect(Collect.array(component));
 	}
 
 	/**
