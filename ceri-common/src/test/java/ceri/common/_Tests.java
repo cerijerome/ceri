@@ -132,6 +132,7 @@ import ceri.common.test.Testing;
 	ceri.common.geom.TruncatedRadial3dBehavior.class, //
 	// io
 	ceri.common.io.BufferedOutputStreamBehavior.class, //
+	ceri.common.io.BuffersBehavior.class, //
 	ceri.common.io.ConnectorBehavior.class, //
 	ceri.common.io.ConsoleInputBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //

@@ -94,7 +94,7 @@ public class ListenableBehavior {
 		listen.listen(consumer);
 		Listenable.safe((Listenable<String>) null).unlisten(consumer);
 		Listenable.safe((Listenable.Indirect<String>) null).listeners().unlisten(consumer);
-		Assert.equal(Listenable.safe((Listenable<String>) listen).unlisten(consumer), true);
+		Assert.equal(Listenable.safe(listen).unlisten(consumer), true);
 	}
 
 	private static class TestListenable implements Functions.Consumer<String>, Listenable<String> {

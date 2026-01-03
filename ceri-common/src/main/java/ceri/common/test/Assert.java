@@ -31,14 +31,12 @@ import ceri.common.collect.Iterables;
 import ceri.common.collect.Lists;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
-import ceri.common.data.Bytes;
-import ceri.common.data.Doubles;
 import ceri.common.data.IntProvider;
-import ceri.common.data.Ints;
 import ceri.common.data.LongProvider;
 import ceri.common.data.TypeValue;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.io.Buffers;
 import ceri.common.io.PathList;
 import ceri.common.io.Paths;
 import ceri.common.math.Maths;
@@ -1277,7 +1275,7 @@ public class Assert {
 	}
 
 	// other types
-	
+
 	/**
 	 * Fails if the type value fields do not equal the given values.
 	 */
@@ -1296,56 +1294,63 @@ public class Assert {
 		if (namePattern == null) Assert.isNull(t.name());
 		else Assert.match(t.name(), namePattern, args);
 	}
-	
+
 	// I/O
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(CharBuffer buffer, char... array) {
-		array(Chars.chars(buffer), array);
+		array(Buffers.CHAR.get(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against string.
+	 */
+	public static void buffer(CharBuffer buffer, String s) {
+		buffer(buffer, s.toCharArray());
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(ByteBuffer buffer, int... array) {
-		array(Bytes.bytes(buffer), array);
+		array(Buffers.BYTE.get(buffer), array);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(ShortBuffer buffer, int... array) {
-		array(Ints.shorts(buffer), array);
+		array(Buffers.SHORT.get(buffer), array);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(IntBuffer buffer, int... array) {
-		array(Ints.ints(buffer), array);
+		array(Buffers.INT.get(buffer), array);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(LongBuffer buffer, long... array) {
-		array(Ints.longs(buffer), array);
+		array(Buffers.LONG.get(buffer), array);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(FloatBuffer buffer, double... array) {
-		array(Doubles.floats(buffer), array);
+		array(Buffers.FLOAT.get(buffer), array);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
 	public static void buffer(DoubleBuffer buffer, double... array) {
-		array(Doubles.doubles(buffer), array);
+		array(Buffers.DOUBLE.get(buffer), array);
 	}
 
 	/**

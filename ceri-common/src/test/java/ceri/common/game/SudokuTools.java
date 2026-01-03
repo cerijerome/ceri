@@ -1,5 +1,8 @@
 package ceri.common.game;
 
+import java.util.Set;
+import ceri.common.collect.Sets;
+import ceri.common.data.Bytes;
 import ceri.common.function.Functions;
 
 /**
@@ -18,45 +21,230 @@ public class SudokuTools {
 	};
 
 	public static void main(String[] args) {
-		gen((seq, len) -> (len >= 7 //
-			&& seq[0] == 2 //
-			&& not(seq[1], 4, 8) //
-			&& not(seq[2], 4, 8) //
-			&& not(seq[3], 2, 6, 3) //
-			&& not(seq[4], 2, 6, 3) //
-			&& not(seq[5], 1, 9) //
-			&& not(seq[6], 1, 9) //
-		));
+		for (int i = 2; i <= 6; i++)
+			generate("gw", i, SudokuTools::germanWhispers);
 	}
 
-	public static boolean not(int value, int... nots) {
-		for (int not : nots)
-			if (value == not) return false;
-		return true;
+	/**
+	 * Generate and print a set of sequences for a given size.
+	 */
+	public static void generate(String name, int n, Functions.IntFunction<Set<Integer>> generator) {
+		var values = generator.apply(n);
+		System.out.printf("%n%s/%d (%d)", name, n, values.size());
+		int i = 0;
+		for (var value : values) {
+			if (i++ % 10 == 0) System.out.println();
+			System.out.print("  " + value);
+		}
+		System.out.println();
 	}
 
-	public static boolean any(int value, int... anys) {
-		for (int any : anys)
-			if (value == any) return true;
+	/**
+	 * Generates unique sequences for given size.
+	 */
+	public static Set<Integer> germanWhispers(int count) {
+		var set = Sets.<Integer>tree();
+		recurse(count, (seq, i, m) -> {
+			if (seq[0] != 6) return false;
+			if (!uniqueDigit(seq, i, m)) return false;
+			if (!germanWhisper(seq, i)) return false;
+			if (!full(seq, i)) return true;
+			if (set.contains(reverseNumber(seq))) return false;
+			set.add(number(seq));
+			return true;
+		});
+		return set;
+	}
+
+	/**
+	 * Generates unique sequences for given size.
+	 */
+	public static Set<Integer> dutchWhispers(int count) {
+		var set = Sets.<Integer>tree();
+		recurse(count, (seq, i, m) -> {
+			if (!uniqueDigit(seq, i, m)) return false;
+			if (!dutchWhisper(seq, i)) return false;
+			if (!full(seq, i)) return true;
+			if (set.contains(reverseNumber(seq))) return false;
+			set.add(number(seq));
+			return true;
+		});
+		return set;
+	}
+
+	/**
+	 * Recursion predicate for German whispers.
+	 */
+	public static boolean germanWhisper(int[] seq, int index) {
+		if (seq[index] == 5) return false;
+		return index == 0 || Math.abs(seq[index] - seq[index - 1]) >= 5;
+	}
+
+	/**
+	 * Recursion predicate for Dutch whispers.
+	 */
+	public static boolean dutchWhisper(int[] seq, int index) {
+		return index == 0 || Math.abs(seq[index] - seq[index - 1]) >= 4;
+	}
+
+	/**
+	 * Recursion predicate for increasing values.
+	 */
+	public static boolean increasing(int[] seq, int index) {
+		return index == 0 || seq[index] > seq[index - 1];
+	}
+
+	/**
+	 * Recursion predicate for uniqueness.
+	 */
+	public static boolean uniqueDigit(int[] seq, int index, int mask) {
+		return index == 0 || !Bytes.bit(mask, seq[index]);
+	}
+
+	/**
+	 * Recursion predicate for full sequence.
+	 */
+	public static boolean full(int[] seq, int index) {
+		return index == seq.length - 1;
+	}
+
+	/**
+	 * Returns true if the sequence contains the value.
+	 */
+	public static boolean has(int[] seq, int value) {
+		for (int n : seq)
+			if (n == value) return true;
 		return false;
 	}
 
-	private static void gen(Functions.ObjIntPredicate<int[]> predicate) {
+	/**
+	 * Returns true if the sequence contains all the values.
+	 */
+	public static boolean hasAll(int[] seq, int... values) {
+		for (int value : values)
+			if (!has(seq, value)) return false;
+		return true;
+	}
+
+	/**
+	 * Returns true if the sequence contains any of the values.
+	 */
+	public static boolean hasAny(int[] seq, int... values) {
+		for (int value : values)
+			if (has(seq, value)) return true;
+		return false;
+	}
+
+	/**
+	 * Returns true if the value contains all factors.
+	 */
+	public static boolean factorAll(long value, int... factors) {
+		for (var factor : factors)
+			if (value % factor != 0) return false;
+		return true;
+	}
+
+	/**
+	 * Returns the first matching factor, or 0 if none.
+	 */
+	public static int factor(long value, int... factors) {
+		for (var factor : factors)
+			if (value % factor == 0) return factor;
+		return 0;
+	}
+
+	/**
+	 * Calculates the product of a sequence.
+	 */
+	public static long product(int[] seq) {
+		long p = 1;
+		for (int n : seq)
+			p *= n;
+		return p;
+	}
+
+	/**
+	 * Formats a sequence with blank spaces for missing values.
+	 */
+	public static String format(int[] seq) {
+		var b = new StringBuilder("[");
+		for (int i = 1; i <= 9; i++)
+			b.append(has(seq, i) ? i : " ");
+		return b.append(']').toString();
+	}
+
+	/**
+	 * Returns the sequence as a string.
+	 */
+	public static String string(int[] seq) {
+		var b = new StringBuilder("[");
+		for (int i = 0; i < seq.length; i++)
+			b.append(seq[i]);
+		return b.append(']').toString();
+	}
+
+	/**
+	 * Returns the sequence as an integer. Only valid up to length 9.
+	 */
+	public static int number(int[] seq) {
+		int n = 0;
+		for (int i = 0; i < seq.length; i++)
+			n = (10 * n) + seq[i];
+		return n;
+	}
+
+	/**
+	 * Returns the reverse sequence as an integer. Only valid up to length 9.
+	 */
+	public static int reverseNumber(int[] seq) {
+		int n = 0;
+		for (int i = 0, m = 1; i < seq.length; i++, m *= 10)
+			n += m * seq[i];
+		return n;
+	}
+
+	/**
+	 * Iterates factors.
+	 */
+	public static void factor(Functions.ObjIntPredicate<int[]> predicate) {
 		int[] seq = new int[9];
 		for (int i = 1; i <= 9; i++) {
 			seq[0] = i;
-			gen(seq, 1, predicate);
+			factor(seq, 1, predicate);
 		}
 	}
 
-	private static void gen(int[] seq, int len, Functions.ObjIntPredicate<int[]> predicate) {
+	public interface Recursor {
+		boolean test(int[] seq, int index, int mask);
+	}
+
+	/**
+	 * Iterates a fixed size, with mask and predicate.
+	 */
+	public static int recurse(int len, Recursor recursor) {
+		return recurse(new int[len], 0, 0, 0, recursor);
+	}
+
+	// support
+
+	private static int recurse(int[] seq, int mask, int index, int count, Recursor recursor) {
+		if (index >= seq.length) return count + 1;
+		for (int i = 1; i <= 9; i++) {
+			seq[index] = i;
+			if (!recursor.test(seq, index, mask)) continue;
+			count = recurse(seq, mask | Bytes.maskOfBitsInt(i), index + 1, count, recursor);
+		}
+		return count;
+	}
+
+	private static void factor(int[] seq, int len, Functions.ObjIntPredicate<int[]> predicate) {
 		int n = seq[len - 1];
 		int[] factors = FACTORS[n - 1];
 		int count = 0;
 		for (int factor : factors) {
 			if (contains(seq, len, factor)) continue;
 			seq[len] = factor;
-			gen(seq, len + 1, predicate);
+			factor(seq, len + 1, predicate);
 			seq[len] = 0;
 			count++;
 		}

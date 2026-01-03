@@ -9,7 +9,7 @@ import ceri.common.array.RawArray;
 import ceri.common.collect.Maps;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.Bytes;
+import ceri.common.io.Buffers;
 import ceri.common.math.Radix;
 import ceri.common.util.Validate;
 
@@ -179,15 +179,6 @@ public class Chars {
 	}
 
 	/**
-	 * Copies buffer into a new array.
-	 */
-	public static char[] chars(CharBuffer buffer) {
-		var chars = new char[buffer.remaining()];
-		buffer.get(chars);
-		return chars;
-	}
-
-	/**
 	 * Returns true if the chars at each index are in range and the same value.
 	 */
 	public static boolean equals(CharSequence ls, int li, CharSequence rs, int ri) {
@@ -272,7 +263,7 @@ public class Chars {
 	 * char, or the char sequence is malformed.
 	 */
 	public static int encode(CharSequence s, Charset charset, byte[] bytes, int index, int len) {
-		return encode(s, charset, Bytes.buffer(bytes, index, len));
+		return encode(s, charset, Buffers.BYTE.of(bytes, index, len));
 	}
 
 	/**

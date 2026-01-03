@@ -42,11 +42,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return boxed(values, 0);
 		}
 
-		@Override
-		public Boolean[] boxed(boolean[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -228,11 +223,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public Character[] boxed(char... values) {
 			return boxed(values, 0);
-		}
-
-		@Override
-		public Character[] boxed(char[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
 		}
 
 		/**
@@ -429,11 +419,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return box().copyValues(values, (a, v, i) -> a[i] = (byte) v[i]);
 		}
 
-		@Override
-		public Byte[] boxed(byte[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -628,11 +613,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return box().copyValues(values, (a, v, i) -> a[i] = (short) v[i]);
 		}
 
-		@Override
-		public Short[] boxed(short[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -824,11 +804,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return boxed(values, 0);
 		}
 
-		@Override
-		public Integer[] boxed(int[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -1013,11 +988,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return boxed(values, 0);
 		}
 
-		@Override
-		public Long[] boxed(long[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -1199,11 +1169,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return box().copyValues(values, (a, v, i) -> a[i] = (float) v[i]);
 		}
 
-		@Override
-		public Float[] boxed(float[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -1373,11 +1338,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			return boxed(values, 0);
 		}
 
-		@Override
-		public Double[] boxed(double[] array, int offset, int length) {
-			return RawArray.boxed(box()::array, array, offset, length);
-		}
-
 		/**
 		 * Converts an unboxed array to a list back by a boxed array.
 		 */
@@ -1540,7 +1500,10 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	/**
 	 * Converts an unboxed array to a boxed array.
 	 */
-	public abstract C[] boxed(T array, int offset, int length);
+	public C[] boxed(T array, int offset, int length) {
+		return RawArray.boxed(box()::array, array, offset, length);
+	}
+
 
 	/**
 	 * Converts an unboxed array to a list back by a boxed array.

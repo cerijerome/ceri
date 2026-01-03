@@ -2,7 +2,6 @@ package ceri.common.data;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +11,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import ceri.common.array.Array;
-import ceri.common.array.RawArray;
 import ceri.common.collect.Iterators;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
@@ -234,44 +232,6 @@ public class Bytes {
 	}
 
 	/**
-	 * Copies buffer into a new array.
-	 */
-	public static byte[] bytes(ByteBuffer buffer) {
-		byte[] bytes = new byte[buffer.remaining()];
-		buffer.get(bytes);
-		return bytes;
-	}
-
-	/**
-	 * Returns a bounded buffer wrapper for the array.
-	 */
-	public static ByteBuffer buffer(int... bytes) {
-		return buffer(Array.bytes.of(bytes));
-	}
-	
-	/**
-	 * Returns a bounded buffer wrapper for the array.
-	 */
-	public static ByteBuffer buffer(byte[] bytes) {
-		return buffer(bytes, 0);
-	}
-	
-	/**
-	 * Returns a bounded buffer wrapper for the array slice.
-	 */
-	public static ByteBuffer buffer(byte[] bytes, int index) {
-		return buffer(bytes, index, Integer.MAX_VALUE);
-	}
-	
-	/**
-	 * Returns a bounded buffer wrapper for the array slice.
-	 */
-	public static ByteBuffer buffer(byte[] bytes, int index, int len) {
-		if (bytes == null) return ByteBuffer.allocate(0);
-		return RawArray.applySlice(bytes, index, len, (i, l) -> ByteBuffer.wrap(bytes, i, l));
-	}
-	
-	/**
 	 * Creates a byte array of given value.
 	 */
 	public static byte[] fill(int length, int value) {
@@ -279,69 +239,6 @@ public class Bytes {
 		byte[] bytes = new byte[length];
 		Arrays.fill(bytes, (byte) value);
 		return bytes;
-	}
-
-	/**
-	 * Copies bytes from the buffer, and moves the buffer position after the read.
-	 */
-	public static byte[] readFrom(ByteBuffer buffer, int pos, int length) {
-		if (length == 0) return Array.bytes.empty;
-		byte[] bytes = new byte[length];
-		readFrom(buffer, pos, bytes);
-		return bytes;
-	}
-
-	/**
-	 * Copies bytes from the buffer, and moves the buffer position after the read.
-	 */
-	public static int readFrom(ByteBuffer buffer, int pos, byte[] data) {
-		return readFrom(buffer, pos, data, 0);
-	}
-
-	/**
-	 * Copies bytes from the buffer, and moves the buffer position after the read.
-	 */
-	public static int readFrom(ByteBuffer buffer, int pos, byte[] data, int offset) {
-		return readFrom(buffer, pos, data, offset, data.length - offset);
-	}
-
-	/**
-	 * Copies bytes from the buffer, and moves the buffer position after the read.
-	 */
-	public static int readFrom(ByteBuffer buffer, int pos, byte[] data, int offset, int length) {
-		buffer.position(pos);
-		buffer.get(data, offset, length);
-		return length;
-	}
-
-	/**
-	 * Copies bytes to the buffer, and moves the buffer position after the write.
-	 */
-	public static int writeTo(ByteBuffer buffer, int pos, int... data) {
-		return writeTo(buffer, pos, Array.bytes.of(data));
-	}
-
-	/**
-	 * Copies bytes to the buffer, and moves the buffer position after the write.
-	 */
-	public static int writeTo(ByteBuffer buffer, int pos, byte[] data) {
-		return writeTo(buffer, pos, data, 0);
-	}
-
-	/**
-	 * Copies bytes to the buffer, and moves the buffer position after the write.
-	 */
-	public static int writeTo(ByteBuffer buffer, int pos, byte[] data, int offset) {
-		return writeTo(buffer, pos, data, offset, data.length - offset);
-	}
-
-	/**
-	 * Copies bytes to the buffer, and moves the buffer position after the write.
-	 */
-	public static int writeTo(ByteBuffer buffer, int pos, byte[] data, int offset, int length) {
-		buffer.position(pos);
-		buffer.put(data, offset, length);
-		return length;
 	}
 
 	/**

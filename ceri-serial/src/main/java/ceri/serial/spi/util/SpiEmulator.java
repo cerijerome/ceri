@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.data.Bytes;
+import ceri.common.io.Buffers;
 import ceri.common.io.Direction;
 import ceri.common.test.PulsePrinter;
 import ceri.common.util.Validate;
@@ -152,10 +152,10 @@ public class SpiEmulator implements Spi {
 	}
 
 	private byte[] read(ByteBuffer in) {
-		return Bytes.readFrom(in, 0, in.capacity());
+		return Buffers.BYTE.get(in);
 	}
 
 	private void write(ByteBuffer out, byte[] data) {
-		Bytes.writeTo(out, 0, data, 0, Math.min(data.length, out.capacity()));
+		Buffers.BYTE.copyAt(data, out, 0);
 	}
 }

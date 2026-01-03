@@ -4,12 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.ByteBuffer;
+import java.nio.Buffer;
 import java.nio.charset.StandardCharsets;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.Bytes;
 import ceri.common.function.Functions;
+import ceri.common.io.Buffers;
 import ceri.common.math.Radix;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
@@ -256,17 +257,11 @@ public class BinaryPrinter {
 	/**
 	 * Print binary data.
 	 */
-	public BinaryPrinter print(ByteBuffer buffer) {
-		return print(buffer, buffer.remaining());
-	}
-
-	/**
-	 * Print binary data.
-	 */
-	public BinaryPrinter print(ByteBuffer buffer, int length) {
-		byte[] b = new byte[length];
-		buffer.get(b);
-		return print(b);
+	public BinaryPrinter print(Buffer buffer) {
+		buffer.mark();
+		print(Buffers.bytes(buffer));
+		buffer.reset();
+		return this;
 	}
 
 	/**

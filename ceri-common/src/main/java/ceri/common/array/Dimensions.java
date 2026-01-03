@@ -50,6 +50,22 @@ public class Dimensions {
 		}
 
 		/**
+		 * Appends dimensions.
+		 */
+		public Builder add(IntProvider dims) {
+			for (int i = 0; i < dims.length(); i++)
+				this.dims.append(dims.getInt(i));
+			return this;
+		}
+
+		/**
+		 * Appends dimensions.
+		 */
+		public Builder add(Dimensions dims) {
+			return add(dims.dims);
+		}
+
+		/**
 		 * Returns a new instance.
 		 */
 		public Dimensions build() {
@@ -104,8 +120,16 @@ public class Dimensions {
 	 * Returns the outer dimension size.
 	 */
 	public int dim() {
-		if (count() == 0) return 0;
-		return dims.getInt(0);
+		return dim(0);
+	}
+
+	/**
+	 * Returns the dimension at given index, with negative index relative to the inner dimension.
+	 */
+	public int dim(int index) {
+		if (index < 0) index = count() + index;
+		if (index < 0 || index >= count()) return 0;
+		return dims.getInt(index);
 	}
 
 	/**
@@ -114,6 +138,14 @@ public class Dimensions {
 	public Dimensions inner() {
 		if (count() <= 1) return NONE;
 		return new Dimensions(dims.slice(1));
+	}
+
+	/**
+	 * Returns an instance without the inner dimension.
+	 */
+	public Dimensions outer() {
+		if (count() <= 1) return NONE;
+		return new Dimensions(dims.slice(0, dims.length() - 1));
 	}
 
 	@Override

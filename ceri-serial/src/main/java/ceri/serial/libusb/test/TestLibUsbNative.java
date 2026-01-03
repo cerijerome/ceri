@@ -28,6 +28,7 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.Bytes;
 import ceri.common.function.Enclosure;
+import ceri.common.io.Buffers;
 import ceri.common.math.Maths;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
@@ -576,7 +577,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index,
 		ByteBuffer data, int length) {
-		String s = handle(dev).device.config.descriptorString(Maths.ubyte(desc_index));
+		var s = handle(dev).device.config.descriptorString(Maths.ubyte(desc_index));
 		byte[] bytes = s.getBytes(ISO_8859_1);
 		data.put(bytes);
 		return bytes.length;
@@ -774,25 +775,24 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	private int controlTransferIn(int reqType, int req, int value, int index, ByteBuffer buffer,
 		int length) {
-		ByteProvider bytes = transferIn.apply(List.of(reqType, req, value, index, length));
+		var bytes = transferIn.apply(List.of(reqType, req, value, index, length));
 		if (bytes == null || bytes.length() == 0) return 0;
-		Bytes.writeTo(buffer, 0, bytes.copy(0));
-		return bytes.length();
+		return Buffers.BYTE.copyAt(bytes.copy(0), buffer, 0);
 	}
 
 	private int controlTransferOut(int reqType, int req, int value, int index, ByteBuffer buffer,
 		int length) {
 		byte[] bytes = new byte[length];
-		if (buffer != null) Bytes.readFrom(buffer, 0, bytes);
+		Buffers.BYTE.copyAt(buffer, 0, bytes);
 		return transferOut.apply(List.of(reqType, req, value, index, ByteProvider.of(bytes)));
 	}
 
 	private int syncTransferIn(int endpoint, ByteBuffer buffer, int length,
 		IntByReference actualLength) {
-		ByteProvider bytes = transferIn.apply(List.of(endpoint, length));
+		var bytes = transferIn.apply(List.of(endpoint, length));
 		if (bytes != null) {
-			Bytes.writeTo(buffer, 0, bytes.copy(0));
-			if (actualLength != null) actualLength.setValue(bytes.length());
+			int n = Buffers.BYTE.copyAt(bytes.copy(0), buffer, 0);
+			if (actualLength != null) actualLength.setValue(n);
 		}
 		return 0;
 	}
@@ -800,8 +800,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	private int syncTransferOut(int endpoint, ByteBuffer buffer, int length,
 		IntByReference actualLength) {
 		byte[] bytes = new byte[length];
-		if (buffer != null) Bytes.readFrom(buffer, 0, bytes);
-		Integer result = transferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
+		Buffers.BYTE.copyAt(buffer, 0, bytes);
+		var result = transferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
 		if (actualLength != null) actualLength.setValue(result == null ? 0 : length);
 		return result == null ? 0 : result;
 	}
@@ -833,7 +833,7 @@ public class TestLibUsbNative implements LibUsbNative {
 			var t = transfer.transfer();
 			if (handle(t.dev_handle).device.deviceList.context != context) continue;
 			if (t.status == 0) {
-				ByteBuffer buffer = Jna.buffer(t.buffer, 0, t.length);
+				var buffer = Jna.buffer(t.buffer, 0, t.length);
 				var status = handleTransferEvent
 					.apply(new TransferEvent(Maths.ubyte(t.endpoint), t.type(), buffer));
 				if (status == null) continue; // no event

@@ -102,19 +102,19 @@ public class FunctionalTest {
 	@Test
 	public void testAcceptInt() {
 		Assert.equal(Functional.acceptInt(null, 1), false);
-		assertCaptor(c -> Functional.acceptInt(c::accept, 1), true, 1);
+		assertCaptor(c -> Functional.acceptInt(i -> c.accept(i), 1), true, 1);
 	}
 
 	@Test
 	public void testAcceptLong() {
 		Assert.equal(Functional.acceptLong(null, 1), false);
-		assertCaptor(c -> Functional.acceptLong(c::accept, 1), true, 1L);
+		assertCaptor(c -> Functional.acceptLong(l -> c.accept(l), 1), true, 1L);
 	}
 
 	@Test
 	public void testAcceptDouble() {
 		Assert.equal(Functional.acceptDouble(null, 1), false);
-		assertCaptor(c -> Functional.acceptDouble(c::accept, 1), true, 1.0);
+		assertCaptor(c -> Functional.acceptDouble(d -> c.accept(d), 1), true, 1.0);
 	}
 
 	@Test

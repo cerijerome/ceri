@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.Bytes;
+import ceri.common.io.Buffers;
 import ceri.common.test.Assert;
 
 public class CharsTest {
@@ -254,7 +254,7 @@ public class CharsTest {
 
 				@Override
 				protected CoderResult decodeLoop(ByteBuffer in, CharBuffer out) {
-					var s = new String(Bytes.bytes(in));
+					var s = new String(Buffers.BYTE.get(in));
 					out.put(s.toCharArray());
 					return CoderResult.UNDERFLOW;
 				}
@@ -267,7 +267,7 @@ public class CharsTest {
 
 				@Override
 				protected CoderResult encodeLoop(CharBuffer in, ByteBuffer out) {
-					var s = new String(Chars.chars(in));
+					var s = Buffers.CHAR.getString(in);
 					if (s.equals("\0")) out.put(nulBytes);
 					else out.put(s.getBytes());
 					return CoderResult.UNDERFLOW;

@@ -1,8 +1,5 @@
 package ceri.common.data;
 
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
 import ceri.common.math.Maths;
 import ceri.common.util.Validate;
 
@@ -11,33 +8,6 @@ public class Ints {
 
 	private Ints() {}
 
-	/**
-	 * Copies buffer into a new array.
-	 */
-	public static short[] shorts(ShortBuffer buffer) {
-		var array = new short[buffer.remaining()];
-		buffer.get(array);
-		return array;
-	}
-	
-	/**
-	 * Copies buffer into a new array.
-	 */
-	public static int[] ints(IntBuffer buffer) {
-		var array = new int[buffer.remaining()];
-		buffer.get(array);
-		return array;
-	}
-	
-	/**
-	 * Copies buffer into a new array.
-	 */
-	public static long[] longs(LongBuffer buffer) {
-		var array = new long[buffer.remaining()];
-		buffer.get(array);
-		return array;
-	}
-	
 	public static int low(long value) {
 		return (int) value;
 	}

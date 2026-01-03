@@ -127,39 +127,9 @@ public class BytesTest {
 	}
 
 	@Test
-	public void testBytesFromBuffer() {
-		var buffer = Bytes.buffer(1, 2, 3, 4, 5);
-		buffer.position(2).limit(4);
-		Assert.array(Bytes.bytes(buffer), 3, 4);
-	}
-
-	@Test
 	public void testFill() {
 		Assert.array(Bytes.fill(3, 0xff), 0xff, 0xff, 0xff);
 		Assert.array(Bytes.fill(0, 0xff));
-	}
-
-	@Test
-	public void testReadByteArrayFromByteBuffer() {
-		Assert.array(Bytes.readFrom(null, 1, 0));
-		var buffer = Bytes.buffer(1, 2, 3, 4, 5);
-		Assert.array(Bytes.readFrom(buffer, 1, 3), 2, 3, 4);
-	}
-
-	@Test
-	public void testReadFromByteBuffer() {
-		var buffer = Bytes.buffer(1, 2, 3, 4, 5);
-		byte[] bytes = new byte[3];
-		Assert.equal(Bytes.readFrom(buffer, 1, bytes), 3);
-		Assert.array(bytes, 2, 3, 4);
-	}
-
-	@Test
-	public void testWriteToByteBuffer() {
-		byte[] bytes = new byte[5];
-		var buffer = Bytes.buffer(bytes);
-		Assert.equal(Bytes.writeTo(buffer, 1, 1, 2, 3), 3);
-		Assert.array(bytes, 0, 1, 2, 3, 0);
 	}
 
 	@Test

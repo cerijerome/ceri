@@ -28,7 +28,7 @@ public class DimensionsBehavior {
 
 	@Test
 	public void shouldBuildDimensions() {
-		assertDims(Dimensions.builder().add(3).add(0, 1).build(), 3, 0, 1);
+		assertDims(Dimensions.builder().add(Dimensions.of(3, 2)).add(0, 1).build(), 3, 2, 0, 1);
 	}
 
 	@Test
@@ -50,8 +50,22 @@ public class DimensionsBehavior {
 	@Test
 	public void shouldCountTotalElements() {
 		Assert.equal(Dimensions.NONE.total(), 0);
+		Assert.equal(Dimensions.of(2).total(), 2);
 		Assert.equal(Dimensions.of(2, 3, 0).total(), 0);
 		Assert.equal(Dimensions.of(2, 1, 3).total(), 6);
+	}
+
+	@Test
+	public void shouldProvideDimensionAtIndex() {
+		var d = Dimensions.of(3, 1, 2);
+		Assert.equal(d.dim(0), 3);
+		Assert.equal(d.dim(1), 1);
+		Assert.equal(d.dim(2), 2);
+		Assert.equal(d.dim(3), 0);
+		Assert.equal(d.dim(-1), 2);
+		Assert.equal(d.dim(-2), 1);
+		Assert.equal(d.dim(-3), 3);
+		Assert.equal(d.dim(-4), 0);
 	}
 
 	@Test
@@ -62,6 +76,16 @@ public class DimensionsBehavior {
 		dims = assertCount(dims.inner(), 2, 2);
 		dims = assertCount(dims.inner(), 0, 0);
 		dims = assertCount(dims.inner(), 0, 0);
+	}
+
+	@Test
+	public void shouldProvideOuterDimensions() {
+		var dims = assertCount(Dimensions.of(3, 2, 1, 2), 3, 12);
+		dims = assertCount(dims.outer(), 3, 6);
+		dims = assertCount(dims.outer(), 3, 6);
+		dims = assertCount(dims.outer(), 3, 3);
+		dims = assertCount(dims.outer(), 0, 0);
+		dims = assertCount(dims.outer(), 0, 0);
 	}
 
 	private static void assertDims(Dimensions dims, int... values) {

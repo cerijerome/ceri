@@ -26,8 +26,8 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.common.data.Bytes;
 import ceri.common.function.Enclosure;
+import ceri.common.io.Buffers;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.jna.test.JnaAssert;
@@ -295,7 +295,7 @@ public class FtdiDeviceBehavior {
 		ByteWriter<?> writer) {
 		Assert.equal(te.endPoint(), endpoint);
 		Assert.equal(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
-		writer.writeFrom(Bytes.bytes(te.buffer()));
+		writer.writeFrom(Buffers.BYTE.get(te.buffer()));
 		return LIBUSB_TRANSFER_COMPLETED;
 	}
 
@@ -309,7 +309,7 @@ public class FtdiDeviceBehavior {
 
 	private static boolean collect(ByteArray.Encoder encoder, ByteBuffer buffer, int max) {
 		if (buffer == null) return true;
-		encoder.writeFrom(Bytes.bytes(buffer));
+		encoder.writeFrom(Buffers.BYTE.get(buffer));
 		return encoder.length() < max;
 	}
 
