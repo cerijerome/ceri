@@ -26,34 +26,34 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public void writeQuick(boolean on) throws IOException {
-		if (on) read(Array.bytes.empty, 0);
-		else write(Array.bytes.empty);
+		if (on) read(Array.BYTE.empty, 0);
+		else write(Array.BYTE.empty);
 	}
 
 	@Override
 	public int readByte() throws IOException {
-		return Maths.ubyte(read(Array.bytes.empty, Byte.BYTES)[0]);
+		return Maths.ubyte(read(Array.BYTE.empty, Byte.BYTES)[0]);
 	}
 
 	@Override
 	public void writeByte(int value) throws IOException {
-		write(Array.bytes.of(value));
+		write(Array.BYTE.of(value));
 	}
 
 	@Override
 	public int readByteData(int command) throws IOException {
-		return Maths.ubyte(read(Array.bytes.of(command), Byte.BYTES)[0]);
+		return Maths.ubyte(read(Array.BYTE.of(command), Byte.BYTES)[0]);
 	}
 
 	@Override
 	public void writeByteData(int command, int value) throws IOException {
-		write(Array.bytes.of(command, value));
+		write(Array.BYTE.of(command, value));
 	}
 
 	@Override
 	public int readWordData(int command) throws IOException {
 		return Maths.ushort(
-			Bytes.fromLsb(read(Array.bytes.of(command), Short.BYTES), 0, Short.BYTES));
+			Bytes.fromLsb(read(Array.BYTE.of(command), Short.BYTES), 0, Short.BYTES));
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public byte[] readBlockData(int command) throws IOException {
-		return read(Array.bytes.of(command), I2cEmulator.ANY_READ_LEN);
+		return read(Array.BYTE.of(command), I2cEmulator.ANY_READ_LEN);
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public byte[] readI2cBlockData(int command, int length) throws IOException {
-		return read(Array.bytes.of(command), length);
+		return read(Array.BYTE.of(command), length);
 	}
 
 	@Override

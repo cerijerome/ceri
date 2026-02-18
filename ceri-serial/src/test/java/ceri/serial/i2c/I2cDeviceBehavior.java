@@ -100,7 +100,7 @@ public class I2cDeviceBehavior {
 		var lib = initI2c();
 		byte[] receive = new byte[3];
 		lib.ioctlI2cBytes.autoResponses(ByteProvider.of(4, 5, 6));
-		i2c.readData(I2cAddress.of(0x1ab), Array.bytes.of(1, 2, 3), receive);
+		i2c.readData(I2cAddress.of(0x1ab), Array.BYTE.of(1, 2, 3), receive);
 		Assert.array(receive, 4, 5, 6);
 		lib.ioctlI2cBytes.assertAuto(List.of(new Bytes(0x1ab, 0x10, ByteProvider.of(1, 2, 3), 3),
 			new Bytes(0x1ab, 0x11, null, 3)));

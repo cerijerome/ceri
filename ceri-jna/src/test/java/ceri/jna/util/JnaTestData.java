@@ -58,13 +58,13 @@ public class JnaTestData {
 		}
 
 		public TestStruct populate(int i, Pointer p, int... bytes) {
-			return populate(i, p, Array.bytes.of(bytes));
+			return populate(i, p, Array.BYTE.of(bytes));
 		}
 
 		public TestStruct populate(int i, Pointer p, byte[] bytes) {
 			this.i = i;
 			this.p = p;
-			Array.bytes.copy(bytes, 0, this.b, 0, bytes.length);
+			Array.BYTE.copy(bytes, 0, this.b, 0, bytes.length);
 			return this;
 		}
 
@@ -85,7 +85,7 @@ public class JnaTestData {
 	 * Assert struct fields.
 	 */
 	public static void assertStruct(TestStruct t, int i, Pointer p, int... bytes) {
-		assertStruct(t, i, p, Array.bytes.of(bytes));
+		assertStruct(t, i, p, Array.BYTE.of(bytes));
 	}
 
 	/**

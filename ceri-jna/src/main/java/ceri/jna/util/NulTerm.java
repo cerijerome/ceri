@@ -154,7 +154,7 @@ public class NulTerm {
 		if (s == null || dest == null || dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
 		int n = Math.min(src.length, dest.length - 1);
-		Array.bytes.copy(src, 0, dest, 0, n);
+		Array.BYTE.copy(src, 0, dest, 0, n);
 		dest[n] = 0;
 		return n + 1;
 	}
@@ -211,7 +211,7 @@ public class NulTerm {
 	 */
 	public static int writePad(String s, Charset charset, byte[] dest) {
 		int n = write(s, charset, dest);
-		Array.bytes.fill(dest, n, 0);
+		Array.BYTE.fill(dest, n, 0);
 		return dest.length;
 	}
 
@@ -274,8 +274,8 @@ public class NulTerm {
 	}
 
 	private static byte[] slice(byte[] bytes, int start, int length) {
-		if (length == 0) return Array.bytes.empty;
+		if (length == 0) return Array.BYTE.empty;
 		if (start == 0 && bytes.length == length) return bytes;
-		return Array.bytes.copyOf(bytes, start, length);
+		return Array.BYTE.copyOf(bytes, start, length);
 	}
 }

@@ -127,7 +127,7 @@ public class ByteReaderBehavior {
 	}
 
 	private static ByteReader reader(int... bytes) {
-		return reader(Array.bytes.of(bytes));
+		return reader(Array.BYTE.of(bytes));
 	}
 
 	private static ByteReader reader(byte[] bytes) {

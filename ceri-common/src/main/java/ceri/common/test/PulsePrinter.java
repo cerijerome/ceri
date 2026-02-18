@@ -94,7 +94,7 @@ public class PulsePrinter {
 	}
 
 	public PulsePrinter print(int... bytes) {
-		return print(Array.bytes.of(bytes));
+		return print(Array.BYTE.of(bytes));
 	}
 
 	public PulsePrinter print(byte[] bytes) {

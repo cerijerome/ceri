@@ -29,7 +29,7 @@ public class ConnectorBehavior {
 			var w = new Connector.Wrapper<>(con);
 			w.open();
 			Assert.read(w.in(), 1, 2, 3);
-			w.out().write(Array.bytes.of(4, 5, 6));
+			w.out().write(Array.BYTE.of(4, 5, 6));
 			Assert.read(con.out.from, 4, 5, 6);
 		}
 	}

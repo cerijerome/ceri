@@ -213,7 +213,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldWriteBytes() throws IOException {
 		connect();
-		con.out().write(Array.bytes.of(1, 2, 3));
+		con.out().write(Array.BYTE.of(1, 2, 3));
 		lib.transferOut.assertAuto(List.of(0x02, ByteProvider.of(1, 2, 3)));
 	}
 

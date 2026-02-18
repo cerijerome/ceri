@@ -357,7 +357,7 @@ public class CUnistd {
 	 * number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, int... bytes) throws CException {
-		return write(fd, Array.bytes.of(bytes));
+		return write(fd, Array.BYTE.of(bytes));
 	}
 
 	/**
@@ -437,7 +437,7 @@ public class CUnistd {
 	 * total number of bytes written.
 	 */
 	public static int writeAll(int fd, int... bytes) throws CException {
-		return writeAll(fd, Array.bytes.of(bytes));
+		return writeAll(fd, Array.BYTE.of(bytes));
 	}
 
 	/**

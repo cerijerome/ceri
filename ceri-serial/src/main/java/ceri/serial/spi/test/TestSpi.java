@@ -23,7 +23,7 @@ public class TestSpi extends SpiEmulator {
 		}
 		
 		public static Request out(int... data) {
-			return out(Array.bytes.of(data));
+			return out(Array.BYTE.of(data));
 		}
 		
 		public static Request out(byte[] data) {
@@ -31,7 +31,7 @@ public class TestSpi extends SpiEmulator {
 		}
 		
 		public static Request duplex(int... data) {
-			return duplex(Array.bytes.of(data));
+			return duplex(Array.BYTE.of(data));
 		}
 		
 		public static Request duplex(byte[] data) {

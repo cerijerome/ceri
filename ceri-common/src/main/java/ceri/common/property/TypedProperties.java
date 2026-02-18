@@ -115,7 +115,7 @@ public class TypedProperties {
 	 */
 	private TypedProperties(PropertySource properties, String... prefix) {
 		this.properties = properties;
-		if (prefix == null) prefix = Array.Empty.strings;
+		if (prefix == null) prefix = Array.STRING.empty;
 		this.prefix = separator().join(prefix);
 	}
 

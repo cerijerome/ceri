@@ -36,12 +36,12 @@ public class IntReceiverBehavior {
 		assertInts(3, br -> Assert.equal(br.setInt(1, MAX_VALUE), 2), 0, MAX_VALUE, 0);
 		assertInts(2, br -> Assert.equal(br.setInt(0, MIN_VALUE), 1), MIN_VALUE, 0);
 		assertInts(2, br -> Assert.equal(br.setLong(0, 0x1234567890L), 2),
-			msb ? Array.ints.of(0x12, 0x34567890) : Array.ints.of(0x34567890, 0x12));
+			msb ? Array.INT.of(0x12, 0x34567890) : Array.INT.of(0x34567890, 0x12));
 		assertInts(2, br -> Assert.equal(br.setFloat(0, Float.intBitsToFloat(0x12345678)), 1),
 			0x12345678, 0);
 		assertInts(2,
 			br -> Assert.equal(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), 2),
-			msb ? Array.ints.of(0x12, 0x34567890) : Array.ints.of(0x34567890, 0x12));
+			msb ? Array.INT.of(0x12, 0x34567890) : Array.INT.of(0x34567890, 0x12));
 	}
 
 	@Test
@@ -122,7 +122,7 @@ public class IntReceiverBehavior {
 
 	@Test
 	public void shouldWriteFromIntArray() {
-		int[] ints = Array.ints.of(1, 2, 3, 4, 5);
+		int[] ints = Array.INT.of(1, 2, 3, 4, 5);
 		assertInts(5, br -> br.writer(1).writeFrom(ints, 1, 3), 0, 2, 3, 4, 0);
 	}
 
@@ -139,7 +139,7 @@ public class IntReceiverBehavior {
 
 	@Test
 	public void shouldReturnWriterIntProvider() {
-		IntReceiver br = receiver(Array.ints.of(1, 2, 3, 4, 5));
+		IntReceiver br = receiver(Array.INT.of(1, 2, 3, 4, 5));
 		Assert.equal(br.writer(0).receiver(), br);
 		Assert.yes(br.writer(5, 0).receiver().isEmpty());
 		Assert.thrown(() -> br.writer(2).receiver());

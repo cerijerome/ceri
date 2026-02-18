@@ -51,6 +51,7 @@ public class CloseablesTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testRef() throws IOException {
 		try (Closeable c = () -> {}) {

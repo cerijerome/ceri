@@ -48,7 +48,7 @@ public class EventTrackerBehavior {
 	}
 
 	private EventTracker tracker(int maxEvents, Long windowMs, int... timeStamps) {
-		Supplier<Integer> supplier = Array.ints.list(timeStamps).iterator()::next;
+		Supplier<Integer> supplier = Array.INT.list(timeStamps).iterator()::next;
 		return tracker(maxEvents, windowMs, supplier);
 	}
 

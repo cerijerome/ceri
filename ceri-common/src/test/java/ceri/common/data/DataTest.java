@@ -58,7 +58,7 @@ public class DataTest {
 	public void testExpectByteArray() {
 		Data.expect(Testing.reader(1, 2, 3), 1, 2, 3);
 		Data.expect(Testing.reader(1, 2, 3, 4), 1, 2, 3);
-		Data.expect(Testing.reader(1, 2, 3), Array.bytes.of(0, 1, 2, 3, 4), 1, 3);
+		Data.expect(Testing.reader(1, 2, 3), Array.BYTE.of(0, 1, 2, 3, 4), 1, 3);
 		Assert.thrown(() -> Data.expect(Testing.reader(1, 2, 3), 1, 2, 4));
 		var r = Testing.reader(1, 2, 3, 4, 5);
 		Assert.thrown(() -> Data.expect(r, 1, 1, 3));
@@ -80,7 +80,7 @@ public class DataTest {
 	public void testExpectAllByteArray() {
 		Data.expectAll(Testing.reader(1, 2, 3), 1, 2, 3);
 		Data.expectAll(Testing.reader(1, 2, 3, 4), 1, 2, 3);
-		Data.expectAll(Testing.reader(1, 2, 3), Array.bytes.of(0, 1, 2, 3, 4), 1, 3);
+		Data.expectAll(Testing.reader(1, 2, 3), Array.BYTE.of(0, 1, 2, 3, 4), 1, 3);
 		Assert.thrown(() -> Data.expectAll(Testing.reader(1, 2, 3), 1, 2, 4));
 		var r = Testing.reader(1, 2, 3, 4, 5);
 		Assert.thrown(() -> Data.expectAll(r, 1, 1, 3));

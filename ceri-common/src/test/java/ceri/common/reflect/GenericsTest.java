@@ -128,6 +128,12 @@ public class GenericsTest {
 	}
 
 	@Test
+	public void testGenericArrayOf() {
+		assertArray(Generics.Array.of(null, 0), Generics.Typed.NULL, 0);
+		Assert.string(Generics.Array.of(int.class, 2), "int[][]");
+	}
+	
+	@Test
 	public void testGenericArrayIsArray() {
 		Assert.equal(Generics.Array.NULL.isArray(), false);
 		Assert.equal(Generics.Typed.NULL.array().isArray(), false);
@@ -138,6 +144,7 @@ public class GenericsTest {
 	@Test
 	public void testGenericArrayClass() {
 		Assert.equal(Generics.Array.NULL.cls(), null);
+		Assert.equal(new Generics.Array(null, 1).cls(), null);
 		Assert.equal(Generics.Typed.NULL.array().cls(), null);
 		Assert.equal(Generics.Typed.VOID.array().cls(), void.class);
 		Assert.equal(Generics.Typed.of(int[].class).array().cls(), int.class);

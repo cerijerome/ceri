@@ -307,7 +307,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Returns a copy of provided ints from index.
 	 */
 	default int[] copy(int index, int length) {
-		if (length == 0) return Array.ints.empty;
+		if (length == 0) return Array.INT.empty;
 		Validate.slice(length(), index, length);
 		int[] copy = new int[length];
 		copyTo(index, copy, 0, length);

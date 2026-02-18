@@ -94,7 +94,7 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 		}
 
 		public String get(int row, int col, int i) {
-			var lines = cells.getOrDefault(new Coord(row, col), Array.Empty.strings);
+			var lines = cells.getOrDefault(new Coord(row, col), Array.STRING.empty);
 			if (i >= lines.length) return Strings.repeat(' ', colSize(col));
 			return lines[i] + Strings.repeat(' ', colSize(col) - lines[i].length());
 		}

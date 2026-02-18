@@ -17,13 +17,12 @@ import ceri.common.util.Hasher;
  */
 public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	private final TypedArray.Type<C> box;
-	public final T empty;
 
 	/**
 	 * Typed primitive array support.
 	 */
 	public static class OfBool extends PrimitiveArray<boolean[], Boolean> {
-		
+
 		OfBool() {
 			super(boolean.class, TypedArray.type(Boolean.class));
 		}
@@ -1480,7 +1479,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	private PrimitiveArray(Class<?> component, TypedArray.Type<C> box) {
 		super(component);
 		this.box = box;
-		empty = constructor.apply(0);
 	}
 
 	/**
@@ -1503,7 +1501,6 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	public C[] boxed(T array, int offset, int length) {
 		return RawArray.boxed(box()::array, array, offset, length);
 	}
-
 
 	/**
 	 * Converts an unboxed array to a list back by a boxed array.

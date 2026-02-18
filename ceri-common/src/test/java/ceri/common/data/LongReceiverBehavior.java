@@ -88,7 +88,7 @@ public class LongReceiverBehavior {
 
 	@Test
 	public void shouldWriteFromLongArray() {
-		long[] longs = Array.longs.of(1, 2, 3, 4, 5);
+		long[] longs = Array.LONG.of(1, 2, 3, 4, 5);
 		assertLongs(5, lr -> lr.writer(1).writeFrom(longs, 1, 3), 0, 2, 3, 4, 0);
 	}
 
@@ -105,7 +105,7 @@ public class LongReceiverBehavior {
 
 	@Test
 	public void shouldReturnWriterLongProvider() {
-		LongReceiver lr = receiver(Array.longs.of(1, 2, 3, 4, 5));
+		LongReceiver lr = receiver(Array.LONG.of(1, 2, 3, 4, 5));
 		Assert.equal(lr.writer(0).receiver(), lr);
 		Assert.yes(lr.writer(5, 0).receiver().isEmpty());
 		Assert.thrown(() -> lr.writer(2).receiver());

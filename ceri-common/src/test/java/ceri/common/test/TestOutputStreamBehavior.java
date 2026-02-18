@@ -22,7 +22,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldSinkBytes() throws IOException {
-		out.write(Array.bytes.of(1, 2, 3));
+		out.write(Array.BYTE.of(1, 2, 3));
 		Assert.equal(out.from.available(), 3);
 		Assert.read(out.from, 1, 2, 3);
 		Assert.equal(out.from.available(), 0);
@@ -31,7 +31,7 @@ public class TestOutputStreamBehavior {
 	@Test
 	public void should() throws IOException {
 		out.assertAvailable(0);
-		out.write(Array.bytes.of(1, 2, 3));
+		out.write(Array.BYTE.of(1, 2, 3));
 		out.flush();
 		Assert.assertion(() -> out.assertAvailable(2));
 		out.assertAvailable(3);

@@ -23,7 +23,7 @@ public class Dimensions {
 	 * Creates an instance with given dimensions.
 	 */
 	public static Dimensions of(int... dims) {
-		if (Array.ints.isEmpty(dims)) return NONE;
+		if (Array.INT.isEmpty(dims)) return NONE;
 		return of(IntProvider.of(dims));
 	}
 

@@ -50,8 +50,8 @@ public class GrayCharScaler {
 
 	private static void delete(char[] cs, int i) {
 		char c = cs[i];
-		if (i < cs.length - 1) Array.chars.copy(cs, i + 1, cs, i);
-		cs = Array.chars.copyOf(cs, 0, cs.length - 1);
+		if (i < cs.length - 1) Array.CHAR.copy(cs, i + 1, cs, i);
+		cs = Array.CHAR.copyOf(cs, 0, cs.length - 1);
 		System.out.println("Deleted " + c);
 	}
 

@@ -11,6 +11,7 @@ import java.nio.ShortBuffer;
 import ceri.common.array.Array;
 import ceri.common.array.PrimitiveArray;
 import ceri.common.array.RawArray;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
@@ -18,7 +19,7 @@ import ceri.common.reflect.Reflect;
 /**
  * Support for common buffer functionality.
  */
-public class Buffers<B extends Buffer, A, T> {
+public class Buffers<B extends Buffer, A> {
 	public static final OfChar CHAR = new OfChar();
 	public static final OfByte BYTE = new OfByte();
 	public static final OfShort SHORT = new OfShort();
@@ -26,7 +27,7 @@ public class Buffers<B extends Buffer, A, T> {
 	public static final OfLong LONG = new OfLong();
 	public static final OfFloat FLOAT = new OfFloat();
 	public static final OfDouble DOUBLE = new OfDouble();
-	private final PrimitiveArray<A, T> array;
+	private final PrimitiveArray<A, ?> array;
 	private final int typeSize;
 	private final Wrapper<B, A> wrap;
 	private final Getter<B, A> get;
@@ -46,9 +47,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfChar extends Buffers<CharBuffer, char[], Character> {
+	public static class OfChar extends Buffers<CharBuffer, char[]> {
 		private OfChar() {
-			super(Array.chars, Character.BYTES, CharBuffer::wrap, CharBuffer::get, CharBuffer::put,
+			super(Array.CHAR, Character.BYTES, CharBuffer::wrap, CharBuffer::get, CharBuffer::put,
 				CharBuffer::asReadOnlyBuffer, CharBuffer::mismatch, ByteBuffer::asCharBuffer);
 		}
 
@@ -140,9 +141,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfByte extends Buffers<ByteBuffer, byte[], Byte> {
+	public static class OfByte extends Buffers<ByteBuffer, byte[]> {
 		private OfByte() {
-			super(Array.bytes, Byte.BYTES, ByteBuffer::wrap, ByteBuffer::get, ByteBuffer::put,
+			super(Array.BYTE, Byte.BYTES, ByteBuffer::wrap, ByteBuffer::get, ByteBuffer::put,
 				ByteBuffer::asReadOnlyBuffer, ByteBuffer::mismatch, b -> b);
 		}
 
@@ -157,7 +158,7 @@ public class Buffers<B extends Buffer, A, T> {
 		 * Creates a buffer view of a converted copy of the array.
 		 */
 		public ByteBuffer of(int... array) {
-			return of(Array.bytes.of(array));
+			return of(Array.BYTE.of(array));
 		}
 
 		/**
@@ -165,7 +166,7 @@ public class Buffers<B extends Buffer, A, T> {
 		 * position and returns the number of values transferred.
 		 */
 		public int put(ByteBuffer to, int... from) {
-			return copy(Array.bytes.of(from), to);
+			return copy(Array.BYTE.of(from), to);
 		}
 
 		/**
@@ -181,9 +182,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfShort extends Buffers<ShortBuffer, short[], Short> {
+	public static class OfShort extends Buffers<ShortBuffer, short[]> {
 		private OfShort() {
-			super(Array.shorts, Short.BYTES, ShortBuffer::wrap, ShortBuffer::get, ShortBuffer::put,
+			super(Array.SHORT, Short.BYTES, ShortBuffer::wrap, ShortBuffer::get, ShortBuffer::put,
 				ShortBuffer::asReadOnlyBuffer, ShortBuffer::mismatch, ByteBuffer::asShortBuffer);
 		}
 
@@ -198,7 +199,7 @@ public class Buffers<B extends Buffer, A, T> {
 		 * Creates a buffer view of a converted copy of the array.
 		 */
 		public ShortBuffer of(int... array) {
-			return of(Array.shorts.of(array));
+			return of(Array.SHORT.of(array));
 		}
 
 		/**
@@ -206,7 +207,7 @@ public class Buffers<B extends Buffer, A, T> {
 		 * position and returns the number of values transferred.
 		 */
 		public int put(ShortBuffer to, int... from) {
-			return copy(Array.shorts.of(from), to);
+			return copy(Array.SHORT.of(from), to);
 		}
 
 		/**
@@ -222,9 +223,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfInt extends Buffers<IntBuffer, int[], Integer> {
+	public static class OfInt extends Buffers<IntBuffer, int[]> {
 		private OfInt() {
-			super(Array.ints, Integer.BYTES, IntBuffer::wrap, IntBuffer::get, IntBuffer::put,
+			super(Array.INT, Integer.BYTES, IntBuffer::wrap, IntBuffer::get, IntBuffer::put,
 				IntBuffer::asReadOnlyBuffer, IntBuffer::mismatch, ByteBuffer::asIntBuffer);
 		}
 
@@ -256,9 +257,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfLong extends Buffers<LongBuffer, long[], Long> {
+	public static class OfLong extends Buffers<LongBuffer, long[]> {
 		private OfLong() {
-			super(Array.longs, Long.BYTES, LongBuffer::wrap, LongBuffer::get, LongBuffer::put,
+			super(Array.LONG, Long.BYTES, LongBuffer::wrap, LongBuffer::get, LongBuffer::put,
 				LongBuffer::asReadOnlyBuffer, LongBuffer::mismatch, ByteBuffer::asLongBuffer);
 		}
 
@@ -290,9 +291,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfFloat extends Buffers<FloatBuffer, float[], Float> {
+	public static class OfFloat extends Buffers<FloatBuffer, float[]> {
 		private OfFloat() {
-			super(Array.floats, Float.BYTES, FloatBuffer::wrap, FloatBuffer::get, FloatBuffer::put,
+			super(Array.FLOAT, Float.BYTES, FloatBuffer::wrap, FloatBuffer::get, FloatBuffer::put,
 				FloatBuffer::asReadOnlyBuffer, FloatBuffer::mismatch, ByteBuffer::asFloatBuffer);
 		}
 
@@ -324,9 +325,9 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Extends type-specific functionality.
 	 */
-	public static class OfDouble extends Buffers<DoubleBuffer, double[], Double> {
+	public static class OfDouble extends Buffers<DoubleBuffer, double[]> {
 		private OfDouble() {
-			super(Array.doubles, Double.BYTES, DoubleBuffer::wrap, DoubleBuffer::get,
+			super(Array.DOUBLE, Double.BYTES, DoubleBuffer::wrap, DoubleBuffer::get,
 				DoubleBuffer::put, DoubleBuffer::asReadOnlyBuffer, DoubleBuffer::mismatch,
 				ByteBuffer::asDoubleBuffer);
 		}
@@ -406,7 +407,7 @@ public class Buffers<B extends Buffer, A, T> {
 		return support.getBytes(Reflect.unchecked(buffer));
 	}
 
-	private Buffers(PrimitiveArray<A, T> array, int typeSize, Wrapper<B, A> wrap, Getter<B, A> get,
+	private Buffers(PrimitiveArray<A, ?> array, int typeSize, Wrapper<B, A> wrap, Getter<B, A> get,
 		Functions.BiOperator<B> put, Functions.Operator<B> readOnly,
 		Functions.ToIntBiFunction<B, B> mismatch, Functions.Function<ByteBuffer, B> adapt) {
 		this.array = array;
@@ -429,8 +430,126 @@ public class Buffers<B extends Buffer, A, T> {
 	/**
 	 * Returns the array support.
 	 */
-	public PrimitiveArray<A, T> arrays() {
+	public PrimitiveArray<A, ?> arrays() {
 		return array;
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the current position. The passed-in buffer is unchanged.
+	 */
+	public B slice(B buffer) {
+		return slice(buffer, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the current position. The passed-in buffer is unchanged.
+	 */
+	public B slice(B buffer, int length) {
+		if (buffer == null) return null;
+		length = Maths.limit(length, 0, buffer.remaining());
+		return Reflect.unchecked(buffer.slice(buffer.position(), length));
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the given position. The passed-in buffer is unchanged.
+	 */
+	public B sliceAt(B buffer, int position) {
+		return sliceAt(buffer, position, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the given position. The passed-in buffer is unchanged.
+	 */
+	public B sliceAt(B buffer, int position, int length) {
+		if (buffer == null) return null;
+		position = Maths.limit(position, 0, buffer.limit());
+		length = Maths.limit(length, 0, buffer.limit() - position);
+		return Reflect.unchecked(buffer.slice(position, length));
+	}
+
+	/**
+	 * Returns the buffer with limit set within bounds.
+	 */
+	public B bound(B buffer, int length) {
+		if (buffer == null) return null;
+		length = Maths.limit(length, 0, buffer.remaining());
+		buffer.limit(buffer.position() + length);
+		return buffer;
+	}
+
+	/**
+	 * Returns the buffer with position and limit set within bounds.
+	 */
+	public B boundAt(B buffer, int position) {
+		return boundAt(buffer, position, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns the buffer with position and limit set within bounds.
+	 */
+	public B boundAt(B buffer, int position, int length) {
+		if (buffer == null) return null;
+		position = Maths.limit(position, 0, buffer.limit());
+		length = Maths.limit(length, 0, buffer.limit() - position);
+		buffer.limit(position + length).position(position);
+		return buffer;
+	}
+
+	/**
+	 * Executes the function, then resets the buffer bounds.
+	 */
+	public <E extends Exception, R> R apply(B buffer, Excepts.Function<E, B, R> function) throws E {
+		return apply(buffer, Integer.MAX_VALUE, function);
+	}
+
+	/**
+	 * Sets the buffer bounds at current position, executes the function, then resets the buffer
+	 * bounds.
+	 */
+	public <E extends Exception, R> R apply(B buffer, int length,
+		Excepts.Function<E, B, R> function) throws E {
+		if (buffer == null || function == null) return null;
+		return applyAt(buffer, buffer.position(), length, function);
+	}
+
+	/**
+	 * Sets the buffer bounds at given position, executes the function, then resets the buffer
+	 * bounds.
+	 */
+	public <E extends Exception, R> R applyAt(B buffer, int position,
+		Excepts.Function<E, B, R> supplier) throws E {
+		return applyAt(buffer, position, Integer.MAX_VALUE, supplier);
+	}
+
+	/**
+	 * Sets the buffer bounds at given position, executes the function, then resets the buffer
+	 * bounds.
+	 */
+	public <E extends Exception, R> R applyAt(B buffer, int position, int length,
+		Excepts.Function<E, B, R> function) throws E {
+		if (buffer == null || function == null) return null;
+		int pos = buffer.position();
+		int len = buffer.remaining();
+		var result = function.apply(boundAt(buffer, position, length));
+		buffer.limit(pos + len).position(pos); // cannot use bound() to reset limits
+		return result;
+	}
+
+	/**
+	 * Returns a read-only buffer view.
+	 */
+	public B readOnly(B buffer) {
+		if (buffer == null || buffer.isReadOnly()) return buffer;
+		return readOnly.apply(buffer);
+	}
+
+	/**
+	 * Returns the relative offset of any mismatch, or -1 if no mismatch; returns 0 if either buffer
+	 * is null.
+	 */
+	public int mismatch(B buffer, B other) {
+		if (buffer == null || other == null) return 0;
+		return mismatch.applyAsInt(buffer, other);
 	}
 
 	/**
@@ -451,7 +570,7 @@ public class Buffers<B extends Buffer, A, T> {
 	}
 
 	/**
-	 * Returns a view of the buffer.
+	 * Returns a view of the byte buffer, or pass-through if this instance supports byte buffers.
 	 */
 	public B from(ByteBuffer buffer) {
 		if (buffer == null) return null;
@@ -466,23 +585,6 @@ public class Buffers<B extends Buffer, A, T> {
 		var support = supportFor(buffer);
 		var byteBuffer = support.copyAsByteBuffer(Reflect.unchecked(buffer));
 		return from(byteBuffer);
-	}
-
-	/**
-	 * Returns a read-only buffer view.
-	 */
-	public B readOnly(B buffer) {
-		if (buffer == null || buffer.isReadOnly()) return buffer;
-		return readOnly.apply(buffer);
-	}
-
-	/**
-	 * Returns the relative offset of any mismatch, or -1 if no mismatch; returns 0 if either buffer
-	 * is null.
-	 */
-	public int mismatch(B buffer, B other) {
-		if (buffer == null || other == null) return 0;
-		return mismatch.applyAsInt(buffer, other);
 	}
 
 	/**
@@ -661,7 +763,7 @@ public class Buffers<B extends Buffer, A, T> {
 	// support
 
 	private byte[] getBytes(B buffer) {
-		var array = Array.bytes.array(typeSize() * buffer.remaining());
+		var array = Array.BYTE.array(typeSize() * buffer.remaining());
 		copy(buffer, from(ByteBuffer.wrap(array)));
 		return array;
 	}
@@ -672,7 +774,7 @@ public class Buffers<B extends Buffer, A, T> {
 		return byteBuffer.flip();
 	}
 
-	private static Buffers<?, ?, ?> supportFor(Buffer b) {
+	private static Buffers<?, ?> supportFor(Buffer b) {
 		return switch (b) {
 			case CharBuffer _ -> CHAR;
 			case ShortBuffer _ -> SHORT;

@@ -29,7 +29,7 @@ public abstract class IntArray implements IntProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends IntArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(Array.ints.empty, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Array.INT.empty, 0, 0);
 
 		public static Immutable copyOf(int[] array) {
 			return copyOf(array, 0);
@@ -98,7 +98,7 @@ public abstract class IntArray implements IntProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends IntArray implements IntAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(Array.ints.empty, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Array.INT.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new int[length]);
@@ -438,7 +438,7 @@ public abstract class IntArray implements IntProvider {
 
 	@Override
 	public int[] copy(int index, int length) {
-		if (length == 0) return Array.ints.empty;
+		if (length == 0) return Array.INT.empty;
 		Validate.slice(length(), index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -462,7 +462,7 @@ public abstract class IntArray implements IntProvider {
 	public boolean isEqualTo(int index, int[] array, int offset, int length) {
 		if (!Array.isValidSlice(length(), index, length)) return false;
 		if (!Array.isValidSlice(array.length, offset, length)) return false;
-		return Array.ints.equals(this.array, offset(index), array, offset, length);
+		return Array.INT.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -482,11 +482,11 @@ public abstract class IntArray implements IntProvider {
 
 	boolean isEqual(IntArray other) {
 		if (length != other.length) return false;
-		return Array.ints.equals(array, offset(0), other.array, other.offset(0), length);
+		return Array.INT.equals(array, offset(0), other.array, other.offset(0), length);
 	}
 
 	int hash() {
-		return Array.ints.hash(array, offset, length);
+		return Array.INT.hash(array, offset, length);
 	}
 
 	int offset(int index) {

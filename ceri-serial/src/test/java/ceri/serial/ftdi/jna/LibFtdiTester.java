@@ -53,7 +53,7 @@ public class LibFtdiTester {
 
 	private static void write(ftdi_context ftdi, int value) throws LibUsbException {
 		logger.info("Writing");
-		int n = ftdi_write_data(ftdi, ByteBuffer.wrap(Array.bytes.of(value)), 1);
+		int n = ftdi_write_data(ftdi, ByteBuffer.wrap(Array.BYTE.of(value)), 1);
 		logger.info("Write: {} byte(s)", n);
 	}
 }

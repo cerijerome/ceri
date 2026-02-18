@@ -8,6 +8,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 
@@ -15,16 +16,20 @@ import ceri.common.text.Strings;
  * Utility methods to test and manipulate arrays.
  */
 public class Array {
-	private Array() {}
+	public static final PrimitiveArray.OfBool BOOL = new PrimitiveArray.OfBool();
+	public static final PrimitiveArray.OfChar CHAR = new PrimitiveArray.OfChar();
+	public static final PrimitiveArray.OfByte BYTE = new PrimitiveArray.OfByte();
+	public static final PrimitiveArray.OfShort SHORT = new PrimitiveArray.OfShort();
+	public static final PrimitiveArray.OfInt INT = new PrimitiveArray.OfInt();
+	public static final PrimitiveArray.OfLong LONG = new PrimitiveArray.OfLong();
+	public static final PrimitiveArray.OfFloat FLOAT = new PrimitiveArray.OfFloat();
+	public static final PrimitiveArray.OfDouble DOUBLE = new PrimitiveArray.OfDouble();
+	public static final TypedArray.Type<Object> OBJECT = TypedArray.type(Object.class);
+	public static final TypedArray.Type<String> STRING = TypedArray.type(String.class);
+	public static final TypedArray.Type<Class<?>> CLASS =
+		TypedArray.type(Reflect.unchecked(Class.class));
 
-	public static final PrimitiveArray.OfBool bools = new PrimitiveArray.OfBool();
-	public static final PrimitiveArray.OfChar chars = new PrimitiveArray.OfChar();
-	public static final PrimitiveArray.OfByte bytes = new PrimitiveArray.OfByte();
-	public static final PrimitiveArray.OfShort shorts = new PrimitiveArray.OfShort();
-	public static final PrimitiveArray.OfInt ints = new PrimitiveArray.OfInt();
-	public static final PrimitiveArray.OfLong longs = new PrimitiveArray.OfLong();
-	public static final PrimitiveArray.OfFloat floats = new PrimitiveArray.OfFloat();
-	public static final PrimitiveArray.OfDouble doubles = new PrimitiveArray.OfDouble();
+	private Array() {}
 
 	/**
 	 * Accepts bounded offsets and lengths.
@@ -41,24 +46,8 @@ public class Array {
 	}
 
 	/**
-	 * Empty array constants.
+	 * Array filters.
 	 */
-	public static class Empty {
-		private Empty() {}
-
-		public static final Boolean[] bools = new Boolean[0];
-		public static final Character[] chars = new Character[0];
-		public static final Byte[] bytes = new Byte[0];
-		public static final Short[] shorts = new Short[0];
-		public static final Integer[] ints = new Integer[0];
-		public static final Long[] longs = new Long[0];
-		public static final Float[] floats = new Float[0];
-		public static final Double[] doubles = new Double[0];
-		public static final String[] strings = new String[0];
-		public static final Object[] objects = new Object[0];
-		public static final Class<?>[] classes = new Class<?>[0];
-	}
-
 	public static class Filter {
 		private Filter() {}
 

@@ -57,7 +57,7 @@ public class FileTestHelperBehavior {
 
 	@Test
 	public void shouldCreateBinaryFiles() throws IOException {
-		files = FileTestHelper.builder().filef(Array.bytes.of(1, 2, 3, 4, 5), "a/%s", "data")
+		files = FileTestHelper.builder().filef(Array.BYTE.of(1, 2, 3, 4, 5), "a/%s", "data")
 			.build();
 		Assert.array(files.read("a/data"), 1, 2, 3, 4, 5);
 	}

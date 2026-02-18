@@ -56,7 +56,7 @@ public class I2cEmulatorBehavior {
 	public void shouldReadFromDevice() throws IOException {
 		init(address);
 		dev.read.autoResponses(ByteProvider.of(4, 5, 6));
-		i2c.readData(address, Array.bytes.of(1, 2, 3), 3);
+		i2c.readData(address, Array.BYTE.of(1, 2, 3), 3);
 		dev.read.assertAuto(new Read(ByteProvider.of(1, 2, 3), 3));
 	}
 
@@ -80,21 +80,21 @@ public class I2cEmulatorBehavior {
 	@Test
 	public void shouldFailReadForBadDevice() {
 		init(address);
-		Assert.thrown(() -> i2c.readData(badAddress, Array.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(badAddress, Array.BYTE.of(1, 2, 3), 3));
 		dev.read.autoResponses((ByteProvider) null);
-		Assert.thrown(() -> i2c.readData(address, Array.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(address, Array.BYTE.of(1, 2, 3), 3));
 		dev.read.autoResponses(ByteProvider.of(1, 2, 3));
-		Assert.thrown(() -> i2c.readData(address, Array.bytes.of(1, 2, 3), 2));
-		Assert.thrown(() -> i2c.readData(I2cAddress.of(0x05), Array.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(address, Array.BYTE.of(1, 2, 3), 2));
+		Assert.thrown(() -> i2c.readData(I2cAddress.of(0x05), Array.BYTE.of(1, 2, 3), 3));
 		dev.read.error.setFrom(ErrorGen.IOX);
-		Assert.thrown(() -> i2c.readData(address, Array.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(address, Array.BYTE.of(1, 2, 3), 3));
 	}
 
 	@Test
 	public void shouldProvideDefaultDevice() throws IOException {
 		init(address);
 		i2c.writeData(address, 1, 2, 3);
-		Assert.array(i2c.readData(address, Array.bytes.of(1, 2, 3), 3), 0, 0, 0);
+		Assert.array(i2c.readData(address, Array.BYTE.of(1, 2, 3), 3), 0, 0, 0);
 		Assert.equal(i2c.deviceId(address), DeviceId.NONE);
 		i2c.softwareReset();
 		i2c.remove(dev.address);

@@ -268,7 +268,7 @@ public class BinaryPrinter {
 	 * Print binary data.
 	 */
 	public BinaryPrinter print(int... bytes) {
-		return print(Array.bytes.of(bytes));
+		return print(Array.BYTE.of(bytes));
 	}
 
 	/**

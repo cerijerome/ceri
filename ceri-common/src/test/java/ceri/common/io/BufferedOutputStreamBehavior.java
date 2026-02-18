@@ -18,7 +18,7 @@ public class BufferedOutputStreamBehavior {
 	@Test
 	public void shouldWriteOnFlush() throws IOException {
 		try (var out = new BufferedOutputStream(bout)) {
-			out.write(Array.bytes.of(1, 2, 3));
+			out.write(Array.BYTE.of(1, 2, 3));
 			assertBytes();
 			out.flush();
 			assertBytes(1, 2, 3);
@@ -28,7 +28,7 @@ public class BufferedOutputStreamBehavior {
 	@Test
 	public void shouldBypassBufferIfLargeWrite() throws IOException {
 		try (var out = new BufferedOutputStream(bout, 5)) {
-			out.write(Array.bytes.of(1, 2, 3, 4, 5, 6, 7, 8));
+			out.write(Array.BYTE.of(1, 2, 3, 4, 5, 6, 7, 8));
 			assertBytes(1, 2, 3, 4, 5, 6, 7, 8);
 		}
 	}
@@ -48,9 +48,9 @@ public class BufferedOutputStreamBehavior {
 	@Test
 	public void shouldFlushBufferIfBufferExceeded() throws IOException {
 		try (var out = new BufferedOutputStream(bout, 5)) {
-			out.write(Array.bytes.of(1, 2, 3));
+			out.write(Array.BYTE.of(1, 2, 3));
 			assertBytes();
-			out.write(Array.bytes.of(4, 5, 6));
+			out.write(Array.BYTE.of(4, 5, 6));
 			assertBytes(1, 2, 3);
 		}
 	}

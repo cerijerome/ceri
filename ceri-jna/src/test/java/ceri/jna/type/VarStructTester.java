@@ -55,7 +55,7 @@ public class VarStructTester {
 		public ByteVar(int dummy, int... array) {
 			this.dummy = dummy;
 			this.count = (byte) array.length;
-			this.array = Array.bytes.of(array);
+			this.array = Array.BYTE.of(array);
 		}
 
 		public ByteVar(Pointer p) {
@@ -85,7 +85,7 @@ public class VarStructTester {
 			this.dummy1 = (byte) dummy1;
 			this.dummy2 = (short) dummy2;
 			this.length = lastOffset + array.length;
-			this.array = Array.bytes.of(array);
+			this.array = Array.BYTE.of(array);
 		}
 
 		public LenVar(Pointer p) {

@@ -33,7 +33,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends ByteArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(Array.bytes.empty, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Array.BYTE.empty, 0, 0);
 
 		public static Immutable copyOf(byte[] array) {
 			return copyOf(array, 0);
@@ -49,7 +49,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Immutable wrap(int... array) {
-			return wrap(Array.bytes.of(array));
+			return wrap(Array.BYTE.of(array));
 		}
 
 		public static Immutable wrap(byte[] array) {
@@ -106,7 +106,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends ByteArray implements ByteAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(Array.bytes.empty, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Array.BYTE.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new byte[length]);
@@ -126,7 +126,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Mutable wrap(int... array) {
-			return wrap(Array.bytes.of(array));
+			return wrap(Array.BYTE.of(array));
 		}
 
 		public static Mutable wrap(byte[] array) {
@@ -512,7 +512,7 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public byte[] copy(int index, int length) {
-		if (length == 0) return Array.bytes.empty;
+		if (length == 0) return Array.BYTE.empty;
 		Validate.slice(length(), index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -548,7 +548,7 @@ public abstract class ByteArray implements ByteProvider {
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!Array.isValidSlice(length(), index, length)) return false;
 		if (!Array.isValidSlice(array.length, offset, length)) return false;
-		return Array.bytes.equals(this.array, offset(index), array, offset, length);
+		return Array.BYTE.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -568,11 +568,11 @@ public abstract class ByteArray implements ByteProvider {
 
 	boolean isEqual(ByteArray other) {
 		if (length() != other.length()) return false;
-		return Array.bytes.equals(array, offset(0), other.array, other.offset(0), length());
+		return Array.BYTE.equals(array, offset(0), other.array, other.offset(0), length());
 	}
 
 	int hash() {
-		return Array.bytes.hash(array, offset, length());
+		return Array.BYTE.hash(array, offset, length());
 	}
 
 	int offset(int index) {

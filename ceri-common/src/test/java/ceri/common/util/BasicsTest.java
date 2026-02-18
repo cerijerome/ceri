@@ -17,6 +17,7 @@ public class BasicsTest {
 		Assert.privateConstructor(Basics.class);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideRefAccess() throws Exception {
 		try (AutoCloseable c = () -> {}) {

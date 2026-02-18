@@ -31,8 +31,8 @@ public class CrcBehavior {
 	public void shouldAddBytes() {
 		CrcAlgorithm ca = CrcAlgorithm.of(8, 1);
 		Assert.equal(ca.start().add(1, 2).crcByte(), (byte) 0x3);
-		Assert.equal(ca.start().add(Array.bytes.of(1, 2)).crcByte(), (byte) 0x3);
-		Assert.equal(ca.start().add(Array.bytes.of(0, 1, 2), 1).crcByte(), (byte) 0x3);
+		Assert.equal(ca.start().add(Array.BYTE.of(1, 2)).crcByte(), (byte) 0x3);
+		Assert.equal(ca.start().add(Array.BYTE.of(0, 1, 2), 1).crcByte(), (byte) 0x3);
 		ByteProvider.Reader<?> r = Immutable.wrap(1, 2).reader(0);
 		Assert.equal(ca.start().add(r, 2).crcByte(), (byte) 0x3);
 	}

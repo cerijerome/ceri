@@ -21,7 +21,7 @@ public class TestProcessBehavior {
 	@Test
 	public void shouldReset() throws IOException {
 		try (var p = TestProcess.of("in", "err", 0)) {
-			p.getOutputStream().write(Array.bytes.of(1, 2, 3));
+			p.getOutputStream().write(Array.BYTE.of(1, 2, 3));
 			Assert.equal(p.getInputStream().available(), 2);
 			Assert.equal(p.getErrorStream().available(), 3);
 			p.out.assertAvailable(3);

@@ -25,9 +25,9 @@ public class TestFtdiBehavior {
 		var ftdis = TestFtdi.pairOf();
 		ftdis[0].open();
 		ftdis[1].open();
-		ftdis[0].out().write(Array.bytes.of(1, 2, 3));
+		ftdis[0].out().write(Array.BYTE.of(1, 2, 3));
 		Assert.read(ftdis[1].in(), 1, 2, 3);
-		ftdis[1].out().write(Array.bytes.of(4, 5, 6));
+		ftdis[1].out().write(Array.BYTE.of(4, 5, 6));
 		Assert.read(ftdis[0].in(), 4, 5, 6);
 	}
 
@@ -38,7 +38,7 @@ public class TestFtdiBehavior {
 		ftdi.open();
 		ftdi.out().write(0xa5);
 		Assert.equal(ftdi.readPins(), 0xa5);
-		ftdi.out().write(Array.bytes.of());
+		ftdi.out().write(Array.BYTE.of());
 		Assert.equal(ftdi.readPins(), 0xa5);
 		ftdi.out().write(0xfde);
 		Assert.equal(ftdi.readPins(), 0xde);

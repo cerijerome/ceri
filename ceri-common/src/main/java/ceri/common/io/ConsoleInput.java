@@ -262,7 +262,7 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private static char[] repeat(char c, int n) {
-		if (n <= 0) return Array.chars.empty;
+		if (n <= 0) return Array.CHAR.empty;
 		var chars = new char[n];
 		Arrays.fill(chars, c);
 		return chars;

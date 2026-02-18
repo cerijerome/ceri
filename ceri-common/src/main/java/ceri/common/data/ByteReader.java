@@ -248,7 +248,7 @@ public interface ByteReader {
 	 * Reads a copied array of bytes.
 	 */
 	default byte[] readBytes(int length) {
-		if (length == 0) return Array.bytes.empty;
+		if (length == 0) return Array.BYTE.empty;
 		byte[] copy = new byte[length];
 		readInto(copy);
 		return copy;

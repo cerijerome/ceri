@@ -44,7 +44,7 @@ public class Bytes {
 		big(ByteOrder.BIG_ENDIAN),
 		little(ByteOrder.LITTLE_ENDIAN);
 
-		private final ByteOrder order;
+		public final ByteOrder order;
 
 		public static String symbol(Order order) {
 			return isSpecific(order) ? symbol(order.order) : "";
@@ -235,7 +235,7 @@ public class Bytes {
 	 * Creates a byte array of given value.
 	 */
 	public static byte[] fill(int length, int value) {
-		if (length == 0) return Array.bytes.empty;
+		if (length == 0) return Array.BYTE.empty;
 		byte[] bytes = new byte[length];
 		Arrays.fill(bytes, (byte) value);
 		return bytes;
@@ -245,7 +245,7 @@ public class Bytes {
 	 * Writes bytes to output stream.
 	 */
 	public static void writeTo(ByteArrayOutputStream out, int... bytes) {
-		writeTo(out, Array.bytes.of(bytes));
+		writeTo(out, Array.BYTE.of(bytes));
 	}
 
 	/**
@@ -301,7 +301,7 @@ public class Bytes {
 	 * Decodes string from latin-1 bytes.
 	 */
 	public static String fromAscii(int... data) {
-		return fromAscii(Array.bytes.of(data));
+		return fromAscii(Array.BYTE.of(data));
 	}
 
 	/**
@@ -553,7 +553,7 @@ public class Bytes {
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(long value) {
-		if (value == 0L) return Array.ints.empty;
+		if (value == 0L) return Array.INT.empty;
 		int[] bits = new int[Long.bitCount(value)];
 		for (int i = Long.numberOfTrailingZeros(value), j = 0; j < bits.length; i++)
 			if (bit(value, i)) bits[j++] = i;
@@ -681,7 +681,7 @@ public class Bytes {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromMsb(int... array) {
-		return fromMsb(Array.bytes.of(array));
+		return fromMsb(Array.BYTE.of(array));
 	}
 
 	/**
@@ -714,7 +714,7 @@ public class Bytes {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromLsb(int... array) {
-		return fromLsb(Array.bytes.of(array));
+		return fromLsb(Array.BYTE.of(array));
 	}
 
 	/**

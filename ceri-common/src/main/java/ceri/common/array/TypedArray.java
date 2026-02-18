@@ -10,9 +10,9 @@ import ceri.common.util.Hasher;
  * Typed (non-raw) array support, including primitive and object arrays.
  */
 public abstract class TypedArray<T> {
-	public static final Type<Object> OBJ = type(Object.class);
 	private final Class<?> component;
 	private final Class<T> cls;
+	public final T empty;
 	public final Functions.IntFunction<T> constructor;
 
 	/**
@@ -219,6 +219,7 @@ public abstract class TypedArray<T> {
 		this.component = component;
 		cls = Reflect.unchecked(component.arrayType());
 		constructor = n -> RawArray.ofType(component, n);
+		empty = constructor.apply(0);
 	}
 
 	/**

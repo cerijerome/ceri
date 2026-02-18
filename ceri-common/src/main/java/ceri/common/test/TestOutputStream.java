@@ -50,7 +50,7 @@ public class TestOutputStream extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		write(Array.bytes.of(b));
+		write(Array.BYTE.of(b));
 	}
 
 	@SuppressWarnings("resource")

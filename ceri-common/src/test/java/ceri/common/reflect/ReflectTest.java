@@ -235,7 +235,7 @@ public class ReflectTest {
 	public void testPublicValue() {
 		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
 		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
-		byte[] bytes = Array.bytes.of(1, 2, 3);
+		byte[] bytes = Array.BYTE.of(1, 2, 3);
 		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
 		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.l = 100), "l"));
 		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
@@ -381,7 +381,7 @@ public class ReflectTest {
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
 		Assert.equal(Reflect.create(Date.class, argTypes, args), new Date(0));
-		Assert.equal(Reflect.create(String.class, byte[].class, Array.bytes.of(0, 0)), "\0\0");
+		Assert.equal(Reflect.create(String.class, byte[].class, Array.BYTE.of(0, 0)), "\0\0");
 	}
 
 	@Test
@@ -406,6 +406,14 @@ public class ReflectTest {
 		Assert.yes(Reflect.instanceOfAny(obj, Float.class, Integer.class, Number.class));
 	}
 
+	@Test
+	public void testAssignable() {
+		Assert.no(Reflect.assignable(null, Integer.class));
+		Assert.no(Reflect.assignable(Number.class, null));
+		Assert.no(Reflect.assignable(Number.class, Boolean.class));
+		Assert.yes(Reflect.assignable(Number.class, Long.class));
+	}
+	
 	@Test
 	public void testAssignableFromAny() {
 		Assert.no(Reflect.assignableFromAny(null));

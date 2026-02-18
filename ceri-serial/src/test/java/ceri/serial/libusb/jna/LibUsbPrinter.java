@@ -337,7 +337,7 @@ public class LibUsbPrinter {
 	}
 
 	private static String hex(byte[] bytes) {
-		return Array.bytes.toHex(bytes);
+		return Array.BYTE.toHex(bytes);
 	}
 
 	private static <T> T get(Excepts.Supplier<LibUsbException, T> supplier) {

@@ -524,7 +524,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns a copy of provided bytes from index.
 	 */
 	default byte[] copy(int index, int length) {
-		if (length == 0) return Array.bytes.empty;
+		if (length == 0) return Array.BYTE.empty;
 		Validate.slice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
@@ -638,7 +638,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns true if bytes are equal to array bytes.
 	 */
 	default boolean isEqualTo(int index, int... array) {
-		return isEqualTo(index, Array.bytes.of(array));
+		return isEqualTo(index, Array.BYTE.of(array));
 	}
 
 	/**
@@ -709,7 +709,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the first index that matches array bytes. Returns -1 if no match.
 	 */
 	default int indexOf(int index, int... array) {
-		return indexOf(index, Array.bytes.of(array));
+		return indexOf(index, Array.BYTE.of(array));
 	}
 
 	/**
@@ -766,7 +766,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the last index that matches array bytes. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, int... array) {
-		return lastIndexOf(index, Array.bytes.of(array));
+		return lastIndexOf(index, Array.BYTE.of(array));
 	}
 
 	/**

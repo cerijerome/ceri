@@ -46,7 +46,7 @@ public interface LongReader {
 	 * Reads a copied array of longs.
 	 */
 	default long[] readLongs(int length) {
-		if (length == 0) return Array.longs.empty;
+		if (length == 0) return Array.LONG.empty;
 		long[] copy = new long[length];
 		readInto(copy);
 		return copy;

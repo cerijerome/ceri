@@ -84,8 +84,8 @@ public record I2cAddress(int address, boolean tenBit) {
 	 * for 7-bit.
 	 */
 	public byte[] frames(boolean read) {
-		if (!tenBit) return Array.bytes.of((address << 1) | (read ? 1 : 0));
-		return Array.bytes.of(
+		if (!tenBit) return Array.BYTE.of((address << 1) | (read ? 1 : 0));
+		return Array.BYTE.of(
 			FRAME0_10BIT_PREFIX | (Bytes.byteAt(address, 1) << 1) | (read ? 1 : 0),
 			Bytes.byteAt(address, 0));
 	}

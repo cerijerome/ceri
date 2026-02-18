@@ -255,6 +255,13 @@ public class Reflect {
 	}
 
 	/**
+	 * Returns true if the class is the same as, or a sub-type.
+	 */
+	public static boolean assignable(Class<?> sup, Class<?> sub) {
+		return sup != null && sub != null && sup.isAssignableFrom(sub);
+	}
+
+	/**
 	 * Checks if the class is the same as, or a sub-type of any of the given classes.
 	 */
 	@SafeVarargs
@@ -474,7 +481,7 @@ public class Reflect {
 	 * Creates an object of given type, using default constructor
 	 */
 	public static <T> T create(Class<T> classType) {
-		return create(classType, Array.Empty.classes);
+		return create(classType, Array.CLASS.empty);
 	}
 
 	/**

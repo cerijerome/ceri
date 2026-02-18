@@ -28,7 +28,7 @@ public class TestSpiBehavior {
 	public void shouldCaptureOutput() throws IOException {
 		var spi = TestSpi.of();
 		var xfer = spi.transfer(Direction.out, 10);
-		xfer.write(Array.bytes.of(1, 2, 3, 4, 5));
+		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		spi.xfer.assertAuto(Request.out(1, 2, 3, 4, 5));
 	}
@@ -47,7 +47,7 @@ public class TestSpiBehavior {
 		var spi = TestSpi.of();
 		var xfer = spi.transfer(Direction.duplex, 10);
 		spi.xfer.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
-		xfer.write(Array.bytes.of(6, 7, 8, 9));
+		xfer.write(Array.BYTE.of(6, 7, 8, 9));
 		xfer.execute();
 		Assert.array(xfer.read(), 1, 2, 3, 4); // only 4 bytes
 		spi.xfer.assertAuto(Request.duplex(6, 7, 8, 9));

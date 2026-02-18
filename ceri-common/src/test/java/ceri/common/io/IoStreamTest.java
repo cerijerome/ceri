@@ -62,7 +62,7 @@ public class IoStreamTest {
 		IoStream.nullOut.close();
 		IoStream.nullOut.flush();
 		IoStream.nullOut.write(0xff);
-		IoStream.nullOut.write(Array.bytes.of(-1, 0, 1));
+		IoStream.nullOut.write(Array.BYTE.of(-1, 0, 1));
 		IoStream.nullIn.close();
 	}
 
@@ -197,7 +197,7 @@ public class IoStreamTest {
 	@Test
 	public void testOutWithNullByteWrite() throws IOException {
 		out = IoStream.out(nullIc);
-		out.write(Array.bytes.of(1, 2));
+		out.write(Array.BYTE.of(1, 2));
 		out.write(3);
 	}
 
@@ -205,7 +205,7 @@ public class IoStreamTest {
 	public void testOutWithByteWrite() throws IOException {
 		bout0 = new ByteArrayOutputStream();
 		out = IoStream.out(b -> bout0.write(b));
-		out.write(Array.bytes.of(1, 2));
+		out.write(Array.BYTE.of(1, 2));
 		out.write(3);
 		Assert.array(bout0.toByteArray(), 1, 2, 3);
 	}
@@ -213,7 +213,7 @@ public class IoStreamTest {
 	@Test
 	public void testOutWithNullArrayWrite() throws IOException {
 		out = IoStream.out((Write) null);
-		out.write(Array.bytes.of(1, 2));
+		out.write(Array.BYTE.of(1, 2));
 		out.write(3);
 	}
 
@@ -221,7 +221,7 @@ public class IoStreamTest {
 	public void testOutWithArrayWrite() throws IOException {
 		bout0 = new ByteArrayOutputStream();
 		out = IoStream.out((b, off, len) -> bout0.write(b, off, len));
-		out.write(Array.bytes.of(1, 2));
+		out.write(Array.BYTE.of(1, 2));
 		out.write(3);
 		Assert.array(bout0.toByteArray(), 1, 2, 3);
 	}
@@ -232,7 +232,7 @@ public class IoStreamTest {
 	public void testFilterOutWithNullByteWrite() throws IOException {
 		bout0 = new ByteArrayOutputStream();
 		out = IoStream.filterOut(bout0, nullOip);
-		out.write(Array.bytes.of(1, 2));
+		out.write(Array.BYTE.of(1, 2));
 		out.write(3);
 		Assert.array(bout0.toByteArray(), 1, 2, 3);
 	}
@@ -242,7 +242,7 @@ public class IoStreamTest {
 		bout0 = new ByteArrayOutputStream();
 		bout1 = new ByteArrayOutputStream();
 		out = IoStream.filterOut(bout1, (_, b) -> writeMax(bout0, 3, b));
-		out.write(Array.bytes.of(1, 2, 3, 4));
+		out.write(Array.BYTE.of(1, 2, 3, 4));
 		out.write(5);
 		Assert.array(bout0.toByteArray(), 1, 2, 3);
 		Assert.array(bout1.toByteArray(), 4, 5);
@@ -252,7 +252,7 @@ public class IoStreamTest {
 	public void testFilterOutWithNullArrayWrite() throws IOException {
 		bout0 = new ByteArrayOutputStream();
 		out = IoStream.filterOut(bout0, (FilterWrite) null);
-		out.write(Array.bytes.of(1, 2));
+		out.write(Array.BYTE.of(1, 2));
 		out.write(3);
 		Assert.array(bout0.toByteArray(), 1, 2, 3);
 	}
@@ -262,8 +262,8 @@ public class IoStreamTest {
 		bout0 = new ByteArrayOutputStream();
 		bout1 = new ByteArrayOutputStream();
 		out = IoStream.filterOut(bout1, (_, b, off, len) -> writeMax(bout0, 3, b, off, len));
-		out.write(Array.bytes.of(1, 2, 3));
-		out.write(Array.bytes.of(4, 5));
+		out.write(Array.BYTE.of(1, 2, 3));
+		out.write(Array.BYTE.of(4, 5));
 		out.write(6);
 		Assert.array(bout0.toByteArray(), 1, 2, 3);
 		Assert.array(bout1.toByteArray(), 4, 5, 6);
@@ -282,7 +282,7 @@ public class IoStreamTest {
 	// support
 
 	private ByteArrayInputStream bin(int... bytes) {
-		return new ByteArrayInputStream(Array.bytes.of(bytes));
+		return new ByteArrayInputStream(Array.BYTE.of(bytes));
 	}
 
 	private static Integer readOrNull(InputStream in) throws IOException {

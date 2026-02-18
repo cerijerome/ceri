@@ -100,7 +100,7 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldWriteData() throws IOException {
 		init();
 		shs.open();
-		shs.out().write(Array.bytes.of(1, 2, 3));
+		shs.out().write(Array.BYTE.of(1, 2, 3));
 		Assert.read(socket.out.from, 1, 2, 3);
 	}
 

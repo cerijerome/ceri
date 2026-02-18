@@ -31,17 +31,17 @@ public class ByteWriterBehavior {
 		assertBytes(1, w -> w.writeBool(true), 1);
 		assertBytes(1, w -> w.writeByte(-1), -1);
 		assertBytes(2, w -> w.writeShort(0x7f80),
-			msb ? Array.bytes.of(0x7f, 0x80) : Array.bytes.of(0x80, 0x7f));
+			msb ? Array.BYTE.of(0x7f, 0x80) : Array.BYTE.of(0x80, 0x7f));
 		assertBytes(4, w -> w.writeInt(0x1007f80),
-			msb ? Array.bytes.of(1, 0, 0x7f, 0x80) : Array.bytes.of(0x80, 0x7f, 0, 1));
+			msb ? Array.BYTE.of(1, 0, 0x7f, 0x80) : Array.BYTE.of(0x80, 0x7f, 0, 1));
 		assertBytes(8, w -> w.writeLong(0xff01007f80L),
-			msb ? Array.bytes.of(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) :
-				Array.bytes.of(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
+			msb ? Array.BYTE.of(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) :
+				Array.BYTE.of(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
 		assertBytes(4, w -> w.writeFloat(Float.intBitsToFloat(0x1007f80)),
-			msb ? Array.bytes.of(1, 0, 0x7f, 0x80) : Array.bytes.of(0x80, 0x7f, 0, 1));
+			msb ? Array.BYTE.of(1, 0, 0x7f, 0x80) : Array.BYTE.of(0x80, 0x7f, 0, 1));
 		assertBytes(8, w -> w.writeDouble(Double.longBitsToDouble(0xff01007f80L)),
-			msb ? Array.bytes.of(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) :
-				Array.bytes.of(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
+			msb ? Array.BYTE.of(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) :
+				Array.BYTE.of(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class ByteWriterBehavior {
 	 */
 	private static <E extends Exception> void assertBytes(int size,
 		Excepts.Consumer<E, ByteWriter<?>> action, int... bytes) throws E {
-		assertBytes(size, action, Array.bytes.of(bytes));
+		assertBytes(size, action, Array.BYTE.of(bytes));
 	}
 
 	/**

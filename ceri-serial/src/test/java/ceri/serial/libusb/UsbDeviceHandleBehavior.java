@@ -74,7 +74,7 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldExecuteSyncControlTransfer() throws LibUsbException {
-		handle.controlTransfer(0x01, 0x11, 0x22, 3, Array.bytes.of(1, 2, 3), 100);
+		handle.controlTransfer(0x01, 0x11, 0x22, 3, Array.BYTE.of(1, 2, 3), 100);
 		handle.controlTransfer(0x01, 0x11, 0x22, 3, JnaTesting.buffer(1, 2, 3), 100);
 		lib.transferOut.assertValues( //
 			List.of(0x01, 0x11, 0x22, 3, ByteProvider.of(1, 2, 3)),
@@ -93,7 +93,7 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldExecuteSyncBulkTransfer() throws LibUsbException {
-		handle.bulkTransfer(0x01, Array.bytes.of(1, 2, 3), 100);
+		handle.bulkTransfer(0x01, Array.BYTE.of(1, 2, 3), 100);
 		handle.bulkTransfer(0x01, JnaTesting.buffer(1, 2, 3), 100);
 		lib.transferOut.assertValues( //
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
@@ -110,7 +110,7 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldExecuteSyncInterruptTransfer() throws LibUsbException {
-		handle.interruptTransfer(0x01, Array.bytes.of(1, 2, 3), 100);
+		handle.interruptTransfer(0x01, Array.BYTE.of(1, 2, 3), 100);
 		handle.interruptTransfer(0x01, JnaTesting.buffer(1, 2, 3), 100);
 		lib.transferOut.assertValues( //
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //

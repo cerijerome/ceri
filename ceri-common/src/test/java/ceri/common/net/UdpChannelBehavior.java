@@ -56,7 +56,7 @@ public class UdpChannelBehavior {
 	@Test
 	public void shouldJoinMulticastGroup() throws IOException {
 		if (!isNetworkAvailable()) return;
-		var multicastAddress = InetAddress.getByAddress(Array.bytes.of(239, 255, 1, 1));
+		var multicastAddress = InetAddress.getByAddress(Array.BYTE.of(239, 255, 1, 1));
 		udp0 = UdpChannel.of(0);
 		udp1 = UdpChannel.of(0);
 		Assert.yes(udp1.join(multicastAddress));

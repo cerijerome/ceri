@@ -164,7 +164,7 @@ public interface ByteReceiver {
 	 * Sets bytes at given index. Returns the index after the written bytes.
 	 */
 	default int setBytes(int index, int... array) {
-		return copyFrom(index, Array.bytes.of(array));
+		return copyFrom(index, Array.BYTE.of(array));
 	}
 
 	/**

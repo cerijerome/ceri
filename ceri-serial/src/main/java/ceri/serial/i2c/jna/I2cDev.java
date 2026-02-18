@@ -179,13 +179,13 @@ public class I2cDev {
 		public void setBlock(byte[] data, int offset, int length) {
 			Validate.slice(data.length, offset, length);
 			Validate.max(length, I2C_SMBUS_BLOCK_MAX, "Data length");
-			Array.bytes.copy(data, offset, block, 1, length);
+			Array.BYTE.copy(data, offset, block, 1, length);
 			setBlockLength(length);
 		}
 
 		public byte[] getBlock() {
 			int length = Math.min(Maths.ubyte(block[0]), I2C_SMBUS_BLOCK_MAX);
-			return Array.bytes.copyOf(block, 1, length);
+			return Array.BYTE.copyOf(block, 1, length);
 		}
 	}
 

@@ -83,7 +83,7 @@ public class Jna {
 	 * Allocate native memory and copy array.
 	 */
 	public static Memory mallocBytes(int... array) {
-		return mallocBytes(Array.bytes.of(array));
+		return mallocBytes(Array.BYTE.of(array));
 	}
 
 	/**
@@ -454,7 +454,7 @@ public class Jna {
 	public static byte[] bytes(Pointer p, long offset, long length) {
 		if (Pointers.validate(p, offset, length) != null)
 			return p.getByteArray(offset, Math.toIntExact(length));
-		return Array.bytes.empty;
+		return Array.BYTE.empty;
 	}
 
 	/**
@@ -477,7 +477,7 @@ public class Jna {
 	 */
 	public static byte[] bytes(ByteBuffer buffer, int position, int length) {
 		Objects.requireNonNull(buffer);
-		if (length == 0) return Array.bytes.empty;
+		if (length == 0) return Array.BYTE.empty;
 		if (position == 0 && length == buffer.limit() && buffer.hasArray()) return buffer.array();
 		byte[] bytes = new byte[length];
 		buffer.get(position, bytes);
@@ -702,7 +702,7 @@ public class Jna {
 	 * Copies bytes to the pointer. Returns the pointer offset after writing.
 	 */
 	public static long write(Pointer p, long offset, int... buffer) {
-		return write(p, offset, Array.bytes.of(buffer));
+		return write(p, offset, Array.BYTE.of(buffer));
 	}
 
 	/**

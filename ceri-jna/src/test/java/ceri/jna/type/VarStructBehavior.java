@@ -30,7 +30,7 @@ public class VarStructBehavior {
 		public ByteVar(int dummy, int... array) {
 			this.dummy = dummy;
 			this.count = (byte) array.length;
-			this.array = Array.bytes.of(array);
+			this.array = Array.BYTE.of(array);
 		}
 
 		public ByteVar(Pointer p) {

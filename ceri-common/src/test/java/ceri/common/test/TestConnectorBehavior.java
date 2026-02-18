@@ -27,7 +27,7 @@ public class TestConnectorBehavior {
 	public void shouldEchoToInput() throws IOException {
 		con.open();
 		con.echoOn();
-		con.out().write(Array.bytes.of(1, 2, 3, 4, 5), 1, 3);
+		con.out().write(Array.BYTE.of(1, 2, 3, 4, 5), 1, 3);
 		Assert.equal(con.in().available(), 3);
 		Assert.read(con.in(), 2, 3, 4);
 	}
@@ -39,7 +39,7 @@ public class TestConnectorBehavior {
 		con.pairWith((Connector) con2);
 		con.open();
 		con2.open();
-		con.out().write(Array.bytes.of(1, 2, 3));
+		con.out().write(Array.BYTE.of(1, 2, 3));
 		Assert.read(con2.out.from, 1, 2, 3);
 	}
 

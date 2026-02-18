@@ -13,12 +13,12 @@ public class ArrayTest {
 	private final Integer[] ints = { -1, null, 1 };
 
 	private static Integer[] ints(int... ints) {
-		return Array.ints.boxed(ints);
+		return Array.INT.boxed(ints);
 	}
 
 	@Test
 	public void testConstructorIsPrivate() {
-		Assert.privateConstructor(Array.class, Array.Empty.class, Array.Filter.class);
+		Assert.privateConstructor(Array.class, Array.Filter.class);
 	}
 
 	@Test
@@ -58,7 +58,7 @@ public class ArrayTest {
 	@Test
 	public void testLength() {
 		Assert.equal(Array.length(NULL), 0);
-		Assert.equal(Array.length(Array.Empty.strings), 0);
+		Assert.equal(Array.length(Array.STRING.empty), 0);
 		Assert.equal(Array.length(ints), 3);
 	}
 
@@ -104,7 +104,7 @@ public class ArrayTest {
 		Assert.equal(Array.in(1, -1), false);
 		Assert.equal(Array.in(1, 1), false);
 		Assert.equal(Array.in(1, 0), true);
-		Assert.equal(Array.in(Array.Empty.ints, 0), false);
+		Assert.equal(Array.in(Array.INT.box().empty, 0), false);
 		Assert.equal(Array.in(ints, 3), false);
 		Assert.equal(Array.in(ints, 2), true);
 	}
@@ -120,7 +120,7 @@ public class ArrayTest {
 	@Test
 	public void testLast() {
 		Assert.equal(Array.last(null), null);
-		Assert.equal(Array.last(Array.Empty.ints), null);
+		Assert.equal(Array.last(Array.INT.box().empty), null);
 		Assert.equal(Array.last(ints), 1);
 	}
 

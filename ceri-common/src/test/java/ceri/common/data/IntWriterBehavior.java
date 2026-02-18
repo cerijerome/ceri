@@ -27,10 +27,10 @@ public class IntWriterBehavior {
 		assertInts(1, w -> w.writeBool(true), 1);
 		assertInts(1, w -> w.writeInt(MIN_VALUE), MIN_VALUE);
 		assertInts(2, w -> w.writeLong(0xff01007f80L),
-			msb ? Array.ints.of(0xff, 0x1007f80) : Array.ints.of(0x1007f80, 0xff));
+			msb ? Array.INT.of(0xff, 0x1007f80) : Array.INT.of(0x1007f80, 0xff));
 		assertInts(1, w -> w.writeFloat(Float.intBitsToFloat(0xff01007f)), 0xff01007f);
 		assertInts(2, w -> w.writeDouble(Double.longBitsToDouble(0xff01007f80L)),
-			msb ? Array.ints.of(0xff, 0x1007f80) : Array.ints.of(0x1007f80, 0xff));
+			msb ? Array.INT.of(0xff, 0x1007f80) : Array.INT.of(0x1007f80, 0xff));
 	}
 
 	@Test

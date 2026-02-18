@@ -37,7 +37,7 @@ public class COutputStreamBehavior {
 		var lib = initOut();
 		Assert.equal(out.bufferSize(), 3);
 		lib.write.autoResponses(1, 2, 1);
-		out.write(Array.bytes.of(1, 2, 3, 4, 5));
+		out.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		lib.write.assertValues( //
 			WriteArgs.of(fd, 1, 2, 3), // 1 byte written
 			WriteArgs.of(fd, 2, 3), // 2 bytes written

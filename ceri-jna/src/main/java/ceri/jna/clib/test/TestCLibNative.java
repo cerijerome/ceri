@@ -134,7 +134,7 @@ public class TestCLibNative implements CLib.Native {
 
 		public static PollArgs of(pollfd[] pollfds, long timeoutNs, int... signals) {
 			return new PollArgs(List.of(pollfds), Duration.ofNanos(timeoutNs),
-				Set.of(Array.ints.boxed(signals)));
+				Set.of(Array.INT.boxed(signals)));
 		}
 
 		/**
@@ -400,7 +400,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	private static int[] signals(Pointer sigmask) {
-		if (sigmask == null) return Array.ints.empty;
+		if (sigmask == null) return Array.INT.empty;
 		return Bytes.bits(sigmask.getInt(0));
 	}
 

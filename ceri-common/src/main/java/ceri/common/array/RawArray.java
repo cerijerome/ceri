@@ -77,7 +77,7 @@ public class RawArray {
 	 * Creates an array of given dimensions.
 	 */
 	public static <T> T ofType(Class<?> type, int... sizes) {
-		return type == null || sizes.length == 0 ? null :
+		return type == null || sizes == null || sizes.length == 0 ? null :
 			Reflect.unchecked(java.lang.reflect.Array.newInstance(type, sizes));
 	}
 

@@ -159,7 +159,7 @@ public class IntProviderBehavior {
 	public void shouldDetermineIfIntsAreEqual() {
 		Assert.yes(ip.isEqualTo(5, -5, 6, -7, 8, -9));
 		Assert.no(ip.isEqualTo(5, -5, 6, -7, 8, 9));
-		int[] ints = Array.ints.of(0, -1, 2, -3, 4);
+		int[] ints = Array.INT.of(0, -1, 2, -3, 4);
 		Assert.yes(ip.isEqualTo(0, ints));
 		Assert.no(ip.isEqualTo(0, ints, 0, 6));
 		Assert.no(ip.isEqualTo(9, -9, 0));
@@ -187,7 +187,7 @@ public class IntProviderBehavior {
 		Assert.equal(ip.indexOf(0, -1, 2, -3), 1);
 		Assert.equal(ip.indexOf(0, -1, 2, 3), -1);
 		Assert.equal(ip.indexOf(8, -1, 2, -3), -1);
-		Assert.equal(ip.indexOf(0, Array.ints.of(-1, 2, -3), 0, 4), -1);
+		Assert.equal(ip.indexOf(0, Array.INT.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -204,7 +204,7 @@ public class IntProviderBehavior {
 		Assert.equal(ip.lastIndexOf(0, 2, -1), 5);
 		Assert.equal(ip.lastIndexOf(0, 2, 1), -1);
 		Assert.equal(ip.lastIndexOf(7, 0, -1), -1);
-		Assert.equal(ip.lastIndexOf(0, Array.ints.of(2, -1, 0), 0, 4), -1);
+		Assert.equal(ip.lastIndexOf(0, Array.INT.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test

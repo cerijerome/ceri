@@ -29,8 +29,8 @@ public class LongArrayBehavior {
 	public void shouldNotBreachImmutableEqualsContract() {
 		var t = Immutable.wrap(1, 2, 3);
 		var eq0 = Immutable.wrap(1, 2, 3);
-		var eq1 = Immutable.copyOf(Array.longs.of(1, 2, 3));
-		var eq2 = Immutable.copyOf(Array.longs.of(0, 1, 2, 3, 4), 1, 3);
+		var eq1 = Immutable.copyOf(Array.LONG.of(1, 2, 3));
+		var eq2 = Immutable.copyOf(Array.LONG.of(0, 1, 2, 3, 4), 1, 3);
 		var ne0 = Immutable.wrap(1, 2, 4);
 		var ne1 = Immutable.wrap(1, 2, 3, 0);
 		var ne2 = Immutable.wrap();
@@ -40,7 +40,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableCopy() {
-		long[] longs = Array.longs.of(1, 2, 3);
+		long[] longs = Array.LONG.of(1, 2, 3);
 		var im = Immutable.copyOf(longs);
 		longs[1] = 0;
 		Assert.equal(im.getLong(1), 2L);
@@ -48,9 +48,9 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableLongWrapper() {
-		Assert.yes(Immutable.wrap(Array.longs.of(1, 2, 3)).isEqualTo(0, 1, 2, 3));
-		Assert.yes(Immutable.wrap(Array.longs.of(1, 2, 3), 3).isEmpty());
-		long[] longs = Array.longs.of(1, 2, 3);
+		Assert.yes(Immutable.wrap(Array.LONG.of(1, 2, 3)).isEqualTo(0, 1, 2, 3));
+		Assert.yes(Immutable.wrap(Array.LONG.of(1, 2, 3), 3).isEmpty());
+		long[] longs = Array.LONG.of(1, 2, 3);
 		var im = Immutable.wrap(longs);
 		longs[1] = 0;
 		Assert.equal(im.getLong(1), 0L);
@@ -101,7 +101,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldSetLong() {
-		long[] longs = Array.longs.of(1, 2, -1L);
+		long[] longs = Array.LONG.of(1, 2, -1L);
 		var m = Mutable.wrap(longs);
 		Assert.equal(m.setLong(1, 0xffffeeeeddddccccL), 2);
 		Assert.array(longs, 1, 0xffffeeeeddddccccL, -1L);
@@ -120,8 +120,8 @@ public class LongArrayBehavior {
 		var m = Mutable.wrap(1, 2, 3, 4, 5);
 		Assert.equal(m.setLongs(3, -4, -5), 5);
 		Assert.yes(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		Assert.thrown(() -> m.copyFrom(3, Array.longs.of(1, 2, 3), 0));
-		Assert.thrown(() -> m.copyFrom(0, Array.longs.of(1, 2, 3), 2, 2));
+		Assert.thrown(() -> m.copyFrom(3, Array.LONG.of(1, 2, 3), 0));
+		Assert.thrown(() -> m.copyFrom(0, Array.LONG.of(1, 2, 3), 2, 2));
 	}
 
 	@Test
@@ -151,9 +151,9 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldDetermineIfEqualToLongs() {
-		Assert.yes(Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, Array.longs.of(2, 3, 4)));
-		Assert.no(Immutable.wrap(1, 2, 3).isEqualTo(2, Array.longs.of(1, 2)));
-		Assert.no(Immutable.wrap(1, 2, 3).isEqualTo(0, Array.longs.of(1, 2), 0, 3));
+		Assert.yes(Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, Array.LONG.of(2, 3, 4)));
+		Assert.no(Immutable.wrap(1, 2, 3).isEqualTo(2, Array.LONG.of(1, 2)));
+		Assert.no(Immutable.wrap(1, 2, 3).isEqualTo(0, Array.LONG.of(1, 2), 0, 3));
 	}
 
 	@Test
@@ -206,7 +206,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldEncodeAndReadFromIntoLongArray() {
-		long[] bin = Array.longs.of(1, 2, 3, 4, 5);
+		long[] bin = Array.LONG.of(1, 2, 3, 4, 5);
 		long[] bout = new long[3];
 		Encoder.of().writeFrom(bin, 1, 3).skip(-3).readInto(bout, 1, 2);
 		Assert.array(bout, 0, 2, 3);

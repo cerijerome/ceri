@@ -25,7 +25,7 @@ public class JnaAssert {
 	 * Fails unless remaining memory from offset matches bytes.
 	 */
 	public static void memory(Memory m, int offset, int... bytes) {
-		memory(m, offset, Array.bytes.of(bytes));
+		memory(m, offset, Array.BYTE.of(bytes));
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class JnaAssert {
 	 * Fails unless memory at pointer offset matches bytes.
 	 */
 	public static void pointer(Pointer p, int offset, int... bytes) {
-		pointer(p, offset, Array.bytes.of(bytes));
+		pointer(p, offset, Array.BYTE.of(bytes));
 	}
 
 	/**

@@ -1864,7 +1864,7 @@ public class LibUsb {
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		int... endpoints) throws LibUsbException {
-		return libusb_alloc_streams(dev, num_streams, Array.bytes.of(endpoints));
+		return libusb_alloc_streams(dev, num_streams, Array.BYTE.of(endpoints));
 	}
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
@@ -1879,7 +1879,7 @@ public class LibUsb {
 
 	public static void libusb_free_streams(libusb_device_handle dev, int... endpoints)
 		throws LibUsbException {
-		libusb_free_streams(dev, Array.bytes.of(endpoints));
+		libusb_free_streams(dev, Array.BYTE.of(endpoints));
 	}
 
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)

@@ -99,7 +99,7 @@ public class PollBehavior {
 
 	@SuppressWarnings("resource")
 	private void writeToPipe(int... bytes) throws IOException {
-		pipe.out().write(Array.bytes.of(bytes));
+		pipe.out().write(Array.BYTE.of(bytes));
 	}
 
 	private void initPipe() throws IOException {

@@ -213,7 +213,7 @@ public class IoStream {
 		return new OutputStream() {
 			@Override
 			public void write(int b) throws IOException {
-				if (writeFn != null) write(Array.bytes.of(b), 0, 1);
+				if (writeFn != null) write(Array.BYTE.of(b), 0, 1);
 			}
 
 			@Override
@@ -370,7 +370,7 @@ public class IoStream {
 
 	private static void write(OutputStream out, FilterWrite writeFn, int b) throws IOException {
 		if (writeFn == null) out.write(b);
-		else write(out, writeFn, Array.bytes.of(b), 0, 1);
+		else write(out, writeFn, Array.BYTE.of(b), 0, 1);
 	}
 
 	private static void write(OutputStream out, FilterWrite writeFn, byte[] b, int off, int len)
@@ -393,7 +393,7 @@ public class IoStream {
 
 			@Override
 			public byte[] readAllBytes() {
-				return Array.bytes.empty; // 1-byte instead?
+				return Array.BYTE.empty; // 1-byte instead?
 			}
 
 			@Override

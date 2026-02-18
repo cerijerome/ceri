@@ -102,7 +102,7 @@ public class SpiDeviceBehavior {
 	public void shouldTransferOut() throws IOException {
 		var lib = initSpi();
 		var xfer = spi.transfer(Direction.out, 5);
-		xfer.write(Array.bytes.of(1, 2, 3, 4, 5));
+		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read());
 		lib.ioctlSpiMsg.assertValues(new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1),
@@ -114,7 +114,7 @@ public class SpiDeviceBehavior {
 		var lib = initSpi();
 		lib.ioctlSpiMsg.autoResponses(ByteProvider.of(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.in, 5);
-		xfer.write(Array.bytes.of(1, 2, 3)); // ignored
+		xfer.write(Array.BYTE.of(1, 2, 3)); // ignored
 		xfer.execute();
 		Assert.array(xfer.read(), 5, 4, 3, 2, 1);
 		lib.ioctlSpiMsg.assertValues(
@@ -126,7 +126,7 @@ public class SpiDeviceBehavior {
 		var lib = initSpi();
 		lib.ioctlSpiMsg.autoResponses(ByteProvider.of(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.duplex, 5);
-		xfer.write(Array.bytes.of(5, 6, 7, 8, 9));
+		xfer.write(Array.BYTE.of(5, 6, 7, 8, 9));
 		xfer.execute();
 		Assert.array(xfer.read(), 5, 4, 3, 2, 1);
 		lib.ioctlSpiMsg.assertValues(new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1),

@@ -30,7 +30,7 @@ public class SpiEmulatorBehavior {
 	public void shouldIgnoreOutput() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.out, 5);
-		xfer.write(Array.bytes.of(1, 2, 3, 4, 5));
+		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read());
 	}
@@ -39,7 +39,7 @@ public class SpiEmulatorBehavior {
 	public void shouldProvideBlankInput() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.in, 5);
-		xfer.write(Array.bytes.of(1, 2, 3, 4, 5)); // ignored
+		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5)); // ignored
 		xfer.execute();
 		Assert.array(xfer.read(), 0, 0, 0, 0, 0);
 	}
@@ -48,7 +48,7 @@ public class SpiEmulatorBehavior {
 	public void shouldEcho() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.duplex, 5);
-		xfer.write(Array.bytes.of(1, 2, 3, 4, 5));
+		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read(), 1, 2, 3, 4, 5);
 	}
@@ -57,7 +57,7 @@ public class SpiEmulatorBehavior {
 	public void shouldDelayForTransferTime() throws IOException {
 		var spi = SpiEmulator.echo();
 		var xfer = spi.transfer(Direction.duplex, 3).speedHz(25000000);
-		xfer.write(Array.bytes.of(1, 2, 3));
+		xfer.write(Array.BYTE.of(1, 2, 3));
 		xfer.execute(); // < 1us
 		Assert.array(xfer.read(), 1, 2, 3);
 	}

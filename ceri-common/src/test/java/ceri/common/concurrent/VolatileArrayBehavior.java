@@ -15,7 +15,7 @@ public class VolatileArrayBehavior {
 
 	@Test
 	public void shouldCopyArray() {
-		byte[] b = Array.bytes.of(0xff, 0x80, 0x7f);
+		byte[] b = Array.BYTE.of(0xff, 0x80, 0x7f);
 		var a = VolatileArray.BYTES.copyOf(b);
 		a.setByte(2, 0);
 		Assert.array(b, 0xff, 0x80, 0x7f);
@@ -24,7 +24,7 @@ public class VolatileArrayBehavior {
 
 	@Test
 	public void shouldWrapArray() {
-		long[] l = Array.longs.of(-1, 0x80, 0x7f);
+		long[] l = Array.LONG.of(-1, 0x80, 0x7f);
 		var a = VolatileArray.LONGS.wrap(l);
 		a.setLong(2, 0);
 		Assert.array(l, -1, 0x80, 0);
@@ -52,7 +52,7 @@ public class VolatileArrayBehavior {
 	}
 
 	private static VolatileArray.Bytes bytes(int... values) {
-		return VolatileArray.BYTES.wrap(Array.bytes.of(values));
+		return VolatileArray.BYTES.wrap(Array.BYTE.of(values));
 	}
 
 	private static VolatileArray.Ints ints(int... values) {

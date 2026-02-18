@@ -17,9 +17,9 @@ import ceri.common.util.Validate;
  * Fixed-size arrays with volatile access to values.
  */
 public class VolatileArray<A, T> {
-	public static final Factory<byte[], Bytes> BYTES = new Factory<>(Array.bytes, Bytes::new);
-	public static final Factory<int[], Ints> INTS = new Factory<>(Array.ints, Ints::new);
-	public static final Factory<long[], Longs> LONGS = new Factory<>(Array.longs, Longs::new);
+	public static final Factory<byte[], Bytes> BYTES = new Factory<>(Array.BYTE, Bytes::new);
+	public static final Factory<int[], Ints> INTS = new Factory<>(Array.INT, Ints::new);
+	public static final Factory<long[], Longs> LONGS = new Factory<>(Array.LONG, Longs::new);
 	private final Factory<A, T> factory;
 	private final A array;
 	private final int offset;

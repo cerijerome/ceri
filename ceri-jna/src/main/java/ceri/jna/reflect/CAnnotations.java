@@ -54,7 +54,7 @@ public class CAnnotations {
 
 			/** No targets to process. */
 			public static final Value NONE =
-				new Value(JnaOs.NONE, Array.Empty.classes, Array.Empty.classes, "");
+				new Value(JnaOs.NONE, Array.CLASS.empty, Array.CLASS.empty, "");
 
 			/**
 			 * Create from annotation.

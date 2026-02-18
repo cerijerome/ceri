@@ -122,7 +122,7 @@ public class IoTest {
 	@Test
 	public void testAvailableBytes() throws IOException {
 		Assert.isNull(Io.availableBytes(null));
-		try (var in = new ByteArrayInputStream(Array.bytes.of(0, 1, 2, 3, 4))) {
+		try (var in = new ByteArrayInputStream(Array.BYTE.of(0, 1, 2, 3, 4))) {
 			Assert.equal(Io.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
 			Assert.equal(Io.availableBytes(in), ByteProvider.empty());
 		}
@@ -135,7 +135,7 @@ public class IoTest {
 	public void testAvailableBytesWithPredicate() throws IOException {
 		Assert.isNull(Io.availableBytes(null, null));
 		Excepts.ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
-		try (var in = new ByteArrayInputStream(Array.bytes.of(0, 1, -1, -1, 2, 3))) {
+		try (var in = new ByteArrayInputStream(Array.BYTE.of(0, 1, -1, -1, 2, 3))) {
 			Assert.equal(Io.availableBytes(in, p), ByteProvider.of(0, 1, -1));
 			Assert.equal(Io.availableBytes(in, p), ByteProvider.of(-1));
 			Assert.equal(Io.availableBytes(in, p), ByteProvider.of(2, 3));
@@ -152,7 +152,7 @@ public class IoTest {
 	@Test
 	public void testReadBytes() throws IOException {
 		Assert.equal(Io.readBytes(null, null), 0);
-		try (var in = new ByteArrayInputStream(Array.bytes.of(0, 1, 2, 3, 4))) {
+		try (var in = new ByteArrayInputStream(Array.BYTE.of(0, 1, 2, 3, 4))) {
 			Assert.equal(Io.readBytes(in, null), 0);
 			byte[] buffer = new byte[4];
 			Io.readBytes(in, buffer);

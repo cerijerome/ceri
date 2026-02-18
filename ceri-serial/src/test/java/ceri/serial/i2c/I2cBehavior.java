@@ -17,7 +17,7 @@ public class I2cBehavior {
 		I2c.NULL.smBus(I2cAddress.of(0x28));
 		Assert.unordered(I2c.NULL.functions(), i2c_func.xcoder.all());
 		I2c.NULL.writeData(I2cAddress.of(0x28), 0xab, 0xcd);
-		Assert.array(I2c.NULL.readData(I2cAddress.of(0x28), Array.bytes.of(1, 2, 3), 3), 0, 0,
+		Assert.array(I2c.NULL.readData(I2cAddress.of(0x28), Array.BYTE.of(1, 2, 3), 3), 0, 0,
 			0);
 		Assert.find(I2c.NULL, ".*NULL$");
 	}

@@ -12,7 +12,7 @@ public class TestSerialBehavior {
 	public void shouldEchoOutputToInput() throws IOException {
 		try (var serial = TestSerial.ofEcho()) {
 			serial.open();
-			serial.out().write(Array.bytes.of(1, 2, 3));
+			serial.out().write(Array.BYTE.of(1, 2, 3));
 			Assert.read(serial.in(), 1, 2, 3);
 		}
 	}
@@ -23,9 +23,9 @@ public class TestSerialBehavior {
 		var serials = TestSerial.pairOf();
 		serials[0].open();
 		serials[1].open();
-		serials[0].out().write(Array.bytes.of(1, 2, 3));
+		serials[0].out().write(Array.BYTE.of(1, 2, 3));
 		Assert.read(serials[1].in(), 1, 2, 3);
-		serials[1].out().write(Array.bytes.of(4, 5, 6));
+		serials[1].out().write(Array.BYTE.of(4, 5, 6));
 		Assert.read(serials[0].in(), 4, 5, 6);
 	}
 

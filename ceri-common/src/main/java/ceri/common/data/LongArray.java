@@ -28,7 +28,7 @@ public abstract class LongArray implements LongProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends LongArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(Array.longs.empty, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Array.LONG.empty, 0, 0);
 
 		public static Immutable copyOf(long[] array) {
 			return copyOf(array, 0);
@@ -97,7 +97,7 @@ public abstract class LongArray implements LongProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends LongArray implements LongAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(Array.longs.empty, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Array.LONG.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new long[length]);
@@ -426,7 +426,7 @@ public abstract class LongArray implements LongProvider {
 
 	@Override
 	public long[] copy(int index, int length) {
-		if (length == 0) return Array.longs.empty;
+		if (length == 0) return Array.LONG.empty;
 		Validate.slice(length(), index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -450,7 +450,7 @@ public abstract class LongArray implements LongProvider {
 	public boolean isEqualTo(int index, long[] array, int offset, int length) {
 		if (!Array.isValidSlice(length(), index, length)) return false;
 		if (!Array.isValidSlice(array.length, offset, length)) return false;
-		return Array.longs.equals(this.array, offset(index), array, offset, length);
+		return Array.LONG.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -470,11 +470,11 @@ public abstract class LongArray implements LongProvider {
 
 	boolean isEqual(LongArray other) {
 		if (length != other.length) return false;
-		return Array.longs.equals(array, offset(0), other.array, other.offset(0), length);
+		return Array.LONG.equals(array, offset(0), other.array, other.offset(0), length);
 	}
 
 	int hash() {
-		return Array.longs.hash(array, offset, length);
+		return Array.LONG.hash(array, offset, length);
 	}
 
 	int offset(int index) {

@@ -74,7 +74,7 @@ public class Data {
 	 * Expect next byte values. Reading stops if a byte does not match, and an exception is thrown.
 	 */
 	public static void expect(ByteReader r, int... bytes) {
-		expect(r, Array.bytes.of(bytes));
+		expect(r, Array.BYTE.of(bytes));
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class Data {
 	 * length bytes.
 	 */
 	public static void expectAll(ByteReader r, int... bytes) {
-		expectAll(r, Array.bytes.of(bytes));
+		expectAll(r, Array.BYTE.of(bytes));
 	}
 
 	/**

@@ -43,7 +43,7 @@ public class Collect {
 			new Composed<>(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
 		/** Collects elements into a sorted primitive array. */
 		public static final IntStream.Collector<?, int[]> sortedArray = new Composed<>(
-			DynamicArray::ints, DynamicArray.OfInt::accept, a -> Array.ints.sort(a.truncate()));
+			DynamicArray::ints, DynamicArray.OfInt::accept, a -> Array.INT.sort(a.truncate()));
 		/** Calculates the average value of elements. */
 		public static final IntStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);
@@ -75,7 +75,7 @@ public class Collect {
 		/** Collects elements into a sorted primitive array. */
 		public static final LongStream.Collector<DynamicArray.OfLong, long[]> sortedArray =
 			new Composed<>(DynamicArray::longs, DynamicArray.OfLong::accept,
-				a -> Array.longs.sort(a.truncate()));
+				a -> Array.LONG.sort(a.truncate()));
 		/** Calculates the average value of elements. */
 		public static final LongStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);
@@ -101,7 +101,7 @@ public class Collect {
 		/** Collects elements into a sorted primitive array. */
 		public static final DoubleStream.Collector<DynamicArray.OfDouble, double[]> sortedArray =
 			new Composed<>(DynamicArray::doubles, DynamicArray.OfDouble::accept,
-				a -> Array.doubles.sort(a.truncate()));
+				a -> Array.DOUBLE.sort(a.truncate()));
 		/** Calculates the average value of elements. */
 		public static final DoubleStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);

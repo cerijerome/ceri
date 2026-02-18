@@ -18,311 +18,311 @@ public class PrimitiveArrayBehavior {
 
 	@Test
 	public void shouldCreateFromVarargs() {
-		Assert.array(Array.bools.of(bools), bools);
-		Assert.array(Array.bools.of(bools), bools);
-		Assert.array(Array.chars.of(chars), chars);
-		Assert.array(Array.bytes.of(bytes), bytes);
-		Assert.array(Array.shorts.of(shorts), shorts);
-		Assert.array(Array.ints.of(ints), ints);
-		Assert.array(Array.longs.of(longs), longs);
-		Assert.array(Array.floats.of(floats), floats);
-		Assert.array(Array.doubles.of(doubles), doubles);
+		Assert.array(Array.BOOL.of(bools), bools);
+		Assert.array(Array.BOOL.of(bools), bools);
+		Assert.array(Array.CHAR.of(chars), chars);
+		Assert.array(Array.BYTE.of(bytes), bytes);
+		Assert.array(Array.SHORT.of(shorts), shorts);
+		Assert.array(Array.INT.of(ints), ints);
+		Assert.array(Array.LONG.of(longs), longs);
+		Assert.array(Array.FLOAT.of(floats), floats);
+		Assert.array(Array.DOUBLE.of(doubles), doubles);
 	}
 
 	@Test
 	public void shouldCreateRange() {
-		Assert.array(Array.ints.range(5, 0));
-		Assert.array(Array.ints.range(-1, 3), -1, 0, 1);
-		Assert.array(Array.longs.range(5, 0));
-		Assert.array(Array.longs.range(-1, 3), -1L, 0L, 1L);
+		Assert.array(Array.INT.range(5, 0));
+		Assert.array(Array.INT.range(-1, 3), -1, 0, 1);
+		Assert.array(Array.LONG.range(5, 0));
+		Assert.array(Array.LONG.range(-1, 3), -1L, 0L, 1L);
 	}
 
 	@Test
 	public void shouldBoxElements() {
-		assertBoxed(Array.bools.boxed(bools), true, false, true);
-		assertBoxed(Array.chars.boxed(chars), 'a', '\0', 'c');
-		assertBoxed(Array.bytes.boxed(bytes), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0);
-		assertBoxed(Array.bytes.boxed(0x80, 0x7f, 0), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0);
-		assertBoxed(Array.shorts.boxed(shorts), Short.MIN_VALUE, Short.MAX_VALUE, (short) 0);
-		assertBoxed(Array.shorts.boxed(0x8000, 0x7fff, 0), Short.MIN_VALUE, Short.MAX_VALUE,
+		assertBoxed(Array.BOOL.boxed(bools), true, false, true);
+		assertBoxed(Array.CHAR.boxed(chars), 'a', '\0', 'c');
+		assertBoxed(Array.BYTE.boxed(bytes), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0);
+		assertBoxed(Array.BYTE.boxed(0x80, 0x7f, 0), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0);
+		assertBoxed(Array.SHORT.boxed(shorts), Short.MIN_VALUE, Short.MAX_VALUE, (short) 0);
+		assertBoxed(Array.SHORT.boxed(0x8000, 0x7fff, 0), Short.MIN_VALUE, Short.MAX_VALUE,
 			(short) 0);
-		assertBoxed(Array.ints.boxed(ints), Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-		assertBoxed(Array.longs.boxed(longs), Long.MIN_VALUE, Long.MAX_VALUE, 0L);
-		assertBoxed(Array.floats.boxed(floats), Float.MIN_VALUE, Float.MAX_VALUE, 0f);
-		assertBoxed(Array.floats.boxed(Float.MIN_VALUE, Float.MAX_VALUE, 0.0), Float.MIN_VALUE,
+		assertBoxed(Array.INT.boxed(ints), Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+		assertBoxed(Array.LONG.boxed(longs), Long.MIN_VALUE, Long.MAX_VALUE, 0L);
+		assertBoxed(Array.FLOAT.boxed(floats), Float.MIN_VALUE, Float.MAX_VALUE, 0f);
+		assertBoxed(Array.FLOAT.boxed(Float.MIN_VALUE, Float.MAX_VALUE, 0.0), Float.MIN_VALUE,
 			Float.MAX_VALUE, 0f);
-		assertBoxed(Array.doubles.boxed(doubles), Double.MIN_VALUE, Double.MAX_VALUE, 0.0);
+		assertBoxed(Array.DOUBLE.boxed(doubles), Double.MIN_VALUE, Double.MAX_VALUE, 0.0);
 	}
 
 	@Test
 	public void shouldUnboxElements() {
-		Assert.array(Array.bools.unboxed(Array.of(true, false, true)), bools);
-		Assert.array(Array.chars.unboxed(Array.of('a', '\0', 'c')), chars);
+		Assert.array(Array.BOOL.unboxed(Array.of(true, false, true)), bools);
+		Assert.array(Array.CHAR.unboxed(Array.of('a', '\0', 'c')), chars);
 	}
 
 	@Test
 	public void shouldUnboxLists() {
-		Assert.array(Array.bools.unboxed(List.of(true, false, true), 1), false, true);
-		Assert.array(Array.chars.unboxed(List.of('a', '\0', 'c'), 1), '\0', 'c');
+		Assert.array(Array.BOOL.unboxed(List.of(true, false, true), 1), false, true);
+		Assert.array(Array.CHAR.unboxed(List.of('a', '\0', 'c'), 1), '\0', 'c');
 	}
 
 	@Test
 	public void shouldProvideElementAtIndex() {
-		Assert.equal(Array.bools.at(bools, 1, true), false);
-		Assert.equal(Array.bools.at(bools, -1, true), true);
-		Assert.equal(Array.chars.at(chars, 1, -1), '\0');
-		Assert.equal(Array.chars.at(chars, -1, -1), (char) -1);
-		Assert.equal(Array.bytes.at(bytes, 1, -1), Byte.MAX_VALUE);
-		Assert.equal(Array.bytes.at(bytes, -1, -1), (byte) -1);
-		Assert.equal(Array.shorts.at(shorts, 1, -1), Short.MAX_VALUE);
-		Assert.equal(Array.shorts.at(shorts, -1, -1), (short) -1);
-		Assert.equal(Array.ints.at(ints, 1, -1), Integer.MAX_VALUE);
-		Assert.equal(Array.ints.at(ints, -1, -1), -1);
-		Assert.equal(Array.longs.at(longs, 1, -1), Long.MAX_VALUE);
-		Assert.equal(Array.longs.at(longs, -1, -1), -1L);
-		Assert.equal(Array.floats.at(floats, 1, -1), Float.MAX_VALUE);
-		Assert.equal(Array.floats.at(floats, -1, -1.0), -1f);
-		Assert.equal(Array.doubles.at(doubles, 1, -1), Double.MAX_VALUE);
-		Assert.equal(Array.doubles.at(doubles, -1, -1), -1.0);
+		Assert.equal(Array.BOOL.at(bools, 1, true), false);
+		Assert.equal(Array.BOOL.at(bools, -1, true), true);
+		Assert.equal(Array.CHAR.at(chars, 1, -1), '\0');
+		Assert.equal(Array.CHAR.at(chars, -1, -1), (char) -1);
+		Assert.equal(Array.BYTE.at(bytes, 1, -1), Byte.MAX_VALUE);
+		Assert.equal(Array.BYTE.at(bytes, -1, -1), (byte) -1);
+		Assert.equal(Array.SHORT.at(shorts, 1, -1), Short.MAX_VALUE);
+		Assert.equal(Array.SHORT.at(shorts, -1, -1), (short) -1);
+		Assert.equal(Array.INT.at(ints, 1, -1), Integer.MAX_VALUE);
+		Assert.equal(Array.INT.at(ints, -1, -1), -1);
+		Assert.equal(Array.LONG.at(longs, 1, -1), Long.MAX_VALUE);
+		Assert.equal(Array.LONG.at(longs, -1, -1), -1L);
+		Assert.equal(Array.FLOAT.at(floats, 1, -1), Float.MAX_VALUE);
+		Assert.equal(Array.FLOAT.at(floats, -1, -1.0), -1f);
+		Assert.equal(Array.DOUBLE.at(doubles, 1, -1), Double.MAX_VALUE);
+		Assert.equal(Array.DOUBLE.at(doubles, -1, -1), -1.0);
 	}
 
 	@Test
 	public void shouldProvideLastElement() {
-		Assert.equal(Array.bools.last(bools, false), true);
-		Assert.equal(Array.bools.last(Array.bools.empty, false), false);
-		Assert.equal(Array.chars.last(chars, -1), 'c');
-		Assert.equal(Array.chars.last(Array.chars.empty, -1), (char) -1);
-		Assert.equal(Array.bytes.last(bytes, -1), (byte) 0);
-		Assert.equal(Array.bytes.last(Array.bytes.empty, -1), (byte) -1);
-		Assert.equal(Array.shorts.last(shorts, -1), (short) 0);
-		Assert.equal(Array.shorts.last(Array.shorts.empty, -1), (short) -1);
-		Assert.equal(Array.ints.last(ints, -1), 0);
-		Assert.equal(Array.ints.last(Array.ints.empty, -1), -1);
-		Assert.equal(Array.longs.last(longs, -1), 0L);
-		Assert.equal(Array.longs.last(Array.longs.empty, -1), -1L);
-		Assert.equal(Array.floats.last(floats, -1), 0f);
-		Assert.equal(Array.floats.last(Array.floats.empty, -1.0), -1f);
-		Assert.equal(Array.doubles.last(doubles, -1), 0.0);
-		Assert.equal(Array.doubles.last(Array.doubles.empty, -1), -1.0);
+		Assert.equal(Array.BOOL.last(bools, false), true);
+		Assert.equal(Array.BOOL.last(Array.BOOL.empty, false), false);
+		Assert.equal(Array.CHAR.last(chars, -1), 'c');
+		Assert.equal(Array.CHAR.last(Array.CHAR.empty, -1), (char) -1);
+		Assert.equal(Array.BYTE.last(bytes, -1), (byte) 0);
+		Assert.equal(Array.BYTE.last(Array.BYTE.empty, -1), (byte) -1);
+		Assert.equal(Array.SHORT.last(shorts, -1), (short) 0);
+		Assert.equal(Array.SHORT.last(Array.SHORT.empty, -1), (short) -1);
+		Assert.equal(Array.INT.last(ints, -1), 0);
+		Assert.equal(Array.INT.last(Array.INT.empty, -1), -1);
+		Assert.equal(Array.LONG.last(longs, -1), 0L);
+		Assert.equal(Array.LONG.last(Array.LONG.empty, -1), -1L);
+		Assert.equal(Array.FLOAT.last(floats, -1), 0f);
+		Assert.equal(Array.FLOAT.last(Array.FLOAT.empty, -1.0), -1f);
+		Assert.equal(Array.DOUBLE.last(doubles, -1), 0.0);
+		Assert.equal(Array.DOUBLE.last(Array.DOUBLE.empty, -1), -1.0);
 	}
 
 	@Test
 	public void shouldAppendElements() {
-		Assert.array(Array.bools.append(bools, false), true, false, true, false);
-		Assert.array(Array.chars.append(chars, (char) -1), 'a', '\0', 'c', (char) -1);
-		Assert.array(Array.bytes.append(bytes, (byte) -1), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0,
+		Assert.array(Array.BOOL.append(bools, false), true, false, true, false);
+		Assert.array(Array.CHAR.append(chars, (char) -1), 'a', '\0', 'c', (char) -1);
+		Assert.array(Array.BYTE.append(bytes, (byte) -1), Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0,
 			(byte) -1);
-		Assert.array(Array.shorts.append(shorts, (short) -1), Short.MIN_VALUE, Short.MAX_VALUE,
+		Assert.array(Array.SHORT.append(shorts, (short) -1), Short.MIN_VALUE, Short.MAX_VALUE,
 			(short) 0, (short) -1);
-		Assert.array(Array.ints.append(ints, -1), Integer.MIN_VALUE, Integer.MAX_VALUE, 0, -1);
-		Assert.array(Array.longs.append(longs, -1), Long.MIN_VALUE, Long.MAX_VALUE, 0L, -1L);
-		Assert.array(Array.floats.append(floats, -1), Float.MIN_VALUE, Float.MAX_VALUE, 0f, -1f);
-		Assert.array(Array.doubles.append(doubles, -1), Double.MIN_VALUE, Double.MAX_VALUE, 0.0,
+		Assert.array(Array.INT.append(ints, -1), Integer.MIN_VALUE, Integer.MAX_VALUE, 0, -1);
+		Assert.array(Array.LONG.append(longs, -1), Long.MIN_VALUE, Long.MAX_VALUE, 0L, -1L);
+		Assert.array(Array.FLOAT.append(floats, -1), Float.MIN_VALUE, Float.MAX_VALUE, 0f, -1f);
+		Assert.array(Array.DOUBLE.append(doubles, -1), Double.MIN_VALUE, Double.MAX_VALUE, 0.0,
 			-1.0);
 	}
 
 	@Test
 	public void shouldInsertElements() {
-		Assert.array(Array.bools.insert(bools, 1, false), true, false, false, true);
-		Assert.array(Array.chars.insert(chars, 1, (char) -1), 'a', (char) -1, '\0', 'c');
-		Assert.array(Array.bytes.insert(bytes, 1, (byte) -1), Byte.MIN_VALUE, (byte) -1,
+		Assert.array(Array.BOOL.insert(bools, 1, false), true, false, false, true);
+		Assert.array(Array.CHAR.insert(chars, 1, (char) -1), 'a', (char) -1, '\0', 'c');
+		Assert.array(Array.BYTE.insert(bytes, 1, (byte) -1), Byte.MIN_VALUE, (byte) -1,
 			Byte.MAX_VALUE, (byte) 0);
-		Assert.array(Array.shorts.insert(shorts, 1, (short) -1), Short.MIN_VALUE, (short) -1,
+		Assert.array(Array.SHORT.insert(shorts, 1, (short) -1), Short.MIN_VALUE, (short) -1,
 			Short.MAX_VALUE, (short) 0);
-		Assert.array(Array.ints.insert(ints, 1, -1), Integer.MIN_VALUE, -1, Integer.MAX_VALUE, 0);
-		Assert.array(Array.longs.insert(longs, 1, -1), Long.MIN_VALUE, -1L, Long.MAX_VALUE, 0L);
-		Assert.array(Array.floats.insert(floats, 1, -1), Float.MIN_VALUE, -1f, Float.MAX_VALUE, 0f);
-		Assert.array(Array.doubles.insert(doubles, 1, -1), Double.MIN_VALUE, -1.0, Double.MAX_VALUE,
+		Assert.array(Array.INT.insert(ints, 1, -1), Integer.MIN_VALUE, -1, Integer.MAX_VALUE, 0);
+		Assert.array(Array.LONG.insert(longs, 1, -1), Long.MIN_VALUE, -1L, Long.MAX_VALUE, 0L);
+		Assert.array(Array.FLOAT.insert(floats, 1, -1), Float.MIN_VALUE, -1f, Float.MAX_VALUE, 0f);
+		Assert.array(Array.DOUBLE.insert(doubles, 1, -1), Double.MIN_VALUE, -1.0, Double.MAX_VALUE,
 			0.0);
 	}
 
 	@Test
 	public void shouldDetermineIfElementsAreContained() {
-		Assert.equal(Array.bools.contains(bools, bools), true);
-		Assert.equal(Array.chars.contains(chars, chars), true);
-		Assert.equal(Array.bytes.contains(bytes, bytes), true);
-		Assert.equal(Array.shorts.contains(shorts, shorts), true);
-		Assert.equal(Array.ints.contains(ints, ints), true);
-		Assert.equal(Array.longs.contains(longs, longs), true);
-		Assert.equal(Array.floats.contains(floats, floats), true);
-		Assert.equal(Array.doubles.contains(doubles, doubles), true);
+		Assert.equal(Array.BOOL.contains(bools, bools), true);
+		Assert.equal(Array.CHAR.contains(chars, chars), true);
+		Assert.equal(Array.BYTE.contains(bytes, bytes), true);
+		Assert.equal(Array.SHORT.contains(shorts, shorts), true);
+		Assert.equal(Array.INT.contains(ints, ints), true);
+		Assert.equal(Array.LONG.contains(longs, longs), true);
+		Assert.equal(Array.FLOAT.contains(floats, floats), true);
+		Assert.equal(Array.DOUBLE.contains(doubles, doubles), true);
 	}
 
 	@Test
 	public void shouldDetermineIndexOfElements() {
-		Assert.equal(Array.bools.indexOf(bools, bools), 0);
-		Assert.equal(Array.chars.indexOf(chars, chars), 0);
-		Assert.equal(Array.bytes.indexOf(bytes, bytes), 0);
-		Assert.equal(Array.shorts.indexOf(shorts, shorts), 0);
-		Assert.equal(Array.ints.indexOf(ints, ints), 0);
-		Assert.equal(Array.longs.indexOf(longs, longs), 0);
-		Assert.equal(Array.floats.indexOf(floats, floats), 0);
-		Assert.equal(Array.doubles.indexOf(doubles, doubles), 0);
+		Assert.equal(Array.BOOL.indexOf(bools, bools), 0);
+		Assert.equal(Array.CHAR.indexOf(chars, chars), 0);
+		Assert.equal(Array.BYTE.indexOf(bytes, bytes), 0);
+		Assert.equal(Array.SHORT.indexOf(shorts, shorts), 0);
+		Assert.equal(Array.INT.indexOf(ints, ints), 0);
+		Assert.equal(Array.LONG.indexOf(longs, longs), 0);
+		Assert.equal(Array.FLOAT.indexOf(floats, floats), 0);
+		Assert.equal(Array.DOUBLE.indexOf(doubles, doubles), 0);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfElements() {
-		Assert.equal(Array.bools.lastIndexOf(bools, bools), 0);
-		Assert.equal(Array.chars.lastIndexOf(chars, chars), 0);
-		Assert.equal(Array.bytes.lastIndexOf(bytes, bytes), 0);
-		Assert.equal(Array.shorts.lastIndexOf(shorts, shorts), 0);
-		Assert.equal(Array.ints.lastIndexOf(ints, ints), 0);
-		Assert.equal(Array.longs.lastIndexOf(longs, longs), 0);
-		Assert.equal(Array.floats.lastIndexOf(floats, floats), 0);
-		Assert.equal(Array.doubles.lastIndexOf(doubles, doubles), 0);
+		Assert.equal(Array.BOOL.lastIndexOf(bools, bools), 0);
+		Assert.equal(Array.CHAR.lastIndexOf(chars, chars), 0);
+		Assert.equal(Array.BYTE.lastIndexOf(bytes, bytes), 0);
+		Assert.equal(Array.SHORT.lastIndexOf(shorts, shorts), 0);
+		Assert.equal(Array.INT.lastIndexOf(ints, ints), 0);
+		Assert.equal(Array.LONG.lastIndexOf(longs, longs), 0);
+		Assert.equal(Array.FLOAT.lastIndexOf(floats, floats), 0);
+		Assert.equal(Array.DOUBLE.lastIndexOf(doubles, doubles), 0);
 	}
 
 	@Test
 	public void shouldFillElements() {
-		Assert.array(Array.bools.fill(new boolean[3], true), true, true, true);
-		Assert.array(Array.chars.fill(new char[3], (char) -1), (char) -1, (char) -1, (char) -1);
-		Assert.array(Array.bytes.fill(new byte[3], (byte) -1), (byte) -1, (byte) -1, (byte) -1);
-		Assert.array(Array.shorts.fill(new short[3], (short) -1), (short) -1, (short) -1,
+		Assert.array(Array.BOOL.fill(new boolean[3], true), true, true, true);
+		Assert.array(Array.CHAR.fill(new char[3], (char) -1), (char) -1, (char) -1, (char) -1);
+		Assert.array(Array.BYTE.fill(new byte[3], (byte) -1), (byte) -1, (byte) -1, (byte) -1);
+		Assert.array(Array.SHORT.fill(new short[3], (short) -1), (short) -1, (short) -1,
 			(short) -1);
-		Assert.array(Array.ints.fill(new int[3], -1), -1, -1, -1);
-		Assert.array(Array.longs.fill(new long[3], -1), -1L, -1L, -1L);
-		Assert.array(Array.floats.fill(new float[3], -1), -1f, -1f, -1f);
-		Assert.array(Array.doubles.fill(new double[3], -1), -1.0, -1.0, -1.0);
+		Assert.array(Array.INT.fill(new int[3], -1), -1, -1, -1);
+		Assert.array(Array.LONG.fill(new long[3], -1), -1L, -1L, -1L);
+		Assert.array(Array.FLOAT.fill(new float[3], -1), -1f, -1f, -1f);
+		Assert.array(Array.DOUBLE.fill(new double[3], -1), -1.0, -1.0, -1.0);
 	}
 
 	@Test
 	public void shouldReverseElements() {
-		Assert.array(Array.bools.reverse(bools.clone()), true, false, true);
-		Assert.array(Array.chars.reverse(chars.clone()), 'c', '\0', 'a');
-		Assert.array(Array.bytes.reverse(bytes.clone()), 0, Byte.MAX_VALUE, Byte.MIN_VALUE);
-		Assert.array(Array.shorts.reverse(shorts.clone()), 0, Short.MAX_VALUE, Short.MIN_VALUE);
-		Assert.array(Array.ints.reverse(ints.clone()), 0, Integer.MAX_VALUE, Integer.MIN_VALUE);
-		Assert.array(Array.longs.reverse(longs.clone()), 0, Long.MAX_VALUE, Long.MIN_VALUE);
-		Assert.array(Array.floats.reverse(floats.clone()), 0, Float.MAX_VALUE, Float.MIN_VALUE);
-		Assert.array(Array.doubles.reverse(doubles.clone()), 0, Double.MAX_VALUE, Double.MIN_VALUE);
+		Assert.array(Array.BOOL.reverse(bools.clone()), true, false, true);
+		Assert.array(Array.CHAR.reverse(chars.clone()), 'c', '\0', 'a');
+		Assert.array(Array.BYTE.reverse(bytes.clone()), 0, Byte.MAX_VALUE, Byte.MIN_VALUE);
+		Assert.array(Array.SHORT.reverse(shorts.clone()), 0, Short.MAX_VALUE, Short.MIN_VALUE);
+		Assert.array(Array.INT.reverse(ints.clone()), 0, Integer.MAX_VALUE, Integer.MIN_VALUE);
+		Assert.array(Array.LONG.reverse(longs.clone()), 0, Long.MAX_VALUE, Long.MIN_VALUE);
+		Assert.array(Array.FLOAT.reverse(floats.clone()), 0, Float.MAX_VALUE, Float.MIN_VALUE);
+		Assert.array(Array.DOUBLE.reverse(doubles.clone()), 0, Double.MAX_VALUE, Double.MIN_VALUE);
 	}
 
 	@Test
 	public void shouldConsumeElements() {
-		Captor.of().apply(c -> Array.bools.forEach(bools, c::accept)).verify(true, false, true);
-		Captor.of().apply(c -> Array.chars.forEach(chars, c::accept)).verify(97, 0, 99);
-		Captor.of().apply(c -> Array.bytes.forEach(bytes, c::accept)).verify(-0x80, 0x7f, 0);
-		Captor.of().apply(c -> Array.shorts.forEach(shorts, c::accept)).verify(-0x8000, 0x7fff, 0);
-		Captor.of().apply(c -> Array.ints.forEach(ints, c::accept)).verify(Integer.MIN_VALUE,
+		Captor.of().apply(c -> Array.BOOL.forEach(bools, c::accept)).verify(true, false, true);
+		Captor.of().apply(c -> Array.CHAR.forEach(chars, c::accept)).verify(97, 0, 99);
+		Captor.of().apply(c -> Array.BYTE.forEach(bytes, c::accept)).verify(-0x80, 0x7f, 0);
+		Captor.of().apply(c -> Array.SHORT.forEach(shorts, c::accept)).verify(-0x8000, 0x7fff, 0);
+		Captor.of().apply(c -> Array.INT.forEach(ints, c::accept)).verify(Integer.MIN_VALUE,
 			Integer.MAX_VALUE, 0);
-		Captor.of().apply(c -> Array.longs.forEach(longs, c::accept)).verify(Long.MIN_VALUE,
+		Captor.of().apply(c -> Array.LONG.forEach(longs, c::accept)).verify(Long.MIN_VALUE,
 			Long.MAX_VALUE, 0L);
-		Captor.of().apply(c -> Array.floats.forEach(floats, c::accept))
+		Captor.of().apply(c -> Array.FLOAT.forEach(floats, c::accept))
 			.verify((double) Float.MIN_VALUE, (double) Float.MAX_VALUE, 0.0);
-		Captor.of().apply(c -> Array.doubles.forEach(doubles, c::accept)).verify(Double.MIN_VALUE,
+		Captor.of().apply(c -> Array.DOUBLE.forEach(doubles, c::accept)).verify(Double.MIN_VALUE,
 			Double.MAX_VALUE, 0.0);
 	}
 
 	@Test
 	public void shouldConsumeBoxedElements() {
-		Captor.of().apply(c -> Array.bools.forEachBox(bools, c::accept)).verify(true, false, true);
-		Captor.of().apply(c -> Array.chars.forEachBox(chars, c::accept)).verify('a', '\0', 'c');
+		Captor.of().apply(c -> Array.BOOL.forEachBox(bools, c::accept)).verify(true, false, true);
+		Captor.of().apply(c -> Array.CHAR.forEachBox(chars, c::accept)).verify('a', '\0', 'c');
 	}
 
 	@Test
 	public void shouldConsumeIndexedBoxedElements() {
-		Captor.ofBi().apply(c -> Array.bools.forEachBoxIndexed(bools, c::accept)).verify(true, 0,
+		Captor.ofBi().apply(c -> Array.BOOL.forEachBoxIndexed(bools, c::accept)).verify(true, 0,
 			false, 1, true, 2);
-		Captor.ofBi().apply(c -> Array.chars.forEachBoxIndexed(chars, c::accept)).verify('a', 0,
+		Captor.ofBi().apply(c -> Array.CHAR.forEachBoxIndexed(chars, c::accept)).verify('a', 0,
 			'\0', 1, 'c', 2);
 	}
 
 	@Test
 	public void shouldSortElements() {
-		Assert.array(Array.bools.sort(bools.clone()), false, true, true);
-		Assert.array(Array.chars.sort(chars.clone()), '\0', 'a', 'c');
-		Assert.array(Array.bytes.sort(bytes.clone()), Byte.MIN_VALUE, 0, Byte.MAX_VALUE);
-		Assert.array(Array.shorts.sort(shorts.clone()), Short.MIN_VALUE, 0, Short.MAX_VALUE);
-		Assert.array(Array.ints.sort(ints.clone()), Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
-		Assert.array(Array.longs.sort(longs.clone()), Long.MIN_VALUE, 0, Long.MAX_VALUE);
-		Assert.array(Array.floats.sort(floats.clone()), 0, Float.MIN_VALUE, Float.MAX_VALUE);
-		Assert.array(Array.doubles.sort(doubles.clone()), 0, Double.MIN_VALUE, Double.MAX_VALUE);
+		Assert.array(Array.BOOL.sort(bools.clone()), false, true, true);
+		Assert.array(Array.CHAR.sort(chars.clone()), '\0', 'a', 'c');
+		Assert.array(Array.BYTE.sort(bytes.clone()), Byte.MIN_VALUE, 0, Byte.MAX_VALUE);
+		Assert.array(Array.SHORT.sort(shorts.clone()), Short.MIN_VALUE, 0, Short.MAX_VALUE);
+		Assert.array(Array.INT.sort(ints.clone()), Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		Assert.array(Array.LONG.sort(longs.clone()), Long.MIN_VALUE, 0, Long.MAX_VALUE);
+		Assert.array(Array.FLOAT.sort(floats.clone()), 0, Float.MIN_VALUE, Float.MAX_VALUE);
+		Assert.array(Array.DOUBLE.sort(doubles.clone()), 0, Double.MIN_VALUE, Double.MAX_VALUE);
 	}
 
 	@Test
 	public void shouldHashElements() {
-		Assert.equal(Array.bools.hash(bools), Arrays.hashCode(bools));
-		Assert.equal(Array.chars.hash(chars), Arrays.hashCode(chars));
-		Assert.equal(Array.bytes.hash(bytes), Arrays.hashCode(bytes));
-		Assert.equal(Array.shorts.hash(shorts), Arrays.hashCode(shorts));
-		Assert.equal(Array.ints.hash(ints), Arrays.hashCode(ints));
-		Assert.equal(Array.longs.hash(longs), Arrays.hashCode(longs));
-		Assert.equal(Array.floats.hash(floats), Arrays.hashCode(floats));
-		Assert.equal(Array.doubles.hash(doubles), Arrays.hashCode(doubles));
+		Assert.equal(Array.BOOL.hash(bools), Arrays.hashCode(bools));
+		Assert.equal(Array.CHAR.hash(chars), Arrays.hashCode(chars));
+		Assert.equal(Array.BYTE.hash(bytes), Arrays.hashCode(bytes));
+		Assert.equal(Array.SHORT.hash(shorts), Arrays.hashCode(shorts));
+		Assert.equal(Array.INT.hash(ints), Arrays.hashCode(ints));
+		Assert.equal(Array.LONG.hash(longs), Arrays.hashCode(longs));
+		Assert.equal(Array.FLOAT.hash(floats), Arrays.hashCode(floats));
+		Assert.equal(Array.DOUBLE.hash(doubles), Arrays.hashCode(doubles));
 	}
 
 	@Test
 	public void shouldDetermineElementEquality() {
-		Assert.equal(Array.bools.equals(bools, true, false, true), true);
-		Assert.equal(Array.chars.equals(chars, 'a', '\0', 'c'), true);
-		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0), true);
-		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 0),
+		Assert.equal(Array.BOOL.equals(bools, true, false, true), true);
+		Assert.equal(Array.CHAR.equals(chars, 'a', '\0', 'c'), true);
+		Assert.equal(Array.BYTE.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0), true);
+		Assert.equal(Array.SHORT.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 0),
 			true);
-		Assert.equal(Array.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 0), true);
-		Assert.equal(Array.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 0L), true);
-		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0f), true);
-		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, 0.0), true);
+		Assert.equal(Array.INT.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 0), true);
+		Assert.equal(Array.LONG.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 0L), true);
+		Assert.equal(Array.FLOAT.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0f), true);
+		Assert.equal(Array.DOUBLE.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, 0.0), true);
 	}
 
 	@Test
 	public void shouldDetermineElementInEquality() {
-		Assert.equal(Array.bools.equals(bools, true, false), false);
-		Assert.equal(Array.bools.equals(bools, true, false), false);
-		Assert.equal(Array.bools.equals(bools, true, false, false), false);
-		Assert.equal(Array.chars.equals(chars, 'a', '\0'), false);
-		Assert.equal(Array.chars.equals(chars, 'a', '\0', 'd'), false);
-		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE), false);
-		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 1), false);
-		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE), false);
-		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 1),
+		Assert.equal(Array.BOOL.equals(bools, true, false), false);
+		Assert.equal(Array.BOOL.equals(bools, true, false), false);
+		Assert.equal(Array.BOOL.equals(bools, true, false, false), false);
+		Assert.equal(Array.CHAR.equals(chars, 'a', '\0'), false);
+		Assert.equal(Array.CHAR.equals(chars, 'a', '\0', 'd'), false);
+		Assert.equal(Array.BYTE.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE), false);
+		Assert.equal(Array.BYTE.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 1), false);
+		Assert.equal(Array.SHORT.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE), false);
+		Assert.equal(Array.SHORT.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 1),
 			false);
-		Assert.equal(Array.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE), false);
-		Assert.equal(Array.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 1), false);
-		Assert.equal(Array.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE), false);
-		Assert.equal(Array.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 1L), false);
-		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE), false);
-		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1f), false);
-		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE), false);
-		Assert.equal(Array.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, .1), false);
+		Assert.equal(Array.INT.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE), false);
+		Assert.equal(Array.INT.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 1), false);
+		Assert.equal(Array.LONG.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE), false);
+		Assert.equal(Array.LONG.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 1L), false);
+		Assert.equal(Array.FLOAT.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE), false);
+		Assert.equal(Array.FLOAT.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1f), false);
+		Assert.equal(Array.DOUBLE.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE), false);
+		Assert.equal(Array.DOUBLE.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, .1), false);
 	}
 
 	@Test
 	public void shouldDetermineElementEquivalence() {
-		Assert.equal(Array.chars.equals(null, (int[]) null), true);
-		Assert.equal(Array.chars.equals(chars, 'a', 0, 'c'), true);
-		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 0), true);
-		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 0), true);
-		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0.0), true);
+		Assert.equal(Array.CHAR.equals(null, (int[]) null), true);
+		Assert.equal(Array.CHAR.equals(chars, 'a', 0, 'c'), true);
+		Assert.equal(Array.BYTE.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 0), true);
+		Assert.equal(Array.SHORT.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 0), true);
+		Assert.equal(Array.FLOAT.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0.0), true);
 	}
 
 	@Test
 	public void shouldDetermineElementInEquivalence() {
-		Assert.equal(Array.chars.equals(null, 0), false);
-		Assert.equal(Array.chars.equals(chars, (int[]) null), false);
-		Assert.equal(Array.chars.equals(chars, 'a', 0, 'c', 0), false);
-		Assert.equal(Array.chars.equals(chars, 'a', 1, 'c'), false);
-		Assert.equal(Array.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 1), false);
-		Assert.equal(Array.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 1), false);
-		Assert.equal(Array.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1), false);
+		Assert.equal(Array.CHAR.equals(null, 0), false);
+		Assert.equal(Array.CHAR.equals(chars, (int[]) null), false);
+		Assert.equal(Array.CHAR.equals(chars, 'a', 0, 'c', 0), false);
+		Assert.equal(Array.CHAR.equals(chars, 'a', 1, 'c'), false);
+		Assert.equal(Array.BYTE.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 1), false);
+		Assert.equal(Array.SHORT.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 1), false);
+		Assert.equal(Array.FLOAT.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1), false);
 	}
 
 	@Test
 	public void shouldProvideHexString() {
-		Assert.equal(Array.chars.toHex(chars), "[0x61, 0x0, 0x63]");
-		Assert.equal(Array.bytes.toHex(bytes), "[0x80, 0x7f, 0x0]");
-		Assert.equal(Array.shorts.toHex(shorts), "[0x8000, 0x7fff, 0x0]");
-		Assert.equal(Array.ints.toHex(ints), "[0x80000000, 0x7fffffff, 0x0]");
-		Assert.equal(Array.longs.toHex(longs), "[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
+		Assert.equal(Array.CHAR.toHex(chars), "[0x61, 0x0, 0x63]");
+		Assert.equal(Array.BYTE.toHex(bytes), "[0x80, 0x7f, 0x0]");
+		Assert.equal(Array.SHORT.toHex(shorts), "[0x8000, 0x7fff, 0x0]");
+		Assert.equal(Array.INT.toHex(ints), "[0x80000000, 0x7fffffff, 0x0]");
+		Assert.equal(Array.LONG.toHex(longs), "[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
 	}
 
 	@Test
 	public void shouldProvideBoxedHexStrings() {
-		Assert.equal(Array.chars.box().toHex(Array.chars.boxed(chars)), "[0x61, 0x0, 0x63]");
-		Assert.equal(Array.bytes.box().toHex(Array.bytes.boxed(bytes)), "[0x80, 0x7f, 0x0]");
-		Assert.equal(Array.shorts.box().toHex(Array.shorts.boxed(shorts)), "[0x8000, 0x7fff, 0x0]");
-		Assert.equal(Array.ints.box().toHex(Array.ints.boxed(ints)),
+		Assert.equal(Array.CHAR.box().toHex(Array.CHAR.boxed(chars)), "[0x61, 0x0, 0x63]");
+		Assert.equal(Array.BYTE.box().toHex(Array.BYTE.boxed(bytes)), "[0x80, 0x7f, 0x0]");
+		Assert.equal(Array.SHORT.box().toHex(Array.SHORT.boxed(shorts)), "[0x8000, 0x7fff, 0x0]");
+		Assert.equal(Array.INT.box().toHex(Array.INT.boxed(ints)),
 			"[0x80000000, 0x7fffffff, 0x0]");
-		Assert.equal(Array.longs.box().toHex(Array.longs.boxed(longs)),
+		Assert.equal(Array.LONG.box().toHex(Array.LONG.boxed(longs)),
 			"[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
 	}
 

@@ -12,7 +12,7 @@ public class TestTcpSocketBehavior {
 	public void shouldProvideAnEchoSocket() throws IOException {
 		var s = TestTcpSocket.ofEcho();
 		s.open();
-		s.out().write(Array.bytes.of(1, 2, 3));
+		s.out().write(Array.BYTE.of(1, 2, 3));
 		Assert.read(s.in(), 1, 2, 3);
 	}
 
@@ -22,8 +22,8 @@ public class TestTcpSocketBehavior {
 		var ss = TestTcpSocket.pairOf();
 		ss[0].open();
 		ss[1].open();
-		ss[0].out().write(Array.bytes.of(1, 2, 3));
-		ss[1].out().write(Array.bytes.of(4, 5, 6));
+		ss[0].out().write(Array.BYTE.of(1, 2, 3));
+		ss[1].out().write(Array.BYTE.of(4, 5, 6));
 		Assert.read(ss[0].in(), 4, 5, 6);
 		Assert.read(ss[1].in(), 1, 2, 3);
 	}

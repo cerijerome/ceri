@@ -208,7 +208,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes bytes from array.
 	 */
 	default T writeBytes(int... array) {
-		return writeFrom(Array.bytes.of(array));
+		return writeFrom(Array.BYTE.of(array));
 	}
 
 	/**

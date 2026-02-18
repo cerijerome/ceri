@@ -74,8 +74,8 @@ public class JnaTest {
 	@Test
 	public void testMallocBytes() {
 		Assert.isNull(Jna.mallocBytes(new byte[0]));
-		Assert.isNull(Jna.mallocBytes(Array.bytes.of(1, 2, 3), 1, 0));
-		JnaAssert.memory(Jna.mallocBytes(Array.bytes.of(-1, -2, -3)), 0, -1, -2, -3);
+		Assert.isNull(Jna.mallocBytes(Array.BYTE.of(1, 2, 3), 1, 0));
+		JnaAssert.memory(Jna.mallocBytes(Array.BYTE.of(-1, -2, -3)), 0, -1, -2, -3);
 	}
 
 	@Test
@@ -279,7 +279,7 @@ public class JnaTest {
 
 	@Test
 	public void testBytesFromBuffer() {
-		ByteBuffer bb = ByteBuffer.wrap(Array.bytes.of(0x80, 0, 0xff));
+		ByteBuffer bb = ByteBuffer.wrap(Array.BYTE.of(0x80, 0, 0xff));
 		Assert.array(Jna.bytes(bb), 0x80, 0, 0xff);
 		Assert.array(Jna.bytes(bb, 0, 2), 0x80, 0);
 		Assert.array(Jna.bytes(bb, 1), 0, 0xff);
@@ -304,7 +304,7 @@ public class JnaTest {
 		Assert.equal(Jna.pointer(null), null);
 		Assert.thrown(() -> Jna.pointer(ByteBuffer.allocate(3)));
 		var buffer = ByteBuffer.allocateDirect(3);
-		buffer.put(Array.bytes.of(1, 2, 3));
+		buffer.put(Array.BYTE.of(1, 2, 3));
 		Assert.array(Jna.bytes(Jna.pointer(buffer), 0, 3), 1, 2, 3);
 	}
 
@@ -320,7 +320,7 @@ public class JnaTest {
 
 	@Test
 	public void testStringFromBytes() {
-		Assert.equal(Jna.string(Array.bytes.of('a', 0, 'b', 0)), "a\0b\0"); // no nul-term
+		Assert.equal(Jna.string(Array.BYTE.of('a', 0, 'b', 0)), "a\0b\0"); // no nul-term
 	}
 
 	@Test

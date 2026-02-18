@@ -123,7 +123,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldWriteFromByteArray() throws IOException {
 		var pipe = PipedStream.of();
-		byte[] bytes = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] bytes = Array.BYTE.of(1, 2, 3, 4, 5);
 		var w = ByteStream.writer(pipe.out());
 		w.writeFrom(bytes, 1, 3);
 		w.writeFrom(bytes, 0, 2);

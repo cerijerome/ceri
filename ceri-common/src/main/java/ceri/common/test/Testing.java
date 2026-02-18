@@ -361,7 +361,7 @@ public class Testing {
 	 * Creates a test input stream with given bytes.
 	 */
 	public static ByteArrayInputStream inputStream(int... bytes) {
-		return new ByteArrayInputStream(Array.bytes.of(bytes));
+		return new ByteArrayInputStream(Array.BYTE.of(bytes));
 	}
 
 	/**

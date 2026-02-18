@@ -144,7 +144,7 @@ public interface Ftdi extends Connector {
 	 * Writes data to the chip in asynchronous mode.
 	 */
 	default FtdiTransferControl writeSubmit(int... bytes) throws IOException {
-		return writeSubmit(Array.bytes.of(bytes));
+		return writeSubmit(Array.BYTE.of(bytes));
 	}
 
 	/**

@@ -99,7 +99,7 @@ public class UsbDeviceHandle implements Functions.Closeable {
 	 * Holder for allocated streams used for bulk transfers.
 	 */
 	public UsbTransfer.BulkStreams bulkStreams(int count, int... endPoints) throws LibUsbException {
-		byte[] eps = Array.bytes.of(endPoints);
+		byte[] eps = Array.BYTE.of(endPoints);
 		int n = LibUsb.libusb_alloc_streams(handle(), count, eps);
 		return new BulkStreams(this, n, eps);
 	}

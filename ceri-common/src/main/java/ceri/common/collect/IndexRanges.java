@@ -224,8 +224,8 @@ public class IndexRanges implements Iterable<Integer> {
 	public IndexRanges copy() {
 		int size = Math.max(SIZE_DEF, n);
 		var indexes = new IndexRanges(linearMax, size);
-		Array.ints.copy(starts, 0, indexes.starts, 0, n);
-		Array.ints.copy(ends, 0, indexes.ends, 0, n);
+		Array.INT.copy(starts, 0, indexes.starts, 0, n);
+		Array.INT.copy(ends, 0, indexes.ends, 0, n);
 		indexes.n = n;
 		return indexes;
 	}
@@ -311,8 +311,8 @@ public class IndexRanges implements Iterable<Integer> {
 		if (from == to) return this;
 		int diff = to - from;
 		ensureSize(n + diff);
-		Array.ints.copy(starts, from, starts, to, n - from);
-		Array.ints.copy(ends, from, ends, to, n - from);
+		Array.INT.copy(starts, from, starts, to, n - from);
+		Array.INT.copy(ends, from, ends, to, n - from);
 		n += diff;
 		return this;
 	}

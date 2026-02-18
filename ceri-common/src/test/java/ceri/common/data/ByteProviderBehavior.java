@@ -184,7 +184,7 @@ public class ByteProviderBehavior {
 	public void shouldDetermineIfBytesAreEqual() {
 		Assert.yes(bp.isEqualTo(5, -5, 6, -7, 8, -9));
 		Assert.no(bp.isEqualTo(5, -5, 6, -7, 8, 9));
-		byte[] bytes = Array.bytes.of(0, -1, 2, -3, 4);
+		byte[] bytes = Array.BYTE.of(0, -1, 2, -3, 4);
 		Assert.yes(bp.isEqualTo(0, bytes));
 		Assert.no(bp.isEqualTo(0, bytes, 0, 6));
 		Assert.no(bp.isEqualTo(9, -9, 0));
@@ -205,8 +205,8 @@ public class ByteProviderBehavior {
 	public void shouldDetermineIfContains() {
 		Assert.equal(bp.contains(-1, 2, -3), true);
 		Assert.equal(bp.contains(-1, 2, 3), false);
-		Assert.equal(bp.contains(Array.bytes.of(-1, 2, -3)), true);
-		Assert.equal(bp.contains(Array.bytes.of(-1, 2, 3)), false);
+		Assert.equal(bp.contains(Array.BYTE.of(-1, 2, -3)), true);
+		Assert.equal(bp.contains(Array.BYTE.of(-1, 2, 3)), false);
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class ByteProviderBehavior {
 		Assert.equal(bp.indexOf(0, -1, 2, -3), 1);
 		Assert.equal(bp.indexOf(0, -1, 2, 3), -1);
 		Assert.equal(bp.indexOf(8, -1, 2, -3), -1);
-		Assert.equal(bp.indexOf(0, Array.bytes.of(-1, 2, -3), 0, 4), -1);
+		Assert.equal(bp.indexOf(0, Array.BYTE.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class ByteProviderBehavior {
 		Assert.equal(bp.lastIndexOf(0, 2, -1), 5);
 		Assert.equal(bp.lastIndexOf(0, 2, 1), -1);
 		Assert.equal(bp.lastIndexOf(7, 0, -1), -1);
-		Assert.equal(bp.lastIndexOf(0, Array.bytes.of(2, -1, 0), 0, 4), -1);
+		Assert.equal(bp.lastIndexOf(0, Array.BYTE.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
@@ -331,7 +331,7 @@ public class ByteProviderBehavior {
 	/* Support methods */
 
 	public static ByteProvider provider(int... values) {
-		return provider(Array.bytes.of(values));
+		return provider(Array.BYTE.of(values));
 	}
 
 	public static ByteProvider provider(byte[] bytes) {

@@ -24,7 +24,7 @@ public class BuffersBehavior {
 		Assert.string(Buffers.CHAR.getString(null), null);
 		var b = Buffers.CHAR.of("abc\0");
 		Assert.string(Buffers.CHAR.getStringAt(b, 1), "bc\0");
-		assertPos(b, 4, 4);
+		assertBounds(b, 4, 4);
 	}
 
 	@Test
@@ -126,6 +126,60 @@ public class BuffersBehavior {
 	}
 
 	@Test
+	public void shouldSliceBuffer() {
+		var c = c("abc\n\0");
+		Assert.equal(Buffers.CHAR.slice(null), null);
+		Assert.buffer(Buffers.CHAR.slice(c), "abc\n\0");
+		Assert.buffer(Buffers.CHAR.slice(c, 2), "ab");
+		Assert.equal(Buffers.CHAR.sliceAt(null, 0), null);
+		Assert.buffer(Buffers.CHAR.sliceAt(c, 2), "c\n\0");
+		Assert.buffer(c, "abc\n\0");
+	}
+
+	@Test
+	public void shouldBoundBuffer() {
+		var c = c("abc\n\0");
+		assertBounds(c, 0, 5);
+		Assert.equal(Buffers.CHAR.bound(null, 0), null);
+		assertBounds(Buffers.CHAR.bound(c, 3), 0, 3);
+		assertBounds(Buffers.CHAR.bound(c.position(1), 4), 1, 3);
+		c.position(0).limit(5);
+		Assert.equal(Buffers.CHAR.boundAt(null, 0), null);
+		Assert.equal(Buffers.CHAR.boundAt(null, 0, 1), null);
+		assertBounds(Buffers.CHAR.boundAt(c, 1), 1, 5);
+		assertBounds(Buffers.CHAR.boundAt(c, 2, 2), 2, 4);
+	}
+
+	@Test
+	public void shouldApplyFunctionToBuffer() {
+		var c = c("abc\n\0");
+		Assert.equal(Buffers.CHAR.apply(null, 0, x -> x), null);
+		Assert.equal(Buffers.CHAR.apply(c, null), null);
+		Buffers.CHAR.apply(c, 3, _ -> Assert.equal(Buffers.CHAR.getString(c), "abc"));
+		Assert.equal(Buffers.CHAR.applyAt(null, 0, x -> x), null);
+		Assert.equal(Buffers.CHAR.applyAt(c, 0, 1, null), null);
+		Buffers.CHAR.applyAt(c, 1, 3, _ -> Assert.equal(Buffers.CHAR.getString(c), "bc\n"));
+		assertBounds(c, 0, 5);
+	}
+
+	@Test
+	public void shouldProvideReadOnlyView() {
+		Assert.equal(Buffers.LONG.readOnly(null), null);
+		var c = Buffers.CHAR.of("a\0");
+		Assert.same(Buffers.CHAR.readOnly(c), c);
+		var b = b(-1, 1);
+		Assert.unsupportedOp(() -> Buffers.BYTE.readOnly(b).put(0, (byte) 0));
+	}
+
+	@Test
+	public void shouldProvideMismatch() {
+		Assert.equal(Buffers.CHAR.mismatch(null, c("")), 0);
+		Assert.equal(Buffers.CHAR.mismatch(c(""), null), 0);
+		Assert.equal(Buffers.CHAR.mismatch(c(""), c("")), -1);
+		Assert.equal(Buffers.CHAR.mismatch(c("ab\0"), c("abc")), 2);
+	}
+
+	@Test
 	public void shouldAdaptByteBuffer() {
 		var b = b(0, 0x61, 0, 0);
 		var c = Buffers.CHAR.from(b);
@@ -147,23 +201,6 @@ public class BuffersBehavior {
 			0);
 		Assert.buffer(Buffers.FLOAT.copyFrom(b(fbytes(-1, 1))), -1, 1);
 		Assert.buffer(Buffers.DOUBLE.copyFrom(b(dbytes(-1, 1))), -1, 1);
-	}
-
-	@Test
-	public void shouldProvideReadOnlyView() {
-		Assert.equal(Buffers.LONG.readOnly(null), null);
-		var c = Buffers.CHAR.of("a\0");
-		Assert.same(Buffers.CHAR.readOnly(c), c);
-		var b = b(-1, 1);
-		Assert.unsupportedOp(() -> Buffers.BYTE.readOnly(b).put(0, (byte) 0));
-	}
-
-	@Test
-	public void shouldProvideMismatch() {
-		Assert.equal(Buffers.CHAR.mismatch(null, c("")), 0);
-		Assert.equal(Buffers.CHAR.mismatch(c(""), null), 0);
-		Assert.equal(Buffers.CHAR.mismatch(c(""), c("")), -1);
-		Assert.equal(Buffers.CHAR.mismatch(c("ab\0"), c("abc")), 2);
 	}
 
 	@Test
@@ -197,7 +234,7 @@ public class BuffersBehavior {
 		Assert.array(array, 1, 1, 0, -1, 0);
 	}
 
-	private static void assertPos(Buffer buffer, int position, int limit) {
+	private static void assertBounds(Buffer buffer, int position, int limit) {
 		Assert.equal(buffer.position(), position);
 		Assert.equal(buffer.limit(), limit);
 	}

@@ -148,13 +148,13 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldWriteData() throws IOException {
 		ftdi = open();
-		ftdi.out().write(Array.bytes.of(1, 2, 3));
-		ftdi.out().write(Array.bytes.of(4, 5));
+		ftdi.out().write(Array.BYTE.of(1, 2, 3));
+		ftdi.out().write(Array.BYTE.of(4, 5));
 		lib.transferOut.assertValues( //
 			List.of(0x02, ByteProvider.of(1, 2, 3)), //
 			List.of(0x02, ByteProvider.of(4, 5)));
 		lib.transferOut.autoResponses((Integer) null); // set transferred to 0
-		Assert.thrown(() -> ftdi.out().write(Array.bytes.of(1, 2, 3))); // incomplete i/o
+		Assert.thrown(() -> ftdi.out().write(Array.BYTE.of(1, 2, 3))); // incomplete i/o
 	}
 
 	@SuppressWarnings("resource")
@@ -238,7 +238,7 @@ public class FtdiDeviceBehavior {
 		ftdi.readChunkSize(8);
 		var m = GcMemory.malloc(5).clear();
 		lib.handleTransferEvent.autoResponse(te -> {
-			te.buffer().put(Array.bytes.of(1, 2, 3, 4, 5, 6, 7));
+			te.buffer().put(Array.BYTE.of(1, 2, 3, 4, 5, 6, 7));
 			return LIBUSB_TRANSFER_COMPLETED;
 		});
 		var control = ftdi.readSubmit(m.m, 5);

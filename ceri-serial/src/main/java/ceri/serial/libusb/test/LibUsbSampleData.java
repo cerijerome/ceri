@@ -38,7 +38,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig sdReaderConfig() {
 		return device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(0x07);
+			dc.portNumbers = Array.BYTE.of(0x07);
 			dc.address = 0x0b;
 			dc.speed = LIBUSB_SPEED_SUPER;
 			dc.desc.bcdUSB = 0x0300;
@@ -96,7 +96,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig audioConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(0x02, 0x02);
+			dc.portNumbers = Array.BYTE.of(0x02, 0x02);
 			dc.address = 0x0a;
 			dc.speed = LIBUSB_SPEED_FULL;
 			dc.desc.bcdUSB = 0x0110;
@@ -172,7 +172,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig ftdiConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(0x02, 0x04);
+			dc.portNumbers = Array.BYTE.of(0x02, 0x04);
 			dc.address = 0x05;
 			dc.speed = LIBUSB_SPEED_FULL;
 			dc.desc.bcdUSB = 0x0200;
@@ -212,7 +212,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig externalUsb3HubConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(0x06);
+			dc.portNumbers = Array.BYTE.of(0x06);
 			dc.address = 0x09;
 			dc.speed = LIBUSB_SPEED_SUPER;
 			dc.desc.bcdUSB = 0x0300;
@@ -264,7 +264,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig externalUsb2HubConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(0x02);
+			dc.portNumbers = Array.BYTE.of(0x02);
 			dc.address = 0x03;
 			dc.speed = LIBUSB_SPEED_HIGH;
 			dc.desc.bcdUSB = 0x0210;
@@ -322,7 +322,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig mouseConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(1);
+			dc.portNumbers = Array.BYTE.of(1);
 			dc.address = 0x08;
 			dc.speed = LIBUSB_SPEED_LOW;
 			dc.desc.bcdUSB = 0x0200;
@@ -358,7 +358,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig internalHubConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(0x03);
+			dc.portNumbers = Array.BYTE.of(0x03);
 			dc.address = 0x04;
 			dc.speed = LIBUSB_SPEED_FULL;
 			dc.desc.bcdUSB = 0x0200;
@@ -392,7 +392,7 @@ public class LibUsbSampleData {
 	public static DeviceConfig kbConfig() {
 		return Util.device(dc -> {
 			dc.busNumber = 0x14;
-			dc.portNumbers = Array.bytes.of(4);
+			dc.portNumbers = Array.BYTE.of(4);
 			dc.address = 0x02;
 			dc.speed = LIBUSB_SPEED_FULL;
 			dc.desc.bcdUSB = 0x0200;

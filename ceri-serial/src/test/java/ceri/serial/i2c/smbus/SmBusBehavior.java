@@ -13,8 +13,8 @@ public class SmBusBehavior {
 		SmBus.NULL.writeByte(0xab);
 		SmBus.NULL.writeByteData(0x12, 0xab);
 		SmBus.NULL.writeWordData(0x12, 0xabcd);
-		SmBus.NULL.writeBlockData(0x12, Array.bytes.of(0xab, 0xcd));
-		SmBus.NULL.writeI2cBlockData(0x12, Array.bytes.of(0xab, 0xcd));
+		SmBus.NULL.writeBlockData(0x12, Array.BYTE.of(0xab, 0xcd));
+		SmBus.NULL.writeI2cBlockData(0x12, Array.BYTE.of(0xab, 0xcd));
 	}
 
 	@Test

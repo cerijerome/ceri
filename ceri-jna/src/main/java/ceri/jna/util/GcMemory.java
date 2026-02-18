@@ -23,7 +23,7 @@ public class GcMemory {
 	 * Allocate native memory and copy array.
 	 */
 	public static GcMemory mallocBytes(int... array) {
-		return mallocBytes(Array.bytes.of(array));
+		return mallocBytes(Array.BYTE.of(array));
 	}
 
 	/**

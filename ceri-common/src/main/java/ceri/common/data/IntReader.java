@@ -99,7 +99,7 @@ public interface IntReader {
 	 * Reads a copied array of ints.
 	 */
 	default int[] readInts(int length) {
-		if (length == 0) return Array.ints.empty;
+		if (length == 0) return Array.INT.empty;
 		int[] copy = new int[length];
 		readInto(copy);
 		return copy;

@@ -97,7 +97,7 @@ public class BytesTest {
 
 	@Test
 	public void testToHex() {
-		byte[] b = Array.bytes.of(-1, 0, 127, 128);
+		byte[] b = Array.BYTE.of(-1, 0, 127, 128);
 		Assert.isNull(Bytes.toHex((byte[]) null, ""));
 		Assert.isNull(Bytes.toHex((byte[]) null, 0, 0, ""));
 		Assert.equal(Bytes.toHex(b, ""), "ff007f80");
@@ -115,7 +115,7 @@ public class BytesTest {
 
 	@Test
 	public void testStreamOf() {
-		byte[] b = Array.bytes.of(-1, 0, 1, 127, 128);
+		byte[] b = Array.BYTE.of(-1, 0, 1, 127, 128);
 		Assert.stream(Bytes.ustream(b), 0xff, 0, 1, 0x7f, 0x80);
 		Assert.stream(Bytes.ustream(-1, 0, 1, 127, 128), 0xff, 0, 1, 0x7f, 0x80);
 	}
@@ -185,10 +185,10 @@ public class BytesTest {
 
 	@Test
 	public void testFromNullTerm() {
-		Assert.equal(Bytes.fromNullTerm(Array.bytes.of(0, 't', 'e', 's', 't'), UTF_8), "");
-		Assert.equal(Bytes.fromNullTerm(Array.bytes.of('t', 'e', 's', 't'), UTF_8), "test");
+		Assert.equal(Bytes.fromNullTerm(Array.BYTE.of(0, 't', 'e', 's', 't'), UTF_8), "");
+		Assert.equal(Bytes.fromNullTerm(Array.BYTE.of('t', 'e', 's', 't'), UTF_8), "test");
 		Assert.equal(
-			Bytes.fromNullTerm(Array.bytes.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8),
+			Bytes.fromNullTerm(Array.BYTE.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8),
 			"\t\r\n");
 		Assert.equal(Bytes.fromNullTerm(ByteProvider.of('t', 'e', 's', 't', 0, 0), UTF_8), "test");
 	}
@@ -412,7 +412,7 @@ public class BytesTest {
 		Assert.equal(Bytes.fromMsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0xabcd_ef01_2345_6789L);
 		Assert.equal(
-			Bytes.fromMsb(Array.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3),
+			Bytes.fromMsb(Array.BYTE.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3),
 			0xcdef01L);
 	}
 
@@ -421,7 +421,7 @@ public class BytesTest {
 		Assert.equal(Bytes.fromLsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0x8967_4523_01ef_cdabL);
 		Assert.equal(Bytes.fromLsb( //
-			Array.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0x01efcdL);
+			Array.BYTE.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0x01efcdL);
 	}
 
 	@Test

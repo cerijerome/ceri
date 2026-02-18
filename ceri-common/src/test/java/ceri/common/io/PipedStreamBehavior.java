@@ -12,7 +12,7 @@ public class PipedStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldReadWrittenBytes() throws IOException {
-		byte[] data = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] data = Array.BYTE.of(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(ps.out(), data))) {
 				Assert.array(ps.in().readNBytes(data.length), data);
@@ -24,7 +24,7 @@ public class PipedStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWaitForReadToComplete() throws IOException {
-		byte[] data = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] data = Array.BYTE.of(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> ps.in().readNBytes(data.length))) {
 				writeFlush(ps.out(), data);
@@ -37,7 +37,7 @@ public class PipedStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWaitForReadToCompleteWithTimeout() throws IOException {
-		byte[] data = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] data = Array.BYTE.of(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			ps.out().write(data);
 			Assert.no(ps.awaitRead(0, 1));
@@ -51,7 +51,7 @@ public class PipedStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldClearBytes() throws IOException {
-		byte[] data = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] data = Array.BYTE.of(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(ps.out(), data))) {
 				Assert.array(ps.in().readNBytes(2), 1, 2);
@@ -66,7 +66,7 @@ public class PipedStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldFeedConnectorBytes() throws IOException {
-		byte[] data = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] data = Array.BYTE.of(1, 2, 3, 4, 5);
 		try (var con = PipedStream.connector()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(con.inFeed(), data))) {
 				Assert.array(con.in().readNBytes(2), 1, 2);
@@ -81,7 +81,7 @@ public class PipedStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldSinkConnectorBytes() throws IOException {
-		byte[] data = Array.bytes.of(1, 2, 3, 4, 5);
+		byte[] data = Array.BYTE.of(1, 2, 3, 4, 5);
 		try (var con = PipedStream.connector()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(con.out(), data))) {
 				Assert.array(con.outSink().readNBytes(2), 1, 2);

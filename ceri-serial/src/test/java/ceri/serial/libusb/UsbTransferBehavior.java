@@ -62,7 +62,7 @@ public class UsbTransferBehavior {
 		CallSync.Consumer<Control> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.controlTransfer(callback)) {
 			transfer.buffer(ByteBuffer.allocateDirect(12)).length(12).data()
-				.put(Array.bytes.of(1, 2, 3, 4));
+				.put(Array.BYTE.of(1, 2, 3, 4));
 			transfer.setup().recipient(LIBUSB_RECIPIENT_DEVICE).type(LIBUSB_REQUEST_TYPE_STANDARD)
 				.standard(LIBUSB_REQUEST_GET_STATUS).direction(LIBUSB_ENDPOINT_OUT).value(0xff)
 				.index(3);

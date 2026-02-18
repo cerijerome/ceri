@@ -365,15 +365,15 @@ public class Assert {
 	/**
 	 * Fails if the objects are not equal.
 	 */
-	public static <T> void equal(T actual, T expected) {
-		equal(actual, expected, "");
+	public static <T> T equal(T actual, T expected) {
+		return equal(actual, expected, "");
 	}
 
 	/**
 	 * Fails if the objects are not equal.
 	 */
-	public static <T> void equal(T actual, T expected, String format, Object... args) {
-		if (Objects.equals(expected, actual)) return;
+	public static <T> T equal(T actual, T expected, String format, Object... args) {
+		if (Objects.equals(expected, actual)) return actual;
 		throw unexpected(actual, expected, format, args);
 	}
 
@@ -675,7 +675,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(byte[] array, int... values) {
-		array(array, Array.bytes.of(values));
+		array(array, Array.BYTE.of(values));
 	}
 
 	/**
@@ -689,7 +689,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(short[] array, int... expected) {
-		array(array, Array.shorts.of(expected));
+		array(array, Array.SHORT.of(expected));
 	}
 
 	/**
@@ -717,7 +717,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(float[] array, double... expected) {
-		array(array, Array.floats.of(expected));
+		array(array, Array.FLOAT.of(expected));
 	}
 
 	/**
@@ -738,7 +738,7 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	public static void array(ByteProvider array, int... values) {
-		array(array, Array.bytes.of(values));
+		array(array, Array.BYTE.of(values));
 	}
 
 	/**
@@ -970,84 +970,84 @@ public class Assert {
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(boolean[] lhs, boolean... expected) {
-		unordered(Array.bools.list(lhs), Array.bools.list(expected));
+		unordered(Array.BOOL.list(lhs), Array.BOOL.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(byte[] lhs, byte... expected) {
-		unordered(Array.bytes.list(lhs), Array.bytes.list(expected));
+		unordered(Array.BYTE.list(lhs), Array.BYTE.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(byte[] lhs, int... values) {
-		unordered(lhs, Array.bytes.of(values));
+		unordered(lhs, Array.BYTE.of(values));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(char[] lhs, char... expected) {
-		unordered(Array.chars.list(lhs), Array.chars.list(expected));
+		unordered(Array.CHAR.list(lhs), Array.CHAR.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(char[] lhs, int... expected) {
-		unordered(lhs, Array.chars.of(expected));
+		unordered(lhs, Array.CHAR.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(short[] lhs, short... expected) {
-		unordered(Array.shorts.list(lhs), Array.shorts.list(expected));
+		unordered(Array.SHORT.list(lhs), Array.SHORT.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(short[] lhs, int... expected) {
-		unordered(lhs, Array.shorts.of(expected));
+		unordered(lhs, Array.SHORT.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(int[] lhs, int... expected) {
-		unordered(Array.ints.list(lhs), Array.ints.list(expected));
+		unordered(Array.INT.list(lhs), Array.INT.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(long[] lhs, long... expected) {
-		unordered(Array.longs.list(lhs), Array.longs.list(expected));
+		unordered(Array.LONG.list(lhs), Array.LONG.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(float[] lhs, float... expected) {
-		unordered(Array.floats.list(lhs), Array.floats.list(expected));
+		unordered(Array.FLOAT.list(lhs), Array.FLOAT.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(float[] lhs, double... expected) {
-		unordered(lhs, Array.floats.of(expected));
+		unordered(lhs, Array.FLOAT.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
 	public static void unordered(double[] lhs, double... expected) {
-		unordered(Array.doubles.list(lhs), Array.doubles.list(expected));
+		unordered(Array.DOUBLE.list(lhs), Array.DOUBLE.list(expected));
 	}
 
 	/**
@@ -1364,7 +1364,7 @@ public class Assert {
 	 * Checks bytes read from input stream.
 	 */
 	public static void read(InputStream in, int... bytes) throws IOException {
-		read(in, Array.bytes.of(bytes));
+		read(in, Array.BYTE.of(bytes));
 	}
 
 	/**

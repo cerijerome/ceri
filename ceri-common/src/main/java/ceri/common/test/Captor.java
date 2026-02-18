@@ -81,11 +81,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 		}
 
 		public final void verifyInt(int... values) {
-			verify(Array.ints.list(values));
+			verify(Array.INT.list(values));
 		}
 
 		public int[] ints() {
-			return Array.ints.unboxed(values);
+			return Array.INT.unboxed(values);
 		}
 	}
 
@@ -102,11 +102,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 		}
 
 		public final void verifyLong(long... values) {
-			verify(Array.longs.list(values));
+			verify(Array.LONG.list(values));
 		}
 
 		public long[] longs() {
-			return Array.longs.unboxed(values);
+			return Array.LONG.unboxed(values);
 		}
 	}
 

@@ -203,7 +203,7 @@ public class Regex {
 		 */
 		public static <E extends Exception> String[] array(Pattern p, CharSequence s, int limit,
 			Excepts.Function<? extends E, ? super String, String> modifier) throws E {
-			if (p == null || Strings.isEmpty(s)) return Array.Empty.strings;
+			if (p == null || Strings.isEmpty(s)) return Array.STRING.empty;
 			var split = p.split(s, limit);
 			if (modifier != null) for (int i = 0; i < split.length; i++)
 				split[i] = modifier.apply(split[i]);

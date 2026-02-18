@@ -81,7 +81,7 @@ public interface I2c {
 	 * Send a software reset to all devices.
 	 */
 	default void softwareReset() throws IOException {
-		writeData(I2cAddress.GENERAL_CALL, Array.bytes.of(SOFTWARE_RESET));
+		writeData(I2cAddress.GENERAL_CALL, Array.BYTE.of(SOFTWARE_RESET));
 	}
 
 	/**
@@ -145,7 +145,7 @@ public interface I2c {
 	 * Send byte array data to address, using ioctl.
 	 */
 	default void writeData(I2cAddress address, int... bytes) throws IOException {
-		writeData(address, Array.bytes.of(bytes));
+		writeData(address, Array.BYTE.of(bytes));
 	}
 
 	/**

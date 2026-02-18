@@ -30,7 +30,7 @@ public class Generics {
 	 * the number of dimensions is zero.
 	 */
 	public record Array(Typed component, int dimensions) {
-		public static final Array NULL = new Array(null, 0);
+		public static final Array NULL = new Array(Typed.NULL, 0);
 
 		/**
 		 * Returns true if the array or component is null.
@@ -39,6 +39,13 @@ public class Generics {
 			return array == null || Typed.isNull(array.component());
 		}
 
+		/**
+		 * Returns an instance
+		 */
+		public static Array of(Class<?> cls, int dimensions) {
+			return new Array(Typed.of(cls), dimensions);
+		}
+		
 		/**
 		 * Returns true if this represents an array (dimensions > 0).
 		 */

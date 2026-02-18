@@ -32,23 +32,23 @@ public class NulTermTest {
 	@Test
 	public void testTruncateBytes() {
 		Assert.equal(NulTerm.truncate((byte[]) null), null);
-		Assert.array(NulTerm.truncate(Array.bytes.of()));
-		Assert.array(NulTerm.truncate(Array.bytes.of(0)));
-		Assert.array(NulTerm.truncate(Array.bytes.of(0, 0)));
-		Assert.array(NulTerm.truncate(Array.bytes.of(1, 2, 3)), 1, 2, 3);
-		Assert.array(NulTerm.truncate(Array.bytes.of(0, 1, 2, 3, 0)));
-		Assert.array(NulTerm.truncate(Array.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3);
+		Assert.array(NulTerm.truncate(Array.BYTE.of()));
+		Assert.array(NulTerm.truncate(Array.BYTE.of(0)));
+		Assert.array(NulTerm.truncate(Array.BYTE.of(0, 0)));
+		Assert.array(NulTerm.truncate(Array.BYTE.of(1, 2, 3)), 1, 2, 3);
+		Assert.array(NulTerm.truncate(Array.BYTE.of(0, 1, 2, 3, 0)));
+		Assert.array(NulTerm.truncate(Array.BYTE.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3);
 	}
 
 	@Test
 	public void testTrimBytes() {
 		Assert.equal(NulTerm.trim((byte[]) null), null);
-		Assert.array(NulTerm.trim(Array.bytes.of()));
-		Assert.array(NulTerm.trim(Array.bytes.of(0)));
-		Assert.array(NulTerm.trim(Array.bytes.of(0, 0)));
-		Assert.array(NulTerm.trim(Array.bytes.of(1, 2, 3)), 1, 2, 3);
-		Assert.array(NulTerm.trim(Array.bytes.of(0, 1, 2, 3, 0)), 0, 1, 2, 3);
-		Assert.array(NulTerm.trim(Array.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3, 0, 4, 5,
+		Assert.array(NulTerm.trim(Array.BYTE.of()));
+		Assert.array(NulTerm.trim(Array.BYTE.of(0)));
+		Assert.array(NulTerm.trim(Array.BYTE.of(0, 0)));
+		Assert.array(NulTerm.trim(Array.BYTE.of(1, 2, 3)), 1, 2, 3);
+		Assert.array(NulTerm.trim(Array.BYTE.of(0, 1, 2, 3, 0)), 0, 1, 2, 3);
+		Assert.array(NulTerm.trim(Array.BYTE.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3, 0, 4, 5,
 			6);
 	}
 

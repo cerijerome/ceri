@@ -16,7 +16,7 @@ public class RpcTest {
 
 	@Test
 	public void testBytes() {
-		BytesValue value = Rpc.bytes(Array.bytes.of(1, 2, 3));
+		BytesValue value = Rpc.bytes(Array.BYTE.of(1, 2, 3));
 		Assert.array(value.getValue().toByteArray(), 1, 2, 3);
 	}
 

@@ -47,7 +47,7 @@ public class SpiTransfer {
 	}
 
 	public byte[] read() {
-		if (in().capacity() == 0) return Array.bytes.empty;
+		if (in().capacity() == 0) return Array.BYTE.empty;
 		byte[] buffer = new byte[size()];
 		in().clear().get(buffer);
 		return buffer;

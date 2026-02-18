@@ -311,7 +311,7 @@ public class StringBuilders {
 		return new OutputStream() {
 			@Override
 			public void write(int b) {
-				s.append(new String(Array.bytes.of(b), cs));
+				s.append(new String(Array.BYTE.of(b), cs));
 			}
 
 			@Override

@@ -11,7 +11,7 @@ public class Xor {
 	}
 
 	public Xor add(int... values) {
-		return add(Array.bytes.of(values));
+		return add(Array.BYTE.of(values));
 	}
 
 	public Xor add(byte... bytes) {

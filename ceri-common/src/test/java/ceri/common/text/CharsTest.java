@@ -200,7 +200,7 @@ public class CharsTest {
 		Assert.equals(Chars.encode(s, UTF8, bytes, 12, 5), 0);
 		Assert.equals(Chars.encode(s, UTF8, bytes), 11);
 		Assert.array(bytes, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
-		Array.bytes.fill(bytes, 0);
+		Array.BYTE.fill(bytes, 0);
 		Assert.equals(Chars.encode(s, UTF8, bytes, 2), 7);
 		Assert.array(bytes, 0, 0, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0, 0, 0);
 	}
@@ -214,7 +214,7 @@ public class CharsTest {
 
 	@Test
 	public void testDecodeCharset() {
-		var bytes = Array.bytes.of(0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
+		var bytes = Array.BYTE.of(0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
 		Assert.string(Chars.decode(UTF8, (byte[]) null), "");
 		Assert.string(Chars.decode(UTF8, bytes, 13, 5), "");
 		Assert.string(Chars.decode(UTF8, bytes), "\0A\u00a9\u2103\ud835\udc00\0");
@@ -230,7 +230,7 @@ public class CharsTest {
 	}
 
 	private static Charset testCharset(float averageBytes, float maxBytes, int... nulEnc) {
-		var nulBytes = Array.bytes.of(nulEnc);
+		var nulBytes = Array.BYTE.of(nulEnc);
 		return new Charset("test", new String[0]) {
 			@Override
 			public boolean contains(Charset cs) {
