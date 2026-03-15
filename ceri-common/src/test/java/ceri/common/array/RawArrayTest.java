@@ -2,6 +2,7 @@ package ceri.common.array;
 
 import java.util.List;
 import org.junit.Test;
+import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.text.Joiner;
@@ -24,6 +25,14 @@ public class RawArrayTest {
 		Assert.equal(RawArray.isArray(obj), false);
 		Assert.equal(RawArray.isArray(objs), true);
 		Assert.equal(RawArray.isArray(ints), true);
+	}
+
+	@Test
+	public void testArrayType() {
+		Assert.equal(RawArray.arrayType(null, 1), null);
+		Assert.equal(RawArray.arrayType(int.class, -1), int.class);
+		Assert.equal(RawArray.arrayType(int.class, 0), int.class);
+		Assert.equal(RawArray.arrayType(int.class, 3), int[][][].class);
 	}
 
 	@Test
@@ -168,6 +177,20 @@ public class RawArrayTest {
 		Assert.equal(RawArray.adaptValues(byte[]::new, ints, null), null);
 		Assert.array(RawArray.adaptValues(byte[]::new, ints, (a, v, i) -> a[i] = (byte) v[i]),
 			new byte[] { -1, 1, 0 });
+	}
+
+	@Test
+	public void testDeepAdapt() {
+		Functions.Function<Object, Integer> parse = s -> Integer.parseInt((String) s);
+		var s1 = new String[] { "1", "-1" };
+		var s2 = new String[][] { { "1" }, {}, null, { "-1", "0" } };
+		Assert.equal(RawArray.deepAdapt("1", null, parse, true), 1);
+		Assert.equal(RawArray.deepAdapt(s1, null, parse, false), null);
+		Assert.deepEqual(RawArray.deepAdapt(s1, int.class, parse, false), new int[] { 1, -1 });
+		Assert.deepEqual(RawArray.deepAdapt(s2, int.class, parse, true),
+			new int[][] { { 1 }, {}, null, { -1, 0 } });
+		Assert.deepEqual(RawArray.deepAdapt(s2, int.class, parse, false),
+			new int[][] { { 1 }, {}, {}, { -1, 0 } });
 	}
 
 	@Test

@@ -11,6 +11,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.List;
 import java.util.Objects;
+import ceri.common.array.Dimensions;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -45,7 +46,7 @@ public class Generics {
 		public static Array of(Class<?> cls, int dimensions) {
 			return new Array(Typed.of(cls), dimensions);
 		}
-		
+
 		/**
 		 * Returns true if this represents an array (dimensions > 0).
 		 */
@@ -61,8 +62,19 @@ public class Generics {
 			return component() == null ? null : component().cls();
 		}
 
+		/**
+		 * Returns the string representation with given dimension sizes.
+		 */
+		public String toString(Dimensions dims) {
+			if (!isArray()) return toString();
+			var b = new StringBuilder().append(component());
+			for (int i = 0; i < dimensions(); i++)
+				b.append('[').append(dims.dim(i)).append(']');
+			return b.toString();
+		}
+
 		@Override
-		public final String toString() {
+		public String toString() {
 			return component() + "[]".repeat(dimensions());
 		}
 	}

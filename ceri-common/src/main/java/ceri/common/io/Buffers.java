@@ -2,6 +2,7 @@ package ceri.common.io;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -19,7 +20,7 @@ import ceri.common.reflect.Reflect;
 /**
  * Support for common buffer functionality.
  */
-public class Buffers<B extends Buffer, A> {
+public abstract class Buffers<B extends Buffer, A> {
 	public static final OfChar CHAR = new OfChar();
 	public static final OfByte BYTE = new OfByte();
 	public static final OfShort SHORT = new OfShort();
@@ -27,14 +28,20 @@ public class Buffers<B extends Buffer, A> {
 	public static final OfLong LONG = new OfLong();
 	public static final OfFloat FLOAT = new OfFloat();
 	public static final OfDouble DOUBLE = new OfDouble();
+	private final Class<B> bufferType;
 	private final PrimitiveArray<A, ?> array;
 	private final int typeSize;
+	private final B empty;
 	private final Wrapper<B, A> wrap;
 	private final Getter<B, A> get;
 	private final Functions.BiOperator<B> put;
 	private final Functions.Operator<B> readOnly;
 	private final Functions.ToIntBiFunction<B, B> mismatch;
 	private final Functions.Function<ByteBuffer, B> adapt;
+
+	// Questions:
+	// 1) Why is ByteBuffer created with big-endian and not native byte order?
+	// 2) Why is order() not defined on base class Buffer?
 
 	private interface Wrapper<B extends Buffer, A> {
 		B apply(A array, int index, int length);
@@ -49,8 +56,9 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfChar extends Buffers<CharBuffer, char[]> {
 		private OfChar() {
-			super(Array.CHAR, Character.BYTES, CharBuffer::wrap, CharBuffer::get, CharBuffer::put,
-				CharBuffer::asReadOnlyBuffer, CharBuffer::mismatch, ByteBuffer::asCharBuffer);
+			super(CharBuffer.class, Array.CHAR, Character.BYTES, CharBuffer::wrap, CharBuffer::get,
+				CharBuffer::put, CharBuffer::asReadOnlyBuffer, CharBuffer::mismatch,
+				ByteBuffer::asCharBuffer);
 		}
 
 		/**
@@ -143,8 +151,8 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfByte extends Buffers<ByteBuffer, byte[]> {
 		private OfByte() {
-			super(Array.BYTE, Byte.BYTES, ByteBuffer::wrap, ByteBuffer::get, ByteBuffer::put,
-				ByteBuffer::asReadOnlyBuffer, ByteBuffer::mismatch, b -> b);
+			super(ByteBuffer.class, Array.BYTE, Byte.BYTES, ByteBuffer::wrap, ByteBuffer::get,
+				ByteBuffer::put, ByteBuffer::asReadOnlyBuffer, ByteBuffer::mismatch, b -> b);
 		}
 
 		/**
@@ -184,8 +192,9 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfShort extends Buffers<ShortBuffer, short[]> {
 		private OfShort() {
-			super(Array.SHORT, Short.BYTES, ShortBuffer::wrap, ShortBuffer::get, ShortBuffer::put,
-				ShortBuffer::asReadOnlyBuffer, ShortBuffer::mismatch, ByteBuffer::asShortBuffer);
+			super(ShortBuffer.class, Array.SHORT, Short.BYTES, ShortBuffer::wrap, ShortBuffer::get,
+				ShortBuffer::put, ShortBuffer::asReadOnlyBuffer, ShortBuffer::mismatch,
+				ByteBuffer::asShortBuffer);
 		}
 
 		/**
@@ -225,8 +234,9 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfInt extends Buffers<IntBuffer, int[]> {
 		private OfInt() {
-			super(Array.INT, Integer.BYTES, IntBuffer::wrap, IntBuffer::get, IntBuffer::put,
-				IntBuffer::asReadOnlyBuffer, IntBuffer::mismatch, ByteBuffer::asIntBuffer);
+			super(IntBuffer.class, Array.INT, Integer.BYTES, IntBuffer::wrap, IntBuffer::get,
+				IntBuffer::put, IntBuffer::asReadOnlyBuffer, IntBuffer::mismatch,
+				ByteBuffer::asIntBuffer);
 		}
 
 		/**
@@ -259,8 +269,9 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfLong extends Buffers<LongBuffer, long[]> {
 		private OfLong() {
-			super(Array.LONG, Long.BYTES, LongBuffer::wrap, LongBuffer::get, LongBuffer::put,
-				LongBuffer::asReadOnlyBuffer, LongBuffer::mismatch, ByteBuffer::asLongBuffer);
+			super(LongBuffer.class, Array.LONG, Long.BYTES, LongBuffer::wrap, LongBuffer::get,
+				LongBuffer::put, LongBuffer::asReadOnlyBuffer, LongBuffer::mismatch,
+				ByteBuffer::asLongBuffer);
 		}
 
 		/**
@@ -293,8 +304,9 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfFloat extends Buffers<FloatBuffer, float[]> {
 		private OfFloat() {
-			super(Array.FLOAT, Float.BYTES, FloatBuffer::wrap, FloatBuffer::get, FloatBuffer::put,
-				FloatBuffer::asReadOnlyBuffer, FloatBuffer::mismatch, ByteBuffer::asFloatBuffer);
+			super(FloatBuffer.class, Array.FLOAT, Float.BYTES, FloatBuffer::wrap, FloatBuffer::get,
+				FloatBuffer::put, FloatBuffer::asReadOnlyBuffer, FloatBuffer::mismatch,
+				ByteBuffer::asFloatBuffer);
 		}
 
 		/**
@@ -327,9 +339,9 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public static class OfDouble extends Buffers<DoubleBuffer, double[]> {
 		private OfDouble() {
-			super(Array.DOUBLE, Double.BYTES, DoubleBuffer::wrap, DoubleBuffer::get,
-				DoubleBuffer::put, DoubleBuffer::asReadOnlyBuffer, DoubleBuffer::mismatch,
-				ByteBuffer::asDoubleBuffer);
+			super(DoubleBuffer.class, Array.DOUBLE, Double.BYTES, DoubleBuffer::wrap,
+				DoubleBuffer::get, DoubleBuffer::put, DoubleBuffer::asReadOnlyBuffer,
+				DoubleBuffer::mismatch, ByteBuffer::asDoubleBuffer);
 		}
 
 		/**
@@ -399,6 +411,22 @@ public class Buffers<B extends Buffer, A> {
 	}
 
 	/**
+	 * Returns the byte order for a buffer. Why not a method on Buffer itself?
+	 */
+	public static ByteOrder order(Buffer buffer) {
+		return switch (buffer) {
+			case CharBuffer b -> b.order();
+			case ByteBuffer b -> b.order();
+			case ShortBuffer b -> b.order();
+			case IntBuffer b -> b.order();
+			case LongBuffer b -> b.order();
+			case FloatBuffer b -> b.order();
+			case DoubleBuffer b -> b.order();
+			case null -> null;
+		};
+	}
+
+	/**
 	 * Gets remaining values as a new byte array.
 	 */
 	public static byte[] bytes(Buffer buffer) {
@@ -407,9 +435,11 @@ public class Buffers<B extends Buffer, A> {
 		return support.getBytes(Reflect.unchecked(buffer));
 	}
 
-	private Buffers(PrimitiveArray<A, ?> array, int typeSize, Wrapper<B, A> wrap, Getter<B, A> get,
-		Functions.BiOperator<B> put, Functions.Operator<B> readOnly,
-		Functions.ToIntBiFunction<B, B> mismatch, Functions.Function<ByteBuffer, B> adapt) {
+	private Buffers(Class<B> bufferType, PrimitiveArray<A, ?> array, int typeSize,
+		Wrapper<B, A> wrap, Getter<B, A> get, Functions.BiOperator<B> put,
+		Functions.Operator<B> readOnly, Functions.ToIntBiFunction<B, B> mismatch,
+		Functions.Function<ByteBuffer, B> adapt) {
+		this.bufferType = bufferType;
 		this.array = array;
 		this.typeSize = typeSize;
 		this.wrap = wrap;
@@ -418,6 +448,21 @@ public class Buffers<B extends Buffer, A> {
 		this.readOnly = readOnly;
 		this.mismatch = mismatch;
 		this.adapt = adapt;
+		this.empty = readOnly(of(array.empty, 0));
+	}
+
+	/**
+	 * Returns the buffer element type.
+	 */
+	public Class<?> type() {
+		return array.component();
+	}
+
+	/**
+	 * Returns the buffer base type.
+	 */
+	public Class<B> bufferType() {
+		return bufferType;
 	}
 
 	/**
@@ -432,6 +477,13 @@ public class Buffers<B extends Buffer, A> {
 	 */
 	public PrimitiveArray<A, ?> arrays() {
 		return array;
+	}
+
+	/**
+	 * Returns a read-only zero-length instance.
+	 */
+	public B empty() {
+		return empty;
 	}
 
 	/**

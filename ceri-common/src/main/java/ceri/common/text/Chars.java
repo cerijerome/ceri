@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Maps;
@@ -25,6 +26,10 @@ public class Chars {
 	public static final char QUOT = '"';
 	public static final char SQUOT = '\'';
 	public static final char BSLASH = '\\';
+	public static final Set<Character> DASHES = Set.of('-', '\u2010', '\u2011', '\u2012', '\u2013',
+		'\u2014', '\u2015', '\u2e3a', '\u2e3b', '\ufe58', '\ufe63', '\uff0d');
+	public static final Set<Character> MARKERS = Set.of('\u061c', '\u200e', '\u200f', '\u202a',
+		'\u202b', '\u202c', '\u202d', '\u202e', '\u2066', '\u2067', '\u2068', '\u2069');
 
 	private Chars() {}
 
@@ -32,6 +37,7 @@ public class Chars {
 	 * Charset information.
 	 */
 	public record Info(ByteProvider bom, ByteProvider term, float bytesPerChar) {
+		private static final ByteProvider ZERO_BYTE = ByteProvider.of(0);
 		private static final Map<Charset, Info> cache = Maps.syncWeak();
 
 		public static Info of(Charset charset) {
@@ -59,7 +65,7 @@ public class Chars {
 		private static ByteProvider term(byte[] bytes, int n) {
 			// Pragmatic nul-terminator finder
 			if (n == bytes.length) return ByteProvider.of(bytes); // no BOM
-			if (n <= 1) return ByteProvider.of(0); // UTF8 with BOM or non-standard charset
+			if (n <= 1) return ZERO_BYTE; // UTF8 with BOM or non-standard charset
 			return ByteArray.Immutable.wrap(bytes, bytes.length >> 1); // UTF16/32 with BOM
 		}
 	}
@@ -199,7 +205,8 @@ public class Chars {
 	 */
 	public static boolean isPrintable(char c) {
 		return !Character.isISOControl(c)
-			&& Character.UnicodeBlock.of(c) != Character.UnicodeBlock.SPECIALS;
+			&& Character.UnicodeBlock.of(c) != Character.UnicodeBlock.SPECIALS
+			&& !MARKERS.contains(c);
 	}
 
 	/**

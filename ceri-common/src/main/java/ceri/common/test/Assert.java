@@ -55,7 +55,7 @@ import ceri.common.text.Text;
  * Assertions.
  */
 public class Assert {
-	private static final Item DEEP_EQUALS_ITEM = Assert::deepEquals;
+	private static final Item DEEP_EQUALS_ITEM = Assert::deepEqual;
 	private static final int LINE_COUNT = 10;
 	private static final int PRECISION_DEF = 3;
 	public static final int APPROX_PRECISION_DEF = 3;
@@ -375,6 +375,21 @@ public class Assert {
 	public static <T> T equal(T actual, T expected, String format, Object... args) {
 		if (Objects.equals(expected, actual)) return actual;
 		throw unexpected(actual, expected, format, args);
+	}
+
+	/**
+	 * Fails if the objects are not equal, expanding equality into arrays.
+	 */
+	public static <T> T deepEqual(T actual, Object expected) {
+		return deepEqual(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the objects are not equal, expanding equality into arrays.
+	 */
+	public static <T> T deepEqual(T actual, Object expected, String format, Object... args) {
+		if (Objects.deepEquals(actual, expected)) return actual;
+		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected), str(actual));
 	}
 
 	/**
@@ -1460,9 +1475,12 @@ public class Assert {
 
 	// support
 
-	private static void deepEquals(Object lhs, Object rhs, String format, Object... args) {
-		if (Objects.deepEquals(lhs, rhs)) return;
-		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(rhs), str(lhs));
+	private static void rawArray(Object lhs, Object rhs) {
+		if (rhs == null) isNull(lhs);
+		else {
+			notNull(lhs);
+			rawArray(lhs, rhs, DEEP_EQUALS_ITEM);
+		}
 	}
 
 	private static AssertionError unexpected(Object actual, Object expected, String format,
@@ -1491,14 +1509,6 @@ public class Assert {
 	private static Object ensureArray(Object array) {
 		yes(array.getClass().isArray(), "Expected an array: %s", array.getClass());
 		return array;
-	}
-
-	private static void rawArray(Object lhs, Object rhs) {
-		if (rhs == null) isNull(lhs);
-		else {
-			notNull(lhs);
-			rawArray(lhs, rhs, DEEP_EQUALS_ITEM);
-		}
 	}
 
 	private static void rawArray(Object lhs, Object rhs, Item itemAssert) {
@@ -1575,7 +1585,7 @@ public class Assert {
 			case Long _ -> String.format("%dL (0x%1$016x)", obj);
 			case Float _ -> String.format("%sf", obj);
 			case null -> Strings.NULL;
-			default -> String.valueOf(obj);
+			default -> RawArray.toString(obj);
 		};
 	}
 

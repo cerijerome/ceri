@@ -36,6 +36,21 @@ public class Dimensions {
 	}
 
 	/**
+	 * Returns true if dimensions are null or empty.
+	 */
+	public static boolean isEmpty(Dimensions dims) {
+		return dims == null || dims.isEmpty();
+	}
+
+	/**
+	 * Creates an array instance of the component type, using the dimension sizes. Returns null if
+	 * component type is null or dimensions are empty.
+	 */
+	public static <T> T create(Dimensions dims, Class<?> component) {
+		return isEmpty(dims) ? null : dims.create(component);
+	}
+
+	/**
 	 * Builds an instance.
 	 */
 	public static class Builder {
@@ -85,7 +100,8 @@ public class Dimensions {
 	}
 
 	/**
-	 * Creates an array instance of the component type, using the dimension sizes.
+	 * Creates an array instance of the component type, using the dimension sizes. Returns null if
+	 * component type is null or dimensions are empty.
 	 */
 	public <T> T create(Class<?> component) {
 		return RawArray.ofType(component, array());

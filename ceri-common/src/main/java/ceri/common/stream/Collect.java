@@ -47,6 +47,9 @@ public class Collect {
 		/** Calculates the average value of elements. */
 		public static final IntStream.Collector<?, Double> average =
 			new Composed<>(Sum::new, Sum::add, Sum::average);
+		/** Collects char ints into a char array. */
+		public static final IntStream.Collector<?, char[]> charArray = new Composed<>(
+			DynamicArray::chars, DynamicArray.OfChar::accept, DynamicArray::truncate);
 		/** Collects chars into a string. */
 		public static final IntStream.Collector<?, String> chars = new Composed<>(
 			StringBuilder::new, (b, i) -> b.append((char) i), StringBuilder::toString);
@@ -190,8 +193,8 @@ public class Collect {
 	/**
 	 * Collects elements into a sorted array.
 	 */
-	public static <R, T extends R> Collector<T, ?, R[]>
-		sortedArray(Class<R> component, Comparator<? super R> comparator) {
+	public static <R, T extends R> Collector<T, ?, R[]> sortedArray(Class<R> component,
+		Comparator<? super R> comparator) {
 		return of(() -> DynamicArray.of(component), DynamicArray.OfType::accept,
 			a -> Array.sort(a.truncate(), comparator));
 	}

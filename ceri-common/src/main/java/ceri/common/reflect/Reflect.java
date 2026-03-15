@@ -41,6 +41,8 @@ public class Reflect {
 		Set.of(byte.class, short.class, int.class, long.class, float.class, double.class);
 	public static final Set<Class<?>> PRIMITIVE_INTS =
 		Set.of(byte.class, short.class, int.class, long.class);
+	public static final Set<Class<?>> BOXED = Set.of(Boolean.class, Character.class, Byte.class,
+		Short.class, Integer.class, Long.class, Float.class, Double.class);
 	public static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 

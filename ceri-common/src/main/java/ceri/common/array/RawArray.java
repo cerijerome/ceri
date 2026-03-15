@@ -60,10 +60,19 @@ public class RawArray {
 	}
 
 	/**
-	 * Returns the array component class, or null.
+	 * Returns the array class for the component type, or null.
 	 */
 	public static <T> Class<T> arrayType(Class<?> cls) {
-		return cls == null ? null : Reflect.unchecked(ofType(cls, 0).getClass());
+		return cls == null ? null : Reflect.unchecked(cls.arrayType());
+	}
+
+	/**
+	 * Returns the array class for the component type with given dimension count, or null.
+	 */
+	public static <T> Class<T> arrayType(Class<?> cls, int dims) {
+		while (dims-- > 0)
+			cls = arrayType(cls);
+		return Reflect.unchecked(cls);
 	}
 
 	/**
@@ -369,6 +378,18 @@ public class RawArray {
 	}
 
 	/**
+	 * Creates a new multi-dimensional array that matches the dimensions of the given array, and
+	 * adapts each leaf value. Null arrays will be adapted to empty arrays unless the flag allows
+	 * nulls.
+	 */
+	public static <T, R, A> A deepAdapt(Object array, Class<R> component,
+		Functions.Function<T, R> action, boolean allowNulls) {
+		int dims = dimensions(array);
+		var arrayCls = arrayType(component, dims - 1);
+		return Reflect.unchecked(deepAdapt(array, dims, arrayCls, action, allowNulls));
+	}
+
+	/**
 	 * Finds the first index of a bounded array using an equality function. Returns -1 if not found.
 	 */
 	public static <T> int indexOf(Equals<T> equalsFn, T array, int arrayOffset, int arrayLen,
@@ -554,5 +575,19 @@ public class RawArray {
 		else for (int i = 0; i < length(array); i++, index++)
 			consumer.accept(Reflect.unchecked(array), i);
 		return index;
+	}
+
+	private static <T, R> Object deepAdapt(Object array, int dims, Class<?> adaptCls,
+		Functions.Function<T, R> action, boolean allowNulls) {
+		if (dims-- == 0) return action.apply(Reflect.unchecked(array));
+		if (adaptCls == null) return null;
+		if (allowNulls && array == null) return null;
+		int length = RawArray.length(array);
+		var adapted = RawArray.ofType(adaptCls, length);
+		adaptCls = adaptCls.componentType();
+		for (int i = 0; i < length; i++)
+			RawArray.set(adapted, i,
+				deepAdapt(RawArray.get(array, i), dims, adaptCls, action, allowNulls));
+		return adapted;
 	}
 }

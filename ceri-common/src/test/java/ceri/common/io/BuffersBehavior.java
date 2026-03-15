@@ -2,8 +2,11 @@ package ceri.common.io;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import org.junit.Test;
 import ceri.common.array.DynamicArray;
 import ceri.common.data.Bytes;
@@ -113,6 +116,18 @@ public class BuffersBehavior {
 	}
 
 	@Test
+	public void shouldDetermineByteOrder() {
+		Assert.equal(Buffers.order(null), null);
+		Assert.equal(Buffers.order(CharBuffer.allocate(1)), ByteOrder.nativeOrder());
+		Assert.equal(Buffers.order(ByteBuffer.allocate(1)), ByteOrder.BIG_ENDIAN);
+		Assert.equal(Buffers.order(ShortBuffer.allocate(1)), ByteOrder.nativeOrder());
+		Assert.equal(Buffers.order(ByteBuffer.allocate(4).asIntBuffer()), ByteOrder.BIG_ENDIAN);
+		Assert.equal(Buffers.order(LongBuffer.allocate(1)), ByteOrder.nativeOrder());
+		Assert.equal(Buffers.order(ByteBuffer.allocate(4).asFloatBuffer()), ByteOrder.BIG_ENDIAN);
+		Assert.equal(Buffers.order(Buffers.DOUBLE.empty()), ByteOrder.nativeOrder());
+	}
+
+	@Test
 	public void shouldGetBytesFromBuffer() {
 		Assert.equal(Buffers.bytes(null), null);
 		Assert.array(Buffers.bytes(Buffers.CHAR.of('a', '\0')), 0, 0x61, 0, 0);
@@ -123,6 +138,18 @@ public class BuffersBehavior {
 			0, 0, 0, 0, 1);
 		Assert.array(Buffers.bytes(Buffers.FLOAT.of(-1, 1)), fbytes(-1, 1));
 		Assert.array(Buffers.bytes(Buffers.DOUBLE.of(-1, 1)), dbytes(-1, 1));
+	}
+
+	@Test
+	public void shouldProvideElementType() {
+		Assert.equal(Buffers.CHAR.type(), char.class);
+		Assert.equal(Buffers.LONG.type(), long.class);
+	}
+
+	@Test
+	public void shouldProvideBufferBaseType() {
+		Assert.equal(Buffers.CHAR.bufferType(), CharBuffer.class);
+		Assert.equal(Buffers.LONG.bufferType(), LongBuffer.class);
 	}
 
 	@Test

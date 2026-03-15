@@ -33,6 +33,10 @@ public class DimensionsBehavior {
 
 	@Test
 	public void shouldCreateArray() {
+		Assert.equal(Dimensions.create(null, int.class), null);
+		Assert.equal(Dimensions.create(Dimensions.NONE, int.class), null);
+		Assert.equal(Dimensions.create(Dimensions.of(1), null), null);
+		Assert.array((int[]) Dimensions.create(Dimensions.of(1), int.class), new int[1]);
 		Assert.equal(Dimensions.of(2, 1).create(null), null);
 		Assert.array((int[][]) Dimensions.of(2, 1).create(int.class), new int[2][1]);
 		Assert.array((Integer[][]) Dimensions.of(2, 1).create(Integer.class), new Integer[2][1]);
@@ -40,6 +44,9 @@ public class DimensionsBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() {
+		Assert.equal(Dimensions.isEmpty(null), true);
+		Assert.equal(Dimensions.isEmpty(Dimensions.NONE), true);
+		Assert.equal(Dimensions.isEmpty(Dimensions.of(0)), false);
 		Assert.equal(Dimensions.NONE.isEmpty(), true);
 		Assert.equal(Dimensions.of().isEmpty(), true);
 		Assert.equal(Dimensions.of((int[]) null).isEmpty(), true);
