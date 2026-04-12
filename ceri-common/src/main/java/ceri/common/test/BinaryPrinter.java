@@ -15,6 +15,7 @@ import ceri.common.math.Radix;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
 import ceri.common.text.StringBuilders;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
 /**
@@ -196,6 +197,24 @@ public class BinaryPrinter {
 	}
 
 	/**
+	 * Prints a text message.
+	 */
+	@SuppressWarnings("resource")
+	public BinaryPrinter message(String format, Object... args) {
+		out().println(Strings.format(format, args));
+		return this;
+	}
+
+	/**
+	 * Prints a text message.
+	 */
+	@SuppressWarnings("resource")
+	public BinaryPrinter message(Object obj) {
+		out().println(String.valueOf(obj));
+		return this;
+	}
+
+	/**
 	 * Print string as unicode code points.
 	 */
 	public BinaryPrinter printCodePoints(String s) {
@@ -320,7 +339,7 @@ public class BinaryPrinter {
 		return this;
 	}
 
-	private PrintStream out() {
+	public PrintStream out() {
 		return outSupplier.get();
 	}
 

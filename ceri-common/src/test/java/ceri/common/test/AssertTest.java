@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.AbstractList;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -280,6 +282,7 @@ public class AssertTest {
 	@Test
 	public void testArray() {
 		Assert.array(new short[] { 1, 2 }, 1, 2);
+		Assert.array(new float[] { 1, 2 }, 1.0, 2.0);
 	}
 
 	@Test
@@ -292,8 +295,7 @@ public class AssertTest {
 	public void testApproxArray() {
 		Assert.approxArray(Array.DOUBLE.of(0.1234, 0.1235), 0.1233, 0.1236);
 		Assert.approxArray(4, Array.DOUBLE.of(0.1234, 0.1235), 0.1234, 0.1235);
-		Assert.assertion(
-			() -> Assert.approxArray(Array.DOUBLE.of(0.1234, 0.1235), 0.1235, 0.1235));
+		Assert.assertion(() -> Assert.approxArray(Array.DOUBLE.of(0.1234, 0.1235), 0.1235, 0.1235));
 	}
 
 	@Test
@@ -500,7 +502,7 @@ public class AssertTest {
 	}
 
 	// other types
-	
+
 	@Test
 	public void testTypeValue() {
 		Assert.typeValue(TypeValue.of(-1, null, null), null, -1);
@@ -508,16 +510,18 @@ public class AssertTest {
 		Assert.typeValue(TypeValue.of(-1, null, "no"), null, -1);
 		Assert.typeValue(TypeValue.of(-1, null, "no"), null, -1, "no");
 		Assert.typeValue(TypeValue.of(-1, Truth.maybe, "maybe"), Truth.maybe, -1);
-		Assert.assertion(() -> Assert.typeValue(
-			TypeValue.of(-1, Truth.maybe, "maybe"), Truth.maybe, -1, null));
+		Assert.assertion(
+			() -> Assert.typeValue(TypeValue.of(-1, Truth.maybe, "maybe"), Truth.maybe, -1, null));
 	}
-	
+
 	// I/O
 
 	@Test
 	public void testBuffer() {
 		Assert.buffer(ByteBuffer.wrap(Array.BYTE.of()));
 		Assert.buffer(ByteBuffer.wrap(Array.BYTE.of(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
+		Assert.buffer(ShortBuffer.wrap(Array.SHORT.of(-1, 1, 0)), new short[] { -1, 1, 0 });
+		Assert.buffer(FloatBuffer.wrap(Array.FLOAT.of(-1, 1, 0)), new float[] { -1, 1, 0 });
 	}
 
 	@Test

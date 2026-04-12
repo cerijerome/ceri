@@ -1,235 +1,197 @@
 package ceri.ffm.util;
 
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.ffm.core.LastErrorException;
+import ceri.ffm.core.LastError;
+import ceri.ffm.core.Library;
 
 /**
  * Utility to call C functions and check status codes.
  */
-public class Caller<E extends Exception> {
-	public final Args args;
-	public final ToException<E> exceptionFn;
+public class Caller<E extends Exception, T> {
+	private final Library<T> lib;
+	private final Args args;
+	private final int generalCode;
+	private final ToException<E> exceptionFn;
 
-	public static interface ToException<E extends Exception> {
+	public interface ToException<E extends Exception> {
 		E apply(int code, String message);
 	}
 
-	public static <E extends Exception> Caller<E> of(ToException<E> exceptionFn) {
-		return of(Args.DEFAULT, exceptionFn);
+	public interface CallDescriptor {
+		String accept(String name, Object... args);
 	}
 
-	public static <E extends Exception> Caller<E> of(Args args, ToException<E> exceptionFn) {
-		return new Caller<>(args, exceptionFn);
+	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib,
+		ToException<E> exceptionFn) {
+		return of(lib, Args.DEFAULT, -1, exceptionFn);
 	}
 
-	private Caller(Args args, ToException<E> exceptionFn) {
+	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib, Args args,
+		int generalCode, ToException<E> exceptionFn) {
+		return new Caller<>(lib, args, generalCode, exceptionFn);
+	}
+
+	private Caller(Library<T> lib, Args args, int generalCode, ToException<E> exceptionFn) {
+		this.lib = lib;
 		this.args = args;
+		this.generalCode = generalCode;
 		this.exceptionFn = exceptionFn;
 	}
 
 	/**
-	 * Creates a failure message for given method and arguments.
+	 * Context to support execution of calls.
 	 */
-	public String failMessage(String name, Object... args) {
-		return name + "(" + argString(args) + ") failed";
-	}
+	public class Context {
+		private int code = 0;
+		private Exception cause = null;
 
-	/**
-	 * Creates a string representation of given method and arguments.
-	 */
-	public String functionString(String name, Object... args) {
-		return name + "(" + argString(args) + ")";
-	}
+		/**
+		 * Provides the call library.
+		 */
+		public T lib() {
+			return lib.get();
+		}
 
-	/**
-	 * Creates a comma-separated string from given arguments.
-	 */
-	public String argString(Object... args) {
-		return this.args.args(args);
-	}
+		/**
+		 * Registers a failure code, which will generate an exception on call completion.
+		 */
+		public void fail(int code) {
+			fail(code, null);
+		}
 
-	/**
-	 * Call void library function. Throws an exception on LastErrorException.
-	 */
-	public void call(Excepts.Runnable<E> fn, String name, Object... args) throws E {
-		call(fn, messageFn(name, args));
-	}
+		/**
+		 * Registers a failure code and cause, which will generate an exception on call completion.
+		 */
+		public void fail(int code, Exception cause) {
+			this.code = code;
+			this.cause = cause;
+		}
 
-	/**
-	 * Call void library function. Throws an exception on LastErrorException.
-	 */
-	public void call(Excepts.Runnable<E> fn, Functions.Supplier<String> msgFn) throws E {
-		try {
-			fn.run();
-		} catch (LastErrorException e) {
-			throw lastError(e, msgFn.get());
+		/**
+		 * Returns the last error code.
+		 */
+		public int lastErrorCode() {
+			return LastError.get();
+		}
+
+		/**
+		 * If the call result matches the given error value, the last error will generate an
+		 * exception on call completion.
+		 */
+		public int lastError(int result, int error) {
+			if (result == error) lastError();
+			return result;
+		}
+
+		/**
+		 * Verifies the last error; a non-zero code will generate an exception on call completion.
+		 */
+		public void lastError() {
+			int code = lastErrorCode();
+			if (code != LastError.OK) fail(code);
 		}
 	}
 
 	/**
-	 * Call library function and return int result. Throws an exception on LastErrorException.
+	 * Executes the call with contextual support.
 	 */
-	public int callInt(Excepts.IntSupplier<E> fn, String name, Object... args) throws E {
-		return callInt(fn, messageFn(name, args));
+	public void call(Excepts.Consumer<?, Context> call, String name, Object... args) throws E {
+		call(call, m -> m.accept(name, args));
 	}
 
 	/**
-	 * Call library function and return int result. Throws an exception on LastErrorException.
+	 * Executes the call with contextual support.
 	 */
-	public int callInt(Excepts.IntSupplier<E> fn, Functions.Supplier<String> msgFn) throws E {
-		try {
-			return fn.getAsInt();
-		} catch (LastErrorException e) {
-			throw lastError(e, msgFn.get());
-		}
+	public void call(Excepts.Consumer<?, Context> call,
+		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		var context = new Context();
+		exec(context, call);
+		verify(context, callDesc);
 	}
 
 	/**
-	 * Call library function and return type result. Throws an exception on LastErrorException.
+	 * Executes the call with contextual support, returning an int value.
 	 */
-	public <R> R callType(Excepts.Supplier<E, R> fn, String name, Object... args) throws E {
-		return callType(fn, messageFn(name, args));
-	}
-
-	/**
-	 * Call library function and return type result. Throws an exception on LastErrorException.
-	 */
-	public <R> R callType(Excepts.Supplier<E, R> fn, Functions.Supplier<String> msgFn) throws E {
-		try {
-			return fn.get();
-		} catch (LastErrorException e) {
-			throw lastError(e, msgFn.get());
-		}
-	}
-
-	/**
-	 * Verify result. Throws an exception on non-zero status code.
-	 */
-	public void verify(int result, String name, Object... args) throws E {
-		verifyInt(result, r -> r == 0, name, args);
-	}
-
-	/**
-	 * Verify and return int result. Throws an exception on negative status code.
-	 */
-	public int verifyInt(int result, String name, Object... args) throws E {
-		return verifyInt(result, r -> r >= 0, name, args);
-	}
-
-	/**
-	 * Verify and return int result. Throws an exception on failed status code verification.
-	 */
-	public int verifyInt(int result, Functions.IntPredicate verifyFn, String name, Object... args)
+	public int callInt(Excepts.ToIntFunction<?, Context> call, String name, Object... args)
 		throws E {
-		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(name, args));
+		return callInt(call, m -> m.accept(name, args));
+	}
+
+	/**
+	 * Executes the call with contextual support, returning an int value.
+	 */
+	public int callInt(Excepts.ToIntFunction<?, Context> call,
+		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		var context = new Context();
+		int result = execInt(context, call);
+		verify(context, callDesc);
 		return result;
 	}
 
 	/**
-	 * Call library function, and verify result. Throws an exception on non-zero status code, or
-	 * LastErrorException.
+	 * Executes the call with contextual support, returning a typed value.
 	 */
-	public void verify(Excepts.IntSupplier<E> fn, String name, Object... args) throws E {
-		verify(fn, messageFn(name, args));
-	}
-
-	/**
-	 * Call library function, and verify result. Throws an exception on non-zero status code, or
-	 * LastErrorException.
-	 */
-	public void verify(Excepts.IntSupplier<E> fn, Functions.Supplier<String> msgFn) throws E {
-		verifyInt(fn, r -> r == 0, msgFn);
-	}
-
-	/**
-	 * Call library function, verify, and return int result. Throws an exception on negative status
-	 * code, or LastErrorException.
-	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, String name, Object... args) throws E {
-		return verifyInt(fn, messageFn(name, args));
-	}
-
-	/**
-	 * Call library function, verify, and return int result. Throws an exception on negative status
-	 * code, or LastErrorException.
-	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, Functions.Supplier<String> msgFn) throws E {
-		return verifyInt(fn, r -> r >= 0, msgFn);
-	}
-
-	/**
-	 * Call library function, verify, and return int result. Throws an exception on failed status
-	 * code verification, or LastErrorException.
-	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, Functions.IntPredicate verifyFn, String name,
-		Object... args) throws E {
-		return verifyInt(fn, verifyFn, messageFn(name, args));
-	}
-
-	/**
-	 * Call library function, verify, and return int result. Throws an exception on failed status
-	 * code verification, or LastErrorException.
-	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, Functions.IntPredicate verifyFn,
-		Functions.Supplier<String> msgFn) throws E {
-		int result = callInt(fn, msgFn);
-		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(msgFn));
-		return result;
-	}
-
-	/**
-	 * Call library function, verify, and return result. Throws an exception on null result with
-	 * given error code, and on LastErrorException.
-	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, int errorCode, String name, Object... args)
+	public <R> R callType(Excepts.Function<?, Context, R> call, String name, Object... args)
 		throws E {
-		return verifyType(fn, errorCode, messageFn(name, args));
+		return callType(call, m -> m.accept(name, args));
 	}
 
 	/**
-	 * Call library function, verify, and return result. Throws an exception on null result with
-	 * given error code, and on LastErrorException.
+	 * Executes the call with contextual support, returning a typed value.
 	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, int errorCode,
-		Functions.Supplier<String> msgFn) throws E {
-		return verifyType(fn, r -> r != null ? 0 : errorCode, msgFn);
-	}
-
-	/**
-	 * Call library function, verify, and return result. Throws an exception on non-zero status
-	 * verification, or LastErrorException.
-	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, Functions.ToIntFunction<R> statusFn,
-		String name, Object... args) throws E {
-		return verifyType(fn, statusFn, messageFn(name, args));
-	}
-
-	/**
-	 * Call library function, verify, and return result. Throws an exception on non-zero status
-	 * verification, or LastErrorException.
-	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, Functions.ToIntFunction<R> statusFn,
-		Functions.Supplier<String> msgFn) throws E {
-		R result = callType(fn, msgFn);
-		int status = statusFn.applyAsInt(result);
-		if (status != 0) throw exceptionFn.apply(status, failMessage(msgFn));
+	public <R> R callType(Excepts.Function<?, Context, R> call,
+		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		var context = new Context();
+		R result = execType(context, call);
+		verify(context, callDesc);
 		return result;
 	}
 
-	private E lastError(LastErrorException e, String message) {
-		int code = e.errNo;
-		var lastErrorMsg = LastErrorException.message(e);
-		if (!lastErrorMsg.isEmpty()) message = lastErrorMsg + ": " + message;
-		return Exceptions.initCause(exceptionFn.apply(code, message), e);
+	// support
+
+	private void verify(Context context, Functions.Function<CallDescriptor, String> callDesc)
+		throws E {
+		if (context.code == 0) return;
+		var message = callDesc.apply(this::failMessage);
+		throw Exceptions.initCause(exceptionFn.apply(context.code, message), context.cause);
 	}
 
-	private Functions.Supplier<String> messageFn(String name, Object... args) {
-		return () -> functionString(name, args);
+	private void exec(Context context, Excepts.Consumer<?, Context> call) {
+		try {
+			call.accept(context);
+		} catch (RuntimeInterruptedException e) {
+			throw e;
+		} catch (Exception e) {
+			context.fail(generalCode, e);
+		}
 	}
 
-	private static String failMessage(Functions.Supplier<String> msgFn) {
-		return msgFn.get() + " failed";
+	private int execInt(Context context, Excepts.ToIntFunction<?, Context> call) {
+		try {
+			return call.applyAsInt(context);
+		} catch (RuntimeInterruptedException e) {
+			throw e;
+		} catch (Exception e) {
+			context.fail(generalCode, e);
+			return 0;
+		}
+	}
+
+	private <R> R execType(Context context, Excepts.Function<?, Context, R> call) {
+		try {
+			return call.apply(context);
+		} catch (RuntimeInterruptedException e) {
+			throw e;
+		} catch (Exception e) {
+			context.fail(generalCode, e);
+			return null;
+		}
+	}
+
+	private String failMessage(String name, Object... args) {
+		return name + "(" + this.args.args(args) + ") failed";
 	}
 }

@@ -14,6 +14,9 @@ import ceri.common.data.IntProvider;
 import ceri.common.data.LongArray;
 import ceri.common.data.LongProvider;
 import ceri.common.function.Functions;
+import ceri.common.stream.DoubleStream;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
 
 /**
  * Utility to create arrays without initially knowing the required size. Not thread-safe.
@@ -521,6 +524,13 @@ public abstract class DynamicArray<T> {
 		public IntBuffer buffer() {
 			return IntBuffer.wrap(array(), 0, index());
 		}
+
+		/**
+		 * Returns a stream of the array.
+		 */
+		public IntStream<RuntimeException> stream() {
+			return IntStream.of(array(), 0, index());
+		}
 	}
 
 	/**
@@ -570,6 +580,13 @@ public abstract class DynamicArray<T> {
 		 */
 		public LongBuffer buffer() {
 			return LongBuffer.wrap(array(), 0, index());
+		}
+
+		/**
+		 * Returns a stream of the array.
+		 */
+		public LongStream<RuntimeException> stream() {
+			return LongStream.of(array(), 0, index());
 		}
 	}
 
@@ -657,6 +674,13 @@ public abstract class DynamicArray<T> {
 		 */
 		public DoubleBuffer buffer() {
 			return DoubleBuffer.wrap(array(), 0, index());
+		}
+
+		/**
+		 * Returns a stream of the array.
+		 */
+		public DoubleStream<RuntimeException> stream() {
+			return DoubleStream.of(array(), 0, index());
 		}
 	}
 

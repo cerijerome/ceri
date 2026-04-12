@@ -1,81 +1,375 @@
 package ceri.ffm.core;
 
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.ValueLayout;
+import ceri.common.function.Excepts;
+import ceri.common.math.Maths;
 
+/**
+ * Support for memory segments.
+ */
 public class Memory {
+	public static final Arena ARENA = Arena.ofAuto();
+
 	private Memory() {}
+
+	/**
+	 * Allocate a memory segment with a new auto arena.
+	 */
+	@SuppressWarnings("resource")
+	public static MemorySegment autoAlloc(long size) {
+		return Arena.ofAuto().allocate(size);
+	}
+
+	/**
+	 * Accepts bounded offsets and lengths.
+	 */
+	public interface BiSliceConsumer<E extends Exception> {
+		void accept(long lOffset, long lLength, long rOffset, long rLength) throws E;
+	}
+
+	/**
+	 * Applies bounded offsets and lengths.
+	 */
+	public interface BiSliceFunction<E extends Exception, T> {
+		T apply(long lOffset, long lLength, long rOffset, long rLength) throws E;
+	}
 
 	/**
 	 * Returns the address of the segment; 0 if null or a null pointer.
 	 */
-	public static long address(MemorySegment m) {
-		return m == null ? 0L : m.address();
+	public static long address(MemorySegment memory) {
+		return memory == null ? 0L : memory.address();
 	}
 
 	/**
-	 * Returns the size of the segment; 0 if null or a null pointer.
+	 * Returns true if the segment is non-null and native.
 	 */
-	public static long size(MemorySegment m) {
-		if (address(m) == 0L) return 0L;
-		return m.byteSize();
+	public static boolean isNative(MemorySegment memory) {
+		return memory != null && memory.isNative();
 	}
 
 	/**
-	 * Returns true if the segment is null or a null pointer.
+	 * Returns true if the segment is null or a native null pointer.
 	 */
-	public static boolean isNull(MemorySegment m) {
-		return m == null || m.address() == 0L;
+	public static boolean isNull(MemorySegment memory) {
+		return memory == null || (memory.isNative() && memory.address() == 0L);
 	}
 
 	/**
 	 * Returns true if the segment is not a non-null pointer.
 	 */
-	public static boolean nonNull(MemorySegment m) {
-		return !isNull(m);
+	public static boolean nonNull(MemorySegment memory) {
+		return !isNull(memory);
+	}
+
+	/**
+	 * Returns the size of the segment; 0 if null or a null pointer.
+	 */
+	public static long size(MemorySegment memory) {
+		return isNull(memory) ? 0L : memory.byteSize();
+	}
+
+	/**
+	 * Returns the size of the segment from the offset; 0 if null, null pointer or out of range.
+	 */
+	public static long size(MemorySegment memory, long offset) {
+		return Math.max(0L, size(memory) - Math.max(0L, offset));
+	}
+
+	/**
+	 * Returns the size of the segment; 0 if null or a null pointer.
+	 */
+	public static int sizeInt(MemorySegment memory) {
+		return Math.toIntExact(size(memory));
+	}
+
+	/**
+	 * Returns the size of the segment from the offset; 0 if null, null pointer or out of range.
+	 */
+	public static int sizeInt(MemorySegment memory, long offset) {
+		return Math.toIntExact(size(memory, offset));
+	}
+
+	/**
+	 * Returns the number of layout units available within bounds, or 0 if null.
+	 */
+	public static long count(MemorySegment memory, MemoryLayout layout) {
+		return count(memory, layout, 0L);
+	}
+
+	/**
+	 * Returns the number of layout units available within bounds, or 0 if null.
+	 */
+	public static long count(MemorySegment memory, MemoryLayout layout, long offset) {
+		return Layouts.count(layout, size(memory, offset));
+	}
+
+	/**
+	 * Returns true if the segment is null, a null pointer, or zero size.
+	 */
+	public static boolean isEmpty(MemorySegment memory) {
+		return size(memory) == 0L;
+	}
+
+	/**
+	 * Returns true if the segment not null, a null pointer, or zero size.
+	 */
+	public static boolean nonEmpty(MemorySegment memory) {
+		return !isEmpty(memory);
+	}
+
+	/**
+	 * Returns true if the segment is non-null, native, and has a byte size of 0.
+	 */
+	public static boolean isNativePointer(MemorySegment memory) {
+		return isNative(memory) && memory.byteSize() == 0L;
+	}
+
+	/**
+	 * Returns the offset within bounds.
+	 */
+	public static long offset(MemorySegment memory, long offset) {
+		return Maths.limit(offset, 0L, size(memory));
 	}
 
 	/**
 	 * Fails if the segment is null or a null pointer.
 	 */
-	public static MemorySegment valid(MemorySegment m) {
-		if (nonNull(m)) return m;
+	public static MemorySegment valid(MemorySegment memory) {
+		if (nonNull(memory)) return memory;
 		throw new NullPointerException("Memory segment is null");
 	}
 
 	/**
-	 * Resizes the segment unless null or a null pointer.
+	 * Returns true if non-null and the slice is within bounds.
 	 */
-	public static MemorySegment resize(MemorySegment m, long size) {
-		if (isNull(m)) return m;
-		return m.reinterpret(size);
+	public static boolean within(MemorySegment memory, long offset, long length) {
+		if (isNull(memory)) return false;
+		return offset >= 0L && offset < memory.byteSize() && length >= 0L
+			&& length < memory.byteSize() - offset;
 	}
 
-	//
-
-	public static void copy(MemorySegment from, long fromOffset, MemorySegment to, long toOffset,
+	/**
+	 * Returns true if non-null and the slice is within bounds.
+	 */
+	public static boolean within(MemorySegment memory, long offset, MemoryLayout layout,
 		long count) {
-		MemorySegment.copy(from, fromOffset, to, toOffset, count);
+		return within(memory, offset, Layouts.size(layout, count));
 	}
 
-	public static void copy(MemorySegment from, ValueLayout fromLayout, long fromOffset,
-		MemorySegment to, ValueLayout toLayout, long toOffset, long count) {
-		MemorySegment.copy(from, fromLayout, fromOffset, to, toLayout, toOffset, count);
+	/**
+	 * Resizes the segment unless unchanged, null, or a null pointer.
+	 */
+	public static MemorySegment resize(MemorySegment memory, long offset, long length) {
+		if (isNull(memory)) return memory;
+		offset = Math.max(0L, offset);
+		length = Math.max(0L, length);
+		if (offset + length > memory.byteSize()) memory = memory.reinterpret(offset + length);
+		if (offset == 0L && length == memory.byteSize()) return memory;
+		return memory.asSlice(offset, length);
 	}
 
-	public static void copy(Object from, int fromIndex, MemorySegment to, ValueLayout toLayout,
-		long toOffset, int count) {
-		MemorySegment.copy(from, fromIndex, to, toLayout, toOffset, count);
+	/**
+	 * Resizes the segment unless unchanged, null, or a null pointer.
+	 */
+	public static MemorySegment resize(MemorySegment memory, long offset, MemoryLayout layout,
+		long count) {
+		return resize(memory, offset, Layouts.size(layout, count));
 	}
 
-	public static void copy(MemorySegment from, ValueLayout fromLayout, long fromOffset, Object to,
-		int toIndex, int count) {
-		MemorySegment.copy(from, fromLayout, fromOffset, to, toIndex, count);
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment slice(MemorySegment memory, long offset) {
+		return slice(memory, offset, Long.MAX_VALUE);
 	}
 
-	public static MemorySegment allocateFrom(SegmentAllocator allocator, ValueLayout elementLayout,
-		MemorySegment from, ValueLayout fromElementLayout, long fromOffset, long count) {
-		return allocator.allocateFrom(elementLayout, from, fromElementLayout, fromOffset, count);
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment slice(MemorySegment memory, long offset, long length) {
+		if (isNull(memory)) return null;
+		offset = Maths.limit(offset, 0L, memory.byteSize());
+		length = Maths.limit(length, 0L, memory.byteSize() - offset);
+		if (offset == 0L && length == memory.byteSize()) return memory;
+		return memory.asSlice(offset, length);
+	}
+
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment slice(MemorySegment memory, long offset, MemoryLayout layout,
+		long count) {
+		return slice(memory, offset, Layouts.size(layout, count));
+	}
+
+	/**
+	 * Returns an index view of a segment array that starts at the given offset.
+	 */
+	public static MemorySegment indexSlice(MemorySegment memory, MemoryLayout layout,
+		long index) {
+		return indexSlice(memory, 0L, layout, index);
+	}
+
+	/**
+	 * Returns an index view of a segment array that starts at the given offset.
+	 */
+	public static MemorySegment indexSlice(MemorySegment memory, long offset, MemoryLayout layout,
+		long index) {
+		return slice(memory, layout.scale(offset, index), layout, 1);
+	}
+
+	/**
+	 * Resizes the segment if a native pointer, otherwise slices the segment within bounds.
+	 */
+	public static MemorySegment reslice(MemorySegment memory, long offset, long length) {
+		return isNativePointer(memory) ? resize(memory, offset, length) :
+			slice(memory, offset, length);
+	}
+
+	/**
+	 * Resizes the segment if a native pointer, otherwise slices the segment within bounds.
+	 */
+	public static MemorySegment reslice(MemorySegment memory, long offset, MemoryLayout layout,
+		long count) {
+		return reslice(memory, offset, Layouts.size(layout, count));
+	}
+
+	/**
+	 * Fills the memory with given byte value. Returns the number of bytes filled.
+	 */
+	public static long fill(MemorySegment m, int value) {
+		return fill(m, 0L, value);
+	}
+
+	/**
+	 * Fills the memory slice with given byte value. Returns the number of bytes filled.
+	 */
+	public static long fill(MemorySegment m, long offset, int value) {
+		return fill(m, offset, Long.MAX_VALUE, value);
+	}
+
+	/**
+	 * Fills the memory slice with given byte value. Returns the number of bytes filled.
+	 */
+	public static long fill(MemorySegment m, long offset, long length, int value) {
+		var slice = slice(m, offset, length);
+		if (size(slice) > 0) slice.fill((byte) value);
+		return slice.byteSize();
+	}
+
+	/**
+	 * Fills the memory slice with given byte value. Returns the number of bytes filled.
+	 */
+	public static long fill(MemorySegment m, long offset, MemoryLayout layout, long count,
+		int value) {
+		return fill(m, offset, Layouts.size(layout, count), value);
+	}
+
+	/**
+	 * Finds the first index of the right memory segment within the left memory segment.
+	 */
+	public static long indexOf(MemorySegment lm, MemorySegment rm, long step) {
+		return indexOf(lm, 0L, rm, 0L, step);
+	}
+
+	/**
+	 * Finds the first index of the right memory segment within the left memory segment.
+	 */
+	public static long indexOf(MemorySegment lm, long loff, MemorySegment rm, long roff,
+		long step) {
+		return indexOf(lm, loff, Long.MAX_VALUE, rm, roff, Long.MAX_VALUE, step);
+	}
+
+	/**
+	 * Finds the first index of the right memory segment within the left memory segment.
+	 */
+	public static long indexOf(MemorySegment lm, long loff, long llen, MemorySegment rm, long roff,
+		long rlen, long step) {
+		return applyBiSlice(lm, loff, llen, rm, roff, rlen, (lo, ll, ro, rl) -> {
+			for (long i = 0; i <= ll - rl; i += step)
+				if (MemorySegment.mismatch(lm, lo + i, lo + rl + i, rm, ro, ro + rl) == -1)
+					return lo + i;
+			return -1L;
+		});
+	}
+
+	/**
+	 * Allocates a copy of the memory segment.
+	 */
+	public static MemorySegment copyOf(SegmentAllocator allocator, MemorySegment memory) {
+		return copyOf(allocator, memory, 0L);
+	}
+
+	/**
+	 * Allocates a copy of the memory segment slice.
+	 */
+	public static MemorySegment copyOf(SegmentAllocator allocator, MemorySegment memory,
+		long offset) {
+		return copyOf(allocator, memory, offset, Long.MAX_VALUE);
+	}
+
+	/**
+	 * Allocates a copy of the memory segment slice.
+	 */
+	public static MemorySegment copyOf(SegmentAllocator allocator, MemorySegment memory,
+		long offset, long length) {
+		if (allocator == null || isNull(memory)) return MemorySegment.NULL;
+		offset = Maths.limit(offset, 0L, memory.byteSize());
+		length = Maths.limit(length, 0L, memory.byteSize() - offset);
+		var copy = allocator.allocate(length);
+		MemorySegment.copy(memory, offset, copy, 0L, length);
+		return copy;
+	}
+
+	/**
+	 * Passes a bounded range to the consumer.
+	 */
+	public static <E extends Exception> void acceptSlice(MemorySegment m, long offset, long length,
+		Excepts.LongBiConsumer<E> consumer) throws E {
+		if (consumer == null || isNull(m)) return;
+		offset = Maths.limit(offset, 0L, m.byteSize());
+		length = Maths.limit(length, 0L, m.byteSize() - offset);
+		consumer.accept(offset, length);
+	}
+
+	/**
+	 * Passes a bounded range to the function.
+	 */
+	public static <E extends Exception, R> R applySlice(MemorySegment m, long offset, long length,
+		Excepts.LongBiFunction<E, R> function) throws E {
+		if (function == null || isNull(m)) return null;
+		offset = Maths.limit(offset, 0L, m.byteSize());
+		length = Maths.limit(length, 0L, m.byteSize() - offset);
+		return function.apply(offset, length);
+	}
+
+	/**
+	 * Passes bounded ranges to the consumer.
+	 */
+	public static <E extends Exception> void acceptBiSlice(MemorySegment lm, long loff, long llen,
+		MemorySegment rm, long roff, long rlen, BiSliceConsumer<E> consumer) throws E {
+		if (consumer == null || isNull(lm) || isNull(rm)) return;
+		loff = Maths.limit(loff, 0L, lm.byteSize());
+		llen = Maths.limit(llen, 0L, lm.byteSize() - loff);
+		roff = Maths.limit(roff, 0L, rm.byteSize());
+		rlen = Maths.limit(rlen, 0L, rm.byteSize() - roff);
+		consumer.accept(loff, llen, roff, rlen);
+	}
+
+	/**
+	 * Passes bounded ranges to the function.
+	 */
+	public static <E extends Exception, R> R applyBiSlice(MemorySegment lm, long loff, long llen,
+		MemorySegment rm, long roff, long rlen, BiSliceFunction<E, R> function) throws E {
+		if (function == null || isNull(lm) || isNull(rm)) return null;
+		loff = Maths.limit(loff, 0L, lm.byteSize());
+		llen = Maths.limit(llen, 0L, lm.byteSize() - loff);
+		roff = Maths.limit(roff, 0L, rm.byteSize());
+		rlen = Maths.limit(rlen, 0L, rm.byteSize() - roff);
+		return function.apply(loff, llen, roff, rlen);
 	}
 }

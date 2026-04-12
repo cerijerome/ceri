@@ -1,0 +1,22 @@
+C Notes
+=======
+
+Array Decay
+- note: arrays not "first class citizens", not as fully supported as structs
+- array arg implicitly converted to first element pointer (not copied)
+  - array length lost
+- array return by value not allowed, must use pointer
+- arithmetic on array name same as element pointer arithmetic
+- sizeof: no decay, returns full array size
+- & operator: returns pointer to full array
+- struct array: full array allocated
+  - struct assignment copies full array
+- pass struct arg by value: full array copied
+- return struct by value: full array by value
+
+Flexible Array Member
+- last member in struct, empty array []
+  - considered hack to have size 1 (backwards compatibility)
+- must have other member(s) in struct
+- sizeof ignores array, but includes padding
+

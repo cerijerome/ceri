@@ -52,7 +52,7 @@ public class CAnnotations {
 
 			/** No targets to process. */
 			public static final Value NONE =
-				new Value(FfmOs.NONE, Array.Empty.classes, Array.Empty.classes, "");
+				new Value(FfmOs.NONE, Array.CLASS.empty, Array.CLASS.empty, "");
 
 			/**
 			 * Create from annotation.

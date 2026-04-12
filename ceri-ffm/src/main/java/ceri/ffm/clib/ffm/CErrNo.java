@@ -9,7 +9,6 @@ import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 import ceri.common.util.Os;
-import ceri.ffm.core.LastErrorException;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.reflect.CAnnotations.CType;
 import ceri.ffm.reflect.CAnnotations.CUndefined;
@@ -398,13 +397,6 @@ public enum CErrNo {
 	}
 
 	/**
-	 * Find from exception error code.
-	 */
-	public static CErrNo from(LastErrorException e) {
-		return from(e.errNo);
-	}
-
-	/**
 	 * Returns a matching type, or undefined type if no match.
 	 */
 	public static CErrNo from(int code) {
@@ -423,30 +415,16 @@ public enum CErrNo {
 	}
 
 	/**
-	 * Create an exception from the code.
-	 */
-	public LastErrorException lastError() {
-		return lastError(name());
-	}
-
-	/**
-	 * Create an exception from the code and message.
-	 */
-	public LastErrorException lastError(String message, Object... args) {
-		return LastErrorException.full(code, message, args);
-	}
-
-	/**
 	 * Create a CException from the code.
 	 */
-	public CException cerror() {
+	public CException error() {
 		return CException.of(code, prefix());
 	}
 
 	/**
 	 * Create a CException from the code and message.
 	 */
-	public CException cerror(String message, Object... args) {
+	public CException error(String message, Object... args) {
 		return CException.of(code, prefix() + " " + Strings.format(message, args));
 	}
 

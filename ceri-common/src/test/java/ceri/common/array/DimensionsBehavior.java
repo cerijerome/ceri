@@ -43,6 +43,12 @@ public class DimensionsBehavior {
 	}
 
 	@Test
+	public void shouldCreateWithZeros() {
+		Assert.equal(Dimensions.ofZeros(0), Dimensions.NONE);
+		Assert.equal(Dimensions.ofZeros(3), Dimensions.of(0, 0, 0));
+	}
+
+	@Test
 	public void shouldDetermineIfEmpty() {
 		Assert.equal(Dimensions.isEmpty(null), true);
 		Assert.equal(Dimensions.isEmpty(Dimensions.NONE), true);
@@ -73,6 +79,12 @@ public class DimensionsBehavior {
 		Assert.equal(d.dim(-2), 1);
 		Assert.equal(d.dim(-3), 3);
 		Assert.equal(d.dim(-4), 0);
+	}
+
+	@Test
+	public void shouldIterateAsArray() {
+		Dimensions.of(3, 0, 1).forEach((_, _) -> Assert.fail());
+		Dimensions.of(3, 2, 1).forEach((a, i) -> Assert.array(a, (i / 2) % 6, i % 2, 0));
 	}
 
 	@Test

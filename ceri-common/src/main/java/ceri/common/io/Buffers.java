@@ -62,17 +62,38 @@ public abstract class Buffers<B extends Buffer, A> {
 		}
 
 		/**
-		 * Creates a buffer view of the array.
+		 * Creates a read-only buffer view of the array.
 		 */
 		public CharBuffer of(char... array) {
 			return of(array, 0);
 		}
 
 		/**
-		 * Creates a read-only buffer view of the char sequence.
+		 * Creates a read-only buffer view of the char sequence, or returns unchanged if the char
+		 * sequence is a char buffer.
 		 */
 		public CharBuffer of(CharSequence s) {
-			return s == null ? null : CharBuffer.wrap(s);
+			return of(s, 0);
+		}
+
+		/**
+		 * Creates a read-only buffer view of the char sequence, or updates bounds if the char
+		 * sequence is a char buffer.
+		 */
+		public CharBuffer of(CharSequence s, int index) {
+			return of(s, index, Integer.MAX_VALUE);
+		}
+
+		/**
+		 * Creates a read-only buffer view of the char sequence, or updates bounds if the char
+		 * sequence is a char buffer.
+		 */
+		public CharBuffer of(CharSequence s, int index, int length) {
+			if (s == null) return null;
+			index = Maths.limit(index, 0, s.length());
+			length = Maths.limit(length, 0, s.length() - index);
+			if (s instanceof CharBuffer cb) return boundAt(cb, index, length);
+			return CharBuffer.wrap(s, index, index + length);
 		}
 
 		/**
@@ -367,6 +388,32 @@ public abstract class Buffers<B extends Buffer, A> {
 			position(to, position);
 			return put(to, from);
 		}
+	}
+
+	/**
+	 * Returns the base buffer class type.
+	 */
+	public static Class<? extends Buffer> baseType(Buffer buffer) {
+		return baseType(Reflect.getClass(buffer));
+	}
+
+	/**
+	 * Returns the base buffer class type.
+	 */
+	public static Class<? extends Buffer> baseType(Class<? extends Buffer> cls) {
+		while (cls != null) {
+			var sup = cls.getSuperclass();
+			if (Buffer.class.equals(sup)) break;
+			cls = Reflect.unchecked(sup);
+		}
+		return cls;
+	}
+
+	/**
+	 * Returns true if the buffer is non-null and direct.
+	 */
+	public static boolean isDirect(Buffer buffer) {
+		return buffer != null && buffer.isDirect();
 	}
 
 	/**

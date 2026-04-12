@@ -175,7 +175,7 @@ public class Lists {
 	}
 
 	/**
-	 * Returns the last element, or default.
+	 * Returns the last element, or null.
 	 */
 	public static <T> T last(List<? extends T> list) {
 		return last(list, null);

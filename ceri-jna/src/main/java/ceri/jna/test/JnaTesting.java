@@ -15,8 +15,8 @@ import ceri.common.test.ErrorGen;
 import ceri.common.text.Strings;
 import ceri.jna.type.Struct;
 import ceri.jna.util.GcMemory;
-import ceri.jna.util.JnaOs;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaOs;
 import ceri.jna.util.Pointers;
 
 /**

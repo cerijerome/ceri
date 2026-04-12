@@ -6,6 +6,7 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.text.Strings;
+import ceri.ffm.core.LastError;
 
 @SuppressWarnings("serial")
 public class CException extends IOException {
@@ -50,6 +51,14 @@ public class CException extends IOException {
 	}
 
 	/**
+	 * Throws a detailed exception if last error code is set.
+	 */
+	public static void lastError() throws CException {
+		int code = LastError.get();
+		if (code != LastError.OK) throw full(code, "");
+	}
+
+	/**
 	 * Create exception with formatted message.
 	 */
 	public static CException of(int code, String format, Object... args) {
@@ -64,13 +73,10 @@ public class CException extends IOException {
 	}
 
 	/**
-	 * Create exception with code prefix and formatted message.
+	 * Create exception with code prefix, enum, error message, and formatted message.
 	 */
 	public static CException full(int code, String format, Object... args) {
-		var message = Strings.format(format, args);
-		var errNo = CErrNo.from(code);
-		if (errNo.defined() && !message.startsWith(errNo.name())) message = errNo + " " + message;
-		return new CException(code, "[" + code + "] " + message);
+		return of(code, fullMessage(code, format, args));
 	}
 
 	protected CException(int code, String message) {
@@ -85,9 +91,23 @@ public class CException extends IOException {
 		return new CException.Runtime(this);
 	}
 
+	// support
+
 	private static CException adapt(Throwable e) {
 		String message = e.getMessage();
 		if (message == null) message = "Error";
 		return Exceptions.initCause(general(message), e);
+	}
+
+	private static String fullMessage(int code, String format, Object... args) {
+		var b = new StringBuilder("[").append(code).append(']');
+		int n = b.length();
+		var errNo = CErrNo.from(code);
+		var errMsg = LastError.message(code);
+		var message = Strings.format(format, args);
+		if (errNo.defined()) b.append(' ').append(errNo.name());
+		if (Strings.nonEmpty(errMsg)) b.append(' ').append(errMsg);
+		if (Strings.nonEmpty(message)) b.append(n < b.length() ? "; " : " ").append(message);
+		return b.toString();
 	}
 }

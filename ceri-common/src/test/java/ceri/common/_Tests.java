@@ -202,6 +202,7 @@ import ceri.common.test.Testing;
 	ceri.common.reflect.ClassReInitializerBehavior.class, //
 	ceri.common.reflect.ClassReloaderBehavior.class, //
 	ceri.common.reflect.GenericsTest.class, //
+	ceri.common.reflect.HandlesTest.class, //
 	ceri.common.reflect.ReflectTest.class, //
 	// sql
 	ceri.common.sql.SqlStatementBehavior.class, //

@@ -1,0 +1,114 @@
+
+FFM Supported Types
+===================
+
+primitive, boxed, int-type (immutable):
+- call:arg (by value)
+  - layout = value
+  - in = pass direct (boxed) value
+  - out = (not supported)
+  - in/out = (not supported)
+- call:rtn (by value)
+  - layout = value
+  - out = pass direct (boxed) value
+- struct field
+  - layout = value
+  - new = zero value
+  - read = read from mem at offset, re-assign value
+  - write = write to mem at offset
+
+struct, union:
+- call:arg (by value)
+  - layout = struct
+  - in = allocate mem, write struct to mem, pass mem
+  - out = (not supported)
+  - in/out = (not supported)
+- call:rtn (by value)
+  - layout = struct
+  - out = reslice to size, create new, read from mem
+- struct field
+  - layout = struct
+  - new = default instance
+  - read = read from mem at offset
+  - write = write to mem at offset
+
+pointer, pointer-type: [typed]
+- call:arg (by value)
+  - layout = address
+  - in = allocate mem, write address to mem, pass mem
+  - out = (not supported - address unchanged, contents changed)
+  - in/out = (not supported - address unchanged, contents changed)
+- call:rtn (by value)
+  - layout = address
+  - out = reslice to size, create pointer from mem
+- struct field
+  - layout = address
+  - new = instantiate pointer to null
+  - read = read address from mem at offset
+  - write = write address to mem at offset
+
+func-pointer: TBD
+
+string (immutable): [charset, size, nul-term] // equivalent to array
+- call:arg (by ref)
+  - layout = address
+  - in = allocate mem, write string to mem, pass mem
+  - out = (not supported - unable to retrieve new string)
+  - in/out = (not supported - unable to retrieve new string)
+- call:rtn (by ref)
+  - layout = address
+  - out = reslice to max, read bytes from mem, create string
+- struct field
+  - layout = sequence
+  - new = empty string
+  - read = read from mem at offset, reassign string
+  - write = write to mem at offset
+
+buffer (direct): [size, nul-term] // equivalent to pointer/array
+- call:arg (by ref)
+  - layout = address
+  - in = (allocate direct), pass mem wrapper
+  - out = (allocate direct), pass mem wrapper, read from buffer
+  - in/out = (allocate direct), pass mem wrapper, read from buffer
+- call:rtn (by ref)
+  - layout = address
+  - out = reslice mem, wrap mem as buffer, read from buffer
+- struct field
+  - layout = sequence
+  - new = wrap mem at offset as buffer
+  - read = read from buffer
+  - write = write to buffer
+
+buffer (indirect): [size, nul-term] // equivalent to array
+- call:arg (by ref)
+  - layout = address
+  - in = allocate mem, copy buffer to mem, pass mem
+  - out = allocate mem, pass mem, copy mem to buffer
+  - in/out = allocate mem, copy buffer to mem, pass mem, copy mem to buffer
+- call:rtn (by ref)
+  - layout = address
+  - out = reslice to size, create buffer, copy mem to buffer
+- struct field
+  - layout = sequence
+  - new = create from array
+  - read = copy mem at offset to buffer
+  - write = copy buffer to mem at offset
+
+array n-dim (any type): [dims] // array decay to pointer
+- call:arg (by ref)
+  - layout = address
+  - in = allocate mem, copy array to mem, pass mem
+  - out = allocate mem, pass mem, copy mem to array, reassign immutable elements
+  - in/out = allocate mem, copy array to mem, pass mem, copy mem to array,
+             reassign immutable elements
+- call:rtn (by ref)
+  - layout = address
+  - out = reslice mem, create default array, copy mem to array
+- struct field
+  - layout = sequence
+  - new = create default array
+  - read = read array from mem at offset, reassign immutable elements
+  - write = write array to mem at offset
+
+
+

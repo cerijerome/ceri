@@ -173,7 +173,7 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asInt(Nulls nulls,
 		Functions.ToIntFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+		return accessor == null ? of(Nulls.safe(nulls), ofNull()) : of(Nulls.safe(nulls),
 			(l, r) -> Integer.compare(accessor.applyAsInt(l), accessor.applyAsInt(r)));
 	}
 
@@ -189,7 +189,7 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asUint(Nulls nulls,
 		Functions.ToIntFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+		return accessor == null ? of(Nulls.safe(nulls), ofNull()) : of(Nulls.safe(nulls),
 			(l, r) -> Integer.compareUnsigned(accessor.applyAsInt(l), accessor.applyAsInt(r)));
 	}
 
@@ -205,7 +205,7 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asLong(Nulls nulls,
 		Functions.ToLongFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+		return accessor == null ? of(Nulls.safe(nulls), ofNull()) : of(Nulls.safe(nulls),
 			(l, r) -> Long.compare(accessor.applyAsLong(l), accessor.applyAsLong(r)));
 	}
 
@@ -221,7 +221,7 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asUlong(Nulls nulls,
 		Functions.ToLongFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+		return accessor == null ? of(Nulls.safe(nulls), ofNull()) : of(Nulls.safe(nulls),
 			(l, r) -> Long.compareUnsigned(accessor.applyAsLong(l), accessor.applyAsLong(r)));
 	}
 
@@ -237,7 +237,7 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asDouble(Nulls nulls,
 		Functions.ToDoubleFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+		return accessor == null ? of(Nulls.safe(nulls), ofNull()) : of(Nulls.safe(nulls),
 			(l, r) -> Double.compare(accessor.applyAsDouble(l), accessor.applyAsDouble(r)));
 	}
 

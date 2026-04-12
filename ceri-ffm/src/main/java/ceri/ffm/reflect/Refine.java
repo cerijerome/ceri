@@ -9,15 +9,16 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import ceri.common.array.Dimensions;
 import ceri.common.data.Bytes;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.io.Direction;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 import ceri.ffm.core.Native;
-import ceri.ffm.reflect.Refine.Chars.Value;
 
 /**
  * Support for refining the default behavior of types, methods, parameters and fields.
@@ -25,51 +26,19 @@ import ceri.ffm.reflect.Refine.Chars.Value;
 public class Refine {
 	public static final int UNSPECIFIED = -1;
 
-	/**
-	 * A context that provides refinement settings.
-	 */
-	public interface Context {
-		/** String conversion configuration. */
-		Chars.Value chars();
-		/** General size configuration. */
-		int size();
-		/** Byte alignment. */
-		long align();
-		/** Byte order. */
-		ByteOrder order();
-		/** Parameter direction. */
-		Direction direction();
-
-		/**
-		 * Returns annotated refinements on demand.
-		 */
-		static Context from(AnnotatedElement element) {
-			return Refine.context(() -> resolveChars(element), () -> resolveSize(element),
-				() -> resolveAlignment(element), () -> resolveOrder(element),
-				() -> resolveDirection(element));
-		}
+	public static void main(String[] args) {
+		int[][] ii = new int[0][0];
+		System.out.println(ii);
 	}
-
+	
 	/**
-	 * String conversion charset, and max bytes for reading.
+	 * String conversion charset.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
 	public @interface Chars {
 		/** The charset used to convert strings. */
 		String value() default "";
-
-		/** Max memory segment length. */
-		int max() default Short.MAX_VALUE;
-
-		record Value(Charset charset, int max) {
-			public static final Value DEF = new Value(Charset.defaultCharset(), Short.MAX_VALUE);
-
-			public static Value from(Chars c) {
-				return c == null ? null :
-					new Value(ceri.common.text.Chars.charset(c.value()), c.max());
-			}
-		}
 	}
 
 	/**
@@ -78,8 +47,67 @@ public class Refine {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
 	public @interface Size {
-		int value();
+		/** The size value. */
+		int value() default 0;
+
+		/** The size by registered type name. */
+		String type() default "";
 	}
+
+	/**
+	 * Maximum value configuration.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+	public @interface Max {
+		/** The size value. */
+		int value() default 0;
+	}
+
+	/**
+	 * Minimum value configuration.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+	public @interface Min {
+		/** The value. */
+		int value() default 0;
+	}
+
+	/**
+	 * Array dimensions.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+	public @interface Dims {
+		/** The size value. */
+		int[] value() default {};
+	}
+
+	/**
+	 * Method marker to capture last error.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	public @interface LastError {
+		boolean value() default true;
+	}
+
+	/**
+	 * Unsigned marker.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+	public @interface Unsigned {
+		boolean value() default true;
+	}
+
+	/**
+	 * Indicates arrays are nul-terminated.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+	public @interface Nul {}
 
 	/**
 	 * Byte alignment configuration.
@@ -103,7 +131,7 @@ public class Refine {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
 	public @interface Order {
-		Bytes.Order value();
+		Bytes.Order value() default Bytes.Order.platform;
 	}
 
 	/**
@@ -123,86 +151,143 @@ public class Refine {
 	public @interface Out {}
 
 	/**
+	 * Provides contextual configuration for calls and structs.
+	 */
+	public record Context(AnnotatedElement element) {
+		public Charset chars(Charset def) {
+			return Refine.resolveChars(element, def);
+		}
+
+		public Integer size(Integer def) {
+			return Refine.resolveSize(element, def);
+		}
+
+		public Dimensions dims(Dimensions def) {
+			return Refine.dims(element, def); // don't check parent
+		}
+
+		public boolean nul() {
+			return Refine.nul(element);
+		}
+
+		public Direction direction(Direction def) {
+			return Refine.direction(element, def); // don't check parent
+		}
+
+		public long align() {
+			return Refine.resolveAlign(element, Native.Align.NATURAL);
+		}
+
+		public ByteOrder order() {
+			return Refine.resolveOrder(element, ByteOrder.nativeOrder());
+		}
+	}
+
+	/**
+	 * Creates a new context from element.
+	 */
+	public static Context context(AnnotatedElement element) {
+		return new Context(element);
+	}
+
+	/**
 	 * Extract char configuration from annotated type and parents.
 	 */
-	public static Chars.Value resolveChars(AnnotatedElement element) {
-		return resolve(element, Refine::chars, Chars.Value.DEF);
+	public static Charset resolveChars(AnnotatedElement element, Charset def) {
+		return resolve(element, Refine::chars, def);
 	}
 
 	/**
 	 * Extract char configuration from annotated type.
 	 */
-	public static Chars.Value chars(AnnotatedElement element) {
-		return chars(element, Chars.Value.DEF);
+	public static Charset chars(AnnotatedElement element, Charset def) {
+		var anno = Annotations.annotation(element, Chars.class);
+		if (anno == null || Strings.isEmpty(anno.value())) return def;
+		return Charset.forName(anno.value());
 	}
 
 	/**
 	 * Extract size from annotated type and parents.
 	 */
-	public static int resolveSize(AnnotatedElement element) {
-		return Basics.def(size(element, null), UNSPECIFIED);
+	public static Integer resolveSize(AnnotatedElement element, Integer def) {
+		return resolve(element, Refine::size, def);
 	}
 
 	/**
 	 * Extract size from annotated type.
 	 */
-	public static int size(AnnotatedElement element) {
-		return size(element, UNSPECIFIED);
+	public static Integer size(AnnotatedElement element, Integer def) {
+		var anno = Annotations.annotation(element, Size.class);
+		if (anno == null) return def;
+		int size = anno.value();
+		if (size > 0) return size;
+		if (!Strings.isEmpty(anno.type())) return Native.Size.lookup(anno.type());
+		return def;
+	}
+
+	/**
+	 * Extract dimensions from annotated type and parents.
+	 */
+	public static Dimensions resolveDims(AnnotatedElement element, Dimensions def) {
+		return resolve(element, Refine::dims, def);
+	}
+
+	/**
+	 * Extract dimensions from annotated type.
+	 */
+	public static Dimensions dims(AnnotatedElement element, Dimensions def) {
+		var anno = Annotations.annotation(element, Dims.class);
+		if (anno == null) return def;
+		int[] dims = anno.value();
+		return dims.length == 0 ? def : Dimensions.of(dims);
+	}
+
+	/**
+	 * Extract last error capture directive from annotated type and parents.
+	 */
+	public static Boolean resolveLastError(AnnotatedElement element, Boolean def) {
+		return resolve(element, Refine::lastError, def);
+	}
+
+	/**
+	 * Extract last error capture directive from annotated type.
+	 */
+	public static Boolean lastError(AnnotatedElement element, Boolean def) {
+		return Annotations.value(element, LastError.class, LastError::value, def);
+	}
+
+	/**
+	 * Extract signedness from annotated type.
+	 */
+	public static Boolean resolveUnsigned(AnnotatedElement element, Boolean def) {
+		return resolve(element, Refine::unsigned, def);
+	}
+
+	/**
+	 * Extract signedness from annotated type.
+	 */
+	public static Boolean unsigned(AnnotatedElement element, Boolean def) {
+		return Annotations.value(element, Unsigned.class, Unsigned::value, def);
+	}
+
+	/**
+	 * Extract nul-termination from annotated type.
+	 */
+	public static boolean nul(AnnotatedElement element) {
+		return Annotations.has(element, Nul.class);
 	}
 
 	/**
 	 * Extract alignment from annotated type and parents.
 	 */
-	public static long resolveAlignment(AnnotatedElement element) {
-		return resolve(element, Refine::alignment, Native.ALIGN_NATURAL);
+	public static Long resolveAlign(AnnotatedElement element, Long def) {
+		return resolve(element, Refine::align, def);
 	}
 
 	/**
 	 * Extract alignment from annotated type.
 	 */
-	public static long alignment(AnnotatedElement element) {
-		return alignment(element, Native.ALIGN_NATURAL);
-	}
-
-	/**
-	 * Extract byte order from annotated type and parents.
-	 */
-	public static ByteOrder resolveOrder(AnnotatedElement element) {
-		return Bytes.Order.order(resolve(element, Refine::order, Bytes.Order.platform));
-	}
-
-	/**
-	 * Extract byte order from annotated type.
-	 */
-	public static Bytes.Order order(AnnotatedElement element) {
-		return order(element, Bytes.Order.platform);
-	}
-
-	/**
-	 * Extract in/out configuration from annotated type and parents.
-	 */
-	public static Direction resolveDirection(AnnotatedElement element) {
-		return Basics.def(direction(element), Direction.duplex);
-	}
-
-	/**
-	 * Extract in/out configuration from annotated type.
-	 */
-	public static Direction direction(AnnotatedElement element) {
-		return direction(element, Direction.duplex);
-	}
-
-	// support
-
-	private static Chars.Value chars(AnnotatedElement element, Chars.Value def) {
-		return Annotations.value(element, Chars.class, Chars.Value::from, def);
-	}
-
-	private static Integer size(AnnotatedElement element, Integer def) {
-		return Annotations.value(element, Size.class, Size::value, def);
-	}
-
-	private static Long alignment(AnnotatedElement element, Long def) {
+	public static Long align(AnnotatedElement element, Long def) {
 		boolean packed = Annotations.has(element, Packed.class);
 		Long align = Annotations.value(element, Align.class, Align::value);
 		if (packed && align != null)
@@ -213,19 +298,34 @@ public class Refine {
 		return def;
 	}
 
-	private static Bytes.Order order(AnnotatedElement element, Bytes.Order def) {
-		return Annotations.value(element, Order.class, Order::value, def);
+	/**
+	 * Extract byte order from annotated type and parents.
+	 */
+	public static ByteOrder resolveOrder(AnnotatedElement element, ByteOrder def) {
+		return resolve(element, Refine::order, def);
 	}
 
-	private static Direction direction(AnnotatedElement element, Direction def) {
+	/**
+	 * Extract byte order from annotated type.
+	 */
+	public static ByteOrder order(AnnotatedElement element, ByteOrder def) {
+		var value = Annotations.value(element, Order.class, Order::value, null);
+		return value != null ? value.order : def;
+	}
+
+	/**
+	 * Extract in/out configuration from annotated type.
+	 */
+	public static Direction direction(AnnotatedElement element, Direction def) {
 		boolean in = Annotations.has(element, In.class);
 		boolean out = Annotations.has(element, Out.class);
-		if (in && out) throw Exceptions.illegalArg("Only one of @%s and @%s may be specified: %s",
-			Reflect.name(In.class), Reflect.name(Out.class), element);
+		if (in && out) return Direction.duplex;
 		if (in) return Direction.in;
 		if (out) return Direction.out;
 		return def;
 	}
+
+	// support
 
 	private static <T> T resolve(AnnotatedElement element,
 		Functions.BiFunction<AnnotatedElement, T, T> func, T def) {
@@ -251,36 +351,5 @@ public class Refine {
 		var t = func.apply(executable, null);
 		if (t != null) return t;
 		return resolve(executable.getDeclaringClass(), func, null);
-	}
-
-	private static Context context(Functions.Supplier<Chars.Value> chars,
-		Functions.IntSupplier size, Functions.LongSupplier align,
-		Functions.Supplier<ByteOrder> order, Functions.Supplier<Direction> direction) {
-		return new Context() {
-			@Override
-			public Value chars() {
-				return chars.get();
-			}
-
-			@Override
-			public int size() {
-				return size.getAsInt();
-			}
-
-			@Override
-			public long align() {
-				return align.getAsLong();
-			}
-
-			@Override
-			public ByteOrder order() {
-				return order.get();
-			}
-
-			@Override
-			public Direction direction() {
-				return direction.get();
-			}
-		};
 	}
 }

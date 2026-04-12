@@ -1,98 +1,99 @@
 package ceri.ffm.core;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
+import ceri.common.function.Functions;
+import ceri.common.reflect.Generics;
+import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
-import ceri.common.text.Strings;
 import ceri.common.text.ToString;
+import ceri.ffm.reflect.Refine;
 
 /**
  * Encapsulates a native call.
  */
 public class Call {
+	private static final Typed<Return<?, ?>> VOID =
+		new Typed<>(Generics.Typed.VOID, new Return<>(null, _ -> null));
 	public final String name;
 	private final MethodHandle handle;
-	private final Return rtn;
-	private final List<Arg> args;
+	private final Typed<Return<?, ?>> rtn;
+	private final List<Typed<Arg<?, ?>>> args;
 	private final boolean lastError;
 
 	/**
-	 * An action that creates one value from another.
+	 * Applies a type to the reference.
 	 */
-	@FunctionalInterface
-	public interface Adapter {
-		static Adapter NULL = (_, _, o) -> o;
-
-		Object apply(Arena arena, MemoryLayout layout, Object from);
-	}
-
-	/**
-	 * An action that resolves two existing values.
-	 */
-	@FunctionalInterface
-	public interface Resolver {
-		static Resolver NULL = (_, _, _, _) -> {};
-
-		void accept(Arena arena, MemoryLayout layout, Object from, Object to);
+	private record Typed<T>(Generics.Typed type, T ref) {
+		@Override
+		public final String toString() {
+			return type.toString();
+		}
 	}
 
 	/**
 	 * Represents method argument actions.
 	 */
-	public record Arg(String name, MemoryLayout layout, Adapter adapter, Resolver resolver) {
-		public static Arg of(MemoryLayout layout, Adapter adapter, Resolver resolver, String format,
-			Object... args) {
-			return new Arg(Strings.format(format, args), layout, adapter, resolver);
+	public record Arg<T, R>(MemoryLayout layout,
+		Functions.BiFunction<SegmentAllocator, T, R> adapter, Functions.BiConsumer<T, R> resolver) {
+		/**
+		 * Provides an argument handler based on context, type, and array dimensions (zero for
+		 * non-array).
+		 */
+		public interface Handler {
+			Arg<?, ?> arg(Refine.Context context, Generics.Array array);
 		}
 
-		public Object adapt(Arena arena, Object from) {
-			if (adapter() == null) return from;
-			return adapter().apply(arena, layout(), from);
+		/**
+		 * Adapts the argument with allocator.
+		 */
+		public R adapt(SegmentAllocator allocator, T from) {
+			return adapter().apply(allocator, from);
 		}
 
-		public void resolve(Arena arena, Object from, Object to) {
-			if (resolver() != null) resolver().accept(arena, layout(), from, to);
-		}
-
-		@Override
-		public final String toString() {
-			return name();
+		/**
+		 * Updates the argument after the call, if a resolver is specified.
+		 */
+		public void resolve(T from, R to) {
+			if (resolver() != null) resolver().accept(from, to);
 		}
 	}
 
 	/**
 	 * Represents method return actions.
 	 */
-	public record Return(String name, MemoryLayout layout, Adapter adapter) {
-		public static final Return VOID = new Return("void", null, null);
-
-		public static Return of(MemoryLayout layout, Adapter adapter, String format,
-			Object... args) {
-			return new Return(Strings.format(format, args), layout, adapter);
+	public record Return<T, R>(MemoryLayout layout, Functions.Function<T, R> adapter) {
+		/**
+		 * Provides a return value handler based on context, type, and array dimensions (zero for
+		 * non-array).
+		 */
+		public interface Handler {
+			Return<?, ?> rtn(Refine.Context context, Generics.Array array);
 		}
 
-		public Object adapt(Arena arena, Object from) {
-			if (adapter() == null) return from;
-			return adapter().apply(arena, layout(), from);
-		}
-
-		@Override
-		public final String toString() {
-			return name();
+		/**
+		 * Adapts the return value with allocator.
+		 */
+		public R adapt(T from) {
+			return adapter().apply(from);
 		}
 	}
 
+	/**
+	 * Builds a call.
+	 */
 	public static class Builder {
 		private final String name;
-		private Return rtn = Return.VOID;
-		private final List<Arg> args = Lists.of();
+		private Typed<Return<?, ?>> rtn = VOID;
+		private final List<Typed<Arg<?, ?>>> args = Lists.of();
 		private int varArg = -1;
 		private boolean lastError = false;
 
@@ -100,13 +101,13 @@ public class Call {
 			this.name = name;
 		}
 
-		public Builder rtn(Return rtn) {
-			this.rtn = rtn;
+		public Builder rtn(Generics.Typed type, Return<?, ?> rtn) {
+			this.rtn = new Typed<>(type, rtn);
 			return this;
 		}
 
-		public Builder arg(Arg arg) {
-			args.add(arg);
+		public Builder arg(Generics.Typed type, Arg<?, ?> arg) {
+			args.add(new Typed<>(type, arg));
 			return this;
 		}
 
@@ -130,14 +131,15 @@ public class Call {
 		private Linker.Option[] options() {
 			var options = Lists.<Linker.Option>of();
 			if (varArg >= 0) options.add(Linker.Option.firstVariadicArg(varArg));
-			if (lastError) options.add(CaptureState.OPTION);
+			if (lastError) options.add(LastError.OPTION);
 			return options.toArray(Linker.Option[]::new);
 		}
 
 		private FunctionDescriptor funcDesc() {
-			var argLayouts = Streams.from(args).map(Arg::layout).toArray(MemoryLayout[]::new);
-			if (rtn.layout() == null) return FunctionDescriptor.ofVoid(argLayouts);
-			return FunctionDescriptor.of(rtn.layout(), argLayouts);
+			var argLayouts =
+				Streams.from(args).map(a -> a.ref().layout()).toArray(MemoryLayout.class);
+			if (rtn.ref().layout() == null) return FunctionDescriptor.ofVoid(argLayouts);
+			return FunctionDescriptor.of(rtn.ref().layout(), argLayouts);
 		}
 	}
 
@@ -153,7 +155,8 @@ public class Call {
 		return b;
 	}
 
-	private Call(String name, MethodHandle handle, Return rtn, List<Arg> args, boolean lastError) {
+	private Call(String name, MethodHandle handle, Typed<Return<?, ?>> rtn,
+		List<Typed<Arg<?, ?>>> args, boolean lastError) {
 		this.name = name;
 		this.handle = handle;
 		this.rtn = rtn;
@@ -165,40 +168,40 @@ public class Call {
 		return args.size();
 	}
 
-	public Object invoke(Arena arena, Object[] args) throws Throwable {
+	public Object invoke(SegmentAllocator allocator, Object[] args) throws Throwable {
 		int index = lastError ? 1 : 0;
-		var nativeArgs = nativeArgs(arena, args, index);
+		var nativeArgs = nativeArgs(allocator, args, index);
 		var rtn = handle.invokeWithArguments(nativeArgs); // invokeExact(Object[]) fails
-		var result = this.rtn.adapt(arena, rtn);
-		if (lastError) CaptureState.validate(result, args);
-		resolveArgs(arena, args, nativeArgs, index);
+		var result = this.rtn.ref().adapt(Reflect.unchecked(rtn));
+		if (lastError) LastError.save((MemorySegment) nativeArgs[0]);
+		resolveArgs(args, nativeArgs, index);
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		var t = ToString.ofName(rtn.name() + " " + name);
+		var t = ToString.ofName(rtn + " " + name);
 		for (var arg : args)
-			t.values(arg.name());
+			t.values(arg);
 		return lastError ? t + "!" : t.toString();
 	}
 
 	// support
 
-	public Object[] nativeArgs(Arena arena, Object[] args, int index) {
+	private Object[] nativeArgs(SegmentAllocator allocator, Object[] args, int index) {
 		var nativeArgs = new Object[index + args.length];
-		if (index > 0) nativeArgs[0] = CaptureState.capture(arena);
+		if (index > 0) nativeArgs[0] = LastError.capture(allocator);
 		for (int i = 0; i < argCount(); i++)
-			nativeArgs[index + i] = arg(i).adapt(arena, args[i]);
+			nativeArgs[index + i] = arg(i).adapt(allocator, Reflect.unchecked(args[i]));
 		return nativeArgs;
 	}
 
-	public void resolveArgs(Arena arena, Object[] args, Object[] nativeArgs, int index) {
+	private void resolveArgs(Object[] args, Object[] nativeArgs, int index) {
 		for (int i = 0; i < argCount(); i++)
-			arg(i).resolve(arena, args[i], nativeArgs[index + i]);
+			arg(i).resolve(Reflect.unchecked(args[i]), Reflect.unchecked(nativeArgs[index + i]));
 	}
 
-	private Arg arg(int i) {
-		return Lists.at(args, i);
+	private Arg<?, ?> arg(int i) {
+		return Lists.at(args, i).ref();
 	}
 }

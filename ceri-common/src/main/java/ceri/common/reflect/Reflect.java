@@ -591,13 +591,10 @@ public class Reflect {
 	 * Returns the public field value from the instance. Returns default if not found.
 	 */
 	public static <T> T publicFieldValue(Object obj, Field field, T def) {
-		if (field == null) return def;
-		if (obj == null && !isStatic(field)) return def;
 		try {
-			return Reflect.unchecked(field.get(obj));
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			return def;
-		}
+			if (validFieldAccess(obj, field)) return Reflect.unchecked(field.get(obj));
+		} catch (IllegalArgumentException | IllegalAccessException e) {}
+		return def;
 	}
 
 	/**
@@ -747,6 +744,10 @@ public class Reflect {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);
 			}));
+	}
+
+	private static boolean validFieldAccess(Object obj, Field field) {
+		return field != null && (obj != null || isStatic(field));
 	}
 
 	private static String args(Object[] args) {

@@ -102,11 +102,12 @@ public class IntTypeBehavior {
 	@Test
 	public void shouldIgnoreNullType() {
 		m = new Memory(8);
-		Assert.equal(IntType.set(null, 100), null);
-		Assert.equal(IntType.readInto(null, null), null);
-		Assert.equal(IntType.readInto(null, null, 0L), null);
-		Assert.equal(IntType.write(null, null), null);
-		Assert.equal(IntType.write(null, null, 0L), null);
+		U8 nul = null;
+		Assert.equal(IntType.set(nul, 100), null);
+		Assert.equal(IntType.readInto(nul, null), null);
+		Assert.equal(IntType.readInto(nul, null, 0L), null);
+		Assert.equal(IntType.write(nul, null), null);
+		Assert.equal(IntType.write(nul, null, 0L), null);
 	}
 
 	@Test

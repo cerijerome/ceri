@@ -2,11 +2,13 @@ package ceri.common.array;
 
 import java.util.Objects;
 import ceri.common.data.IntProvider;
+import ceri.common.function.Functions;
 
 /**
  * Encapsulates maximum array dimensions, starting with outer dimension.
  */
 public class Dimensions {
+	private static final Functions.IntBiOperator GROW = DynamicArray.growX2(4);
 	public static final Dimensions NONE = new Dimensions(IntProvider.empty());
 	public final IntProvider dims;
 
@@ -14,7 +16,7 @@ public class Dimensions {
 	 * Extract dimensions from array instance.
 	 */
 	public static Dimensions from(Object array) {
-		var maxes = DynamicArray.ints();
+		var maxes = DynamicArray.ints(GROW);
 		max(maxes, 0, array);
 		return of(maxes.wrap());
 	}
@@ -36,6 +38,13 @@ public class Dimensions {
 	}
 
 	/**
+	 * Creates an instance with dimensions of zero size.
+	 */
+	public static Dimensions ofZeros(int count) {
+		return of(new int[Math.max(0, count)]);
+	}
+
+	/**
 	 * Returns true if dimensions are null or empty.
 	 */
 	public static boolean isEmpty(Dimensions dims) {
@@ -54,7 +63,7 @@ public class Dimensions {
 	 * Builds an instance.
 	 */
 	public static class Builder {
-		private final DynamicArray.OfInt dims = DynamicArray.ints();
+		private final DynamicArray.OfInt dims = DynamicArray.ints(GROW);
 
 		/**
 		 * Appends dimensions.
@@ -149,6 +158,18 @@ public class Dimensions {
 	}
 
 	/**
+	 * Iterates over every dimension combination in order.
+	 */
+	public void forEach(Functions.ObjIntConsumer<int[]> consumer) {
+		var array = new int[count()];
+		int total = total();
+		for (int i = 0; i < total; i++) {
+			extract(array, i);
+			consumer.accept(array, i);
+		}
+	}
+
+	/**
 	 * Returns an instance without the outer dimension.
 	 */
 	public Dimensions inner() {
@@ -189,5 +210,13 @@ public class Dimensions {
 		maxes.set(level, Math.max(len, maxes.get(level)));
 		for (int i = 0; i < len; i++)
 			max(maxes, level + 1, RawArray.get(array, i));
+	}
+
+	private void extract(int[] array, int i) {
+		for (int j = array.length - 1; j >= 0; j--) {
+			int dim = Math.max(1, dim(j));
+			array[j] = i % dim;
+			i = i / dim;
+		}
 	}
 }

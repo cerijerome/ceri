@@ -46,10 +46,18 @@ public class BinaryPrinterBehavior {
 	}
 
 	@Test
-	public void shouldPrintUpperCase() {
+	public void shouldPrintMessage() {
 		bin = init().showBinary(false).showChar(false).upper(true).build();
 		bin.print(0xff, 0xaa, 0);
 		Assert.equal(b.toString(), "FF AA 00                 \n");
+	}
+
+	@Test
+	public void shouldPrintUpperCase() {
+		bin = init().showBinary(false).showChar(false).build();
+		bin.message("%s", "testing");
+		bin.message(1);
+		Assert.equal(b.toString(), "testing\n1\n");
 	}
 
 	@Test

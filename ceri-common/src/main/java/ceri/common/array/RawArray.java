@@ -5,9 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import ceri.common.collect.Immutable;
 import ceri.common.collect.Iterables;
-import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
@@ -91,6 +89,13 @@ public class RawArray {
 	}
 
 	/**
+	 * Creates a shallow clone if an array, otherwise returns the same object.
+	 */
+	public static <T> T clone(T array) {
+		return clone(array, false);
+	}
+
+	/**
 	 * Returns the array length, or 0 if null.
 	 */
 	public static int length(Object array) {
@@ -157,52 +162,8 @@ public class RawArray {
 	}
 
 	/**
-	 * Returns the number of dimensions of an n-dimension array; returns 0 if null or non-array.
-	 */
-	public static int dimensions(Object array) {
-		if (array == null) return 0;
-		var cls = Reflect.getClass(array);
-		for (int dims = 0;; dims++) {
-			cls = componentType(cls);
-			if (cls == null) return dims;
-		}
-	}
-
-	/**
-	 * Returns the total number of leaf elements for an n-dimensional array; 1 if null or non-array,
-	 * 0 for empty array.
-	 */
-	public static int leaves(Object array) {
-		return leaves(array, dimensions(array));
-	}
-
-	/**
-	 * Iterates over leaf elements of an n-dimensional array, passing the parent array and element
-	 * index to the consumer. Does nothing for null or non-arrays. Returns the number of leaves.
-	 */
-	public static <A> int forEachLeaf(Object array, Functions.ObjIntConsumer<A> consumer) {
-		int dims = dimensions(array);
-		if (dims == 0) return 0;
-		if (consumer == null) consumer = (_, _) -> {};
-		return forEachLeaf(array, dims, 0, consumer);
-	}
-
-	/**
-	 * Iterates over leaf elements of an n-dimensional array, passing the parent array and element
-	 * index to the function, and collecting the results into a list. Returns an empty list for null
-	 * or non-arrays.
-	 */
-	public static <A, R> List<R> adaptLeaves(Object array,
-		Functions.ObjIntFunction<A, R> function) {
-		int dims = dimensions(array);
-		if (dims == 0 || function == null) return Immutable.list();
-		var list = Lists.<R>of();
-		RawArray.<A>forEachLeaf(array, dims, 0, (a, i) -> list.add(function.apply(a, i)));
-		return list;
-	}
-
-	/**
-	 * Copies from source to destination, returning the destination array. Bounds are limited.
+	 * Copies from source to destination arrays, returning the destination array. Bounds are
+	 * limited.
 	 */
 	public static <T> T copy(T src, T dest) {
 		return copy(src, 0, dest, 0);
@@ -345,48 +306,6 @@ public class RawArray {
 		if (offset < arrayLen)
 			System.arraycopy(array, offset, inserted, offset + length, arrayLen - offset);
 		return inserted;
-	}
-
-	/**
-	 * Adapt values into a new array using a consumer for each index.
-	 */
-	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values,
-		Functions.BiObjIntConsumer<T, U> indexConsumer) {
-		return adaptValues(constructor, values, 0, indexConsumer);
-	}
-
-	/**
-	 * Adapt values into a new array using a consumer for each index.
-	 */
-	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values, int offset,
-		Functions.BiObjIntConsumer<T, U> indexConsumer) {
-		return adaptValues(constructor, values, offset, Integer.MAX_VALUE, indexConsumer);
-	}
-
-	/**
-	 * Adapt values into a new array using a consumer for each index.
-	 */
-	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values, int offset,
-		int length, Functions.BiObjIntConsumer<T, U> indexConsumer) {
-		if (constructor == null || values == null || indexConsumer == null) return null;
-		return applySlice(values, offset, length, (o, l) -> {
-			var array = constructor.apply(l);
-			for (int i = 0; i < l; i++)
-				indexConsumer.accept(array, values, o + i);
-			return array;
-		});
-	}
-
-	/**
-	 * Creates a new multi-dimensional array that matches the dimensions of the given array, and
-	 * adapts each leaf value. Null arrays will be adapted to empty arrays unless the flag allows
-	 * nulls.
-	 */
-	public static <T, R, A> A deepAdapt(Object array, Class<R> component,
-		Functions.Function<T, R> action, boolean allowNulls) {
-		int dims = dimensions(array);
-		var arrayCls = arrayType(component, dims - 1);
-		return Reflect.unchecked(deepAdapt(array, dims, arrayCls, action, allowNulls));
 	}
 
 	/**
@@ -555,6 +474,126 @@ public class RawArray {
 		};
 	}
 
+	/**
+	 * Adapt values into a new array using a consumer for each index.
+	 */
+	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values,
+		Functions.BiObjIntConsumer<T, U> indexConsumer) {
+		return adaptValues(constructor, values, 0, indexConsumer);
+	}
+
+	/**
+	 * Adapt values into a new array using a consumer for each index.
+	 */
+	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values, int offset,
+		Functions.BiObjIntConsumer<T, U> indexConsumer) {
+		return adaptValues(constructor, values, offset, Integer.MAX_VALUE, indexConsumer);
+	}
+
+	/**
+	 * Adapt values into a new array using a consumer for each index.
+	 */
+	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values, int offset,
+		int length, Functions.BiObjIntConsumer<T, U> indexConsumer) {
+		if (constructor == null || values == null || indexConsumer == null) return null;
+		return applySlice(values, offset, length, (o, l) -> {
+			var array = constructor.apply(l);
+			for (int i = 0; i < l; i++)
+				indexConsumer.accept(array, values, o + i);
+			return array;
+		});
+	}
+
+	// multi-dimensional support
+
+	/**
+	 * Returns the number of dimensions of an n-dimension array; returns 0 if null or non-array.
+	 */
+	public static int dimensions(Object array) {
+		if (array == null) return 0;
+		var cls = Reflect.getClass(array);
+		for (int dims = 0;; dims++) {
+			cls = componentType(cls);
+			if (cls == null) return dims;
+		}
+	}
+
+	/**
+	 * Returns the total number of leaf elements for an n-dimensional array; 1 if null or non-array,
+	 * 0 for empty array.
+	 */
+	public static int leaves(Object array) {
+		return leaves(array, dimensions(array));
+	}
+
+	/**
+	 * Iterates over leaf elements of an n-dimensional array, calling the consumer. Returns the
+	 * number of leaves passed to the consumer.
+	 */
+	public static <T> int deepForEach(Object array, Functions.Consumer<T> consumer) {
+		if (consumer == null) consumer = _ -> {};
+		return deepForEach(array, dimensions(array), consumer);
+	}
+
+	/**
+	 * Iterates over leaf elements of an n-dimensional array, passing the parent array and element
+	 * index to the consumer. Does not iterate null or a non-arrays. Returns the number of leaves
+	 * passed to the consumer.
+	 */
+	public static <A> int deepForEachByIndex(Object array, Functions.ObjIntConsumer<A> consumer) {
+		int dims = dimensions(array);
+		if (dims == 0) return 0;
+		if (consumer == null) consumer = (_, _) -> {};
+		return deepForEachByIndex(array, dims, 0, consumer);
+	}
+
+	/**
+	 * Creates a clone of each array and sub-array of the given new n-dimensional array. Nulls and
+	 * non-arrays are retained.
+	 */
+	public static <U> U deepClone(U array) {
+		return clone(array, true);
+	}
+
+	/**
+	 * Iterates each leaf of an n-dimensional array, replacing it with the operation result.
+	 */
+	public static <T, U> U deepReplace(U array, Functions.Operator<T> operator) {
+		if (operator != null) deepReplace(array, dimensions(array), operator);
+		return array;
+	}
+
+	/**
+	 * Iterates each leaf of an n-dimensional array, replacing each null with a supplied value.
+	 */
+	public static <T, U> U deepInit(U array, Functions.Supplier<T> supplier) {
+		if (supplier != null) return deepReplace(array, t -> t != null ? t : supplier.get());
+		return array;
+	}
+
+	/**
+	 * Creates a new n-dimensional array that matches the dimensions of the given array, and adapts
+	 * each leaf value. Null arrays will be adapted to empty arrays unless the flag allows nulls.
+	 */
+	public static <T, R, U> U deepAdapt(Object array, Class<R> component,
+		Functions.Function<T, R> action, boolean allowNulls) {
+		int dims = dimensions(array);
+		var arrayCls = arrayType(component, dims - 1);
+		return Reflect.unchecked(deepAdapt(array, dims, arrayCls, action, allowNulls));
+	}
+
+	/**
+	 * Creates a new n-dimensional array that matches the dimensions of the given array, and passes
+	 * leaf 1-d arrays with index for a consumer to initialize the new array. Null arrays will be
+	 * adapted to empty arrays unless the flag allows nulls. Non-arrays will return null.
+	 */
+	public static <A, B, U> U deepAdaptByIndex(Object array, Class<?> component,
+		Functions.BiObjIntConsumer<A, B> action, boolean allowNulls) {
+		int dims = dimensions(array);
+		var arrayCls = arrayType(component, dims - 1);
+		return Reflect.unchecked(deepAdaptByIndex(array, dims, arrayCls, action, allowNulls));
+	}
+
 	// support
 
 	private static int leaves(Object array, int dims) {
@@ -568,13 +607,62 @@ public class RawArray {
 		return n;
 	}
 
-	private static <A> int forEachLeaf(Object array, int dims, int index,
+	private static <T> int deepForEach(Object array, int dims, Functions.Consumer<T> action) {
+		if (dims-- == 0) {
+			action.accept(Reflect.unchecked(array));
+			return 1;
+		}
+		int length = length(array);
+		int n = 0;
+		for (int i = 0; i < length; i++)
+			n += deepForEach(get(array, i), dims, action);
+		return n;
+	}
+
+	private static <A> int deepForEachByIndex(Object array, int dims, int index,
 		Functions.ObjIntConsumer<A> consumer) {
 		if (dims-- > 1) for (int i = 0; i < length(array); i++)
-			index = forEachLeaf(get(array, i), dims, index, consumer);
+			index = deepForEachByIndex(get(array, i), dims, index, consumer);
 		else for (int i = 0; i < length(array); i++, index++)
 			consumer.accept(Reflect.unchecked(array), i);
 		return index;
+	}
+
+	private static <U> U clone(U array, boolean deep) {
+		return Reflect.unchecked(switch (array) {
+			case boolean[] a -> a.clone();
+			case char[] a -> a.clone();
+			case byte[] a -> a.clone();
+			case short[] a -> a.clone();
+			case int[] a -> a.clone();
+			case long[] a -> a.clone();
+			case float[] a -> a.clone();
+			case double[] a -> a.clone();
+			case Object[] a -> populateClone(a, deep);
+			case null -> null;
+			default -> array;
+		});
+	}
+
+	private static Object[] populateClone(Object[] array, boolean deep) {
+		var clone = array.clone();
+		if (deep && clone.getClass().getComponentType().isArray()) {
+			for (int i = 0; i < clone.length; i++)
+				clone[i] = clone(array[i], true);
+		}
+		return clone;
+	}
+
+	private static <T> Object deepReplace(Object array, int dims, Functions.Operator<T> operator) {
+		if (dims-- == 0) return operator.apply(Reflect.unchecked(array));
+		if (array == null) return null;
+		int length = length(array);
+		for (int i = 0; i < length; i++) {
+			var inner = get(array, i);
+			var replace = deepReplace(inner, dims, operator);
+			if (dims == 0 && inner != replace) set(array, i, replace);
+		}
+		return array;
 	}
 
 	private static <T, R> Object deepAdapt(Object array, int dims, Class<?> adaptCls,
@@ -582,12 +670,25 @@ public class RawArray {
 		if (dims-- == 0) return action.apply(Reflect.unchecked(array));
 		if (adaptCls == null) return null;
 		if (allowNulls && array == null) return null;
-		int length = RawArray.length(array);
-		var adapted = RawArray.ofType(adaptCls, length);
+		int length = length(array);
+		var adapted = ofType(adaptCls, length);
 		adaptCls = adaptCls.componentType();
 		for (int i = 0; i < length; i++)
-			RawArray.set(adapted, i,
-				deepAdapt(RawArray.get(array, i), dims, adaptCls, action, allowNulls));
+			set(adapted, i, deepAdapt(get(array, i), dims, adaptCls, action, allowNulls));
+		return adapted;
+	}
+
+	private static <A, B> Object deepAdaptByIndex(Object array, int dims, Class<?> adaptCls,
+		Functions.BiObjIntConsumer<A, B> action, boolean allowNulls) {
+		if (dims-- < 1 || adaptCls == null) return null;
+		if (allowNulls && array == null) return null;
+		int length = length(array);
+		var adapted = ofType(adaptCls, length);
+		if (dims > 0) adaptCls = adaptCls.componentType();
+		for (int i = 0; i < length; i++)
+			if (dims == 0) action.accept(Reflect.unchecked(array), Reflect.unchecked(adapted), i);
+			else set(adapted, i,
+				deepAdaptByIndex(get(array, i), dims, adaptCls, action, allowNulls));
 		return adapted;
 	}
 }

@@ -1,13 +1,10 @@
 package ceri.ffm.clib.ffm;
 
-import static ceri.ffm.clib.ffm.CLib.caller;
-import static ceri.ffm.clib.ffm.CLib.lib;
 import java.util.Set;
 import java.util.function.IntUnaryOperator;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Maps;
 import ceri.common.data.Xcoder;
-import ceri.common.function.Functions;
 import ceri.common.text.Joiner;
 import ceri.common.util.Os;
 import ceri.ffm.reflect.CAnnotations.CInclude;
@@ -88,16 +85,20 @@ public class CFcntl {
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags) throws CException {
-		return caller.verifyInt(() -> lib().open(path, flags),
-			() -> caller.failMessage("open", path, Open.string(flags)));
+		// return caller.verifyInt(() -> lib().open(path, flags),
+		// () -> caller.failMessage("open", path, Open.string(flags)));
+		return CLib.caller.callInt(c -> c.lastError(c.lib().open(path, flags), -1),
+			m -> m.accept("open", path, Open.string(flags)));
 	}
 
 	/**
 	 * Opens the path with flags and mode, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
-		return caller.verifyInt(() -> lib().open(path, flags, mode), () -> caller
-			.failMessage("open", path, Open.string(flags), Integer.toOctalString(mode)));
+		// return caller.verifyInt(() -> lib().open(path, flags, mode), () -> caller
+		// .failMessage("open", path, Open.string(flags), Integer.toOctalString(mode)));
+		return CLib.caller.callInt(c -> c.lastError(c.lib().open(path, flags, mode), -1),
+			m -> m.accept("open", path, Open.string(flags), Integer.toOctalString(mode)));
 	}
 
 	/**
@@ -126,16 +127,11 @@ public class CFcntl {
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
 	public static int fcntl(String name, int fd, int command, Object... objs) throws CException {
-		return caller.verifyInt(() -> lib().fcntl(fd, command, objs), "fcntl:" + name, fd, command,
-			objs);
-	}
-
-	/**
-	 * Performs a fcntl function. Arguments and return value depend on the function.
-	 */
-	public static int fcntl(Functions.Supplier<String> errorMsg, int fd, int command,
-		Object... objs) throws CException {
-		return caller.verifyInt(() -> lib().fcntl(fd, command, objs), errorMsg);
+		// return caller.verifyInt(() -> lib().fcntl(fd, command, objs), "fcntl:" + name, fd,
+		// command,
+		// objs);
+		return CLib.caller.callInt(c -> c.lastError(c.lib().fcntl(fd, command, objs), -1),
+			m -> m.accept("fcntl:" + name, fd, command, objs));
 	}
 
 	/**

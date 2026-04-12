@@ -54,6 +54,13 @@ public class CharsTest {
 	}
 
 	@Test
+	public void testCharsetInfoByteEstimate() {
+		Assert.equal(Chars.Info.of(StandardCharsets.US_ASCII).byteEstimate(null), 0);
+		Assert.equal(Chars.Info.of(StandardCharsets.US_ASCII).byteEstimate("testing"), 7);
+		Assert.equal(Chars.Info.of(StandardCharsets.UTF_8).byteEstimate("testing"), 8);
+	}
+
+	@Test
 	public void testCompactName() {
 		Assert.string(Chars.compactName(null), "");
 		Assert.string(Chars.compactName(StandardCharsets.ISO_8859_1), "iso88591");
@@ -195,27 +202,33 @@ public class CharsTest {
 	@Test
 	public void testEncodeCharset() {
 		var s = "\0A\u00a9\u2103\ud835\udc00";
-		Assert.equals(Chars.encode(s, UTF8, null, 3), 0);
+		Assert.equal(Chars.encode(UTF8, null), null);
+		Assert.buffer(Chars.encode(UTF8, ""));
+		Assert.equals(Chars.encode(UTF8, s, null, 3), 0);
 		var bytes = new byte[12];
-		Assert.equals(Chars.encode(s, UTF8, bytes, 12, 5), 0);
-		Assert.equals(Chars.encode(s, UTF8, bytes), 11);
+		Assert.equals(Chars.encode(UTF8, s, bytes, 12, 5), 0);
+		Assert.equals(Chars.encode(UTF8, s, bytes), 11);
 		Assert.array(bytes, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
 		Array.BYTE.fill(bytes, 0);
-		Assert.equals(Chars.encode(s, UTF8, bytes, 2), 7);
+		Assert.equals(Chars.encode(UTF8, s, bytes, 2), 7);
 		Assert.array(bytes, 0, 0, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0, 0, 0);
 	}
 
 	@Test
 	public void testEncodeCharsetToBuffer() {
 		var s = "\0A\u00a9\u2103\ud835\udc00";
-		Assert.equals(Chars.encode(s, UTF8, (ByteBuffer) null), 0);
-		Assert.equals(Chars.encode(s, UTF8, ByteBuffer.wrap(new byte[0])), 0);
+		Assert.equals(Chars.encode(UTF8, s, (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(UTF8, s, ByteBuffer.wrap(new byte[0])), 0);
+		Assert.equal(Chars.encode(UTF8, null), null);
+		Assert.buffer(Chars.encode(UTF8, s), "\0A\u00a9\u2103\ud835\udc00".getBytes(UTF8));
 	}
 
 	@Test
 	public void testDecodeCharset() {
 		var bytes = Array.BYTE.of(0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
-		Assert.string(Chars.decode(UTF8, (byte[]) null), "");
+		Assert.string(Chars.decode(UTF8, (byte[]) null), null);
+		Assert.string(Chars.decode(UTF8, (ByteBuffer) null), null);
+		Assert.string(Chars.decode(UTF8, Buffers.BYTE.empty()), "");
 		Assert.string(Chars.decode(UTF8, bytes, 13, 5), "");
 		Assert.string(Chars.decode(UTF8, bytes), "\0A\u00a9\u2103\ud835\udc00\0");
 		Assert.string(Chars.decode(UTF8, bytes, 3), "\ufffd\u2103\ud835\udc00\0");

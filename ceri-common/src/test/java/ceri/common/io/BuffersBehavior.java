@@ -20,6 +20,8 @@ public class BuffersBehavior {
 		Assert.equal(Buffers.CHAR.of((String) null), null);
 		Assert.buffer(Buffers.CHAR.of('a', '\n', '\0'), "a\n\0");
 		Assert.buffer(Buffers.CHAR.of("a\n\0"), "a\n\0");
+		var c = CharBuffer.wrap("a\n\0");
+		Assert.same(Buffers.CHAR.of(c), c);
 	}
 
 	@Test
@@ -92,6 +94,22 @@ public class BuffersBehavior {
 		Assert.equal(Buffers.DOUBLE.putAt(b, 1, -1, 1), 2);
 		Assert.equal(Buffers.DOUBLE.put(b, 0), 1);
 		Assert.buffer(b.rewind(), -1, -1, 1, 0, 1);
+	}
+
+	@Test
+	public void shouldDetermineBaseType() {
+		Assert.equal(Buffers.baseType((Class<? extends Buffer>) null), null);
+		Assert.equal(Buffers.baseType((Buffer) null), null);
+		Assert.equal(Buffers.baseType(Buffer.class), null);
+		Assert.equal(Buffers.baseType(ByteBuffer.allocateDirect(1)), ByteBuffer.class);
+	}
+
+	@Test
+	public void shouldDetermineIfDirect() {
+		Assert.equal(Buffers.isDirect(null), false);
+		Assert.equal(Buffers.isDirect(ByteBuffer.allocate(1)), false);
+		Assert.equal(Buffers.isDirect(ByteBuffer.allocateDirect(1)), true);
+		Assert.equal(Buffers.isDirect(ByteBuffer.allocateDirect(2).asCharBuffer()), true);
 	}
 
 	@Test

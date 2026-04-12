@@ -43,7 +43,7 @@ public class Filters {
 	}
 
 	// Execution
-	
+
 	public static <E extends Exception, T> boolean test(Nulls nulls,
 		Excepts.Predicate<E, ? super T> predicate, T t) throws E {
 		return switch (nulls) {
@@ -58,12 +58,12 @@ public class Filters {
 		Excepts.BiPredicate<E, ? super T, ? super U> predicate, T t, U u) throws E {
 		return switch (nulls) {
 			case no -> t == null || u == null ? false : test(predicate, t, u);
-			case yes -> t == null || u == null  ? true : test(predicate, t, u);
+			case yes -> t == null || u == null ? true : test(predicate, t, u);
 			case fail -> test(predicate, Validate.nonNull(t), Validate.nonNull(u));
 			default -> test(predicate, t, u);
 		};
 	}
-	
+
 	// Casting
 
 	/**
@@ -241,8 +241,8 @@ public class Filters {
 	public static <E extends Exception, T> Excepts.Predicate<E, T> asInt(Nulls nulls,
 		Excepts.ToIntFunction<? extends E, ? super T> accessor,
 		Excepts.IntPredicate<? extends E> predicate) {
-		return of(Nulls.safe(nulls),
-			accessor == null ? no() : t -> testInt(predicate, accessor.applyAsInt(t)));
+		return accessor == null ? of(Nulls.safe(nulls), no()) :
+			of(Nulls.safe(nulls), t -> testInt(predicate, accessor.applyAsInt(t)));
 	}
 
 	/**
@@ -260,8 +260,8 @@ public class Filters {
 	public static <E extends Exception, T> Excepts.Predicate<E, T> asLong(Nulls nulls,
 		Excepts.ToLongFunction<? extends E, ? super T> accessor,
 		Excepts.LongPredicate<? extends E> predicate) {
-		return of(Nulls.safe(nulls),
-			accessor == null ? no() : t -> testLong(predicate, accessor.applyAsLong(t)));
+		return accessor == null ? of(Nulls.safe(nulls), no()) :
+			of(Nulls.safe(nulls), t -> testLong(predicate, accessor.applyAsLong(t)));
 	}
 
 	/**
@@ -279,8 +279,8 @@ public class Filters {
 	public static <E extends Exception, T> Excepts.Predicate<E, T> asDouble(Nulls nulls,
 		Excepts.ToDoubleFunction<? extends E, ? super T> accessor,
 		Excepts.DoublePredicate<? extends E> predicate) {
-		return of(Nulls.safe(nulls),
-			accessor == null ? no() : t -> testDouble(predicate, accessor.applyAsDouble(t)));
+		return accessor == null ? of(Nulls.safe(nulls), no()) :
+			of(Nulls.safe(nulls), t -> testDouble(predicate, accessor.applyAsDouble(t)));
 	}
 
 	/**
@@ -292,7 +292,7 @@ public class Filters {
 		Excepts.BiPredicate<? extends E, ? super U, ? super V> predicate) {
 		return biAs(Nulls.def, uAccessor, vAccessor, predicate);
 	}
-	
+
 	/**
 	 * Adapts a predicate using accessors, with given null behavior.
 	 */
@@ -388,7 +388,7 @@ public class Filters {
 		range(T min, T max) {
 		return andOf(gte(min), lte(max));
 	}
-	
+
 	// support
 
 	private static <E extends Exception, T> Excepts.Predicate<E, T>

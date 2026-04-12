@@ -3,68 +3,141 @@ Java Foreign Function & Memory API
 ==================================
 JEP: https://openjdk.org/jeps/454
 Doc: https://docs.oracle.com/en/java/javase/25/core/foreign-function-and-memory-api.html
-API: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/foreign/package-summary.html
+API:
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/foreign/package-summary.html
 Alignment: https://c-faq.com/struct/align.esr.html
 
 
 Todo:
-- test jextract on clib
-- understand how to handle:
-  - struct padding = manually set in struct layouts?
-  - ABI in general
+- type handler base
+- wstring encoding: byte order, array order
 - test out struct alignment offsets
 - convert struct <-> object?
 - callback testing
+- test jextract on clib
+- understand how to handle ABI in general
 
 
 Questions:
 - why doesn't ffm stop actions on null address => SIGSEGV?
-  - AddressLayout.withTargetLayout causes SIGSEGV if address = 0
-  - faixed in later JDK?
+  - AddressLayout.withTargetLayout causes SIGSEGV on call return if address = 0
+  - fixed in later JDK?
 - how to specify platform alignment in ffm?
   - can't go back once changed
   - JNA: platform def, 1, gnuc (field <= 4), msvc (field)
+- how does JNA determine if errno should cause LastErrorException?
+  - errno usually not cleared by c call, just set on error
+  - JNA calls Native.setLastError(0) before call to reset errno
+  - option 1) check if return type is int and < 0
+    - not flexible; exception only available for calls that return int, and use simple logic
+  - option 2) ErrNo<T> return type
+    - invasive, complicates lib interface;
+    - primitives and nested generics may need work
+    - more flexible, but more work for caller (make part of Caller verify?)
+  - option 3) @ErrNo on call to capture errno thread-local var; available to caller
+    - more flexible, but more work for caller (make part of Caller verify?)
+    - always collect errno? no need for @ErrNo; minimal extra overhead?
 - how to get linker apart from Linker.nativeLinker?
 - how to handle function pointers? linker.upcallStub
 - when is Linker.Option.critical() used?
 
 
+Troubleshooting
+- don't use withTargetLayout for return address layout
+  - 0 off-heap address => SIGSEGV
+- also don't reinterpret 0 off-heap address with new length => SIGSEGV
+- MethodHandle and VarHandle won't accept Object[] as varargs
+  - due to @PolymorphicSignature
+
+
+
 Design considerations
 ---------------------
+- types to support:
+  - immutable:
+    - primitives: boolean?, char, byte, short, int, long, float, double
+	- boxed primitives: Boolean?, Character, Byte, Short, Integer, Long, Float, Double
+    - int types (size known at runtime): clong, culong, size_t, ssize_t, ...
+    - String (nul-term byte or char array)
+  - mutable:
+	- primitive arrays: boolean[]?, char[], byte[], short[], int[], long[], float[], double[]
+	- boxed arrays: Boolean[]?, Character[], Byte[], Short[], Integer[], Long[], Float[], Double[]
+    - int type arrays: clong[], culong[], size_t[], ssize_t[], ...
+    - String arrays: String[]
+    - struct/union
+    - struct[]/union[] arrays
+    - Buffers
+    - (multi dim arrays)
+  - references:
+	- pointer: void*, int*, ...
+    - pointer arrays: void*[], int*[], ...
+	- pointer types: FILE, ...
+    - pointer type arrays: FILE[], ...
+    - function pointers
+    - function pointer arrays
+    - (multi-dim arrays)
 - each type has a natural layout (size, alignment, byte order = natural)
-- config on type, method, arg, struct to override alignment, byte order
-  - also specific arg type settings, such as charset for strings
+- config on type, method, arg, field to override layout alignment, byte order (not size)
+  - specific arg type settings, such as charset for strings
+- each type should support:
+  - default instance construction
+  - instance from memory segment
+  - instance to memory segment
 - method call building:
   1) get natural layout from class
   2) apply config to get final layout
-  3) get adapter in/out processing (arrays, structs, typed pointers)
+  3) get arg IN processors (allocate, create native type)
+  4) get arg OUT processors (copy back to array, struct)
+  5) add errno option if needed
 - method call:
-  1) create native objs from args, apply adapters IN
+  1) create native objs from IN processors; add errno receiver if needed
   2) call method
-  3) apply resolvers on args OUT (read values back to arrays, structs)
+  3) apply OUT processors to args (copy back to array, struct)
   4) create return obj from method return obj
+  5) check return value and errno receiver
 
 
-General
--------
+Memory
+------
+- MemorySegment used for pointers (0-length) and contiguous memory blocks
+- on-heap from MemorySegment.ofArray (wraps array); can have address = 0
+- off-heap (native) from SegmentAllocator.allocate(From)
 - off-heap (non-gc) memory required for native sharing
-- on-heap from MemorySegment.ofArray (wraps array)
-- off-heap from SegmentAllocator.allocate/From
 - Arena used to allocate segments with lifecycle/access limits
-- MemoryLayout specifies byte alignment (1 = none)
+- reinterpret to access memory from pointer (0-length) returned by function
+  - ok to read from outside allocated range (e.g. read chunks to find nul-term string)
+   
+
+Layouts/Alignment
+-----------------
+- "self-align" = padding before, so start is on multiple of type size
+  - byte, byte[] = 1, short = 2, int = 4, long = 8, clong = word
+  - struct = largest member, with end padding if needed
+- __packed__ = no padding (1)
+- JNA: platform def, 1, gnuc (field <= 4), msvc (field)
+- MemoryLayout specifies aligment as # bytes (1 = none)
 - ValueLayout specifies byte order (extends MemoryLayout)
   - ValueLayout.JAVA_xxx.withByteAlignment/Order/Name
+- struct modelled with StructLayout
+  - padding must be added manually!
+- union modelled with UnionLayout
+- arrays modelled with SequenceLayout
+- current issue with Windows ABI compatibility?
+  - upcall with struct + pointer fails inconsistently
+
+
+Functions
+---------
 - variadic functions require a FunctionDesctiptor for each call type
   - c type promotion may not permit smaller int types
 
 
-Troubleshooting
----------------
-- don't use withTargetLayout for return address layout
-  - 0 address => SIGSEGV
-- also don't reinterpret 0 address with new length => SIGSEGV
-- MethodHandle and VarHandle won't accept Object[] as varargs
-  - due to @PolymorphicSignature
+Copying
+-------
+- MemorySegment: elements from segment to segment; with layouts, offsets, count
+- MemorySegment: bytes from segment to segment; with offsets, count (uses natural byte order)
+- MemorySegment: elements from segment to array; with layout, offsets, count
+- MemorySegment: elements from array to segment; with layout, offsets, count
 
 
 Alignment
@@ -97,6 +170,40 @@ Type Mapping
   - size_t = j8 ValueLayout.OfLong
   - wchar_t = i4 ValueLayout.OfInt
   - void* = a8 ValueLayout.OfAddress
+
+
+Layout Paths
+------------
+- used to select a nested layout
+  - can provide offset, or VarHandle value access
+- open path = selects multiple layouts
+  - adds coordinates to the var/method handles
+- PathElement: path accessor logic
+  - dereferenceElement = access a target layout from an address layout
+  - groupElement = access a group element by index or name
+  - sequenceElement = index or open-path access to sequence layout element
+- MemoryLayout:
+  - arrayElementVarHandle(path...) = get/set indexed carrier values
+    - adds index coordinate to var handle
+    - get(memory, offset, index, open-path-value...)
+    - use for top-level array access without the need for sequence layout
+  - byteOffset(path...) = offset of selected layout
+  - byteOffsetHandle(path...) = method to calculate offset with open paths
+    - invokeExact(offset, open-path-value...)
+  - scaleHandle() = method to calculate indexed offset
+    - invokeExact(offset, index) = offset + (size * index)
+  - select(path...) = selects nested layout
+  - sliceHandle(path...) = method to return a sliced memory segment
+    - invokeExact(memory, offset, open-path-values...)
+    - deref not allowed
+  - varHandle(path...) = get/set carrier value
+    - get(memory, offset, open-path-values...)
+- ValueLayout:
+  - varHandle() = get/set carrier value
+    - get(memory, offset, open-path-values...)
+- SequenceLayout:
+  - reshape(dims) = create nested multi-dim sequences
+  - flatten() = converts nested sequences to 1-dim
 
 
 API Types

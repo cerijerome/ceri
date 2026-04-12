@@ -183,6 +183,13 @@ public class DynamicArrayBehavior {
 	}
 
 	@Test
+	public void shouldStreamInts() {
+		var d = DynamicArray.ints();
+		d.append(Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		Assert.stream(d.stream(), Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+	}
+
+	@Test
 	public void shouldGrowLongs() {
 		var d = DynamicArray.longs();
 		d.accept(-1);
@@ -209,6 +216,13 @@ public class DynamicArrayBehavior {
 		var d = DynamicArray.longs();
 		d.append(Long.MIN_VALUE, 0, Long.MAX_VALUE);
 		Assert.buffer(d.buffer(), Long.MIN_VALUE, 0, Long.MAX_VALUE);
+	}
+
+	@Test
+	public void shouldStreamLongs() {
+		var d = DynamicArray.longs();
+		d.append(Long.MIN_VALUE, 0, Long.MAX_VALUE);
+		Assert.stream(d.stream(), Long.MIN_VALUE, 0, Long.MAX_VALUE);
 	}
 
 	@Test
@@ -267,6 +281,13 @@ public class DynamicArrayBehavior {
 		var d = DynamicArray.doubles();
 		d.append(Double.MIN_VALUE, 0, Double.MAX_VALUE);
 		Assert.buffer(d.buffer(), Double.MIN_VALUE, 0, Double.MAX_VALUE);
+	}
+
+	@Test
+	public void shouldStreamDoubles() {
+		var d = DynamicArray.doubles();
+		d.append(Double.MIN_VALUE, 0, Double.MAX_VALUE);
+		Assert.stream(d.stream(), Double.MIN_VALUE, 0, Double.MAX_VALUE);
 	}
 
 	@Test

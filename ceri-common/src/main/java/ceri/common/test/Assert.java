@@ -1329,8 +1329,22 @@ public class Assert {
 	/**
 	 * Checks buffer values against given array.
 	 */
+	public static void buffer(ByteBuffer buffer, byte[] array) {
+		array(Buffers.BYTE.get(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
 	public static void buffer(ByteBuffer buffer, int... array) {
 		array(Buffers.BYTE.get(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(ShortBuffer buffer, short[] array) {
+		array(Buffers.SHORT.get(buffer), array);
 	}
 
 	/**
@@ -1352,6 +1366,13 @@ public class Assert {
 	 */
 	public static void buffer(LongBuffer buffer, long... array) {
 		array(Buffers.LONG.get(buffer), array);
+	}
+
+	/**
+	 * Checks buffer values against given array.
+	 */
+	public static void buffer(FloatBuffer buffer, float[] array) {
+		array(Buffers.FLOAT.get(buffer), array);
 	}
 
 	/**

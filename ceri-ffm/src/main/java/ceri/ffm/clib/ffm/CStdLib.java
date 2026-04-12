@@ -1,7 +1,5 @@
 package ceri.ffm.clib.ffm;
 
-import static ceri.ffm.clib.ffm.CLib.caller;
-import static ceri.ffm.clib.ffm.CLib.lib;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 
 /**
@@ -17,14 +15,17 @@ public class CStdLib {
 	 */
 	public static void setenv(String name, String value, boolean overwrite) throws CException {
 		int overwriteValue = overwrite ? 1 : 0;
-		caller.verify(() -> lib().setenv(name, value, overwriteValue), "setenv", name, value,
-			overwriteValue);
+		// caller.verify(() -> lib().setenv(name, value, overwriteValue), "setenv", name, value,
+		// overwriteValue);
+		CLib.caller.callInt(c -> c.lastError(c.lib().setenv(name, value, overwriteValue), -1),
+			"setenv", name, value, overwriteValue);
 	}
 
 	/**
 	 * Get an environment variable.
 	 */
 	public static String getenv(String name) throws CException {
-		return caller.callType(() -> lib().getenv(name), "getenv", name);
+		// return caller.callType(() -> lib().getenv(name), "getenv", name);
+		return CLib.caller.callType(c -> c.lib().getenv(name), "getenv", name);
 	}
 }

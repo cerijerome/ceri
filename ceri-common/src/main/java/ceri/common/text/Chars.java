@@ -1,8 +1,8 @@
 package ceri.common.text;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -10,6 +10,7 @@ import ceri.common.array.RawArray;
 import ceri.common.collect.Maps;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.Bytes;
 import ceri.common.io.Buffers;
 import ceri.common.math.Radix;
 import ceri.common.util.Validate;
@@ -30,11 +31,18 @@ public class Chars {
 		'\u2014', '\u2015', '\u2e3a', '\u2e3b', '\ufe58', '\ufe63', '\uff0d');
 	public static final Set<Character> MARKERS = Set.of('\u061c', '\u200e', '\u200f', '\u202a',
 		'\u202b', '\u202c', '\u202d', '\u202e', '\u2066', '\u2067', '\u2068', '\u2069');
+	public static Charset UTF8 = StandardCharsets.UTF_8;
+	/** Charset with native byte order */
+	public static Charset UTF16 =
+		Bytes.ordered(StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE);
+	/** Charset with native byte order */
+	public static Charset UTF32 =
+		Bytes.ordered(StandardCharsets.UTF_32BE, StandardCharsets.UTF_32LE);
 
 	private Chars() {}
 
 	/**
-	 * Charset information.
+	 * Charset information; byte order mark, nul-terminator and average bytes per encoded char.
 	 */
 	public record Info(ByteProvider bom, ByteProvider term, float bytesPerChar) {
 		private static final ByteProvider ZERO_BYTE = ByteProvider.of(0);
@@ -53,6 +61,13 @@ public class Chars {
 			var term = term(bytes, n);
 			var bytesPerChar = charset.newEncoder().averageBytesPerChar();
 			return new Info(bom, term, bytesPerChar);
+		}
+
+		/**
+		 * Returns the estimated encoded size in bytes of the char sequence.
+		 */
+		public int byteEstimate(CharSequence s) {
+			return Math.round(Strings.safe(s).length() * bytesPerChar());
 		}
 
 		private static ByteProvider bom(byte[] bytes, int n) {
@@ -251,8 +266,8 @@ public class Chars {
 	 * stops if there are no more chars to encode, the array slice has no space for the next full
 	 * char, or the char sequence is malformed.
 	 */
-	public static int encode(CharSequence s, Charset charset, byte[] bytes) {
-		return encode(s, charset, bytes, 0);
+	public static int encode(Charset charset, CharSequence s, byte[] bytes) {
+		return encode(charset, s, bytes, 0);
 	}
 
 	/**
@@ -260,8 +275,8 @@ public class Chars {
 	 * stops if there are no more chars to encode, the array slice has no space for the next full
 	 * char, or the char sequence is malformed.
 	 */
-	public static int encode(CharSequence s, Charset charset, byte[] bytes, int index) {
-		return encode(s, charset, bytes, index, Integer.MAX_VALUE);
+	public static int encode(Charset charset, CharSequence s, byte[] bytes, int index) {
+		return encode(charset, s, bytes, index, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -269,8 +284,8 @@ public class Chars {
 	 * stops if there are no more chars to encode, the array slice has no space for the next full
 	 * char, or the char sequence is malformed.
 	 */
-	public static int encode(CharSequence s, Charset charset, byte[] bytes, int index, int len) {
-		return encode(s, charset, Buffers.BYTE.of(bytes, index, len));
+	public static int encode(Charset charset, CharSequence s, byte[] bytes, int index, int len) {
+		return encode(charset, s, Buffers.BYTE.of(bytes, index, len));
 	}
 
 	/**
@@ -278,11 +293,20 @@ public class Chars {
 	 * stops if there are no more chars to encode, the buffer has no space for the next full char,
 	 * or the char sequence is malformed.
 	 */
-	public static int encode(CharSequence s, Charset charset, ByteBuffer buffer) {
+	public static int encode(Charset charset, CharSequence s, ByteBuffer buffer) {
 		if (s == null || buffer == null || buffer.remaining() == 0) return 0;
 		int i = buffer.position();
-		safe(charset).newEncoder().encode(CharBuffer.wrap(s), buffer, true);
+		safe(charset).newEncoder().encode(Buffers.CHAR.of(s), buffer, true);
 		return buffer.position() - i;
+	}
+
+	/**
+	 * Encodes the string to a new buffer, replacing unmappable and malformed characters.
+	 */
+	public static ByteBuffer encode(Charset charset, CharSequence s) {
+		if (s == null) return null;
+		if (s.isEmpty()) return Buffers.BYTE.empty();
+		return safe(charset).encode(Buffers.CHAR.of(s));
 	}
 
 	/**
@@ -306,7 +330,7 @@ public class Chars {
 	 * trailing partial char encoding.
 	 */
 	public static String decode(Charset charset, byte[] bytes, int index, int len) {
-		if (bytes == null) return "";
+		if (bytes == null) return null;
 		return RawArray.applySlice(bytes, index, len,
 			(i, l) -> decode(charset, ByteBuffer.wrap(bytes, i, l)));
 	}
@@ -316,7 +340,8 @@ public class Chars {
 	 * char encoding.
 	 */
 	public static String decode(Charset charset, ByteBuffer buffer) {
-		if (buffer == null || !buffer.hasRemaining()) return "";
+		if (buffer == null) return null;
+		if (!buffer.hasRemaining()) return "";
 		return safe(charset).decode(buffer).toString();
 	}
 

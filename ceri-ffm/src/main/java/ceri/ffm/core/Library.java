@@ -6,6 +6,7 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -16,6 +17,8 @@ import ceri.common.collect.Maps;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.BinaryPrinter;
+import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.clib.ffm.CFcntl;
@@ -40,29 +43,48 @@ public class Library<T> {
 	// - structs and unions
 	// - work through clib
 
-	private record Key(Method method, List<Class<?>> varArgTypes) {
-		@Override
-		public final String toString() {
-			return method().getName() + Lists.adapt(Reflect::name, varArgTypes());
-		}
-	}
+	private static final String FILE = "file.txt";
 
 	public static void main(String[] args) throws Exception {
-		int fd1 = CFcntl.open("file.txt", CFcntl.Open.O_RDONLY.value);
-		System.out.println("fd1 = " + fd1);
-		int fd2 = CFcntl.open("file.txt", CFcntl.Open.O_RDONLY.value, 0777);
-		System.out.println("fd2 = " + fd2);
-		CUnistd.close(fd2);
-		CUnistd.close(fd1);
-		main0(args);
-		CLib.library.methods.forEach((k, c) -> {
+		runMisc();
+		runOpenVarArg();
+		runPipe();
+		runEnv();
+		printMethods(CLib.library);
+	}
+
+	public static void printMethods(Library<?> lib) {
+		lib.methods.forEach((k, c) -> {
 			System.out.println();
 			System.out.println(k);
 			System.out.println(c);
 		});
 	}
 
-	public static void main0(String[] args) throws CException {
+	public static void runMisc() throws CException {
+		System.out.println("pagesize = " + CUnistd.getpagesize());
+	}
+	
+	public static void runOpenVarArg() throws CException {
+		int fd1 = CFcntl.open(FILE, CFcntl.Open.O_RDONLY.value);
+		System.out.println("fd1 = " + fd1);
+		int fd2 = CFcntl.open(FILE, CFcntl.Open.O_RDONLY.value, 0777);
+		System.out.println("fd2 = " + fd2);
+		System.out.println("fd2 tty = " + CUnistd.isatty(fd2));
+		BinaryPrinter.STD.print(CUnistd.readAllBytes(fd1, 100));
+		CUnistd.position(fd2, 3);
+		BinaryPrinter.STD.print(CUnistd.readAllBytes(fd2, 100));
+		CUnistd.close(fd2);
+		CUnistd.close(fd1);
+	}
+
+	public static void runPipe() throws CException {
+		var pipeFds = CUnistd.pipe();
+		System.out.println("pipe() = " + Arrays.toString(pipeFds));
+		CUnistd.closeSilently(pipeFds);
+	}
+
+	public static void runEnv() throws CException {
 		var key = "CERI_TEST";
 		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
 		CStdLib.setenv(key, "hello1", false);
@@ -77,6 +99,16 @@ public class Library<T> {
 			CStdLib.setenv(key, "hello4", true);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Method lookup key.
+	 */
+	private record Key(Method method, List<Class<?>> varArgTypes) {
+		@Override
+		public final String toString() {
+			return method().getName() + Lists.adapt(Reflect::name, varArgTypes());
 		}
 	}
 
@@ -157,6 +189,7 @@ public class Library<T> {
 
 	private Object invokeMethod(Method method, Object[] args) throws Throwable {
 		if (method.isDefault()) return InvocationHandler.invokeDefault(proxy, method, args);
+		args = Basics.def(args, Array.OBJECT.empty);
 		var call = call(method);
 		if (!method.isVarArgs()) return invokeCall(call, args);
 		return invokeVarArgs(method, call, args);

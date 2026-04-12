@@ -21,11 +21,12 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Format;
+import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 
 public class Bytes {
-	public static final int BITS_PER_NYBBLE = 4;
-	public static final int HEX_DIGIT_BITS = BITS_PER_NYBBLE;
+	public static final int NYBBLE_BITS = 4;
+	public static final int HEX_DIGIT_BITS = NYBBLE_BITS;
 	public static final int BYTE_MASK = 0xff;
 	public static final int SHORT_MASK = 0xffff;
 	public static final long INT_MASK = 0xffff_ffffL;
@@ -134,6 +135,13 @@ public class Bytes {
 		return applyMask(highBit, mask, init, function);
 	}
 
+	/**
+	 * Returns the big-endian or little-endian value based on native order.
+	 */
+	public static <T> T ordered(T big, T little) {
+		return Basics.ternary(Bytes.IS_BIG_ENDIAN, big, little);
+	}
+	
 	/**
 	 * Converts hex string to its minimal byte array. Uses BigInteger.toByteArray, but removes
 	 * leading 0 byte if it exists. Remove any delimiters before calling this.

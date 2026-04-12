@@ -9,7 +9,7 @@ import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 import ceri.common.time.Timeout;
 
-public class TestProcess extends Process implements AutoCloseable {
+public class TestProcess extends Process {
 	public final TestInputStream in = TestInputStream.of();
 	public final TestInputStream err = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();

@@ -132,7 +132,7 @@ public class Node<T> {
 		value = builder.value;
 		children = Streams.from(builder.children).<Node<?>>map(Builder::build).toList();
 		lookup = Streams.from(children).filter(Node::isNamed)
-			.collect(Collect.map(Maps::tree, t -> t.name, t -> t));
+			.collect(Collect.map(() -> Maps.tree(), t -> t.name, t -> t));
 	}
 
 	/**

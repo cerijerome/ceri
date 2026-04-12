@@ -117,12 +117,8 @@ public class Processor {
 
 	public String exec(Parameters parameters) throws IOException {
 		if (parameters.list().isEmpty()) return null;
-		Process process = null;
-		try {
-			process = processStarter.apply(parameters).get();
+		try (var process = processStarter.apply(parameters).get()) {
 			return exec(process, parameters);
-		} finally {
-			if (process != null) process.destroyForcibly();
 		}
 	}
 
