@@ -4,7 +4,7 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Set;
 import ceri.common.util.Validate;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
@@ -168,7 +168,7 @@ public class CUnistd {
 	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static byte[] readBytes(int fd, MemorySegment buffer) throws CException {
-		return readBytes(fd, Pointer.of(buffer), Memory.sizeInt(buffer));
+		return readBytes(fd, Pointer.of(buffer), Segments.sizeInt(buffer));
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class CUnistd {
 	 * without O_NONBLOCK. Returns the total bytes read as a new array.
 	 */
 	public static byte[] readAllBytes(int fd, MemorySegment buffer) throws CException {
-		return readAllBytes(fd, Pointer.of(buffer), Memory.sizeInt(buffer));
+		return readAllBytes(fd, Pointer.of(buffer), Segments.sizeInt(buffer));
 	}
 
 	/**
@@ -278,7 +278,7 @@ public class CUnistd {
 	 */
 	public static int readAll(int fd, MemorySegment buffer, byte[] bytes, int offset, int length)
 		throws CException {
-		return readAll(fd, Pointer.of(buffer), Memory.sizeInt(buffer), bytes, offset, length);
+		return readAll(fd, Pointer.of(buffer), Segments.sizeInt(buffer), bytes, offset, length);
 	}
 
 	/**

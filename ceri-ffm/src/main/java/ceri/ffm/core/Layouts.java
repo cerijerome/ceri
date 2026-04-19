@@ -8,6 +8,7 @@ import java.lang.foreign.PaddingLayout;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SequenceLayout;
 import java.lang.foreign.StructLayout;
+import java.lang.foreign.UnionLayout;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -111,7 +112,7 @@ public class Layouts {
 		 */
 		default MemorySegment slice(MemorySegment memory, long offset, long length, boolean nul) {
 			if (nul) return term().slice(memory, offset, length);
-			return Memory.slice(memory, offset, length);
+			return Segments.slice(memory, offset, length);
 		}
 
 		/**
@@ -329,6 +330,14 @@ public class Layouts {
 		}
 		if (!isFlexArray(Lists.last(layouts))) addPadding(layouts, offset, align);
 		return struct(layouts);
+	}
+
+	/**
+	 * Creates a union layout from member layouts.
+	 */
+	public static UnionLayout union(Collection<? extends MemoryLayout> members) {
+		if (members == null) return null;
+		return MemoryLayout.unionLayout(members.toArray(MemoryLayout[]::new));
 	}
 
 	/**

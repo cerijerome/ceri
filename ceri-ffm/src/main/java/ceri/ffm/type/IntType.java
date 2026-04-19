@@ -261,9 +261,22 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 
 		@Override
 		void rawWrite(T value, MemorySegment memory, long offset) {
-			if (value == null) value = val();
-			boxed.write(Reflect.unchecked(value.nativeValue()), memory);
+			boxed.write(Reflect.unchecked(init(value).nativeValue()), memory);
 		}
+	}
+
+	/**
+	 * Returns true if the class is an int type.
+	 */
+	public static boolean is(Class<?> cls) {
+		return cls != null && IntType.class.isAssignableFrom(cls);
+	}
+
+	/**
+	 * Casts the given object to an int type.
+	 */
+	public static <T extends IntType<T>> T cast(Object intType) {
+		return Reflect.unchecked(intType);
 	}
 
 	/**

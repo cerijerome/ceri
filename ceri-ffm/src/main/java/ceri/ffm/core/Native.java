@@ -15,6 +15,7 @@ import ceri.common.reflect.Reflect;
 import ceri.ffm.type.IntType;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Struct;
+import ceri.ffm.type.Union;
 
 public class Native {
 	private static final Map<Class<?>, Class<?>> PROMOTIONS = promotions();
@@ -173,6 +174,7 @@ public class Native {
 			if (IntType.class.isAssignableFrom(cls)) return intType;
 			if (Buffer.class.isAssignableFrom(cls)) return buffer;
 			if (Struct.class.isAssignableFrom(cls)) return struct;
+			if (Union.class.isAssignableFrom(cls)) return union;
 			// union TBD
 			if (Pointer.class.isAssignableFrom(cls)) {
 				var t = component.type(0);

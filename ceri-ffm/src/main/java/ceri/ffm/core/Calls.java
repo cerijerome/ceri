@@ -219,7 +219,7 @@ public class Calls {
 		if (spec.array().isArray()) return stringArrayRtn(support, context, spec);
 		var size = support.size(context.size(NUL_TERM_MAX_DEF));
 		return new Call.Return<MemorySegment, String>(Layouts.POINTER,
-			m -> support.get(Memory.reslice(m, 0L, size), true));
+			m -> support.get(Segments.reslice(m, 0L, size), true));
 	}
 
 	private static <B extends Buffer> Call.Return<?, ?> bufferRtn(Refine.Context context,
@@ -229,7 +229,7 @@ public class Calls {
 		var nul = context.nul();
 		var size = support.size(context.size(NUL_TERM_MAX_DEF), nul);
 		return new Call.Return<MemorySegment, B>(Layouts.POINTER,
-			m -> support.asBuffer(Memory.reslice(m, 0L, size), nul));
+			m -> support.asBuffer(Segments.reslice(m, 0L, size), nul));
 	}
 
 	private static <T> Call.Return<?, ?> pointerRtn(Refine.Context context, Native.Kind.Spec spec) {
@@ -237,7 +237,7 @@ public class Calls {
 		var support = support(Pointer.Support.VOID.as(type), context);
 		if (spec.array().isArray()) return arrayRtn(support, context, spec);
 		return new Call.Return<MemorySegment, Pointer<T>>(support.layout(),
-			m -> Pointer.of(type, Memory.reslice(m, 0L, support.layoutSize())));
+			m -> Pointer.of(type, Segments.reslice(m, 0L, support.layoutSize())));
 	}
 
 	private static Call.Return<MemorySegment, Object> arrayRtn(Support<?, ?, ?> support,
@@ -246,7 +246,7 @@ public class Calls {
 		var dims = dims(context, spec, nul);
 		var size = support.size(dims.total());
 		return new Call.Return<>(Layouts.POINTER,
-			m -> support.deepGet(Memory.reslice(m, 0L, size), dims, nul));
+			m -> support.deepGet(Segments.reslice(m, 0L, size), dims, nul));
 	}
 
 	private static Call.Return<MemorySegment, Object> stringArrayRtn(StringType support,
@@ -255,7 +255,7 @@ public class Calls {
 		var count = context.size(NUL_TERM_MAX_DEF);
 		var size = support.size(dims.total() * count);
 		return new Call.Return<>(Layouts.POINTER,
-			m -> support.deepGet(Memory.reslice(m, 0L, size), dims, count, true));
+			m -> support.deepGet(Segments.reslice(m, 0L, size), dims, count, true));
 	}
 
 	private static <B extends Buffer> Call.Return<MemorySegment, Object> bufferArrayRtn(
@@ -265,7 +265,7 @@ public class Calls {
 		var count = context.size(NUL_TERM_MAX_DEF);
 		var size = support.size(dims.total() * count);
 		return new Call.Return<>(Layouts.POINTER,
-			m -> support.deepGet(Memory.reslice(m, 0L, size), dims, count, nul));
+			m -> support.deepGet(Segments.reslice(m, 0L, size), dims, count, nul));
 	}
 
 	private static Dimensions dims(Refine.Context context, Native.Kind.Spec spec, boolean nul) {

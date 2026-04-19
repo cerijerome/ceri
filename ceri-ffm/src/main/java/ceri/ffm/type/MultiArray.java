@@ -5,7 +5,7 @@ import ceri.common.array.Dimensions;
 import ceri.common.array.RawArray;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 
 /**
  * Support for accessing multi-dimensional arrays. Terminology uses 'twig' for a 1-d array.
@@ -64,7 +64,7 @@ public class MultiArray {
 	 */
 	public static <T> long iterate(Object array, MemorySegment memory, long offset, long length,
 		Iteration<T> action) {
-		return iterate(array, Memory.slice(memory, offset, length), action);
+		return iterate(array, Segments.slice(memory, offset, length), action);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class MultiArray {
 	 */
 	public static <A> long iterateTwigs(Object array, MemorySegment memory, long offset,
 		long length, Iteration<A> action) {
-		return iterateTwigs(array, Memory.slice(memory, offset, length), action);
+		return iterateTwigs(array, Segments.slice(memory, offset, length), action);
 	}
 
 	/**

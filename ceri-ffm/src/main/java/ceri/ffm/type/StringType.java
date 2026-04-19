@@ -21,7 +21,7 @@ import ceri.common.text.Chars;
 import ceri.common.util.Basics;
 import ceri.common.util.Counter;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 import ceri.ffm.test.FfmTesting;
 
 /**
@@ -52,7 +52,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		StringType ss = StringType.of(Chars.UTF16);
 		var a = new String[][] { { "abcde", "fgh", "" }, { "ij" }, {}, { "k", null } };
 		System.out.println(RawArray.toString(a));
-		var m = ss.deepAlloc(Memory.ARENA, a, true);
+		var m = ss.deepAlloc(Segments.auto(), a, true);
 		FfmTesting.print(m);
 		a = ss.deepGet(m, Dimensions.from(a), 8, true);
 		System.out.println(RawArray.toString(a));
@@ -176,7 +176,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 */
 	public int write(CharSequence s, int index, int count, MemorySegment memory, long offset,
 		long length, boolean nul) {
-		if (s == null || Memory.isNull(memory)) return 0;
+		if (s == null || Segments.isNull(memory)) return 0;
 		var chars = Buffers.CHAR.of(s, index, count);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);

@@ -3,17 +3,19 @@ package ceri.ffm.test;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
 import java.util.List;
 import ceri.common.collect.Lists;
 import ceri.common.data.Bytes;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
+import ceri.ffm.util.Args;
 
 public class FfmTesting {
 	public static BinaryPrinter P = BinaryPrinter.STD;
-	public static final Arena A = Arena.ofAuto();
+	public static final SegmentAllocator A = Arena.ofAuto();
 
 	private FfmTesting() {}
 
@@ -119,7 +121,7 @@ public class FfmTesting {
 			mems[0] = fill(A.allocate(offset), filler);
 			int index = 1;
 			for (var slice : slices)
-				mems[index++] = fill(Memory.slice(mems[0], slice[0], slice[1]), 0);
+				mems[index++] = fill(Segments.slice(mems[0], slice[0], slice[1]), 0);
 			return mems;
 		}
 	}
@@ -129,6 +131,13 @@ public class FfmTesting {
 	 */
 	public static MemorySegment[] alloc(MemoryLayout... layouts) {
 		return Alloc.of().add(layouts).alloc();
+	}
+
+	/**
+	 * Prints the object as an argument.
+	 */
+	public static void arg(Object arg) {
+		P.message(Args.DEFAULT.arg(arg));
 	}
 
 	/**
@@ -151,7 +160,7 @@ public class FfmTesting {
 	 */
 	public static void print(MemorySegment m, long offset, long length) {
 		P.message(m);
-		m = Memory.slice(m, offset, length);
+		m = Segments.slice(m, offset, length);
 		if (m != null) P.print(m.toArray(Layouts.BYTE));
 		P.message("");
 	}
@@ -167,7 +176,7 @@ public class FfmTesting {
 	// support
 
 	private static MemorySegment fill(MemorySegment m, int filler) {
-		Memory.fill(m, filler);
+		Segments.fill(m, filler);
 		return m;
 	}
 }

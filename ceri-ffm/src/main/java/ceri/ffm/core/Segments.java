@@ -3,24 +3,64 @@ package ceri.ffm.core;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment.Scope;
 import java.lang.foreign.SegmentAllocator;
+import java.lang.ref.Cleaner;
+import java.lang.ref.Cleaner.Cleanable;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 
 /**
  * Support for memory segments.
  */
-public class Memory {
-	public static final Arena ARENA = Arena.ofAuto();
+public class Segments {
+	private static final Cleaner CLEANER = Cleaner.create();
+	public static final SegmentAllocator GLOBAL = Arena.global();
 
-	private Memory() {}
+	private Segments() {}
 
 	/**
-	 * Allocate a memory segment with a new auto arena.
+	 * An arena that can be closed or garbage collected.
+	 */
+	public static class Auto implements Arena, Functions.Closeable {
+		private final java.lang.foreign.Arena arena;
+		private final Cleanable cleanable;
+
+		private Auto(Arena arena) {
+			this.arena = arena;
+			cleanable = CLEANER.register(this, arena::close); // must not reference fields
+		}
+
+		@Override
+		public MemorySegment allocate(long byteSize, long byteAlignment) {
+			return arena.allocate(byteSize, byteAlignment);
+		}
+
+		@Override
+		public Scope scope() {
+			return arena.scope();
+		}
+
+		@Override
+		public void close() {
+			cleanable.clean();
+		}
+	}
+
+	/**
+	 * Returns a new shared arena that can be closed or garbage collected.
 	 */
 	@SuppressWarnings("resource")
-	public static MemorySegment autoAlloc(long size) {
-		return Arena.ofAuto().allocate(size);
+	public static Arena arena() {
+		return new Auto(Arena.ofShared());
+	}
+
+	/**
+	 * Returns a new auto arena.
+	 */
+	public static SegmentAllocator auto() {
+		return Arena.ofAuto();
 	}
 
 	/**
@@ -122,6 +162,13 @@ public class Memory {
 	}
 
 	/**
+	 * Returns true if the segment scope is alive.
+	 */
+	public static boolean isAlive(MemorySegment memory) {
+		return memory != null && memory.scope().isAlive();
+	}
+
+	/**
 	 * Returns true if the segment is non-null, native, and has a byte size of 0.
 	 */
 	public static boolean isNativePointer(MemorySegment memory) {
@@ -209,8 +256,7 @@ public class Memory {
 	/**
 	 * Returns an index view of a segment array that starts at the given offset.
 	 */
-	public static MemorySegment indexSlice(MemorySegment memory, MemoryLayout layout,
-		long index) {
+	public static MemorySegment indexSlice(MemorySegment memory, MemoryLayout layout, long index) {
 		return indexSlice(memory, 0L, layout, index);
 	}
 

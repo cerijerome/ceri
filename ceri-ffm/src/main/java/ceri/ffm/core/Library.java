@@ -1,6 +1,5 @@
 package ceri.ffm.core;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.Linker;
 import java.lang.foreign.SymbolLookup;
 import java.lang.reflect.InvocationHandler;
@@ -64,7 +63,7 @@ public class Library<T> {
 	public static void runMisc() throws CException {
 		System.out.println("pagesize = " + CUnistd.getpagesize());
 	}
-	
+
 	public static void runOpenVarArg() throws CException {
 		int fd1 = CFcntl.open(FILE, CFcntl.Open.O_RDONLY.value);
 		System.out.println("fd1 = " + fd1);
@@ -226,9 +225,8 @@ public class Library<T> {
 			new Class<?>[] { cls }, (_, m, args) -> invokeMethod(m, args)));
 	}
 
-	@SuppressWarnings("resource")
 	private static Object invokeCall(Call call, Object[] args) throws Throwable {
-		return call.invoke(Arena.ofAuto(), args);
+		return call.invoke(Segments.auto(), args);
 	}
 
 	private static Object[] flatten(Object[] args, Object[] varArgs) {

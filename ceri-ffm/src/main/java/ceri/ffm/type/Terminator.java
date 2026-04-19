@@ -7,7 +7,7 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.math.Maths;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 
 /**
  * A nul-terminator of specified size in bytes.
@@ -58,7 +58,7 @@ public record Terminator(int size) {
 	 * Returns the first index of this terminator within the segment range, or -1 if not found.
 	 */
 	public long find(MemorySegment memory, long offset, long length) {
-		if (Memory.isNull(memory)) return -1;
+		if (Segments.isNull(memory)) return -1;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		return pos(memory, offset, length);
@@ -82,7 +82,7 @@ public record Terminator(int size) {
 	 * Returns the memory slice from offset to start of terminator, or null if not found.
 	 */
 	public MemorySegment slice(MemorySegment memory, long offset, long length) {
-		if (Memory.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return null;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		long pos = pos(memory, offset, length);
@@ -109,7 +109,7 @@ public record Terminator(int size) {
 	 */
 	public List<MemorySegment> slices(int count, int max, MemorySegment memory, long offset,
 		long length) {
-		if (max <= 0 || Memory.isNull(memory)) return List.of();
+		if (max <= 0 || Segments.isNull(memory)) return List.of();
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		long end = offset + length;
@@ -134,7 +134,7 @@ public record Terminator(int size) {
 	 * Sets the terminator at given offset, within bounds. Returns the number of bytes set.
 	 */
 	public int set(MemorySegment memory, long offset, int max) {
-		if (Memory.isNull(memory)) return 0;
+		if (Segments.isNull(memory)) return 0;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		max = (int) Maths.limit(max, 0L, memory.byteSize() - offset);
 		int size = (int) Maths.limit(max, 0L, size());

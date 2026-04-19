@@ -3,7 +3,7 @@ package ceri.ffm.type;
 import java.lang.foreign.MemorySegment;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 
 public class TerminatorBehavior {
 	private final Terminator TERM = Terminator.of(4);
@@ -14,11 +14,11 @@ public class TerminatorBehavior {
 		Assert.equal(TERM.find(null), -1L);
 		var m = MemorySegment.ofArray(new byte[11]);
 		Assert.equal(TERM.find(m), 0L);
-		Memory.fill(m, 1);
+		Segments.fill(m, 1);
 		Assert.equal(TERM.find(m), -1L);
-		Memory.fill(m, 8, 0);
+		Segments.fill(m, 8, 0);
 		Assert.equal(TERM.find(m), -1L);
-		Memory.fill(m, 4, 0);
+		Segments.fill(m, 4, 0);
 		Assert.equal(TERM.find(m), 4L);
 	}
 
@@ -27,11 +27,11 @@ public class TerminatorBehavior {
 		Assert.equal(LARGE.find(null), -1L);
 		var m = MemorySegment.ofArray(new byte[160]);
 		Assert.equal(LARGE.find(m), 0L);
-		Memory.fill(m, 1);
+		Segments.fill(m, 1);
 		Assert.equal(LARGE.find(m), -1L);
-		Memory.fill(m, 144, 0);
+		Segments.fill(m, 144, 0);
 		Assert.equal(LARGE.find(m), -1L);
-		Memory.fill(m, 72, 72, 0);
+		Segments.fill(m, 72, 72, 0);
 		Assert.equal(LARGE.find(m), 72L);
 	}
 }

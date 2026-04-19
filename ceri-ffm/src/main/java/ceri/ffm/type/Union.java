@@ -1,22 +1,16 @@
 package ceri.ffm.type;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SequenceLayout;
-import java.lang.foreign.StructLayout;
+import java.lang.foreign.UnionLayout;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.array.Dimensions;
-import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
@@ -32,30 +26,63 @@ import ceri.common.text.Text;
 import ceri.common.text.ToString;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
+import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.Refine;
+import ceri.ffm.test.FfmTesting;
+import ceri.ffm.type.Struct.Fields;
 import ceri.ffm.util.Args;
 
-public class Struct<T extends Struct<T>> {
+public class Union<T extends Union<T>> {
+	private static final int INACTIVE = -1;
 	private static final String INDENT = "  ";
-	private static final int NO_FLEX = -1;
 	private static final String FIELDS = Fields.class.getSimpleName();
 	private static final Map<Class<?>, Support<?>> cache = Maps.syncWeak();
 	private volatile Support<T> support = null;
+	private volatile MemorySegment memory = null; // last used segment
+	private volatile int activeIndex = INACTIVE;
 
-	/**
-	 * Struct fields in order. All fields must be named in subclasses, not just the added fields.
-	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
-	public static @interface Fields {
-		String[] value();
+	@Fields({ "s", "b" })
+	public static class S0 extends Struct<S0> {
+		public static final Struct.Support<S0> $ = Struct.support(S0.class);
+		public short s;
+		public byte b;
 	}
 
+	@Fields({ "l", "s", "s0" })
+	public static class U0 extends Union<U0> {
+		public static final Union.Support<U0> $ = Union.support(U0.class);
+		public long l;
+		public short s;
+		public S0[] s0 = new S0[2];
+	}
+
+	@Fields({ "s", "b", "u0" })
+	public static class S1 extends Struct<S1> {
+		public static final Struct.Support<S1> $ = Struct.support(S1.class);
+		public short s;
+		public byte b;
+		public U0 u0;
+	}
+
+	public static void main(String[] args) {
+		S1 s = S1.$.init();
+		s.u0.l = 0x123456789abcdefL;
+		FfmTesting.arg(s);
+		var m = S1.$.alloc(Segments.auto(), s);
+		FfmTesting.print(m);
+		FfmTesting.arg(s);
+		s.u0.active(2).read();
+		FfmTesting.arg(s);
+	}
+
+	// superclass = Group -> Union, Struct
+	// - same field name lookup (not needed for union?)
+	// - same member type lookup
+
 	/**
-	 * Provides actions for a struct member.
+	 * Provides actions for a union member.
 	 */
-	record Actions<T>(Functions.Operator<T> init, Functions.ObjIntFunction<T, T> flexInit,
-		Update<T> update, Write<T> write) {
+	record Actions<T>(Functions.Operator<T> init, Update<T> update, Write<T> write) {
 
 		/**
 		 * Updates type instance from memory.
@@ -72,18 +99,17 @@ public class Struct<T extends Struct<T>> {
 		}
 
 		/**
-		 * Initializes a type instance with optional flex array size.
+		 * Initializes a type instance.
 		 */
-		public T init(T t, int flexSize) {
-			if (flexInit() == null || flexSize < 0) return init().apply(t);
-			return flexInit().apply(t, flexSize);
+		public T init(T t) {
+			return init().apply(t);
 		}
 
 		/**
 		 * Updates a type instance from memory.
 		 */
 		public T update(MemorySegment memory, long offset, T t) {
-			if (t == null) t = init(null, -1);
+			if (t == null) t = init(null);
 			return update().apply(memory, offset, t);
 		}
 
@@ -91,7 +117,7 @@ public class Struct<T extends Struct<T>> {
 		 * Writes a type instance to memory.
 		 */
 		public void write(T t, MemorySegment memory, long offset) {
-			if (t == null) t = init(null, -1);
+			if (t == null) t = init(null);
 			write().accept(t, memory, offset);
 		}
 	}
@@ -103,7 +129,6 @@ public class Struct<T extends Struct<T>> {
 		public final String name;
 		public final Native.Kind.Spec spec;
 		public final Dimensions dims;
-		public final long offset;
 		public final MemoryLayout layout;
 		public final VarHandle accessor;
 		public final Actions<T> actions;
@@ -111,17 +136,15 @@ public class Struct<T extends Struct<T>> {
 		public static class Builder {
 			private final String name;
 			private final Native.Kind.Spec spec;
-			private final boolean flex;
 			private final Refine.Context context;
 			private final VarHandle accessor;
 			private Dimensions dims = Dimensions.NONE;
 			private MemoryLayout layout = null;
 			private Actions<?> actions = null;
 
-			private Builder(Field field, boolean last) {
+			private Builder(Field field) {
 				this.name = field.getName();
 				spec = Native.Kind.spec(Generics.typed(field));
-				flex = last && spec.array().dimensions() == 1;
 				context = Refine.context(field);
 				accessor = Handles.handle(field);
 			}
@@ -136,85 +159,83 @@ public class Struct<T extends Struct<T>> {
 				return this;
 			}
 
-			public <T> Builder actions(Functions.Operator<T> init,
-				Functions.ObjIntFunction<T, T> flexInit, Actions.Update<T> update,
+			public <T> Builder actions(Functions.Operator<T> init, Actions.Update<T> update,
 				Actions.Write<T> write) {
-				actions = new Actions<>(init, flexInit, update, write);
+				actions = new Actions<>(init, update, write);
 				return this;
 			}
 
-			public Member<?> build(long offset) {
-				return new Member<>(name, spec, dims, offset, layout, accessor, actions);
+			public Member<?> build() {
+				return new Member<>(name, spec, dims, layout, accessor, actions);
 			}
 		}
 
-		private Member(String name, Native.Kind.Spec spec, Dimensions dims, long offset,
-			MemoryLayout layout, VarHandle accessor, Actions<T> actions) {
+		private Member(String name, Native.Kind.Spec spec, Dimensions dims, MemoryLayout layout,
+			VarHandle accessor, Actions<T> actions) {
 			this.name = name;
 			this.spec = spec;
 			this.dims = dims;
-			this.offset = offset;
 			this.layout = layout;
 			this.accessor = accessor;
 			this.actions = actions;
 		}
 
-		private boolean flex() {
-			return actions.flexInit() != null;
+		private T get(Union<?> union) {
+			return Handles.get(accessor, union);
 		}
 
-		private T get(Struct<?> struct) {
-			return Handles.get(accessor, struct);
+		private void set(Union<?> union, T value) {
+			accessor.set(union, value);
 		}
 
-		private void set(Struct<?> struct, T value) {
-			accessor.set(struct, value);
+		private void init(Union<?> union) {
+			var current = get(union);
+			var updated = actions.init(current);
+			if (current != updated) set(union, updated);
 		}
 
-		private void init(Struct<?> struct, int flexSize) {
-			var current = get(struct);
-			var updated = actions.init(current, flexSize);
-			if (current != updated) set(struct, updated);
+		private void read(Union<?> union, MemorySegment memory, long offset) {
+			var current = get(union);
+			var updated = actions.update(memory, offset, current);
+			if (updated != null && updated != current) set(union, updated);
 		}
 
-		private void read(Struct<?> struct, MemorySegment memory, long offset) {
-			var current = get(struct);
-			var updated = actions.update(memory, offset + this.offset, current);
-			if (updated != null && updated != current) set(struct, updated);
+		private void write(Union<?> union, MemorySegment memory, long offset) {
+			var current = get(union);
+			actions.write(current, memory, offset);
 		}
 
-		private void write(Struct<?> struct, MemorySegment memory, long offset) {
-			var current = get(struct);
-			actions.write(current, memory, offset + this.offset);
+		private T val() {
+			return actions.init(null);
 		}
 
 		public String desc() {
-			return (flex() ? spec.array().toString() : spec.array().toString(dims)) + ' ' + name;
+			return spec.array().toString(dims) + ' ' + name;
 		}
 
 		@Override
 		public final String toString() {
-			return String.format("0x%02x %s =%s", offset, desc(), layout);
+			return String.format("%s =%s", desc(), layout);
 		}
 	}
 
 	/**
-	 * Operational support for struct types.
+	 * Operational support for union types.
 	 */
-	public static class Support<T extends Struct<T>>
-		extends ceri.ffm.type.Support.Typed<T, StructLayout> {
+	public static class Support<T extends Union<T>>
+		extends ceri.ffm.type.Support.Typed<T, UnionLayout> {
 		private final Class<T> type;
 		private final Functions.Supplier<T> constructor;
+		private final Map<String, Integer> lookup;
 		private final List<Member<?>> members;
-		private final boolean flex;
 
-		private Support(Class<T> type, Functions.Supplier<T> constructor, StructLayout layout,
+		private Support(Class<T> type, Functions.Supplier<T> constructor, UnionLayout layout,
 			List<Member<?>> members) {
 			super(layout);
 			this.type = type;
 			this.constructor = constructor;
 			this.members = members;
-			flex = !members.isEmpty() && Lists.last(members).spec.array().dimensions() == 1;
+			lookup = lookup(members);
 		}
 
 		@Override
@@ -238,61 +259,69 @@ public class Struct<T extends Struct<T>> {
 		}
 
 		@Override
-		public T init(T struct) {
-			return init(struct, NO_FLEX);
-		}
-
-		/**
-		 * Initializes struct members, with given flexible array size.
-		 */
-		public T init(int flexSize) {
-			return init(null, flexSize);
-		}
-		
-		/**
-		 * Initializes struct members, with given flexible array size.
-		 */
-		public T init(T struct, int flexSize) {
-			if (struct == null) struct = val();
+		public T init(T union) {
+			if (union == null) union = val();
 			for (var member : members)
-				member.init(struct, flexSize);
-			return struct;
+				member.init(union);
+			return union;
 		}
 
 		/**
-		 * Returns the byte size of the given struct, including flexible array member if present.
+		 * Sets the active member by index.
 		 */
-		public long size(T struct) {
-			if (struct == null) return 0L;
-			if (!flex) return layoutSize();
-			var last = Lists.last(members);
-			int flexSize = RawArray.length(last.accessor.get(struct));
-			return Math.max(layoutSize(), flexScale(last, flexSize));
+		public void active(T union, int index) {
+			if (union != null && Lists.in(members, index)) union.activeIndex(index);
 		}
 
 		/**
-		 * Allocates memory and writes the struct to the memory, including a flexible array member
-		 * if present.
+		 * Sets the active member by name.
 		 */
-		public MemorySegment alloc(SegmentAllocator allocator, int flexSize) {
-			if (allocator == null) return null;
-			return allocator.allocate(flexSize(flexSize));
+		public void active(T union, String name) {
+			active(union, indexOf(name));
 		}
 
 		/**
-		 * Allocates memory and writes the struct to the memory, including flexible array member if
-		 * present.
+		 * Sets the active member value if set.
 		 */
-		@Override
-		public MemorySegment alloc(SegmentAllocator allocator, T value) {
-			if (allocator == null) return null;
-			var memory = allocator.allocate(size(value));
-			rawWrite(value, memory, 0L);
-			return memory;
+		public boolean setActive(T union, Object value) {
+			var member = activeMember(union);
+			if (member == null) return false;
+			member.set(union, value);
+			return true;
+		}
+
+		/**
+		 * Gets the active member value if set, otherwise null.
+		 */
+		public <R> R getActive(T union) {
+			var member = this.<R>autoActiveMember(union);
+			if (member == null) return null;
+			return member.get(union);
+		}
+
+		/**
+		 * Reads the active member value from last memory segment if set.
+		 */
+		public boolean readActive(T union) {
+			var member = activeMember(union);
+			var memory = union.memory();
+			if (member == null || memory == null) return false;
+			member.read(union, memory, 0L);
+			return true;
+		}
+
+		/**
+		 * Writes active member to last memory segment if set or allocates new scratch memory.
+		 */
+		public boolean writeActive(T union) {
+			var member = autoActiveMember(union);
+			if (member == null) return false;
+			member.write(union, Union.memory(union, layout()), 0L);
+			return true;
 		}
 
 		public String desc() {
-			var b = new StringBuilder("struct ").append(type().getSimpleName()).append(" {");
+			var b = new StringBuilder("union ").append(type().getSimpleName()).append(" {");
 			for (var member : members)
 				b.append(Strings.EOL).append(INDENT).append(member.desc()).append(';');
 			if (!members.isEmpty()) b.append(Strings.EOL);
@@ -306,37 +335,53 @@ public class Struct<T extends Struct<T>> {
 
 		@Override
 		T rawGet(MemorySegment memory, long offset) {
-			var struct = constructor.get();
-			rawRead(memory, offset, struct);
-			return struct;
+			var union = constructor.get();
+			rawRead(memory, offset, union);
+			return union;
 		}
 
 		@Override
-		void rawRead(MemorySegment memory, long offset, T struct) {
-			for (var member : members)
-				member.read(struct, memory, offset);
+		void rawRead(MemorySegment memory, long offset, T union) {
+			var member = activeMember(union);
+			if (member != null) member.read(union, memory, offset);
+			memory(union, memory, offset);
 		}
 
 		@Override
-		void rawWrite(T struct, MemorySegment memory, long offset) {
-			for (var member : members)
-				member.write(struct, memory, offset);
+		void rawWrite(T union, MemorySegment memory, long offset) {
+			var member = autoActiveMember(union);
+			if (member != null) member.write(union, memory, offset);
+			memory(union, memory, offset);
 		}
 
-		// support
+		private <R> Member<R> autoActiveMember(T union) {
+			if (union == null) return null;
+			var member = this.<R>member(union.activeIndex());
+			if (member == null) member = findActiveMember(union, members);
+			return member;
+		}
 
-		private long flexSize(int flexSize) {
-			if (!flex) return layoutSize();
-			var last = Lists.last(members);
-			return Math.max(layoutSize(), flexScale(last, flexSize));
+		private void memory(T union, MemorySegment memory, long offset) {
+			union.memory(Segments.slice(memory, offset, size(1)));
+		}
+
+		private int indexOf(String name) {
+			return lookup.getOrDefault(name, INACTIVE);
+		}
+
+		private <R> Member<R> member(int index) {
+			return Reflect.unchecked(Lists.at(members, index));
+		}
+
+		private <R> Member<R> activeMember(T union) {
+			if (union == null) return null;
+			return member(union.activeIndex());
 		}
 	}
 
-	private static class Builder<T extends Struct<T>> {
+	private static class Builder<T extends Union<T>> {
 		private final Class<T> type;
 		private final Functions.Supplier<T> constructor;
-		private long offset = 0L;
-		private long align = 0L;
 		private final List<MemoryLayout> layouts = Lists.of();
 		private final List<Member<?>> members = Lists.of();
 
@@ -350,9 +395,8 @@ public class Struct<T extends Struct<T>> {
 			return new Support<>(type, constructor, layout(), Immutable.wrap(members));
 		}
 
-		private StructLayout layout() {
-			if (!Layouts.isFlexArray(Lists.last(layouts))) addPadding(layouts, offset, align);
-			return Layouts.struct(layouts);
+		private UnionLayout layout() {
+			return Layouts.union(layouts);
 		}
 
 		private void addMembers(Class<?> cls) {
@@ -361,7 +405,7 @@ public class Struct<T extends Struct<T>> {
 			int lastIndex = names.size() - 1;
 			for (int i = 0; i <= lastIndex; i++) {
 				var field = findField(cls, classFields, names.get(i));
-				var member = new Member.Builder(field, i == lastIndex);
+				var member = new Member.Builder(field);
 				populate(member);
 				add(member);
 			}
@@ -377,6 +421,7 @@ public class Struct<T extends Struct<T>> {
 				// case pointer, pointerType -> Layouts.POINTER;
 				case struct -> struct(member);
 				case union -> union(member);
+				// case union -> TBD;
 				default -> throw Exceptions.illegalArg("Unsupported type: " + member.spec.typed());
 			}
 		}
@@ -398,9 +443,9 @@ public class Struct<T extends Struct<T>> {
 		}
 
 		private void member(ceri.ffm.type.Support<?, ?, ?> support, Member.Builder member) {
-			var s = Struct.supportWith(support, member);
+			var s = Union.supportWith(support, member);
 			if (member.spec.array().isArray()) arrayMember(s, member);
-			else member.layout(support.layout()).actions(s::init, null, s::update, s::write);
+			else member.layout(support.layout()).actions(s::init, s::update, s::write);
 		}
 
 		private <A> void arrayMember(ceri.ffm.type.Support<?, A, ?> support,
@@ -409,7 +454,6 @@ public class Struct<T extends Struct<T>> {
 			var nul = member.context.nul();
 			var layout = Layouts.array(support.layout(), dims);
 			member.layout(layout).dims(dims).actions(t -> deepInit(support, dims, t),
-				member.flex ? (t, n) -> deepInitFlex(support, n, t) : null,
 				(m, o, t) -> deepRead(support, nul, m, o, t),
 				(t, m, o) -> support.deepWrite(t, m, o, nul));
 		}
@@ -417,12 +461,6 @@ public class Struct<T extends Struct<T>> {
 		private static Object deepInit(ceri.ffm.type.Support<?, ?, ?> support, Dimensions dims,
 			Object t) {
 			if (t == null) return support.deepVal(dims);
-			return support.deepInit(t);
-		}
-
-		private static Object deepInitFlex(ceri.ffm.type.Support<?, ?, ?> support, int flexSize,
-			Object t) {
-			if (t == null || RawArray.length(t) != flexSize) return support.arrayVal(flexSize);
 			return support.deepInit(t);
 		}
 
@@ -434,56 +472,69 @@ public class Struct<T extends Struct<T>> {
 
 		private void add(Member.Builder member) {
 			var layout = member.layout;
-			offset += addPadding(layouts, offset, layout.byteAlignment());
 			layouts.add(layout);
-			members.add(member.build(offset));
-			align = Math.max(align, layout.byteAlignment());
-			offset += layout.byteSize();
+			members.add(member.build());
 		}
 	}
 
 	/**
 	 * Returns operational support for the type.
 	 */
-	public static <T extends Struct<T>> Support<T> support(Class<T> cls) {
+	public static <T extends Union<T>> Support<T> support(Class<T> cls) {
 		return Reflect.unchecked(cache.computeIfAbsent(cls, _ -> supportFor(cls)));
 	}
 
 	/**
-	 * Creates an instance of the struct, with flexible array member initialized to given count.
+	 * Creates an instance of the union, with flexible array member initialized to given count.
 	 */
-	public static <T extends Struct<T>> T init(Class<T> cls) {
-		return init(cls, NO_FLEX);
-	}
-
-	/**
-	 * Creates an instance of the struct, with flexible array member initialized to given count.
-	 */
-	public static <T extends Struct<T>> T init(Class<T> cls, int flexSize) {
+	public static <T extends Union<T>> T init(Class<T> cls) {
 		if (cls == null) return null;
-		return support(cls).init(null, flexSize);
+		return support(cls).init(null);
 	}
 
-	/**
-	 * Allocates memory for a struct with populated flexible array member.
-	 */
-	public static <T extends Struct<T>> MemorySegment alloc(SegmentAllocator allocator, T struct) {
-		if (allocator == null || struct == null) return null;
-		var support = support(Reflect.getClass(struct));
-		return support.alloc(allocator, struct);
+	public T active(int index) {
+		return action((s, t) -> s.active(t, index));
+	}
+
+	public T active(String name) {
+		return action((s, t) -> s.active(t, name));
+	}
+
+	public T set(Object value) {
+		return action((s, t) -> s.setActive(t, value));
+	}
+
+	public <R> R get() {
+		return support().getActive(typedThis());
+	}
+
+	public T read() {
+		return action(Support::readActive);
+	}
+
+	public T write() {
+		return action(Support::writeActive);
+	}
+
+	private T action(Functions.BiConsumer<Support<T>, T> consumer) {
+		var t = typedThis();
+		consumer.accept(support(), t);
+		return t;
 	}
 
 	public String toString(Args args) {
 		var support = support();
-		var b = new StringBuilder("struct ").append(support.type().getSimpleName()).append(" {");
-		for (var member : support.members) {
+		var b = new StringBuilder("union ").append(support.type().getSimpleName()).append(" {");
+		for (int i = 0; i < support.members.size(); i++) {
+			var member = support.member(i);
 			var value = member.desc() + " = " + args.arg(member.get(this)) + ';';
 			b.append(Strings.EOL).append(Text.prefixLines(INDENT, value));
+			if (activeIndex == i) b.append(" *");
 		}
 		if (!support.members.isEmpty()) b.append(Strings.EOL);
 		return b.append('}').toString();
 	}
-	
+
 	@Override
 	public String toString() {
 		return toString(Args.DEFAULT);
@@ -500,7 +551,27 @@ public class Struct<T extends Struct<T>> {
 		return support;
 	}
 
-	private static <T extends Struct<T>> Support<T> supportFor(Class<T> cls) {
+	void activeIndex(int index) {
+		activeIndex = index;
+	}
+
+	int activeIndex() {
+		return activeIndex;
+	}
+
+	void memory(MemorySegment memory) {
+		this.memory = memory;
+	}
+
+	MemorySegment memory() {
+		return memory;
+	}
+
+	T typedThis() {
+		return Reflect.unchecked(this);
+	}
+
+	private static <T extends Union<T>> Support<T> supportFor(Class<T> cls) {
 		return new Builder<>(cls).build();
 	}
 
@@ -510,20 +581,41 @@ public class Struct<T extends Struct<T>> {
 			.unchecked(support.with(member.name, member.context.align(), member.context.order()));
 	}
 
-	private static <A> Dimensions arrayDims(Struct<?> struct, Member.Builder member) {
-		A array = Handles.get(member.accessor, struct);
+	private static <R> Member<R> findActiveMember(Union<?> union, List<Member<?>> members) {
+		for (int i = 0; i < members.size(); i++) {
+			var member = members.get(i);
+			var current = member.get(union);
+			if (current == null || Objects.deepEquals(current, member.val())) continue;
+			union.active(i);
+			return Reflect.unchecked(member);
+		}
+		return null;
+	}
+
+	private static MemorySegment memory(Union<?> union, MemoryLayout layout) {
+		var memory = union.memory();
+		if (!Segments.isAlive(memory)) {
+			memory = Segments.auto().allocate(layout);
+			union.memory(memory);
+		}
+		return memory;
+	}
+
+	private static Map<String, Integer> lookup(List<Member<?>> members) {
+		var map = Maps.<String, Integer>of();
+		for (int i = 0; i < members.size(); i++)
+			map.put(members.get(i).name, i);
+		return Immutable.wrap(map);
+	}
+
+	private static <A> Dimensions arrayDims(Union<?> union, Member.Builder member) {
+		A array = Handles.get(member.accessor, union);
 		if (array != null) return Dimensions.from(array);
 		int count = member.spec.array().dimensions();
 		var dims = member.context.dims(null);
 		if (dims == null) return Dimensions.ofZeros(count);
 		if (dims.count() == count) return dims;
 		return MultiArray.fix(dims, count, false, 0);
-	}
-
-	private static long addPadding(List<MemoryLayout> layouts, long offset, long align) {
-		var padding = Layouts.padding(offset, align);
-		if (padding != 0) layouts.add(MemoryLayout.paddingLayout(padding));
-		return padding;
 	}
 
 	private static void verifyClassFields(Class<?> cls, Map<String, Field> classFields) {
@@ -553,9 +645,5 @@ public class Struct<T extends Struct<T>> {
 		if (fields != null) return Lists.wrap(fields);
 		throw new IllegalStateException(String
 			.format("@%s ({...}) annotation must be declared on %s", FIELDS, Reflect.name(cls)));
-	}
-
-	private static long flexScale(Member<?> flex, int count) {
-		return ((SequenceLayout) flex.layout).elementLayout().scale(flex.offset, count);
 	}
 }

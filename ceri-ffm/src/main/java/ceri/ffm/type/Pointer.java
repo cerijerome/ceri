@@ -8,7 +8,7 @@ import java.util.List;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 import ceri.ffm.core.Native;
 
 public class Pointer<T> {
@@ -128,7 +128,7 @@ public class Pointer<T> {
 	}
 
 	public static boolean isNull(Pointer<?> pointer) {
-		return pointer == null || Memory.isNull(pointer.memory());
+		return pointer == null || Segments.isNull(pointer.memory());
 	}
 
 	public static Pointer<?> alloc(long size) {
@@ -136,7 +136,7 @@ public class Pointer<T> {
 	}
 
 	public static <T> Pointer<T> alloc(Type<T> type, long size) {
-		return of(type, Memory.autoAlloc(size));
+		return of(type, Segments.auto().allocate(size));
 	}
 
 	public static <T> Pointer<T> ofNull(Type<T> type) {
@@ -179,7 +179,7 @@ public class Pointer<T> {
 	}
 
 	public Pointer<T> share(long offset, long length) {
-		return create(type, Memory.slice(memory, offset, length));
+		return create(type, Segments.slice(memory, offset, length));
 	}
 
 	public long size() {

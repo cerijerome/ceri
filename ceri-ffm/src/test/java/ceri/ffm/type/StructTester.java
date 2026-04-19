@@ -77,7 +77,7 @@ public class StructTester {
 		var x = S0.getArray(m, false);
 		RawArray.deepForEach(x, t -> System.out.println(t));
 
-		var t2 = S2.val(2).gen(0);
+		var t2 = S2.init(2).gen(0);
 		System.out.println(t2);
 	}
 
@@ -85,7 +85,7 @@ public class StructTester {
 		System.out.println(S2);
 		System.out.println(S2.desc());
 
-		var t2 = S2.val(3);
+		var t2 = S2.init(3);
 		t2.gen(0);
 		var m = S2.alloc(A, t2);
 		print(m);

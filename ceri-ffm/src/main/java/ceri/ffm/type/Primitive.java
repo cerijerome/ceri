@@ -11,7 +11,7 @@ import ceri.common.collect.Immutable;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 
 /**
  * Operational support for primitives.
@@ -944,7 +944,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		if (array == null) return null;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		length = Maths.limit(length, 0, RawArray.length(array) - index);
-		return Memory.slice(rawWrapArray(array), size(index), size(length));
+		return Segments.slice(rawWrapArray(array), size(index), size(length));
 	}
 
 	@Override

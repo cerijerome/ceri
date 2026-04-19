@@ -89,8 +89,8 @@ public class VarHandleTester {
 			var mems = FfmTesting.Alloc.of().add(Refs.LAYOUT, n).add(Refs.S_LAYOUT, n)
 				.add(Refs.BBB_LAYOUT, n).alloc();
 			for (int i = 0; i < n; i++) {
-				Refs.PS.a.set(mems[1], 0L, i, Memory.indexSlice(mems[2], Refs.S_LAYOUT, i));
-				Refs.PBBB.a.set(mems[1], 0L, i, Memory.indexSlice(mems[3], Refs.BBB_LAYOUT, i));
+				Refs.PS.a.set(mems[1], 0L, i, Segments.indexSlice(mems[2], Refs.S_LAYOUT, i));
+				Refs.PBBB.a.set(mems[1], 0L, i, Segments.indexSlice(mems[3], Refs.BBB_LAYOUT, i));
 			}
 			return mems;
 		}

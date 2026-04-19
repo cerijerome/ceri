@@ -14,15 +14,14 @@ import ceri.common.stream.Streams;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
+import ceri.ffm.type.IntType;
 
 /**
  * Utility to create strings from method arguments. Arrays and Iterable types are expanded.
  */
 public class Args {
 	public static Args DEFAULT = builder().addDefault(true).build();
-	private static final List<Class<?>> INT_CLASSES =
-		List.of(Byte.class, Short.class, Integer.class, Long.class);
 	private static final int DEC_LIMIT = 9;
 	private final List<Functions.Function<Object, String>> transforms;
 	private final Joiner arrayJoiner;
@@ -38,7 +37,7 @@ public class Args {
 	 * Predicate to match byte/short/int/long primitive or primitive wrapper, and cast to Number.
 	 */
 	public static Functions.Function<Object, Number> matchInt() {
-		return arg -> INT_CLASSES.contains(arg.getClass()) ? (Number) arg : null;
+		return arg -> Reflect.INTS.contains(arg.getClass()) ? (Number) arg : null;
 	}
 
 	/**
@@ -79,7 +78,7 @@ public class Args {
 	 * Memory to compact string.
 	 */
 	public static String string(MemorySegment m) {
-		return String.format("@%x+%x", Memory.address(m), Memory.size(m));
+		return String.format("@%x+%x", Segments.address(m), Segments.size(m));
 	}
 
 	/**
@@ -122,7 +121,7 @@ public class Args {
 			//if (compactStruct) add(Structure.class, Args::string);
 			return add(String.class, Chars::escape) //
 				.add(matchInt(), n -> stringInt(n)) //
-				//.add(IntegerType.class, n -> stringInt(n)) //
+				.add(IntType.class, n -> stringInt(n.nativeValue())) //
 				//.add(Pointer.class, Args::string) //
 				.add(MemorySegment.class, Args::string) //
 				//.add(PointerType.class, Args::string) //

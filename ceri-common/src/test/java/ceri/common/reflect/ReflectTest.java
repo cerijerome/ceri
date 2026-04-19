@@ -9,7 +9,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.array.Array;
 import ceri.common.function.Fluent;
@@ -413,7 +412,7 @@ public class ReflectTest {
 		Assert.no(Reflect.assignable(Number.class, Boolean.class));
 		Assert.yes(Reflect.assignable(Number.class, Long.class));
 	}
-	
+
 	@Test
 	public void testAssignableFromAny() {
 		Assert.no(Reflect.assignableFromAny(null));
@@ -481,13 +480,6 @@ public class ReflectTest {
 	public void testCreateObjectDefault() {
 		Assert.equal(Reflect.create(String.class), "");
 		Assert.equal(Reflect.create(Boolean.class), null);
-	}
-
-	@Test
-	public void testJvmArgs() {
-		Pattern p = Pattern.compile("-.+");
-		for (var arg : Reflect.jvmArgs())
-			Assert.match(arg, p);
 	}
 
 	@Test

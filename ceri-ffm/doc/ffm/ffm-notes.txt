@@ -285,9 +285,8 @@ SegmentAllocator:
 Arena:
 - extends SegmentAllocator
 - determines lifecycle and thread access of memory segments
-- global: never deallocated, available to any thread (close() => exception)
+- global: not deallocated, available to any thread (close() => exception)
 - auto: managed by gc, available to any thread (close() => exception)
-  - segments deallocated after arena is unreachable
 - confined: manually closed, available to single thread
 - shared: manually closed, available to any thread
 - custom: implement interface as needed

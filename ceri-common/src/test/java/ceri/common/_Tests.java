@@ -286,6 +286,7 @@ import ceri.common.test.Testing;
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
+	ceri.common.util.JvmTest.class, //
 	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocalesTest.class, //
 	ceri.common.util.OsTest.class, //

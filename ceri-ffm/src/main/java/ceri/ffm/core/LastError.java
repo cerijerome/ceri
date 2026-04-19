@@ -102,7 +102,7 @@ public class LastError {
 
 	private static String strerror(int code) throws Throwable {
 		var m = (MemorySegment) STRERROR.invokeExact(code);
-		m = Memory.reslice(m, 0L, STRERROR_MAX);
+		m = Segments.reslice(m, 0L, STRERROR_MAX);
 		return StringType.DEFAULT.get(m, true);
 	}
 }

@@ -23,7 +23,7 @@ import ceri.common.reflect.Reflect;
 import ceri.common.util.Counter;
 import ceri.common.util.Truth;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 
 /**
  * Operational support for Buffers.
@@ -107,7 +107,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * to determine read-only buffers.
 	 */
 	public static Truth canWrap(MemorySegment memory) {
-		if (Memory.isNull(memory)) return Truth.no;
+		if (Segments.isNull(memory)) return Truth.no;
 		if (memory.isNative()) return Truth.yes;
 		var array = memory.heapBase().orElse(null);
 		if (array == null && memory.isReadOnly()) return Truth.maybe; // read-only returns null
@@ -118,7 +118,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * Wraps the segment as a byte buffer with natural byte order.
 	 */
 	public static ByteBuffer asByte(MemorySegment memory) {
-		if (Memory.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return null;
 		return memory.asByteBuffer().order(ByteOrder.nativeOrder());
 	}
 
@@ -292,7 +292,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-termination. Fails if the length is larger than int.
 	 */
 	public B get(MemorySegment memory, long offset, long length, boolean nul) {
-		if (Memory.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return null;
 		var array = primitive.getArray(memory, offset, length, nul);
 		return buffers.of(array, 0);
 	}
@@ -322,7 +322,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 */
 	public int read(MemorySegment memory, long offset, long length, B buffer, int count,
 		boolean nul) {
-		if (buffer == null || Memory.isNull(memory)) return 0;
+		if (buffer == null || Segments.isNull(memory)) return 0;
 		if (nul) return read(slice(memory, offset, length, nul), 0L, Long.MAX_VALUE, buffer, count,
 			false);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
@@ -387,7 +387,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 */
 	public int write(B buffer, int count, MemorySegment memory, long offset, long length,
 		boolean nul) {
-		if (buffer == null || Memory.isNull(memory)) return 0;
+		if (buffer == null || Segments.isNull(memory)) return 0;
 		count = Maths.limit(count, 0, buffer.remaining()) + (nul ? 1 : 0);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
@@ -547,7 +547,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 */
 	public int deepRead(MemorySegment memory, long offset, long length, Object t, int count,
 		boolean nul) {
-		if (Memory.isNull(memory) || dimsOf(t) < 0) return 0;
+		if (Segments.isNull(memory) || dimsOf(t) < 0) return 0;
 		return rawDeepRead(memory, offset, length, t, count, nul);
 	}
 
@@ -575,7 +575,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * the array type is not supported.
 	 */
 	public int deepWrite(Object t, MemorySegment memory, long offset, long length, boolean nul) {
-		if (Memory.isNull(memory) || dimsOf(t) < 0) return 0;
+		if (Segments.isNull(memory) || dimsOf(t) < 0) return 0;
 		return rawDeepWrite(t, memory, offset, length, nul);
 	}
 

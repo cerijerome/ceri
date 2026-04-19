@@ -160,6 +160,13 @@ public class Lists {
 	// access
 
 	/**
+	 * Returns true if the list has an element at the given index.
+	 */
+	public static boolean in(List<?> list, int index) {
+		return list != null && !list.isEmpty() && index >= 0 && index < list.size();
+	}
+
+	/**
 	 * Gets the element at index, or null.
 	 */
 	public static <T> T at(List<? extends T> list, int index) {
@@ -170,8 +177,7 @@ public class Lists {
 	 * Gets the element at index, or default.
 	 */
 	public static <T> T at(List<? extends T> list, int index, T def) {
-		if (list == null || index < 0 || list.isEmpty() || index >= list.size()) return def;
-		return list.get(index);
+		return in(list, index) ? list.get(index) : def;
 	}
 
 	/**

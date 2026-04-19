@@ -13,7 +13,7 @@ import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
 import ceri.common.util.Counter;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Memory;
+import ceri.ffm.core.Segments;
 
 /**
  * Operational support for types and arrays with fixed-size layouts.
@@ -81,7 +81,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		public T[] arrayVal(int count) {
 			var array = array(count);
 			for (int i = 0; i < count; i++)
-				array[i] = val();
+				array[i] = init();
 			return array;
 		}
 	}
@@ -127,12 +127,19 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	public abstract Support<T, A, L> with(String name, long align, ByteOrder order);
 
 	/**
-	 * Returns a default value for the type.
+	 * Returns a default value for the type. Sub-fields are not initialized.
 	 */
 	public abstract T val();
 
 	/**
-	 * Initializes the given value. Returns a default value if null.
+	 * Initializes a default instance and any sub-fields.
+	 */
+	public T init() {
+		return init(null);
+	}
+
+	/**
+	 * Initializes the given value and any sub-fields. Returns a default value if null.
 	 */
 	public T init(T value) {
 		return value != null ? value : val();
@@ -178,7 +185,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	public T get(MemorySegment memory, long offset, long length) {
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
-		return length < size(1) ? val() : rawGet(memory, offset);
+		return length < size(1) ? init() : rawGet(memory, offset);
 	}
 
 	/**
@@ -200,7 +207,6 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public T update(MemorySegment memory, long offset, long length, T value) {
 		if (immutable() || value == null) return get(memory, offset, length);
-		value = val();
 		read(memory, offset, length, value);
 		return value;
 	}
@@ -223,7 +229,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Updates the value from memory. Returns false if unable to read.
 	 */
 	public boolean read(MemorySegment memory, long offset, long length, T value) {
-		if (immutable()) return false;
+		if (immutable() || value == null) return false;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		if (length < size(1)) return false;
@@ -338,7 +344,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * bounds. Returns null if nul-termination is specified but not found.
 	 */
 	public A getArray(MemorySegment memory, long offset, long length, boolean nul) {
-		if (Memory.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return null;
 		if (nul) return getArray(slice(memory, offset, length, nul), false);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
@@ -370,7 +376,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public int readArray(MemorySegment memory, long offset, long length, A array, int index,
 		int count, boolean nul) {
-		if (array == null || Memory.isNull(memory)) return 0;
+		if (array == null || Segments.isNull(memory)) return 0;
 		if (nul) return readArray(slice(memory, offset, length, nul), 0L, Long.MAX_VALUE, array,
 			index, count, false);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
@@ -404,7 +410,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public int writeArray(A array, int index, int count, MemorySegment memory, long offset,
 		long length, boolean nul) {
-		if (array == null || Memory.isNull(memory)) return 0;
+		if (array == null || Segments.isNull(memory)) return 0;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index) + (nul ? 1 : 0);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
@@ -456,7 +462,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Initializes missing multi-dimensional array leaf values with default values.
 	 */
 	public Object deepInit(Object t) {
-		return RawArray.deepReplace(t, this::init);
+		return RawArray.<T, Object>deepReplace(t, this::init);
 	}
 
 	/**
@@ -503,7 +509,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public <U> U deepGet(MemorySegment memory, long offset, long length, Dimensions dims,
 		boolean nul) {
-		if (Memory.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return null;
 		if (dims == null) dims = Dimensions.NONE;
 		return Reflect.unchecked(rawDeepGet(memory, offset, length, dims, nul));
 	}
@@ -529,7 +535,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * number of values copied. Returns 0 if the array type is not supported.
 	 */
 	public int deepRead(MemorySegment memory, long offset, long length, Object t, boolean nul) {
-		if (Memory.isNull(memory)) return 0;
+		if (Segments.isNull(memory)) return 0;
 		return rawDeepRead(memory, offset, length, t, dimsOf(t), nul);
 	}
 
@@ -557,7 +563,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * is not supported.
 	 */
 	public int deepWrite(Object t, MemorySegment memory, long offset, long length, boolean nul) {
-		if (Memory.isNull(memory)) return 0;
+		if (Segments.isNull(memory)) return 0;
 		return rawDeepWrite(t, dimsOf(t), memory, offset, length, nul);
 	}
 
@@ -617,7 +623,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		int n = readArray(memory, offset, array, 0, false);
 		int count = RawArray.length(array);
 		for (int i = n; i < count; i++)
-			RawArray.set(array, i, val());
+			RawArray.set(array, i, init());
 		return n;
 	}
 

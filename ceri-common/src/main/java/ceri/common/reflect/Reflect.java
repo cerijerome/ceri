@@ -2,7 +2,6 @@ package ceri.common.reflect;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -43,6 +42,8 @@ public class Reflect {
 		Set.of(byte.class, short.class, int.class, long.class);
 	public static final Set<Class<?>> BOXED = Set.of(Boolean.class, Character.class, Byte.class,
 		Short.class, Integer.class, Long.class, Float.class, Double.class);
+	public static final Set<Class<?>> INTS = Set.of(byte.class, short.class, int.class, long.class,
+		Byte.class, Short.class, Integer.class, Long.class);
 	public static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
@@ -694,13 +695,6 @@ public class Reflect {
 	 */
 	public static <T> Optional<T> castOptional(Class<T> cls, Object obj) {
 		return Optional.ofNullable(castOrNull(cls, obj));
-	}
-
-	/**
-	 * Return the current list of JVM arguments.
-	 */
-	public static List<String> jvmArgs() {
-		return ManagementFactory.getRuntimeMXBean().getInputArguments();
 	}
 
 	/**
