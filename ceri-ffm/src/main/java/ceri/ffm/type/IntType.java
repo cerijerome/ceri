@@ -34,7 +34,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	@Size(type = "long")
 	public static class CLong extends IntType<CLong> {
-		public static final Support<CLong> TYPE = support(CLong.class);
+		public static final Support<CLong> $ = support(CLong.class);
 
 		public CLong(Number value) {
 			super(value);
@@ -47,7 +47,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	@Unsigned
 	@Size(type = "long")
 	public static class CUlong extends IntType<CUlong> {
-		public static final Support<CUlong> TYPE = support(CUlong.class);
+		public static final Support<CUlong> $ = support(CUlong.class);
 
 		public CUlong(Number value) {
 			super(value);
@@ -60,7 +60,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	@Unsigned
 	@Size(type = "size_t")
 	public static class size_t extends IntType<size_t> {
-		public static final Support<size_t> TYPE = support(size_t.class);
+		public static final Support<size_t> $ = support(size_t.class);
 
 		public size_t(Number value) {
 			super(value);
@@ -72,7 +72,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	@Size(type = "size_t")
 	public static class ssize_t extends IntType<ssize_t> {
-		public static final Support<ssize_t> TYPE = support(ssize_t.class);
+		public static final Support<ssize_t> $ = support(ssize_t.class);
 
 		public ssize_t(Number value) {
 			super(value);
@@ -84,9 +84,9 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	@Size(type = "wchar_t")
 	public static class wchar_t extends IntType<wchar_t> {
-		public static final Support<wchar_t> TYPE = support(wchar_t.class);
+		public static final Support<wchar_t> $ = support(wchar_t.class);
 		public static final wchar_t TERM = new wchar_t(0);
-		public static final Charset CHARSET = charset(TYPE.spec().size());
+		public static final Charset CHARSET = charset($.spec().size());
 
 		public wchar_t(Number value) {
 			super(value);
@@ -251,7 +251,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		@SafeVarargs
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			Number... array) {
-			return writeArray(ofAll(array), 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, ofAll(array), 0, Integer.MAX_VALUE, nul);
 		}
 
 		@Override
@@ -260,8 +260,8 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
-		void rawWrite(T value, MemorySegment memory, long offset) {
-			boxed.write(Reflect.unchecked(init(value).nativeValue()), memory);
+		void rawWrite(MemorySegment memory, long offset, T value) {
+			boxed.write(memory, Reflect.unchecked(init(value).nativeValue()));
 		}
 	}
 
@@ -400,8 +400,12 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 
 	// support
 
+	private T typedThis() {
+		return Reflect.unchecked(this);
+	}
+	
 	private T create(Number n) {
-		if (Objects.equals(nativeValue, n)) return Reflect.unchecked(this);
+		if (Objects.equals(nativeValue, n)) return typedThis();
 		return of(Reflect.unchecked(getClass()), n);
 	}
 

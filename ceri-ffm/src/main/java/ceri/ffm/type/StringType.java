@@ -53,7 +53,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		var a = new String[][] { { "abcde", "fgh", "" }, { "ij" }, {}, { "k", null } };
 		System.out.println(RawArray.toString(a));
 		var m = ss.deepAlloc(Segments.auto(), a, true);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		a = ss.deepGet(m, Dimensions.from(a), 8, true);
 		System.out.println(RawArray.toString(a));
 	}
@@ -123,7 +123,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		if (allocator == null || s == null) return null;
 		var buffer = Chars.encode(charset, Buffers.CHAR.of(s, index, count));
 		var memory = allocator.allocate(buffer.limit() + termSize(nul));
-		int n = BufferType.BYTE.write(buffer, memory, false);
+		int n = BufferType.BYTE.write(memory, buffer, false);
 		if (nul) term().set(memory, n);
 		return memory;
 	}
@@ -158,29 +158,29 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 * Copies encoded chars to memory within bounds and optional nul-termination. Returns the number
 	 * of bytes written, including nul-terminator.
 	 */
-	public int write(CharSequence s, MemorySegment memory, boolean nul) {
-		return write(s, 0, memory, 0L, nul);
+	public int write(MemorySegment memory, CharSequence s, boolean nul) {
+		return write(memory, 0L, s, 0, nul);
 	}
 
 	/**
 	 * Copies encoded chars to memory within bounds and optional nul-termination. Returns the number
 	 * of bytes written, including nul-terminator.
 	 */
-	public int write(CharSequence s, int index, MemorySegment memory, long offset, boolean nul) {
-		return write(s, index, Integer.MAX_VALUE, memory, offset, Integer.MAX_VALUE, nul);
+	public int write(MemorySegment memory, long offset, CharSequence s, int index, boolean nul) {
+		return write(memory, offset, Integer.MAX_VALUE, s, index, Integer.MAX_VALUE, nul);
 	}
 
 	/**
 	 * Copies encoded chars to memory within bounds and optional nul-termination. Returns the number
 	 * of bytes written, including nul-terminator.
 	 */
-	public int write(CharSequence s, int index, int count, MemorySegment memory, long offset,
-		long length, boolean nul) {
+	public int write(MemorySegment memory, long offset, long length, CharSequence s, int index,
+		int count, boolean nul) {
 		if (s == null || Segments.isNull(memory)) return 0;
 		var chars = Buffers.CHAR.of(s, index, count);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
-		return rawEncode(chars, memory, offset, length, nul);
+		return rawEncode(memory, offset, length, chars, nul);
 	}
 
 	/**
@@ -263,8 +263,8 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 * Returns the number of bytes processed. Returns 0 if the array type is not supported, or the
 	 * object is not an array.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, boolean nul) {
-		return deepWrite(t, memory, 0L, nul);
+	public int deepWrite(MemorySegment memory, Object t, boolean nul) {
+		return deepWrite(memory, 0L, t, nul);
 	}
 
 	/**
@@ -272,8 +272,8 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 * Returns the number of bytes processed. Returns 0 if the array type is not supported, or the
 	 * object is not an array.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, long offset, boolean nul) {
-		return deepWrite(t, memory, offset, Long.MAX_VALUE, nul);
+	public int deepWrite(MemorySegment memory, long offset, Object t, boolean nul) {
+		return deepWrite(memory, offset, Long.MAX_VALUE, t, nul);
 	}
 
 	/**
@@ -281,10 +281,10 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 * Returns the number of bytes processed. Returns 0 if the array type is not supported, or the
 	 * object is not an array.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, long offset, long length, boolean nul) {
+	public int deepWrite(MemorySegment memory, long offset, long length, Object t, boolean nul) {
 		memory = slice(memory, offset, length, false);
 		if (memory == null || dimsOf(t) < 0) return 0;
-		return rawDeepWrite(t, memory, nul);
+		return rawDeepWrite(memory, t, nul);
 	}
 
 	// support
@@ -295,11 +295,11 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		var memory = allocator.allocate(length);
 		var offset = 0L;
 		for (var buffer : buffers)
-			offset += rawWrite(buffer, memory, offset, nul);
+			offset += rawWrite(memory, offset, buffer, nul);
 		return memory;
 	}
 
-	private int rawEncode(CharBuffer chars, MemorySegment memory, long offset, long length,
+	private int rawEncode(MemorySegment memory, long offset, long length, CharBuffer chars,
 		boolean nul) {
 		var bytes = BufferType.BYTE.asBuffer(memory, offset, length - termSize(nul), false);
 		int n = Chars.encode(charset, chars, bytes);
@@ -307,8 +307,8 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		return n;
 	}
 
-	private int rawWrite(ByteBuffer buffer, MemorySegment memory, long offset, boolean nul) {
-		int n = BufferType.BYTE.write(buffer, memory, offset, false);
+	private int rawWrite(MemorySegment memory, long offset, ByteBuffer buffer, boolean nul) {
+		int n = BufferType.BYTE.write(memory, offset, buffer, false);
 		if (nul) n += term.set(memory, offset + n);
 		return n;
 	}
@@ -325,12 +325,12 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		return Math.toIntExact(offset.get());
 	}
 
-	private int rawDeepWrite(Object t, MemorySegment memory, boolean nul) {
+	private int rawDeepWrite(MemorySegment memory, Object t, boolean nul) {
 		var offset = Counter.of(0L);
 		RawArray.<CharSequence>deepForEach(t, s -> {
 			long length = memory.byteSize() - offset.get();
 			if (length <= 0L) return;
-			int n = rawEncode(Buffers.CHAR.of(s), memory, offset.get(), length, nul);
+			int n = rawEncode(memory, offset.get(), length, Buffers.CHAR.of(s), nul);
 			offset.inc(n);
 		});
 		return Math.toIntExact(offset.get());

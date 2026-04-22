@@ -1,7 +1,7 @@
 package ceri.ffm.util;
 
 import java.lang.foreign.MemorySegment;
-import java.nio.ByteBuffer;
+import java.nio.Buffer;
 import java.util.List;
 import java.util.Set;
 import ceri.common.array.RawArray;
@@ -9,12 +9,14 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Iterators;
 import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
+import ceri.common.io.Buffers;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Segments;
+import ceri.ffm.type.Group;
 import ceri.ffm.type.IntType;
 
 /**
@@ -22,6 +24,7 @@ import ceri.ffm.type.IntType;
  */
 public class Args {
 	public static Args DEFAULT = builder().addDefault(true).build();
+	public static Args FULL = builder().addDefault(false).build();
 	private static final int DEC_LIMIT = 9;
 	private final List<Functions.Function<Object, String>> transforms;
 	private final Joiner arrayJoiner;
@@ -55,24 +58,24 @@ public class Args {
 	public static String stringInt(Number n, int hexMin, int hexMax) {
 		long l = n.longValue();
 		if (l >= hexMin && l <= hexMax) return String.valueOf(n);
-		//if (n instanceof IntegerType) n = l;
+		// if (n instanceof IntegerType) n = l;
 		return String.format("%1$d|0x%1$x", n);
 	}
 
 	/**
 	 * Structure to compact string.
 	 */
-//	public static String string(Structure t) {
-//		return Struct.compactString(t);
-//	}
+	public static String compact(Group<?> t) {
+		return Reflect.nestedName(t.getClass()) + "{}";
+	}
 
 	/**
 	 * Pointer to compact string.
 	 */
-//	public static String string(Pointer p) {
-//		if (p instanceof Memory m) return string(m);
-//		return String.format("@%x", Pointer.nativeValue(p));
-//	}
+	// public static String string(Pointer p) {
+	// if (p instanceof Memory m) return string(m);
+	// return String.format("@%x", Pointer.nativeValue(p));
+	// }
 
 	/**
 	 * Memory to compact string.
@@ -84,25 +87,25 @@ public class Args {
 	/**
 	 * Memory to compact string.
 	 */
-//	public static String string(PointerType p) {
-//		return String.format("%s(%s)", Reflect.nestedName(p.getClass()),
-//			string(p.getPointer()));
-//	}
+	// public static String string(PointerType p) {
+	// return String.format("%s(%s)", Reflect.nestedName(p.getClass()),
+	// string(p.getPointer()));
+	// }
 
 	/**
 	 * Callback to compact string.
 	 */
-//	public static String string(Callback cb) {
-//		String s = String.valueOf(cb);
-//		return s.substring(s.lastIndexOf(".") + 1);
-//	}
+	// public static String string(Callback cb) {
+	// String s = String.valueOf(cb);
+	// return s.substring(s.lastIndexOf(".") + 1);
+	// }
 
 	/**
 	 * Byte buffer to compact string.
 	 */
-	public static String string(ByteBuffer b) {
-		return String.format("%s(p=%d,l=%d,c=%d)", Reflect.nestedName(b.getClass()),
-			b.position(), b.limit(), b.capacity());
+	public static String string(Buffer b) {
+		return String.format("%s(%d-%d/%d)", Buffers.baseType(b).getSimpleName(), b.position(),
+			b.limit(), b.capacity());
 	}
 
 	/**
@@ -117,16 +120,16 @@ public class Args {
 		/**
 		 * Adds default transforms.
 		 */
-		public Builder addDefault(boolean compactStruct) {
-			//if (compactStruct) add(Structure.class, Args::string);
-			return add(String.class, Chars::escape) //
+		public Builder addDefault(boolean compactGroup) {
+			if (compactGroup) add(Group.class, Args::compact);
+			return add(CharSequence.class, Chars::escape) //
 				.add(matchInt(), n -> stringInt(n)) //
 				.add(IntType.class, n -> stringInt(n.nativeValue())) //
-				//.add(Pointer.class, Args::string) //
+				// .add(Pointer.class, Args::string) //
 				.add(MemorySegment.class, Args::string) //
-				//.add(PointerType.class, Args::string) //
-				//.add(Callback.class, Args::string) //
-				.add(ByteBuffer.class, Args::string);
+				// .add(PointerType.class, Args::string) //
+				// .add(Callback.class, Args::string) //
+				.add(Buffer.class, Args::string);
 		}
 
 		/**

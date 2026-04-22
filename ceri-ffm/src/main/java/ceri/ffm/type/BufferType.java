@@ -48,21 +48,6 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	private final Buffers<B, A> buffers;
 	private final Primitive<T, A, L> primitive;
 
-	public static void main(String[] args) {
-		var b0 = ByteBuffer.allocateDirect(32);
-		var b1 = ByteBuffer.allocate(32);
-		var b2 = b0.order(ByteOrder.nativeOrder()).asCharBuffer();
-		System.out.println(b0.isDirect());
-		System.out.println(b1.isDirect());
-		System.out.println(b2.isDirect());
-		var m0 = MemorySegment.ofBuffer(b0);
-		var m1 = MemorySegment.ofBuffer(b1);
-		var m2 = MemorySegment.ofBuffer(b2);
-		System.out.println(m0.isNative());
-		System.out.println(m1.isNative());
-		System.out.println(m2.isNative());
-	}
-
 	/**
 	 * Interface to provide a buffer from a memory segment, such as wrapping or copying.
 	 */
@@ -240,7 +225,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		if (allocator == null || buffer == null) return MemorySegment.NULL;
 		count = Maths.limit(count, 0, buffer.remaining());
 		var memory = allocator.allocate(size(count + (nul ? 1 : 0)));
-		rawWrite(buffer, memory, 0L, count);
+		rawWrite(memory, 0L, buffer, count);
 		if (nul) term().set(memory, size(count));
 		return memory;
 	}
@@ -367,8 +352,8 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * and within bounds. Returns the number of values copied, including nul-terminator. The buffer
 	 * position is updated after copying.
 	 */
-	public int write(B buffer, MemorySegment memory, boolean nul) {
-		return write(buffer, memory, 0L, nul);
+	public int write(MemorySegment memory, B buffer, boolean nul) {
+		return write(memory, 0L, buffer, nul);
 	}
 
 	/**
@@ -376,8 +361,8 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * and within bounds. Returns the number of values copied, including nul-terminator. The buffer
 	 * position is updated after copying.
 	 */
-	public int write(B buffer, MemorySegment memory, long offset, boolean nul) {
-		return write(buffer, Integer.MAX_VALUE, memory, offset, Long.MAX_VALUE, nul);
+	public int write(MemorySegment memory, long offset, B buffer, boolean nul) {
+		return write(memory, offset, Long.MAX_VALUE, buffer, Integer.MAX_VALUE, nul);
 	}
 
 	/**
@@ -385,15 +370,15 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * and within bounds. Returns the number of values copied, including nul-terminator. The buffer
 	 * position is updated after copying.
 	 */
-	public int write(B buffer, int count, MemorySegment memory, long offset, long length,
+	public int write(MemorySegment memory, long offset, long length, B buffer, int count,
 		boolean nul) {
 		if (buffer == null || Segments.isNull(memory)) return 0;
 		count = Maths.limit(count, 0, buffer.remaining()) + (nul ? 1 : 0);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		count = (int) Math.min(count, count(length));
-		if (!nul && count > 0) rawWrite(buffer, memory, offset, count);
-		if (nul && count > 1) rawWrite(buffer, memory, offset, count - 1);
+		if (!nul && count > 0) rawWrite(memory, offset, buffer, count);
+		if (nul && count > 1) rawWrite(memory, offset, buffer, count - 1);
 		if (nul && count > 0) term().set(memory, offset + size(count - 1));
 		return count;
 	}
@@ -403,8 +388,8 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * within bounds. Returns the number of values copied, including nul-terminator. The buffer
 	 * position is updated after copying.
 	 */
-	public int writeAt(B buffer, MemorySegment memory, boolean nul) {
-		return writeAt(buffer, 0, memory, 0L, nul);
+	public int writeAt(MemorySegment memory, B buffer, boolean nul) {
+		return writeAt(memory, 0L, buffer, 0, nul);
 	}
 
 	/**
@@ -412,8 +397,8 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * within bounds. Returns the number of values copied, including nul-terminator. The buffer
 	 * position is updated after copying.
 	 */
-	public int writeAt(B buffer, int position, MemorySegment memory, long offset, boolean nul) {
-		return writeAt(buffer, position, Integer.MAX_VALUE, memory, offset, Long.MAX_VALUE, nul);
+	public int writeAt(MemorySegment memory, long offset, B buffer, int position, boolean nul) {
+		return writeAt(memory, offset, Long.MAX_VALUE, buffer, position, Integer.MAX_VALUE, nul);
 	}
 
 	/**
@@ -421,10 +406,10 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * within bounds. Returns the number of values copied, including nul-terminator. The buffer
 	 * position is updated after copying.
 	 */
-	public int writeAt(B buffer, int position, int count, MemorySegment memory, long offset,
-		long length, boolean nul) {
+	public int writeAt(MemorySegment memory, long offset, long length, B buffer, int position,
+		int count, boolean nul) {
 		Buffers.position(buffer, position);
-		return write(buffer, count, memory, offset, length, nul);
+		return write(memory, offset, length, buffer, count, nul);
 	}
 
 	/**
@@ -492,7 +477,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		int dims = dimsOf(t);
 		if (allocator == null || dims < 0) return null;
 		var memory = allocator.allocate(rawDeepSize(t, dims, nul));
-		rawDeepWrite(t, memory, 0L, Long.MAX_VALUE, nul);
+		rawDeepWrite(memory, 0L, Long.MAX_VALUE, t, nul);
 		return memory;
 	}
 
@@ -556,8 +541,8 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-terminators. Returns the number of values copied, including nul-terminators. Returns 0 if
 	 * the array type is not supported.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, boolean nul) {
-		return deepWrite(t, memory, 0L, nul);
+	public int deepWrite(MemorySegment memory, Object t, boolean nul) {
+		return deepWrite(memory, 0L, t, nul);
 	}
 
 	/**
@@ -565,8 +550,8 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-terminators. Returns the number of values copied, including nul-terminators. Returns 0 if
 	 * the array type is not supported.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, long offset, boolean nul) {
-		return deepWrite(t, memory, offset, Long.MAX_VALUE, nul);
+	public int deepWrite(MemorySegment memory, long offset, Object t, boolean nul) {
+		return deepWrite(memory, offset, Long.MAX_VALUE, t, nul);
 	}
 
 	/**
@@ -574,9 +559,9 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-terminators. Returns the number of values copied, including nul-terminators. Returns 0 if
 	 * the array type is not supported.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, long offset, long length, boolean nul) {
+	public int deepWrite(MemorySegment memory, long offset, long length, Object t, boolean nul) {
 		if (Segments.isNull(memory) || dimsOf(t) < 0) return 0;
-		return rawDeepWrite(t, memory, offset, length, nul);
+		return rawDeepWrite(memory, offset, length, t, nul);
 	}
 
 	// support
@@ -594,7 +579,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		buffers.copy(wrapped, buffer);
 	}
 
-	private void rawWrite(B buffer, MemorySegment memory, long offset, int count) {
+	private void rawWrite(MemorySegment memory, long offset, B buffer, int count) {
 		var wrapped = asBuffer(memory, offset, size(count), false);
 		buffers.copy(buffer, wrapped);
 	}
@@ -624,10 +609,10 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		return countInt(total);
 	}
 
-	private int rawDeepWrite(Object t, MemorySegment memory, long offset, long length,
+	private int rawDeepWrite(MemorySegment memory, long offset, long length, Object t,
 		boolean nul) {
 		long total = MultiArray.<B>iterate(t, memory, offset, length,
-			(b, m, o) -> size(write(b, m, o, nul)));
+			(b, m, o) -> size(write(m, o, b, nul)));
 		return countInt(total);
 	}
 

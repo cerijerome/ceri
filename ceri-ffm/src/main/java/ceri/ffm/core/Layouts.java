@@ -240,6 +240,17 @@ public class Layouts {
 	}
 
 	/**
+	 * Returns a simple string descriptor for the layout.
+	 */
+	public static String desc(MemoryLayout layout) {
+		if (layout == null) return Strings.NULL;
+		var name = layout.name().orElse(null);
+		if (name == null)
+			return String.format("0x%x/%d", layout.byteSize(), layout.byteAlignment());
+		return String.format("%s/0x%x/%d", name, layout.byteSize(), layout.byteAlignment());
+	}
+
+	/**
 	 * Copies byte alignment and order from one layout to another.
 	 */
 	public static <L extends ValueLayout> L copy(L layout, ValueLayout from) {
@@ -271,7 +282,7 @@ public class Layouts {
 		if (offset == 0 || offset % align == 0) return 0;
 		return align - (offset % align);
 	}
-	
+
 	/**
 	 * Calculates the padding required from the offset for the layout byte alignment.
 	 */
@@ -279,7 +290,7 @@ public class Layouts {
 		if (layout == null) return 0L;
 		return padding(offset, layout.byteAlignment());
 	}
-	
+
 	/**
 	 * Sets layout byte order if value is non-null and layout is a value layout.
 	 */

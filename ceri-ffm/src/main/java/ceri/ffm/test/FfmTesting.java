@@ -5,6 +5,7 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.util.List;
+import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
 import ceri.common.data.Bytes;
 import ceri.common.reflect.Reflect;
@@ -141,24 +142,31 @@ public class FfmTesting {
 	}
 
 	/**
+	 * Prints the object.
+	 */
+	public static void out(Object obj) {
+		P.message(RawArray.toString(obj));
+	}
+
+	/**
 	 * Prints the binary contents of the memory segments.
 	 */
-	public static void print(MemorySegment... ms) {
+	public static void bin(MemorySegment... ms) {
 		for (var m : ms)
-			print(m, 0);
+			bin(m, 0);
 	}
 
 	/**
 	 * Prints the binary contents of the memory segment range.
 	 */
-	public static void print(MemorySegment m, long offset) {
-		print(m, offset, Long.MAX_VALUE);
+	public static void bin(MemorySegment m, long offset) {
+		bin(m, offset, Long.MAX_VALUE);
 	}
 
 	/**
 	 * Prints the binary contents of the memory segment range.
 	 */
-	public static void print(MemorySegment m, long offset, long length) {
+	public static void bin(MemorySegment m, long offset, long length) {
 		P.message(m);
 		m = Segments.slice(m, offset, length);
 		if (m != null) P.print(m.toArray(Layouts.BYTE));

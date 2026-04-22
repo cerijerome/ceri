@@ -21,7 +21,21 @@ public class Segments {
 	private Segments() {}
 
 	/**
-	 * An arena that can be closed or garbage collected.
+	 * Accepts bounded offsets and lengths.
+	 */
+	public interface BiSliceConsumer<E extends Exception> {
+		void accept(long lOffset, long lLength, long rOffset, long rLength) throws E;
+	}
+
+	/**
+	 * Applies bounded offsets and lengths.
+	 */
+	public interface BiSliceFunction<E extends Exception, T> {
+		T apply(long lOffset, long lLength, long rOffset, long rLength) throws E;
+	}
+
+	/**
+	 * An arena wrapper that can be closed or garbage collected.
 	 */
 	public static class Auto implements Arena, Functions.Closeable {
 		private final java.lang.foreign.Arena arena;
@@ -61,20 +75,6 @@ public class Segments {
 	 */
 	public static SegmentAllocator auto() {
 		return Arena.ofAuto();
-	}
-
-	/**
-	 * Accepts bounded offsets and lengths.
-	 */
-	public interface BiSliceConsumer<E extends Exception> {
-		void accept(long lOffset, long lLength, long rOffset, long rLength) throws E;
-	}
-
-	/**
-	 * Applies bounded offsets and lengths.
-	 */
-	public interface BiSliceFunction<E extends Exception, T> {
-		T apply(long lOffset, long lLength, long rOffset, long rLength) throws E;
 	}
 
 	/**

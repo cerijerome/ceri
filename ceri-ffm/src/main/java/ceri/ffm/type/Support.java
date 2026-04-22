@@ -74,12 +74,12 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		@SafeVarargs
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			T... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		@Override
-		public T[] arrayVal(int count) {
-			var array = array(count);
+		public T[] arrayInit(int count) {
+			var array = arrayVal(count);
 			for (int i = 0; i < count; i++)
 				array[i] = init();
 			return array;
@@ -158,7 +158,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public MemorySegment alloc(SegmentAllocator allocator, T value) {
 		var memory = alloc(allocator);
-		if (memory != null && value != null) rawWrite(value, memory, 0L);
+		if (memory != null && value != null) rawWrite(memory, 0L, value);
 		return memory;
 	}
 
@@ -229,7 +229,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Updates the value from memory. Returns false if unable to read.
 	 */
 	public boolean read(MemorySegment memory, long offset, long length, T value) {
-		if (immutable() || value == null) return false;
+		if (immutable() || memory == null || value == null) return false;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		if (length < size(1)) return false;
@@ -241,42 +241,43 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Writes the value to memory and returns true. Returns false if the memory segment is smaller
 	 * than the layout.
 	 */
-	public boolean write(T value, MemorySegment memory) {
-		return write(value, memory, 0L);
+	public boolean write(MemorySegment memory, T value) {
+		return write(memory, 0L, value);
 	}
 
 	/**
 	 * Writes the value to memory and returns true. Returns false if the memory segment is smaller
 	 * than the layout.
 	 */
-	public boolean write(T value, MemorySegment memory, long offset) {
-		return write(value, memory, offset, Long.MAX_VALUE);
+	public boolean write(MemorySegment memory, long offset, T value) {
+		return write(memory, offset, Long.MAX_VALUE, value);
 	}
 
 	/**
 	 * Writes the value to memory and returns true. Returns false if the memory segment is smaller
 	 * than the layout.
 	 */
-	public boolean write(T value, MemorySegment memory, long offset, long length) {
+	public boolean write(MemorySegment memory, long offset, long length, T value) {
+		if (value == null || memory == null) return false;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		if (length < size(1)) return false;
-		rawWrite(value, memory, offset);
+		rawWrite(memory, offset, value);
 		return true;
 	}
 
 	/**
 	 * Creates an empty array instance.
 	 */
-	public A array(int count) {
+	public A arrayVal(int count) {
 		return RawArray.ofType(type(), count);
 	}
 
 	/**
 	 * Creates an array instance populated with default values.
 	 */
-	public A arrayVal(int count) {
-		return arrayInit(array(count));
+	public A arrayInit(int count) {
+		return arrayInit(arrayVal(count));
 	}
 
 	/**
@@ -318,7 +319,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index);
 		var memory = allocator.allocate(size(count + (nul ? 1 : 0)));
-		rawWriteArray(array, 0, memory, 0L, count);
+		rawWriteArray(memory, 0L, array, 0, count);
 		if (nul) term().set(memory, size(count));
 		return memory;
 	}
@@ -349,7 +350,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		int count = countInt(length);
-		var array = array(count);
+		var array = arrayVal(count);
 		rawReadArray(memory, offset, array, 0, count);
 		return array;
 	}
@@ -392,32 +393,32 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Copies values from the array to memory with optional nul-termination, and within bounds.
 	 * Returns the number of values copied, including nul-terminator.
 	 */
-	public int writeArray(A array, MemorySegment memory, boolean nul) {
-		return writeArray(array, 0, memory, 0L, nul);
+	public int writeArray(MemorySegment memory, A array, boolean nul) {
+		return writeArray(memory, 0L, array, 0, nul);
 	}
 
 	/**
 	 * Copies values from the array to memory with optional nul-termination, and within bounds.
 	 * Returns the number of values copied, including nul-terminator.
 	 */
-	public int writeArray(A array, int index, MemorySegment memory, long offset, boolean nul) {
-		return writeArray(array, index, Integer.MAX_VALUE, memory, offset, Long.MAX_VALUE, nul);
+	public int writeArray(MemorySegment memory, long offset, A array, int index, boolean nul) {
+		return writeArray(memory, offset, Long.MAX_VALUE, array, index, Integer.MAX_VALUE, nul);
 	}
 
 	/**
 	 * Copies values from the array to memory with optional nul-termination, and within bounds.
 	 * Returns the number of values copied, including nul-terminator.
 	 */
-	public int writeArray(A array, int index, int count, MemorySegment memory, long offset,
-		long length, boolean nul) {
+	public int writeArray(MemorySegment memory, long offset, long length, A array, int index,
+		int count, boolean nul) {
 		if (array == null || Segments.isNull(memory)) return 0;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index) + (nul ? 1 : 0);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		count = (int) Math.min(count, count(length));
-		if (!nul && count > 0) rawWriteArray(array, index, memory, offset, count);
-		if (nul && count > 1) rawWriteArray(array, index, memory, offset, count - 1);
+		if (!nul && count > 0) rawWriteArray(memory, offset, array, index, count);
+		if (nul && count > 1) rawWriteArray(memory, offset, array, index, count - 1);
 		if (nul && count > 0) term().set(memory, offset + size(count - 1));
 		return count;
 	}
@@ -433,29 +434,29 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Creates a multi-dimensional array.
 	 */
-	public Object deep(Dimensions dims) {
-		return deep(dims.array());
+	public Object deepVal(Dimensions dims) {
+		return deepVal(dims.array());
 	}
 
 	/**
 	 * Creates a multi-dimensional array.
 	 */
-	public Object deep(int... dims) {
+	public Object deepVal(int... dims) {
 		return RawArray.ofType(type(), dims);
 	}
 
 	/**
 	 * Creates a multi-dimensional array and populates it with default values.
 	 */
-	public Object deepVal(Dimensions dims) {
-		return deepVal(dims.array());
+	public Object deepInitOf(Dimensions dims) {
+		return deepInitOf(dims.array());
 	}
 
 	/**
 	 * Creates a multi-dimensional array and populates it with default values.
 	 */
-	public Object deepVal(int... dims) {
-		return deepInit(deep(dims));
+	public Object deepInitOf(int... dims) {
+		return deepInit(deepVal(dims));
 	}
 
 	/**
@@ -483,7 +484,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		int dims = dimsOf(t);
 		if (allocator == null || dims < 0) return null;
 		var memory = allocator.allocate(rawDeepSize(t, dims, nul));
-		rawDeepWrite(t, dims, memory, 0L, Long.MAX_VALUE, nul);
+		rawDeepWrite(memory, 0L, Long.MAX_VALUE, t, dims, nul);
 		return memory;
 	}
 
@@ -544,8 +545,8 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Returns the number of values copied, including nul-terminators. Returns 0 if the array type
 	 * is not supported.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, boolean nul) {
-		return deepWrite(t, memory, 0L, nul);
+	public int deepWrite(MemorySegment memory, Object t, boolean nul) {
+		return deepWrite(memory, 0L, t, nul);
 	}
 
 	/**
@@ -553,8 +554,8 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Returns the number of values copied, including nul-terminators. Returns 0 if the array type
 	 * is not supported.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, long offset, boolean nul) {
-		return deepWrite(t, memory, offset, Long.MAX_VALUE, nul);
+	public int deepWrite(MemorySegment memory, long offset, Object t, boolean nul) {
+		return deepWrite(memory, offset, Long.MAX_VALUE, t, nul);
 	}
 
 	/**
@@ -562,9 +563,9 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Returns the number of values copied, including nul-terminators. Returns 0 if the array type
 	 * is not supported.
 	 */
-	public int deepWrite(Object t, MemorySegment memory, long offset, long length, boolean nul) {
+	public int deepWrite(MemorySegment memory, long offset, long length, Object t, boolean nul) {
 		if (Segments.isNull(memory)) return 0;
-		return rawDeepWrite(t, dimsOf(t), memory, offset, length, nul);
+		return rawDeepWrite(memory, offset, length, t, dimsOf(t), nul);
 	}
 
 	@Override
@@ -590,7 +591,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Writes the value to memory without performing bound checks.
 	 */
-	abstract void rawWrite(T value, MemorySegment memory, long offset);
+	abstract void rawWrite(MemorySegment memory, long offset, T value);
 
 	/**
 	 * Copies memory to array without performing bound checks.
@@ -630,10 +631,10 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Copies array to memory without performing bounds checks.
 	 */
-	void rawWriteArray(A array, int index, MemorySegment memory, long offset, int count) {
+	void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
 		for (int i = 0; i < count; i++) {
 			T t = RawArray.get(array, index++);
-			if (t != null) rawWrite(t, memory, offset);
+			if (t != null) rawWrite(memory, offset, t);
 			offset += size(1);
 		}
 	}
@@ -678,7 +679,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	}
 
 	private Object rawDeepGetFixed(MemorySegment memory, Dimensions dims) {
-		var t = deep(dims);
+		var t = deepVal(dims);
 		MultiArray.iterateTwigs(t, memory,
 			(a, m, o) -> size(rawReadArrayNew(m, o, Reflect.unchecked(a))));
 		return t;
@@ -692,12 +693,12 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		return countInt(total);
 	}
 
-	private int rawDeepWrite(Object t, int dims, MemorySegment memory, long offset, long length,
+	private int rawDeepWrite(MemorySegment memory, long offset, long length, Object t, int dims,
 		boolean nul) {
 		if (dims < 0) return 0;
-		if (dims == 0) return writeArray(singletonArray(t), 0, 1, memory, offset, length, nul);
+		if (dims == 0) return writeArray(memory, offset, length, singletonArray(t), 0, 1, nul);
 		long total = MultiArray.iterateTwigs(t, memory, offset, length,
-			(a, m, o) -> size(writeArray(Reflect.unchecked(a), 0, m, o, nul)));
+			(a, m, o) -> size(writeArray(m, o, Reflect.unchecked(a), 0, nul)));
 		return countInt(total);
 	}
 

@@ -68,8 +68,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(T value, MemorySegment memory, long offset) {
-			primitive.rawWrite(value, memory, offset);
+		void rawWrite(MemorySegment memory, long offset, T value) {
+			primitive.rawWrite(memory, offset, value);
 		}
 	}
 
@@ -137,7 +137,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			boolean... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		@Override
@@ -146,7 +146,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Boolean value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Boolean value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -160,7 +160,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWriteArray(boolean[] array, int index, MemorySegment memory, long offset,
+		void rawWriteArray(MemorySegment memory, long offset, boolean[] array, int index,
 			int count) {
 			for (int i = 0; i < count; i++) {
 				memory.set(layout(), offset, array[i++]);
@@ -254,7 +254,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			char... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		// overrides
@@ -265,7 +265,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Character value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Character value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -360,7 +360,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			byte... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		/**
@@ -396,7 +396,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Byte value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Byte value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -491,7 +491,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			short... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		/**
@@ -527,7 +527,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Short value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Short value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -608,7 +608,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			int... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		// overrides
@@ -619,7 +619,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Integer value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Integer value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -700,7 +700,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			long... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		// overrides
@@ -711,7 +711,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Long value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Long value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -792,7 +792,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			float... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		// overrides
@@ -803,7 +803,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Float value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Float value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -884,7 +884,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		 */
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			double... array) {
-			return writeArray(array, 0, Integer.MAX_VALUE, memory, offset, length, nul);
+			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
 		// overrides
@@ -895,7 +895,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWrite(Double value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Double value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -965,7 +965,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	}
 
 	@Override
-	void rawWriteArray(A array, int index, MemorySegment memory, long offset, int count) {
+	void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
 		MemorySegment.copy(array, index, memory, layout(), offset, count);
 	}
 

@@ -118,7 +118,7 @@ public class Pointer<T> {
 		}
 
 		@Override
-		void rawWrite(Pointer<T> value, MemorySegment memory, long offset) {
+		void rawWrite(MemorySegment memory, long offset, Pointer<T> value) {
 			memory.set(layout(), offset, memory(value));
 		}
 	}

@@ -11,6 +11,9 @@ public class Ffm {
 
 	private Ffm() {}
 
+	/**
+	 * Returns a simplified method string representation.
+	 */
 	public static String toString(Method method) {
 		if (method == null) return Strings.NULL;
 		var b = new StringBuilder();
@@ -23,5 +26,4 @@ public class Ffm {
 		}
 		return b.append(')').toString();
 	}
-
 }

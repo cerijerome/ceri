@@ -232,55 +232,55 @@ public class VarHandleTester {
 		FfmTesting.title();
 		var m = FfmTesting.A.allocate(Simple.LAYOUT);
 		Simple.set(m, 0L, 0);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		m = FfmTesting.A.allocate(Simple.LAYOUT, n);
 		for (int i = 0; i < n; i++)
 			Simple.set(m, Simple.LAYOUT.scale(0L, i), i + 1);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		for (int i = 0; i < n; i++)
 			Simple.aset(m, 0L, i, i + 1);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 	}
 
 	public static void refs(int n) {
 		FfmTesting.title();
 		var m = Refs.init(1);
 		Refs.set(m[1], 0, 0);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		m = Refs.init(n);
 		for (int i = 0; i < n; i++)
 			Refs.set(m[1], Refs.LAYOUT.scale(0L, i), i + 1);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		for (int i = 0; i < n; i++)
 			Refs.aset(m[1], 0L, i, i + 1);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 	}
 
 	public static void nested(int n) {
 		FfmTesting.title();
 		var m = A.allocate(Nested.LAYOUT);
 		Nested.set(m, 0L, 0);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		m = FfmTesting.A.allocate(Nested.LAYOUT, n);
 		for (int i = 0; i < n; i++)
 			Nested.set(m, Nested.LAYOUT.scale(0L, i), i + 1);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 		for (int i = 0; i < n; i++)
 			Nested.aset(m, 0L, i, i + 1);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 	}
 
 	public static void flexValue(int n) {
 		FfmTesting.title();
 		var m = Layouts.flexStructAlloc(FfmTesting.A, FlexValue.LAYOUT, n);
 		FlexValue.set(m, 0L, 0);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 	}
 
 	public static void flexStruct(int n) {
 		FfmTesting.title();
 		var m = Layouts.flexStructAlloc(FfmTesting.A, FlexStruct.LAYOUT, n);
 		FlexStruct.set(m, 0L, 0);
-		FfmTesting.print(m);
+		FfmTesting.bin(m);
 	}
 }

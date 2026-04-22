@@ -1,18 +1,16 @@
 package ceri.ffm.type;
 
 import static ceri.ffm.test.FfmTesting.A;
-import static ceri.ffm.test.FfmTesting.print;
 import ceri.common.array.RawArray;
+import ceri.ffm.test.FfmTesting;
 import ceri.ffm.test.FfmTesting.Gen;
-import ceri.ffm.type.Struct.Fields;
+import ceri.ffm.type.Group.Fields;
 
 public class StructTester {
-	private static final Struct.Support<T0> S0 = Struct.support(T0.class);
-	private static final Struct.Support<T1> S1 = Struct.support(T1.class);
-	private static final Struct.Support<T2> S2 = Struct.support(T2.class);
-
+	
 	@Fields({ "s", "iii", "l" })
 	public static class T0 extends Struct<T0> {
+		public static final Struct.Support<T0> $ = Struct.support(T0.class);
 		public short s;
 		public int[][] iii = new int[2][2];
 		public long l;
@@ -31,6 +29,7 @@ public class StructTester {
 
 	@Fields({ "t0", "i", "bb" })
 	public static class T1 extends Struct<T1> {
+		public static final Struct.Support<T1> $ = Struct.support(T1.class);
 		public T0[] t0 = new T0[2];
 		public int i;
 		public byte[] bb;
@@ -47,6 +46,7 @@ public class StructTester {
 
 	@Fields({ "t0", "i", "tt" })
 	public static class T2 extends Struct<T2> {
+		public static final Struct.Support<T2> $ = Struct.support(T2.class);
 		public T0 t0;
 		public int i;
 		public T0[] tt;
@@ -67,44 +67,41 @@ public class StructTester {
 	}
 
 	public static void testT0() {
-		System.out.println(S0);
-		System.out.println(S0.desc());
-		var tt0 = S0.arrayVal(3);
+		FfmTesting.out(T0.$);
+		var tt0 = T0.$.arrayInit(3);
 		for (int i = 0; i < tt0.length; i++)
 			tt0[i].gen(i);
-		var m = S0.allocAll(A, true, tt0);
-		print(m);
-		var x = S0.getArray(m, false);
+		var m = T0.$.allocAll(A, true, tt0);
+		FfmTesting.bin(m);
+		var x = T0.$.getArray(m, false);
 		RawArray.deepForEach(x, t -> System.out.println(t));
 
-		var t2 = S2.init(2).gen(0);
-		System.out.println(t2);
+		var t2 = T2.$.init(2).gen(0);
+		FfmTesting.out(t2);
 	}
 
 	public static void testT2() {
-		System.out.println(S2);
-		System.out.println(S2.desc());
+		FfmTesting.out(T2.$);
 
-		var t2 = S2.init(3);
+		var t2 = T2.$.init(3);
 		t2.gen(0);
-		var m = S2.alloc(A, t2);
-		print(m);
+		var m = T2.$.alloc(A, t2);
+		FfmTesting.bin(m);
 	}
 
 	public static void testT1() {
-		System.out.println(S1);
-		System.out.println(S1.desc());
+		FfmTesting.out(T1.$);
 
 		var t1 = new T1();
-		var m = S1.alloc(A, t1);
-		print(m);
+		var m = T1.$.alloc(A, t1);
+		FfmTesting.bin(m);
 
-		t1 = S1.val();
-		m = S1.alloc(A, t1);
-		print(m);
+		t1 = T1.$.val();
+		m = T1.$.alloc(A, t1);
+		FfmTesting.bin(m);
 
 		t1.bb = "testing...\0".getBytes();
-		m = S1.alloc(A, t1);
-		print(m);
+		m = T1.$.alloc(A, t1);
+		FfmTesting.bin(m);
 	}
 }
