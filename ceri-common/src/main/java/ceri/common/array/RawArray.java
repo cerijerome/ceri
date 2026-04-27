@@ -430,7 +430,7 @@ public class RawArray {
 		if (array == null) return 0;
 		var hasher = Hasher.of();
 		acceptIndexes(array, offset, length, i -> hashFn.accept(hasher, array, i));
-		return hasher.code();
+		return hasher.hashCode();
 	}
 
 	/**

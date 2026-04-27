@@ -15,15 +15,21 @@ public class HasherBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Hasher t = Hasher.of().hash(1.1).hash(true).hash(-1L);
-		Hasher eq0 = Hasher.of().hash(1.1).hash(true).hash(-1L);
-		Hasher ne0 = Hasher.of().hash((float) 1.1).hash(true).hash(-1L);
-		Hasher ne1 = Hasher.of().hash(1.1).hash(false).hash(-1L);
-		Hasher ne2 = Hasher.of().hash(1.1).hash(true).hash(-2L);
-		Hasher ne3 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash(null);
-		Hasher ne4 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash("");
+		var t = Hasher.of().add(1.1).add(true).add(-1L);
+		var eq0 = Hasher.of().add(1.1).add(true).add(-1L);
+		var ne0 = Hasher.of().add((float) 1.1).add(true).add(-1L);
+		var ne1 = Hasher.of().add(1.1).add(false).add(-1L);
+		var ne2 = Hasher.of().add(1.1).add(true).add(-2L);
+		var ne3 = Hasher.of().add(1.1).add(true).add(-1L).add(null);
+		var ne4 = Hasher.of().add(1.1).add(true).add(-1L).add("");
 		Testing.exerciseEquals(t, eq0);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4);
 	}
 
+	@Test
+	public void shouldDeepHash() {
+		int[][] ii = { { 3 }, { 1, -1 } };
+		Assert.equal(Hasher.of().deepAdd(null).hashCode(), 31);
+		Assert.equal(Hasher.of().deepAdd(ii).hashCode(), 0xbfc);
+	}
 }

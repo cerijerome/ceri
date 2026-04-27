@@ -619,7 +619,7 @@ public class Array {
 	 * Hashes the array range.
 	 */
 	public static <T> int hash(T[] array, int offset, int length) {
-		return RawArray.hash((h, a, i) -> h.hash(a[i]), array, offset, length);
+		return RawArray.hash((h, a, i) -> h.add(a[i]), array, offset, length);
 	}
 
 	/**

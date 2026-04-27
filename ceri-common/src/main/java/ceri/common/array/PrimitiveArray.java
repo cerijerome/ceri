@@ -171,7 +171,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, boolean[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -366,7 +366,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, char[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -560,7 +560,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, byte[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -754,7 +754,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, short[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -938,7 +938,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, int[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -1122,7 +1122,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, long[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -1305,7 +1305,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, float[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
@@ -1467,7 +1467,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, double[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override

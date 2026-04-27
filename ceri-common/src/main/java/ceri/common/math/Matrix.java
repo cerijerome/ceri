@@ -392,11 +392,11 @@ public class Matrix {
 
 	@Override
 	public int hashCode() {
-		var h = Hasher.of().hash(rows).hash(columns);
+		var h = Hasher.of().add(rows).add(columns);
 		for (int r = 0; r < rows; r++)
 			for (int c = 0; c < columns; c++)
-				h.hash(get(r, c));
-		return h.code();
+				h.add(get(r, c));
+		return h.hashCode();
 	}
 
 	@Override

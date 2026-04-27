@@ -5,12 +5,26 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.RecordComponent;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
+import ceri.common.function.Functions;
 import ceri.common.log.Level;
 import ceri.common.test.Assert;
+import ceri.common.test.Captor;
+import ceri.common.test.Testing;
+import ceri.common.test.Testing.I;
 
 public class AnnotationsTest {
+	private static final AnnotatedType NULL = null;
+	private static final Functions.Operator<Generics.Typed> NULL_OP = null;
+	private static final Functions.Function<AnnotatedElement, Integer> NULL_FN = null;
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.FIELD, ElementType.TYPE })
@@ -39,9 +53,93 @@ public class AnnotationsTest {
 		c;
 	}
 
+	@I(-2)
+	public static class B {
+		@I(-1)
+		public static class C {
+			private static final Field F = Reflect.publicField(C.class, "f");
+			private static final Method M = Reflect.publicMethod(C.class, "m");
+			private static final Parameter MP = M.getParameters()[0];
+			private static final RecordComponent RP = R.class.getRecordComponents()[0];
+			private static final Generics.Typed FT = Generics.typed(F);
+			private static final Generics.Typed RPT = Generics.typed(RP);
+
+			public static final @I(1) List<@I(2) Map<@I(3) Integer, @I(4) ? extends @I(5) C>> f =
+				null;
+
+			public @I(11) List<@I(12) Map<@I(13) Integer, @I(14) ? extends @I(15) C>>
+				m(@I(21) List<@I(22) Map<@I(23) Integer, @I(24) ? extends @I(25) C>> p) {
+				return p;
+			}
+
+			@I(31)
+			public record R(@I(32) int a) {}
+		}
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		Assert.privateConstructor(Annotations.class);
+	}
+
+	@Test
+	public void testNullType() {
+		Assert.equal(Annotations.NULL_TYPE.getType(), null);
+		Assert.array(Annotations.NULL_TYPE.getDeclaredAnnotations());
+		Assert.array(Annotations.NULL_TYPE.getAnnotations());
+		Assert.equal(Annotations.NULL_TYPE.getAnnotation(I.class), null);
+	}
+
+	@Test
+	public void testPathWithOrphans() {
+		assertI(Annotations.path().orphan(B.C.class).orphan(B.class).sub((Generics.Typed) null)
+			.sub(NULL).sub(B.C.FT.type(0)), 2, -2, -1);
+	}
+
+	@Test
+	public void testPathOperator() {
+		assertI(Annotations.path().sub(t -> t.type(0)));
+		var p = Annotations.path(B.C.F).sub(NULL_OP).sub(t -> t.type(0).type(1).upper(0));
+		assertI(p, 5, 1, -1, -2, null);
+		Assert.equal(p.typed().cls(), B.C.class);
+		assertI(Annotations.path(B.C.F).lower(0), 1, 1, -1, -2, null);
+	}
+
+	@Test
+	public void testPathForField() {
+		assertI(Annotations.path(B.C.F).type(0).type(0), 3, 2, 1, -1, -2, null);
+		assertI(Annotations.path(B.C.F).type(0).type(1).upper(0), 5, 4, 2, 1, -1, -2, null);
+	}
+
+	@Test
+	public void testPathForMethod() {
+		assertI(Annotations.pathReturn(B.C.M).type(0).type(0), 13, 12, 11, -1, -2, null);
+		assertI(Annotations.pathReturn(B.C.M).type(0).type(1).upper(0), 15, 14, 12, 11, -1, -2,
+			null);
+		assertI(Annotations.path(B.C.MP).type(0).type(0), 23, 22, 21, 11, -1, -2, null);
+		assertI(Annotations.path(B.C.MP).type(0).type(1).upper(0), 25, 24, 22, 21, 11, -1, -2,
+			null);
+	}
+
+	@Test
+	public void testNode() {
+		assertI(Annotations.node(null, null), null);
+		assertI(Annotations.node(B.C.F), 1);
+		assertI(Annotations.node(B.C.F, null), 1);
+		assertI(Annotations.node(null, B.C.F), 1);
+	}
+
+	@Test
+	public void testNodeSub() {
+		assertI(Annotations.node(B.C.FT).sub(B.C.FT.type(0).type(1)), 4);
+		assertI(Annotations.node(B.C.FT).sub(B.C.FT.type(0).type(2)), 1);
+	}
+
+	@Test
+	public void testNodeAnnotationElement() {
+		var n = Annotations.node(B.C.F);
+		Assert.array(n.getAnnotations(), Annotations.annotation(B.C.F, I.class));
+		Assert.array(n.getDeclaredAnnotations(), Annotations.annotation(B.C.F, I.class));
 	}
 
 	@Test
@@ -147,8 +245,36 @@ public class AnnotationsTest {
 		Assert.equal(Annotations.reduceValue(c, A.class, List::size), 2);
 	}
 
+	@Test
+	public void testResolve() {
+		Assert.equal(Annotations.resolve(B.C.F, I.class, null), null);
+		Assert.equal(Annotations.resolve(B.C.F, NULL_FN), null);
+	}
+
+	@Test
+	public void testParent() {
+		Assert.equal(Annotations.parent(null), null);
+		Assert.equal(Annotations.parent(B.C.RP), B.C.R.class);
+	}
+
+	@Test
+	public void testElement() {
+		Assert.equal(Annotations.element(null), null);
+		Assert.equal(Annotations.element(B.C.RPT), B.C.RP.getAnnotatedType());
+	}
+
 	private static void assertA(A anno, String s, int i) {
 		Assert.equal(anno.s(), s);
 		Assert.equal(anno.i(), i);
+	}
+
+	private static void assertI(AnnotatedElement element, Integer value) {
+		Assert.equal(Testing.resolveI(element), value);
+	}
+
+	private static void assertI(Annotations.Path path, Integer... values) {
+		var captor = Captor.<Integer>of();
+		Annotations.resolve(path.get(), e -> captor.accept(Testing.i(e), null));
+		captor.verify(values);
 	}
 }

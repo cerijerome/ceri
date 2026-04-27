@@ -295,8 +295,8 @@ public class Strings {
 		if (length(s) == 0) return 0;
 		var hasher = Hasher.of();
 		for (int i = 0; i < s.length(); i++)
-			hasher.hash(s.charAt(i));
-		return hasher.code();
+			hasher.add(s.charAt(i));
+		return hasher.hashCode();
 	}
 
 	/**

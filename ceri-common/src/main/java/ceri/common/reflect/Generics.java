@@ -1,11 +1,17 @@
 package ceri.common.reflect;
 
+import java.lang.reflect.AnnotatedArrayType;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.AnnotatedTypeVariable;
+import java.lang.reflect.AnnotatedWildcardType;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
@@ -27,6 +33,53 @@ public class Generics {
 	private Generics() {}
 
 	/**
+	 * A token to pass a structured generic type at runtime.
+	 */
+	public static abstract class Token<T> {
+		public static final Token<?> NULL = new Token<>(Typed.NULL) {};
+		public final Typed typed;
+
+		protected Token() {
+			var superClass = (AnnotatedParameterizedType) getClass().getAnnotatedSuperclass();
+			typed = typed(superClass.getAnnotatedActualTypeArguments()[0]);
+		}
+
+		private Token(Typed typed) {
+			this.typed = typed;
+		}
+
+		/**
+		 * Provides the type.
+		 */
+		public Type type() {
+			return typed.raw();
+		}
+
+		/**
+		 * Provides the class, or null if the type if not a class or parameterized type.
+		 */
+		public Class<T> cls() {
+			return typed.cls();
+		}
+
+		@Override
+		public int hashCode() {
+			return typed.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			return (obj instanceof Token<?> t) && Objects.equals(typed, t.typed);
+		}
+
+		@Override
+		public String toString() {
+			return typed.toString();
+		}
+	}
+
+	/**
 	 * Represents a generic array type with component and number of dimensions, or non-array type if
 	 * the number of dimensions is zero.
 	 */
@@ -44,7 +97,7 @@ public class Generics {
 		 * Returns an instance
 		 */
 		public static Array of(Class<?> cls, int dimensions) {
-			return new Array(Typed.of(cls), dimensions);
+			return new Array(typed(cls), dimensions);
 		}
 
 		/**
@@ -66,11 +119,7 @@ public class Generics {
 		 * Returns the string representation with given dimension sizes.
 		 */
 		public String toString(Dimensions dims) {
-			if (!isArray()) return toString();
-			var b = new StringBuilder().append(component());
-			for (int i = 0; i < dimensions(); i++)
-				b.append('[').append(dims.dim(i)).append(']');
-			return b.toString();
+			return isArray() ? arrayString(component(), dimensions(), dims) : toString();
 		}
 
 		@Override
@@ -82,13 +131,12 @@ public class Generics {
 	/**
 	 * Provides safe access to type classes and bounds.
 	 */
-	public static class Typed {
-		public static final Typed NULL = new Typed(null);
-		public static final Typed OBJECT = new Typed(Object.class);
-		public static final Typed VOID = new Typed(void.class);
-		private static final List<Typed> UPPER = Immutable.listOf(OBJECT);
-		private static final List<Typed> NO_TYPES = Immutable.list();
-		private final Type type;
+	public static abstract class Typed {
+		public static final Typed NULL = new Direct(null);
+		public static final Typed OBJECT = new Direct(Object.class);
+		public static final Typed VOID = new Direct(void.class);
+		private static final List<Typed> UPPER = List.of(OBJECT);
+		private static final List<Typed> NO_TYPES = List.of();
 		private final Class<?> cls;
 		private volatile List<Typed> types = null;
 		private volatile List<Typed> upper = null;
@@ -101,40 +149,20 @@ public class Generics {
 			return typed == null || typed.isNull();
 		}
 
-		/**
-		 * Returns an instance for the object's type.
-		 */
-		public static Typed from(Object obj) {
-			return obj == null ? NULL : of(obj.getClass());
-		}
-
-		/**
-		 * Returns an instance for the type.
-		 */
-		public static Typed of(Type type) {
-			if (type == null) return Typed.NULL;
-			if (Objects.equals(type, OBJECT.type)) return OBJECT;
-			if (Objects.equals(type, VOID.type)) return VOID;
-			return new Typed(type);
-		}
-
 		private Typed(Type type) {
-			this.type = type;
 			this.cls = Generics.classFrom(type);
 		}
 
 		/**
 		 * Provides access to the underlying type.
 		 */
-		public Type raw() {
-			return type;
-		}
+		public abstract Type raw();
 
 		/**
 		 * Returns true if this represents no type.
 		 */
 		public boolean isNull() {
-			return type == null;
+			return raw() == null;
 		}
 
 		/**
@@ -145,10 +173,20 @@ public class Generics {
 		}
 
 		/**
+		 * Provides an annotated type if supported.
+		 */
+		public abstract AnnotatedElement annotated();
+
+		/**
+		 * Returns the owner type if available.
+		 */
+		public abstract Typed owner();
+
+		/**
 		 * Returns true if this type has no bounds.
 		 */
 		public boolean isUnbounded() {
-			if (type == null || cls() != null) return false;
+			if (isNull() || cls() != null) return false;
 			return lower().isEmpty() && upper().equals(UPPER);
 		}
 
@@ -156,14 +194,14 @@ public class Generics {
 		 * Returns the name if a type variable, otherwise empty string.
 		 */
 		public String varName() {
-			return type instanceof TypeVariable v ? v.getName() : "";
+			return raw() instanceof TypeVariable v ? v.getName() : "";
 		}
 
 		/**
 		 * Returns true if this is a generic array or array class type.
 		 */
 		public boolean isArray() {
-			if (type instanceof GenericArrayType) return true;
+			if (raw() instanceof GenericArrayType) return true;
 			return cls != null && cls.getComponentType() != null;
 		}
 
@@ -172,8 +210,9 @@ public class Generics {
 		 * instance.
 		 */
 		public Typed component() {
-			if (type instanceof GenericArrayType a) return of(a.getGenericComponentType());
-			return cls == null ? NULL : of(cls.getComponentType());
+			var typed = resolveComponent();
+			if (typed != null) return typed;
+			return cls == null ? NULL : typed(cls.getComponentType());
 		}
 
 		/**
@@ -181,14 +220,7 @@ public class Generics {
 		 * array, the number of dimensions is 0.
 		 */
 		public Array array() {
-			int dims = 0;
-			var type = this;
-			while (true) {
-				var component = type.component();
-				if (component.isNull()) return new Array(type, dims);
-				type = component;
-				dims++;
-			}
+			return Generics.array(this);
 		}
 
 		/**
@@ -204,8 +236,7 @@ public class Generics {
 		public List<Typed> types() {
 			var types = this.types;
 			if (types == null) {
-				types = type instanceof ParameterizedType p ? listOf(p.getActualTypeArguments()) :
-					NO_TYPES;
+				types = resolveTypes();
 				this.types = types;
 			}
 			return types;
@@ -224,7 +255,7 @@ public class Generics {
 		public List<Typed> upper() {
 			var upper = this.upper;
 			if (upper == null) {
-				upper = resolveUpper(type);
+				upper = resolveUpper();
 				this.upper = upper;
 			}
 			return upper;
@@ -243,7 +274,7 @@ public class Generics {
 		public List<Typed> lower() {
 			var lower = this.lower;
 			if (lower == null) {
-				lower = resolveLower(type);
+				lower = resolveLower();
 				this.lower = lower;
 			}
 			return lower;
@@ -258,109 +289,247 @@ public class Generics {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(type);
+			return Objects.hash(raw());
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			return obj == this || ((obj instanceof Typed b) && isType(b.type));
+			return obj == this || ((obj instanceof Typed b) && isType(b.raw()));
 		}
 
 		/**
 		 * Returns a string descriptor with class package names.
 		 */
 		public String fullString() {
-			return asString(false);
+			return string(false, this);
 		}
 
 		@Override
 		public String toString() {
-			return asString(true);
+			return string(true, this);
 		}
 
-		private String asString(boolean compact) {
+		// shared
+
+		abstract Typed resolveComponent();
+
+		abstract List<Typed> resolveTypes();
+
+		abstract List<Typed> resolveUpper();
+
+		abstract List<Typed> resolveLower();
+	}
+
+	/**
+	 * Provides access to types without annotations.
+	 */
+	private static class Direct extends Typed {
+		private final Type type;
+
+		private Direct(Type type) {
+			super(type);
+			this.type = type;
+		}
+
+		@Override
+		public Type raw() {
+			return type;
+		}
+
+		@Override
+		public AnnotatedElement annotated() {
+			return Reflect.castOrNull(AnnotatedElement.class, type);
+		}
+
+		@Override
+		public Typed owner() {
 			return switch (type) {
-				case Class<?> _ -> name(cls, compact);
-				case GenericArrayType _ -> component().asString(compact) + "[]";
-				case ParameterizedType _ -> asParamString(compact);
-				case TypeVariable<?> v -> v.getName();
-				case WildcardType _ -> asWildcardString(compact);
-				case null, default -> String.valueOf(type);
+				case ParameterizedType p -> typed(p.getOwnerType());
+				case null, default -> NULL;
 			};
 		}
 
-		private String asParamString(boolean compact) {
-			return name(cls, compact) + GENERIC.join(t -> t.asString(compact), types());
-		}
-
-		private String asWildcardString(boolean compact) {
-			var b = new StringBuilder("?");
-			if (hasUpper()) AND.append(b.append(" extends "), t -> t.asString(compact), upper());
-			if (!lower().isEmpty())
-				AND.append(b.append(" super "), t -> t.asString(compact), lower());
-			return b.toString();
-		}
-
-		private boolean hasUpper() {
-			return !upper().isEmpty() && !upper().equals(UPPER);
-		}
-	}
-
-	/**
-	 * A token to pass a structured generic type at runtime.
-	 */
-	public static abstract class Token<T> {
-		public final Typed typed;
-
-		protected Token() {
-			var superClass = (ParameterizedType) getClass().getGenericSuperclass();
-			typed = Typed.of(superClass.getActualTypeArguments()[0]);
-		}
-
-		/**
-		 * Provides the class, or null if the type if not a class or parameterized type.
-		 */
-		public Class<T> cls() {
-			return typed.cls();
+		@Override
+		Typed resolveComponent() {
+			return (type instanceof GenericArrayType a) ? typed(a.getGenericComponentType()) : null;
 		}
 
 		@Override
-		public String toString() {
-			return typed.toString();
+		List<Typed> resolveTypes() {
+			return (type instanceof ParameterizedType p) ? listOf(p.getActualTypeArguments()) :
+				Typed.NO_TYPES;
+		}
+
+		@Override
+		List<Typed> resolveUpper() {
+			return switch (type) {
+				case Class<?> _ -> List.of(this); // cases split for code coverage
+				case GenericArrayType _ -> List.of(this);
+				case ParameterizedType _ -> List.of(this);
+				case WildcardType w -> listOf(w.getUpperBounds());
+				case TypeVariable<?> v -> listOf(v.getBounds());
+				case null -> Typed.NO_TYPES;
+				default -> Typed.UPPER;
+			};
+		}
+
+		@Override
+		List<Typed> resolveLower() {
+			return switch (type) {
+				case Class<?> _ -> List.of(this); // cases split for code coverage
+				case GenericArrayType _ -> List.of(this);
+				case ParameterizedType _ -> List.of(this);
+				case WildcardType w -> listOf(w.getLowerBounds());
+				case null, default -> Typed.NO_TYPES;
+			};
 		}
 	}
 
 	/**
-	 * Provides class and generic types from the parameter.
+	 * Provides access to types with annotations.
 	 */
-	public static Typed typed(Parameter param) {
-		if (param == null) return Typed.NULL;
-		return Typed.of(param.getParameterizedType());
+	private static class Annotated extends Typed {
+		/** Usually a wrapper for a parameterized type, should not be null. */
+		private final AnnotatedType type;
+
+		private Annotated(AnnotatedType type) {
+			super(type.getType());
+			this.type = type;
+		}
+
+		@Override
+		public Type raw() {
+			return type.getType();
+		}
+
+		@Override
+		public AnnotatedType annotated() {
+			return type;
+		}
+
+		@Override
+		public Typed owner() {
+			return typed(type.getAnnotatedOwnerType());
+		}
+
+		@Override
+		Typed resolveComponent() {
+			return (type instanceof AnnotatedArrayType a) ?
+				typed(a.getAnnotatedGenericComponentType()) : null;
+		}
+
+		@Override
+		List<Typed> resolveTypes() {
+			return (type instanceof AnnotatedParameterizedType p) ?
+				listOf(p.getAnnotatedActualTypeArguments()) : Typed.NO_TYPES;
+		}
+
+		@Override
+		List<Typed> resolveUpper() {
+			if (raw() instanceof Class<?>) return List.of(this);
+			return switch (type) {
+				case AnnotatedArrayType _ -> List.of(this);
+				case AnnotatedParameterizedType _ -> List.of(this);
+				case AnnotatedWildcardType w -> listOf(w.getAnnotatedUpperBounds());
+				case AnnotatedTypeVariable v -> listOf(v.getAnnotatedBounds());
+				default -> Typed.UPPER;
+			};
+		}
+
+		@Override
+		List<Typed> resolveLower() {
+			if (raw() instanceof Class<?>) return List.of(this);
+			return switch (type) {
+				case AnnotatedArrayType _ -> List.of(this);
+				case AnnotatedParameterizedType _ -> List.of(this);
+				case AnnotatedWildcardType w -> listOf(w.getAnnotatedLowerBounds());
+				default -> Typed.NO_TYPES;
+			};
+		}
 	}
 
 	/**
-	 * Provides class and generic types from the method return type.
+	 * Provides generic type traversal.
 	 */
-	public static Typed typedReturn(Method method) {
-		if (method == null) return Typed.NULL;
-		return Typed.of(method.getGenericReturnType());
+	public static Typed typed(Type type) {
+		if (type == null) return Typed.NULL;
+		if (Objects.equals(type, Typed.OBJECT.raw())) return Typed.OBJECT;
+		if (Objects.equals(type, Typed.VOID.raw())) return Typed.VOID;
+		return new Direct(type);
 	}
 
 	/**
-	 * Provides class and generic types from the field.
+	 * Provides generic type traversal with annotations.
+	 */
+	public static Typed typed(AnnotatedType type) {
+		return type == null ? Typed.NULL : new Annotated(type);
+	}
+
+	/**
+	 * Provides generic field type traversal with annotations.
 	 */
 	public static Typed typed(Field field) {
-		if (field == null) return Typed.NULL;
-		return Typed.of(field.getGenericType());
+		return field == null ? Typed.NULL : typed(field.getAnnotatedType());
+	}
+
+	/**
+	 * Provides generic parameter type traversal with annotations.
+	 */
+	public static Typed typed(Parameter param) {
+		return param == null ? Typed.NULL : typed(param.getAnnotatedType());
+	}
+
+	/**
+	 * Provides generic parameter type traversal with annotations.
+	 */
+	public static Typed typed(RecordComponent comp) {
+		return comp == null ? Typed.NULL : typed(comp.getAnnotatedType());
+	}
+
+	/**
+	 * Provides generic method/constructor return type traversal with annotations.
+	 */
+	public static Typed typedReturn(Executable exec) {
+		return exec == null ? Typed.NULL : typed(exec.getAnnotatedReturnType());
+	}
+
+	/**
+	 * Returns an instance for the object's type.
+	 */
+	public static Typed typedClass(Object obj) {
+		return typed(Reflect.getClass(obj));
+	}
+
+	/**
+	 * Returns an instance for the object's type.
+	 */
+	public static Typed typedFrom(Object obj) {
+		return switch (obj) {
+			case Type t -> typed(t);
+			case AnnotatedType a -> typed(a);
+			case Field f -> typed(f);
+			case Parameter p -> typed(p);
+			case null, default -> typedClass(obj);
+		};
 	}
 
 	/**
 	 * Returns the class from the type if a class or class-based parameterized type, or null.
 	 */
 	public static Class<?> classFrom(Type type) {
-		if (type instanceof Class<?> cls) return cls;
-		if (type instanceof ParameterizedType param) return classFrom(param.getRawType());
+		if (type == null) return null;
+		if (type instanceof Class<?> c) return c;
+		if (type instanceof ParameterizedType p) return classFrom(p.getRawType());
+		if (type instanceof GenericArrayType a)
+			return RawArray.arrayType(classFrom(a.getGenericComponentType()));
 		return null;
+	}
+
+	/**
+	 * Returns the class from the type if a class or class-based parameterized type, or null.
+	 */
+	public static Class<?> classFrom(AnnotatedType type) {
+		return type == null ? null : classFrom(type.getType());
 	}
 
 	/**
@@ -380,6 +549,35 @@ public class Generics {
 
 	// support
 
+	private static Array array(Typed typed) {
+		int dims = 0;
+		while (true) {
+			var component = typed.component();
+			if (component.isNull()) return new Array(typed, dims);
+			typed = component;
+			dims++;
+		}
+	}
+
+	private static String arrayString(Typed component, int dimCount, Dimensions dims) {
+		var b = new StringBuilder().append(component);
+		for (int i = 0; i < dimCount; i++)
+			b.append('[').append(dims.dim(i)).append(']');
+		return b.toString();
+	}
+
+	private static String string(boolean compact, Typed typed) {
+		var raw = typed.raw();
+		return switch (raw) {
+			case Class<?> c -> name(c, compact);
+			case GenericArrayType _ -> string(compact, typed.component()) + "[]";
+			case ParameterizedType _ -> asParamString(compact, typed.cls(), typed.types());
+			case TypeVariable<?> v -> v.getName();
+			case WildcardType _ -> wildcardString(compact, typed.upper(), typed.lower());
+			case null, default -> String.valueOf(raw);
+		};
+	}
+
 	private static String typeVarString(TypeVariable<?> variable) {
 		var bounds = variable.getBounds();
 		if (bounds.length == 1 && bounds[0] == Object.class) return variable.getTypeName();
@@ -388,35 +586,34 @@ public class Generics {
 		return b.toString();
 	}
 
+	private static String asParamString(boolean compact, Class<?> cls, List<Typed> types) {
+		return name(cls, compact) + GENERIC.join(t -> string(compact, t), types);
+	}
+
+	private static String wildcardString(boolean compact, List<Typed> upper, List<Typed> lower) {
+		var b = new StringBuilder("?");
+		if (hasUpper(upper)) AND.append(b.append(" extends "), t -> string(compact, t), upper);
+		if (!lower.isEmpty()) AND.append(b.append(" super "), t -> string(compact, t), lower);
+		return b.toString();
+	}
+
 	private static String name(Class<?> cls, boolean compact) {
 		return compact ? Reflect.simple(cls) : cls.getTypeName();
 	}
 
-	private static List<Typed> resolveUpper(Type type) {
-		return switch (type) {
-			case Class<?> _ -> listOf(type);
-			case GenericArrayType _ -> listOf(type); // cases split for code coverage
-			case ParameterizedType p -> listOf(p.getRawType());
-			case WildcardType w -> listOf(w.getUpperBounds());
-			case TypeVariable<?> v -> listOf(v.getBounds());
-			case null -> Typed.NO_TYPES;
-			default -> Typed.UPPER;
-		};
-	}
-
-	private static List<Typed> resolveLower(Type type) {
-		return switch (type) {
-			case Class<?> _ -> listOf(type);
-			case GenericArrayType _ -> listOf(type); // cases split for code coverage
-			case ParameterizedType p -> listOf(p.getRawType());
-			case WildcardType w -> listOf(w.getLowerBounds());
-			case null, default -> Typed.NO_TYPES;
-		};
+	private static boolean hasUpper(List<Typed> upper) {
+		return !upper.isEmpty() && !upper.equals(Typed.UPPER);
 	}
 
 	private static List<Typed> listOf(Type... types) {
 		if (RawArray.isEmpty(types)) return Typed.NO_TYPES;
 		if (types.length == 1 && Object.class.equals(types[0])) return Typed.UPPER;
-		return Immutable.adaptListOf(Typed::of, types);
+		return Immutable.adaptListOf(Generics::typed, types);
+	}
+
+	private static List<Typed> listOf(AnnotatedType... types) {
+		if (RawArray.isEmpty(types)) return Typed.NO_TYPES;
+		if (types.length == 1 && Object.class.equals(types[0].getType())) return Typed.UPPER;
+		return Immutable.adaptListOf(Generics::typed, types);
 	}
 }

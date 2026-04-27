@@ -10,7 +10,7 @@ public class Hasher {
 	private static final int HASH_MULTIPLIER = 31;
 	private static final int TRUE_HASH = 1231;
 	private static final int FALSE_HASH = 1237;
-	private int hash = HASH_INIT;
+	private int hash;
 
 	/**
 	 * Varargs method for Arrays.deepHashCode().
@@ -18,40 +18,46 @@ public class Hasher {
 	public static int deep(Object... objs) {
 		return Arrays.deepHashCode(objs);
 	}
-	
+
 	public static Hasher of() {
-		return new Hasher();
+		return of(HASH_INIT);
 	}
 
-	private Hasher() {}
-
-	public int code() {
-		return hash;
+	public static Hasher of(int init) {
+		return new Hasher(init);
 	}
 
-	public Hasher hash(int value) {
+	private Hasher(int init) {
+		this.hash = init;
+	}
+
+	public Hasher add(int value) {
 		hash = HASH_MULTIPLIER * hash + value;
 		return this;
 	}
 
-	public Hasher hash(boolean value) {
-		return hash(value ? TRUE_HASH : FALSE_HASH);
+	public Hasher add(boolean value) {
+		return add(value ? TRUE_HASH : FALSE_HASH);
 	}
 
-	public Hasher hash(long value) {
-		return hash((int) (value ^ (value >>> Integer.SIZE)));
+	public Hasher add(long value) {
+		return add((int) (value ^ (value >>> Integer.SIZE)));
 	}
 
-	public Hasher hash(float value) {
-		return hash(Float.floatToIntBits(value));
+	public Hasher add(float value) {
+		return add(Float.floatToIntBits(value));
 	}
 
-	public Hasher hash(double value) {
-		return hash(Double.doubleToLongBits(value));
+	public Hasher add(double value) {
+		return add(Double.doubleToLongBits(value));
 	}
 
-	public Hasher hash(Object value) {
-		return hash(value == null ? 0 : value.hashCode());
+	public Hasher add(Object value) {
+		return add(value == null ? 0 : value.hashCode());
+	}
+
+	public Hasher deepAdd(Object value) {
+		return add(value == null ? 0 : deep(value));
 	}
 
 	@Override

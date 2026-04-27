@@ -5,7 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.AccessFlag;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +34,7 @@ import ceri.common.io.Resource;
 import ceri.common.math.Maths;
 import ceri.common.property.Property;
 import ceri.common.property.TypedProperties;
+import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
 import ceri.common.text.Regex;
@@ -55,6 +61,30 @@ public class Testing {
 	public static final double DPINF = Double.POSITIVE_INFINITY;
 
 	private Testing() {}
+
+	/**
+	 * A simple value annotation.
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE,
+		ElementType.RECORD_COMPONENT, ElementType.TYPE_USE })
+	public @interface I {
+		int value() default 0;
+	}
+
+	/**
+	 * Extracts the annotation value from type, or null if not available.
+	 */
+	public static Integer i(AnnotatedElement e) {
+		return Annotations.value(e, I.class, I::value);
+	}
+
+	/**
+	 * Resolves the annotation value from type and ancestors, or null if not available.
+	 */
+	public static Integer resolveI(AnnotatedElement e) {
+		return Annotations.resolve(e, I.class, I::value);
+	}
 
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.

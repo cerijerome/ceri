@@ -206,7 +206,7 @@ public abstract class TypedArray<T> {
 
 		@Override
 		protected void hash(Hasher hasher, T[] array, int index) {
-			hasher.hash(array[index]);
+			hasher.add(array[index]);
 		}
 
 		@Override
