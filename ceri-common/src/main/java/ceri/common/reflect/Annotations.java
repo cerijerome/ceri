@@ -1,6 +1,9 @@
 package ceri.common.reflect;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+import java.lang.reflect.AnnotatedArrayType;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Executable;
@@ -10,6 +13,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
+import ceri.common.collect.Enums;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -73,21 +78,28 @@ public class Annotations {
 		}
 
 		/**
-		 * Adds the generic sub-type of given index.
+		 * Traverses to and adds the generic sub-type of given index.
 		 */
 		public Path type(int index) {
 			return sub(t -> t.type(index));
 		}
 
 		/**
-		 * Adds the generic upper bound of given index.
+		 * Traverses to and adds the generic array component.
+		 */
+		public Path component() {
+			return sub(Generics.Typed::component);
+		}
+
+		/**
+		 * Traverses to and adds the generic upper bound of given index.
 		 */
 		public Path upper(int index) {
 			return sub(t -> t.upper(index));
 		}
 
 		/**
-		 * Adds the generic lower bound of given index.
+		 * Traverses to and adds the generic lower bound of given index.
 		 */
 		public Path lower(int index) {
 			return sub(t -> t.lower(index));
@@ -214,6 +226,13 @@ public class Annotations {
 	public static Node node(AnnotatedElement element, AnnotatedElement parent) {
 		if (element == null && parent == null) return Node.NULL;
 		return new Node(element, parent);
+	}
+
+	/**
+	 * Returns the targets for an annotation type.
+	 */
+	public static <T extends Annotation> Set<ElementType> targets(Class<T> annotationCls) {
+		return Enums.set(value(annotationCls, Target.class, Target::value));
 	}
 
 	/**
@@ -411,6 +430,15 @@ public class Annotations {
 	}
 
 	/**
+	 * Attempts to find an annotation on an element or its ancestors, and apply a function. Returns
+	 * default if annotation not found.
+	 */
+	public static <E extends Exception, T extends Annotation, R> R resolve(AnnotatedElement element,
+		Class<T> annotationCls, Excepts.Function<E, T, R> function, R def) throws E {
+		return Basics.def(resolve(element, annotationCls, function), def);
+	}
+
+	/**
 	 * Attempts to resolve a function against an element and its ancestors until the result is
 	 * non-null.
 	 */
@@ -420,6 +448,17 @@ public class Annotations {
 		var result = function.apply(element);
 		if (result != null) return result;
 		return resolve(parent(element), function);
+	}
+
+	/**
+	 * Attempts to resolve a function against an element and its ancestors until the result is
+	 * non-null. Returns default if no value found. Allows a function with default to be used with
+	 * direct and resolved elements.
+	 */
+	public static <E extends Exception, T> T resolve(AnnotatedElement element,
+		Excepts.BiFunction<E, AnnotatedElement, T, T> function, T def) throws E {
+		if (element == null || function == null) return def;
+		return Basics.def(resolve(element, e -> function.apply(e, null)), def);
 	}
 
 	/**
@@ -442,6 +481,16 @@ public class Annotations {
 	 */
 	public static AnnotatedElement element(Generics.Typed typed) {
 		return typed == null ? null : typed.annotated();
+	}
+
+	/**
+	 * Returns the component element of a multi-dimensional array. Useful to access the same
+	 * annotations as non-generic array elements.
+	 */
+	public static AnnotatedElement component(AnnotatedElement element) {
+		while (element instanceof AnnotatedArrayType a)
+			element = a.getAnnotatedGenericComponentType();
+		return element;
 	}
 
 	// support

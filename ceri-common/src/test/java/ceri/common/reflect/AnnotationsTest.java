@@ -61,8 +61,10 @@ public class AnnotationsTest {
 			private static final Method M = Reflect.publicMethod(C.class, "m");
 			private static final Parameter MP = M.getParameters()[0];
 			private static final RecordComponent RP = R.class.getRecordComponents()[0];
+			private static final Field A = Reflect.publicField(C.class, "a");
 			private static final Generics.Typed FT = Generics.typed(F);
 			private static final Generics.Typed RPT = Generics.typed(RP);
+			private static final Generics.Typed AT = Generics.typed(A);
 
 			public static final @I(1) List<@I(2) Map<@I(3) Integer, @I(4) ? extends @I(5) C>> f =
 				null;
@@ -74,6 +76,8 @@ public class AnnotationsTest {
 
 			@I(31)
 			public record R(@I(32) int a) {}
+
+			public static final @I(41) List<@I(42) int @I(43) [] @I(44) []> @I(45) [] a = null;
 		}
 	}
 
@@ -109,6 +113,8 @@ public class AnnotationsTest {
 	public void testPathForField() {
 		assertI(Annotations.path(B.C.F).type(0).type(0), 3, 2, 1, -1, -2, null);
 		assertI(Annotations.path(B.C.F).type(0).type(1).upper(0), 5, 4, 2, 1, -1, -2, null);
+		assertI(Annotations.path(B.C.A).component().type(0).component().component(), 42, 44, 43, 41,
+			41, -1, -2, null);
 	}
 
 	@Test
@@ -140,6 +146,12 @@ public class AnnotationsTest {
 		var n = Annotations.node(B.C.F);
 		Assert.array(n.getAnnotations(), Annotations.annotation(B.C.F, I.class));
 		Assert.array(n.getDeclaredAnnotations(), Annotations.annotation(B.C.F, I.class));
+	}
+
+	@Test
+	public void testTargets() {
+		Assert.unordered(Annotations.targets(null));
+		Assert.unordered(Annotations.targets(A.class), ElementType.FIELD, ElementType.TYPE);
 	}
 
 	@Test
@@ -247,8 +259,15 @@ public class AnnotationsTest {
 
 	@Test
 	public void testResolve() {
-		Assert.equal(Annotations.resolve(B.C.F, I.class, null), null);
 		Assert.equal(Annotations.resolve(B.C.F, NULL_FN), null);
+		Assert.equal(Annotations.resolve(B.C.F, I.class, null), null);
+		Assert.equal(Annotations.resolve(B.C.F, I.class, I::value), 1);
+		Assert.equal(Annotations.resolve(B.C.F, I.class, I::value, -1), 1);
+		Assert.equal(Annotations.resolve(String.class, I.class, I::value, -1), -1);
+		Assert.equal(Annotations.resolve(null, (e, _) -> Testing.i(e), -3), -3);
+		Assert.equal(Annotations.resolve(B.C.F, null, -3), -3);
+		Assert.equal(Annotations.resolve(B.C.F, (e, _) -> Testing.i(e), -3), 1);
+		Assert.equal(Annotations.resolve(String.class, (e, _) -> Testing.i(e), -1), -1);
 	}
 
 	@Test
@@ -261,6 +280,17 @@ public class AnnotationsTest {
 	public void testElement() {
 		Assert.equal(Annotations.element(null), null);
 		Assert.equal(Annotations.element(B.C.RPT), B.C.RP.getAnnotatedType());
+	}
+
+	@Test
+	public void testComponent() {
+		Assert.equal(Annotations.component(null), null);
+		assertI(B.C.A, 41);
+		assertI(B.C.AT.annotated(), 45);
+		assertI(B.C.AT.component().type(0).annotated(), 43);
+		assertI(Annotations.component(B.C.A), 41);
+		assertI(Annotations.component(B.C.AT.annotated()), 41);
+		assertI(Annotations.component(B.C.AT.component().type(0).annotated()), 42);
 	}
 
 	private static void assertA(A anno, String s, int i) {
