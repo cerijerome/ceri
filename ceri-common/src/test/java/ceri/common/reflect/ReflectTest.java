@@ -8,6 +8,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Date;
 import org.junit.Test;
 import ceri.common.array.Array;
@@ -92,8 +93,8 @@ public class ReflectTest {
 			return null;
 		}
 
-		public int intMethod() {
-			return 0;
+		public int intMethod(int i) {
+			return i;
 		}
 	}
 
@@ -297,14 +298,17 @@ public class ReflectTest {
 
 	@Test
 	public void testName() {
-		Assert.equal(Reflect.name((Class<?>) null), "null");
-		Assert.equal(Reflect.name((String) null), "null");
-		Assert.equal(Reflect.name(int.class), "int");
-		Assert.equal(Reflect.name(byte[].class), "byte[]");
-		Assert.equal(Reflect.name(Abstract.class),
-			getClass().getSimpleName() + "." + Abstract.class.getSimpleName());
-		Assert.equal(Reflect.name(Abstract[].class),
-			getClass().getSimpleName() + "." + Abstract.class.getSimpleName() + "[]");
+		Assert.string(Reflect.name((Class<?>) null), "null");
+		Assert.string(Reflect.name((String) null), "null");
+		Assert.string(Reflect.name(int.class), "int");
+		Assert.string(Reflect.name(byte[].class), "byte[]");
+		Assert.string(Reflect.name(Abstract.class), "%s.%s", getClass().getSimpleName(),
+			Abstract.class.getSimpleName());
+		Assert.string(Reflect.name(Abstract[].class), "%s.%s[]", getClass().getSimpleName(),
+			Abstract.class.getSimpleName());
+		var param = Reflect.publicMethod(General.class, "intMethod").getParameters()[0];
+		Assert.string(Reflect.name((Parameter) null), "null");
+		Assert.match(Reflect.name(param), "intMethod\\.(i|arg0)");
 	}
 
 	@Test

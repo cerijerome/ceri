@@ -216,6 +216,15 @@ public class Generics {
 		}
 
 		/**
+		 * Returns the type resolved to a multi-dimensional array component. Returns this type if
+		 * not an array.
+		 */
+		public Typed components() {
+			if (!isArray()) return this;
+			return component().components();
+		}
+
+		/**
 		 * Returns the core array component type and number of dimensions for this type. If not an
 		 * array, the number of dimensions is 0.
 		 */

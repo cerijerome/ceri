@@ -14,10 +14,12 @@ import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import ceri.common.array.Array;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 
 /**
@@ -26,131 +28,58 @@ import ceri.common.util.Basics;
 public class Annotations {
 	/** An empty annotation array. */
 	public static final Annotation[] NONE = new Annotation[0];
-	/** An empty annotation element. */
-	public static final AnnotatedType NULL_TYPE = nullType();
+	/** An empty annotated type/element. */
+	public static final AnnotatedType NULL = ofNull();
 
 	private Annotations() {}
 
 	/**
-	 * Creates an annotation element path from generic type traversal.
+	 * An annotated element wrapper that provides a parent for annotation resolution.
 	 */
-	public static class Path {
+	public static class Resolvable implements AnnotatedElement {
+		public static final Resolvable NULL = new Resolvable(null, Annotations.NULL);
+		private AnnotatedElement parent;
 		private AnnotatedElement element;
-		private Generics.Typed typed;
-
-		private Path(AnnotatedElement element, Generics.Typed typed) {
-			this.element = element;
-			this.typed = typed;
-		}
 
 		/**
-		 * Adds an annotation element without modifying the type.
+		 * Removes all resolvable wrappers from an element.
 		 */
-		public Path orphan(AnnotatedElement element) {
-			return sub(node(element, null));
-		}
-
-		/**
-		 * Adds an annotation element without modifying the type.
-		 */
-		public Path sub(AnnotatedElement element) {
-			if (element == null) return this;
-			if (this.element == null) this.element = element;
-			else this.element = node(element, this.element);
-			return this;
-		}
-
-		/**
-		 * Sets the type, adding the type annotation element if available.
-		 */
-		public Path sub(Generics.Typed typed) {
-			if (typed == null) return this;
-			this.typed = typed;
-			return sub(Annotations.element(typed));
-		}
-
-		/**
-		 * Modifies the type, adding the type annotation element if available.
-		 */
-		public Path sub(Functions.Operator<Generics.Typed> operator) {
-			if (operator == null || typed == null) return this;
-			return sub(operator.apply(typed));
-		}
-
-		/**
-		 * Traverses to and adds the generic sub-type of given index.
-		 */
-		public Path type(int index) {
-			return sub(t -> t.type(index));
-		}
-
-		/**
-		 * Traverses to and adds the generic array component.
-		 */
-		public Path component() {
-			return sub(Generics.Typed::component);
-		}
-
-		/**
-		 * Traverses to and adds the generic upper bound of given index.
-		 */
-		public Path upper(int index) {
-			return sub(t -> t.upper(index));
-		}
-
-		/**
-		 * Traverses to and adds the generic lower bound of given index.
-		 */
-		public Path lower(int index) {
-			return sub(t -> t.lower(index));
-		}
-
-		/**
-		 * Returns the current type.
-		 */
-		public Generics.Typed typed() {
-			return typed;
-		}
-
-		/**
-		 * Returns the current element.
-		 */
-		public AnnotatedElement get() {
+		public static AnnotatedElement unwrap(AnnotatedElement element) {
+			while (element instanceof Resolvable r)
+				element = r.element();
 			return element;
 		}
-	}
-
-	/**
-	 * A path node that encapsulates an element and its parent. Useful for resolving annotations.
-	 */
-	public record Node(AnnotatedElement element, AnnotatedElement parent)
-		implements AnnotatedElement {
-		/** An empty instance. */
-		public static final Node NULL = new Node(null, null);
 
 		/**
-		 * Returns a new node with this node as the parent.
+		 * Returns a normalized instance for the element and its parent.
 		 */
-		public Node sub(AnnotatedElement element) {
-			if (element == null) return this;
-			return new Node(element, this);
+		public static Resolvable of(AnnotatedElement parent, AnnotatedElement element) {
+			if (isNull(element)) return isNull(parent) ? NULL : of(null, parent);
+			return new Resolvable(parent, element);
+		}
+
+		private Resolvable(AnnotatedElement parent, AnnotatedElement element) {
+			this.parent = parent;
+			this.element = element;
 		}
 
 		/**
-		 * Returns a new node with this node as the parent.
+		 * Returns the wrapped element.
 		 */
-		public Node sub(Generics.Typed typed) {
-			return sub(Annotations.element(typed));
-		}
-
-		@Override
 		public AnnotatedElement element() {
-			return Basics.def(element, NULL_TYPE);
+			return element;
+		}
+
+		/**
+		 * Returns the parent element, which may be null.
+		 */
+		public AnnotatedElement parent() {
+			return parent;
 		}
 
 		@Override
-		public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-			return element().getAnnotation(annotationClass);
+		public Annotation[] getDeclaredAnnotations() {
+			return element().getDeclaredAnnotations();
 		}
 
 		@Override
@@ -159,73 +88,204 @@ public class Annotations {
 		}
 
 		@Override
-		public Annotation[] getDeclaredAnnotations() {
-			return element().getDeclaredAnnotations();
+		public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+			return element().getAnnotation(annotationClass);
+		}
+
+		@Override
+		public String toString() {
+			return "(" + element() + ")";
 		}
 	}
 
 	/**
-	 * Starts the path as empty.
+	 * Creates an annotation element path from generic type traversal.
 	 */
-	public static Path path() {
-		return path((AnnotatedElement) null);
+	public static class Node {
+		public static final Node NULL = new Node(Generics.Typed.NULL, Annotations.NULL);
+		private Generics.Typed typed;
+		private AnnotatedElement element;
+
+		/**
+		 * Returns a normalized instance for the type and element.
+		 */
+		public static Node of(Generics.Typed typed, AnnotatedElement element) {
+			if (Generics.Typed.isNull(typed))
+				return Annotations.isNull(element) ? NULL : new Node(Generics.Typed.NULL, element);
+			if (Annotations.isNull(element)) return new Node(typed, Annotations.NULL);
+			return new Node(typed, element);
+		}
+
+		private Node(Generics.Typed typed, AnnotatedElement element) {
+			this.typed = typed;
+			this.element = element;
+		}
+
+		/**
+		 * Returns the generic type.
+		 */
+		public Generics.Typed typed() {
+			return typed;
+		}
+
+		/**
+		 * Returns the annotation element.
+		 */
+		public AnnotatedElement element() {
+			return element;
+		}
+
+		/**
+		 * Adds the annotation element for the current type if not already present.
+		 */
+		public Node sub() {
+			return sub(typed());
+		}
+
+		/**
+		 * Adds this node's element as a parent to the given node.
+		 */
+		public Node sub(Node node) {
+			return sub(node.typed(), node.element());
+		}
+
+		/**
+		 * Adds an annotation element without modifying the type.
+		 */
+		public Node sub(AnnotatedElement element) {
+			return sub(typed(), element);
+		}
+
+		/**
+		 * Adds a type and its annotation element, if available.
+		 */
+		public Node sub(Generics.Typed typed) {
+			return sub(typed, Annotations.element(typed));
+		}
+
+		/**
+		 * Modifies the type, adding the type annotation element if available.
+		 */
+		public Node sub(Functions.Operator<Generics.Typed> operator) {
+			if (operator == null) return this;
+			return sub(operator.apply(typed()));
+		}
+
+		/**
+		 * Traverses to and adds the generic sub-type of given index.
+		 */
+		public Node type(int index) {
+			return sub(t -> t.type(index));
+		}
+
+		/**
+		 * Traverses to and adds the generic array component.
+		 */
+		public Node component() {
+			return sub(Generics.Typed::component);
+		}
+
+		/**
+		 * Traverses to and adds the multi-dimensional array component.
+		 */
+		public Node components() {
+			return sub(Generics.Typed::components);
+		}
+
+		/**
+		 * Traverses to and adds the generic upper bound of given index.
+		 */
+		public Node upper(int index) {
+			return sub(t -> t.upper(index));
+		}
+
+		/**
+		 * Traverses to and adds the generic lower bound of given index.
+		 */
+		public Node lower(int index) {
+			return sub(t -> t.lower(index));
+		}
+
+		private Node sub(Generics.Typed typed, AnnotatedElement element) {
+			if (typed == null) typed = Generics.Typed.NULL;
+			element = Annotations.resolvableElement(element(), element);
+			if (typed == typed() && element == element()) return this;
+			return of(typed, element);
+		}
 	}
 
 	/**
-	 * Starts the path with the given parent and no type.
+	 * Returns true if the element is null or the null instance.
 	 */
-	public static Path path(AnnotatedElement parent) {
-		return path(parent, null);
+	public static boolean isNull(AnnotatedElement element) {
+		return element == null || element == NULL;
 	}
 
 	/**
-	 * Starts the path with the given parent and type, without adding the type.
+	 * Returns the element, or the null instance if null.
 	 */
-	public static Path path(AnnotatedElement parent, Generics.Typed typed) {
-		return new Path(parent, typed);
+	public static AnnotatedElement safe(AnnotatedElement element) {
+		return Basics.def(element, NULL);
+	}
+	
+	/**
+	 * Returns a normalized resolvable element for the given type and parent.
+	 */
+	public static AnnotatedElement resolvable(AnnotatedElement parent, Generics.Typed typed) {
+		return resolvableElement(parent, element(typed));
 	}
 
 	/**
-	 * Starts the path with the field type.
+	 * Returns a normalized resolvable element for the given elements.
 	 */
-	public static Path path(Field field) {
-		return path(field, Generics.typed(field));
+	public static AnnotatedElement resolvable(AnnotatedElement... elements) {
+		if (Array.isEmpty(elements)) return NULL;
+		var element = safe(elements[0]);
+		for (int i = 1; i < elements.length; i++)
+			element = resolvableElement(element, elements[i]);
+		return element;
 	}
 
 	/**
-	 * Starts the path with the parameter type.
-	 */
-	public static Path path(Parameter parameter) {
-		return path(parameter, Generics.typed(parameter));
-	}
-
-	/**
-	 * Starts the path with the method/constructor return type.
-	 */
-	public static Path pathReturn(Executable executable) {
-		return path(executable, Generics.typedReturn(executable));
-	}
-
-	/**
-	 * Returns a node instance without a parent. Can be used to prevent default parent resolution.
-	 */
-	public static Node node(AnnotatedElement element) {
-		return node(element, null);
-	}
-
-	/**
-	 * Returns a node instance without a parent. Can be used to prevent default parent resolution.
+	 * Returns a node for the type and its annotated element if available.
 	 */
 	public static Node node(Generics.Typed typed) {
-		return node(Annotations.element(typed));
+		return Node.of(typed, element(typed));
 	}
 
 	/**
-	 * Returns a node instance.
+	 * Returns a node for the type and its annotated element if available.
 	 */
-	public static Node node(AnnotatedElement element, AnnotatedElement parent) {
-		if (element == null && parent == null) return Node.NULL;
-		return new Node(element, parent);
+	public static Node node(Type type) {
+		return node(Generics.typed(type));
+	}
+
+	/**
+	 * Returns a node for the field type and annotated element.
+	 */
+	public static Node node(Field field) {
+		return Node.of(Generics.typed(field), field);
+	}
+
+	/**
+	 * Returns a node for the parameter type and annotated element.
+	 */
+	public static Node node(Parameter param) {
+		return Node.of(Generics.typed(param), param);
+	}
+
+	/**
+	 * Returns a node for the method/constructor return type and annotated element.
+	 */
+	public static Node nodeReturn(Executable exec) {
+		return Node.of(Generics.typedReturn(exec), exec);
+	}
+
+	/**
+	 * Returns a node for the annotated type.
+	 */
+	public static Node node(AnnotatedType type) {
+		return node(Generics.typed(type));
 	}
 
 	/**
@@ -467,7 +527,7 @@ public class Annotations {
 	 */
 	public static AnnotatedElement parent(AnnotatedElement element) {
 		return switch (element) {
-			case Node n -> n.parent();
+			case Resolvable r -> r.parent();
 			case Class<?> c -> c.getDeclaringClass();
 			case Member m -> m.getDeclaringClass();
 			case Parameter p -> p.getDeclaringExecutable();
@@ -485,17 +545,28 @@ public class Annotations {
 
 	/**
 	 * Returns the component element of a multi-dimensional array. Useful to access the same
-	 * annotations as non-generic array elements.
+	 * left-positioned annotations as non-generic annotated array elements.
 	 */
 	public static AnnotatedElement component(AnnotatedElement element) {
-		while (element instanceof AnnotatedArrayType a)
-			element = a.getAnnotatedGenericComponentType();
+		while (true) {
+			element = Resolvable.unwrap(element);
+			if (element instanceof AnnotatedArrayType a)
+				element = a.getAnnotatedGenericComponentType();
+			else break;
+		}
 		return element;
 	}
 
 	// support
 
-	private static AnnotatedType nullType() {
+	private static AnnotatedElement resolvableElement(AnnotatedElement parent,
+		AnnotatedElement element) {
+		if (isNull(element)) return isNull(parent) ? NULL : parent;
+		if (isNull(parent) || element == parent) return element;
+		return Resolvable.of(parent, element);
+	}
+
+	private static AnnotatedType ofNull() {
 		return new AnnotatedType() {
 			@Override
 			public Type getType() {
@@ -515,6 +586,11 @@ public class Annotations {
 			@Override
 			public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
 				return null;
+			}
+
+			@Override
+			public String toString() {
+				return Strings.NULL;
 			}
 		};
 	}

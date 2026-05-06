@@ -21,7 +21,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import ceri.common.array.Array;
@@ -55,18 +54,16 @@ import ceri.common.text.Text;
  * Assertions.
  */
 public class Assert {
-	private static final Item DEEP_EQUALS_ITEM = Assert::deepEqual;
-	private static final int LINE_COUNT = 10;
-	private static final int PRECISION_DEF = 3;
+	private static final int LINE_COUNT = 5;
 	public static final int APPROX_PRECISION_DEF = 3;
 
 	private Assert() {}
 
 	/**
-	 * Assertion for an item in a group.
+	 * Selective assertion of an indexed item.
 	 */
-	private interface Item {
-		void item(Object lhs, Object rhs, String format, Object... args);
+	private interface IndexedAssert<T, U> {
+		void accept(int index, T actualItem, U actual, T expectedItem, U expected);
 	}
 
 	// failures
@@ -138,7 +135,7 @@ public class Assert {
 	 * Returns a failure assertion error to throw.
 	 */
 	public static AssertionError failure(Throwable t, String format, Object... args) {
-		return new AssertionError(Strings.format(format, args), t);
+		return new AssertionError(fmt(format, args), t);
 	}
 
 	// exceptions
@@ -264,7 +261,7 @@ public class Assert {
 			throwable(t, superCls, test);
 			return;
 		}
-		throw failure("Nothing thrown, expected: %s", superCls.getName());
+		throw failure("Nothing thrown, expected: %s", name(superCls));
 	}
 
 	/**
@@ -299,13 +296,11 @@ public class Assert {
 	/**
 	 * Verifies throwable type.
 	 */
-	@SuppressWarnings("null")
 	public static <T extends Throwable> void throwable(Throwable t, Class<T> superCls,
 		Functions.Consumer<? super T> test) {
 		if (t == null && superCls == null && test == null) return;
 		notNull(t, "Throwable");
-		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
-			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
+		if (superCls != null) instance(t, superCls);
 		if (test != null) test.accept(Reflect.unchecked(t));
 	}
 
@@ -322,9 +317,7 @@ public class Assert {
 	 * Fails if the condition is true.
 	 */
 	public static void no(boolean condition, String format, Object... args) {
-		if (!condition) return;
-		var message = Strings.format(format, args);
-		throw failure(message.isEmpty() ? "Expected false" : message);
+		if (condition) throw failure(def(format, args, "Expected false"));
 	}
 
 	/**
@@ -338,18 +331,16 @@ public class Assert {
 	 * Fails if the condition is false.
 	 */
 	public static void yes(boolean condition, String format, Object... args) {
-		if (condition) return;
-		var message = Strings.format(format, args);
-		throw failure(message.isEmpty() ? "Expected true" : message);
+		if (!condition) throw failure(def(format, args, "Expected true"));
 	}
 
 	/**
 	 * Fail if the object is not an instance of the class.
 	 */
 	public static <T> T instance(Object actual, Class<T> expected) {
+		if (nullCheck(actual, expected)) return null;
 		if (expected.isInstance(actual)) return Reflect.unchecked(actual);
-		throw failure("Expected instance: %s\n           actual: %s", Reflect.name(expected),
-			Reflect.className(actual));
+		throw failure("Expected instance of %s: %s", name(expected), name(actual));
 	}
 
 	/**
@@ -374,7 +365,7 @@ public class Assert {
 	 */
 	public static <T> T equal(T actual, T expected, String format, Object... args) {
 		if (Objects.equals(expected, actual)) return actual;
-		throw unexpected(actual, expected, format, args);
+		throw expected(actual, expected, def(format, args, "Not equal"));
 	}
 
 	/**
@@ -389,7 +380,7 @@ public class Assert {
 	 */
 	public static <T> T deepEqual(T actual, Object expected, String format, Object... args) {
 		if (Objects.deepEquals(actual, expected)) return actual;
-		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected), str(actual));
+		throw expected(actual, expected, def(format, args, "Not deep equal"));
 	}
 
 	/**
@@ -403,8 +394,8 @@ public class Assert {
 	 * Fails if the objects are equal.
 	 */
 	public static <T> void notEqual(T actual, T unexpected, String format, Object... args) {
-		if (!Objects.equals(unexpected, actual)) return;
-		throw failure("%sUnexpected: %s", nl(format, args), str(actual));
+		if (Objects.equals(unexpected, actual))
+			throw failure("%s: %s", def(format, args, "Must not equal"), full(actual));
 	}
 
 	/**
@@ -427,9 +418,8 @@ public class Assert {
 	 * Fail if the objects are not the same reference.
 	 */
 	public static <T> void same(T actual, T expected, String format, Object... args) {
-		if (expected == actual) return;
-		throw failure("%sExpected same: %s (%s)\n       actual: %s (%s)", nl(format, args),
-			expected, Reflect.hashId(expected), actual, Reflect.hashId(actual));
+		if (expected != actual) throw expectedItem(Reflect.hashId(expected), expected,
+			Reflect.hashId(actual), actual, def(format, args, "Not the same instance"));
 	}
 
 	/**
@@ -443,9 +433,9 @@ public class Assert {
 	 * Fail if the objects are not the same reference.
 	 */
 	public static <T> void notSame(T actual, T unexpected, String format, Object... args) {
-		if (unexpected != actual) return;
-		throw failure("%sValues are the same: %s (%s)", nl(format, args), actual,
-			Reflect.hashId(actual));
+		if (unexpected == actual)
+			throw failure("%s: (%s) %s", def(format, args, "Must not be the same instance"),
+				Reflect.hashId(actual), full(actual));
 	}
 
 	/**
@@ -459,7 +449,8 @@ public class Assert {
 	 * Fail if the object is not null.
 	 */
 	public static <T> void isNull(T actual, String format, Object... args) {
-		if (actual != null) throw failure("%sExpected null: %s", nl(format, args), actual);
+		if (actual != null)
+			throw failure("%s: %s", def(format, args, "Must be null"), full(actual));
 	}
 
 	/**
@@ -473,9 +464,7 @@ public class Assert {
 	 * Fail if the object is null.
 	 */
 	public static <T> void notNull(T actual, String format, Object... args) {
-		if (actual != null) return;
-		String message = Strings.format(format, args);
-		throw failure(message.isEmpty() ? "Value is null" : message);
+		if (actual == null) throw failure(def(format, args, "Must not be null"));
 	}
 
 	/**
@@ -536,7 +525,7 @@ public class Assert {
 	 */
 	public static double equals(double actual, double expected, String format, Object... args) {
 		if (doubleEqual(actual, expected)) return actual;
-		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), expected, actual);
+		throw expected(actual, expected, def(format, args, "Not equal"));
 	}
 
 	/**
@@ -568,8 +557,8 @@ public class Assert {
 	public static int range(int actual, int minInclusive, int maxInclusive, String format,
 		Object... args) {
 		if (actual >= minInclusive && actual <= maxInclusive) return actual;
-		throw failure("%sExpected: %s <= value <= %s\n  actual:    %s", nl(format, args),
-			str(minInclusive), str(maxInclusive), str(actual));
+		throw failure("%s%nExpected: %s <= value <= %s%n  Actual: %s",
+			def(format, args, "Not within range"), minInclusive, maxInclusive, actual);
 	}
 
 	/**
@@ -585,8 +574,8 @@ public class Assert {
 	public static long range(long actual, long minInclusive, long maxInclusive, String format,
 		Object... args) {
 		if (actual >= minInclusive && actual <= maxInclusive) return actual;
-		throw failure("%sExpected: %s <= value <= %s\n  actual:    %s", nl(format, args),
-			str(minInclusive), str(maxInclusive), str(actual));
+		throw failure("%s%nExpected: %s <= value <= %s%n  Actual: %s",
+			def(format, args, "Not within range"), minInclusive, maxInclusive, actual);
 	}
 
 	/**
@@ -602,8 +591,8 @@ public class Assert {
 	public static double range(double actual, double minInclusive, double maxExclusive,
 		String format, Object... args) {
 		if (actual >= minInclusive && actual <= maxExclusive) return actual;
-		throw failure("%sExpected: %s <= value < %s\n  actual:    %s", nl(format, args),
-			str(minInclusive), str(maxExclusive), str(actual));
+		throw failure("%s%nExpected: %s <= value < %s%n  Actual: %s",
+			def(format, args, "Not within range"), minInclusive, maxExclusive, actual);
 	}
 
 	/**
@@ -617,7 +606,7 @@ public class Assert {
 	 * Fails if the value does not equal the expected value within precision decimal places.
 	 */
 	public static double approx(double actual, double expected, String format, Object... args) {
-		return approx(actual, expected, PRECISION_DEF, format, args);
+		return approx(actual, expected, APPROX_PRECISION_DEF, format, args);
 	}
 
 	/**
@@ -651,8 +640,8 @@ public class Assert {
 		Object... args) {
 		if (!Double.isFinite(expected)) return equals(actual, expected, format, args);
 		if ((Math.abs(expected - actual) <= diff)) return actual;
-		throw failure("%sExpected: %s (±%s)\n  actual: %s", nl(format, args), expected, diff,
-			actual);
+		throw failure("%s%nExpected: %s (\u00b1%s)%n  Actual: %s",
+			def(format, args, "Not approximately equal"), expected, diff, actual);
 	}
 
 	// arrays
@@ -661,136 +650,139 @@ public class Assert {
 	 * Fails if the array does not equal the given value array.
 	 */
 	@SafeVarargs
-	public static <T> void array(T[] array, T... expected) {
-		rawArray(array, expected);
+	public static <T> void array(T[] actual, T... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(boolean[] array, boolean... expected) {
-		rawArray(array, expected);
+	public static void array(boolean[] actual, boolean... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(char[] array, char... expected) {
-		rawArray(array, expected);
+	public static void array(char[] actual, char... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(byte[] array, byte[] expected) {
-		rawArray(array, expected);
+	public static void array(byte[] actual, byte[] expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(byte[] array, int... values) {
-		array(array, Array.BYTE.of(values));
+	public static void array(byte[] actual, int... expected) {
+		array(actual, Array.BYTE.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(short[] array, short[] expected) {
-		rawArray(array, expected);
+	public static void array(short[] actual, short[] expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(short[] array, int... expected) {
-		array(array, Array.SHORT.of(expected));
+	public static void array(short[] actual, int... expected) {
+		array(actual, Array.SHORT.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(int[] array, int... expected) {
-		rawArray(array, expected);
+	public static void array(int[] actual, int... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(long[] array, long... expected) {
-		rawArray(array, expected);
+	public static void array(long[] actual, long... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(float[] array, float... expected) {
-		rawArray(array, expected);
+	public static void array(float[] actual, float... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(float[] array, double... expected) {
-		array(array, Array.FLOAT.of(expected));
+	public static void array(float[] actual, double... expected) {
+		array(actual, Array.FLOAT.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(double[] array, double... expected) {
-		rawArray(array, expected);
+	public static void array(double[] actual, double... expected) {
+		rawArray(actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(ByteProvider array, byte[] expected) {
-		array(array.copy(0), expected);
+	public static void array(ByteProvider actual, byte[] expected) {
+		if (nullCheck(actual, expected)) return;
+		array(actual.copy(0), expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(ByteProvider array, int... values) {
-		array(array, Array.BYTE.of(values));
+	public static void array(ByteProvider actual, int... expected) {
+		array(actual, Array.BYTE.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(IntProvider array, int... values) {
-		array(array.copy(0), values);
+	public static void array(IntProvider actual, int... expected) {
+		notNull(actual);
+		array(actual.copy(0), expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array.
 	 */
-	public static void array(LongProvider array, long... values) {
-		array(array.copy(0), values);
+	public static void array(LongProvider actual, long... expected) {
+		notNull(actual);
+		array(actual.copy(0), expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array, with default value precision.
 	 */
-	public static void approxArray(double[] array, double... expected) {
-		approxArray(PRECISION_DEF, array, expected);
+	public static void approxArray(double[] actual, double... expected) {
+		approxArray(APPROX_PRECISION_DEF, actual, expected);
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array, with specified value precision.
 	 */
-	public static void approxArray(int precision, double[] array, double... expected) {
-		rawArray(array, expected, (lhs, rhs, format, args) -> approx((Double) lhs, (Double) rhs,
-			precision, format, args));
+	public static void approxArray(int precision, double[] actual, double... expected) {
+		Assert.<Double, Object>rawArray(actual, expected,
+			(i, ai, a, ei, e) -> indexApprox(i, precision, ai, a, ei, e));
 	}
 
 	/**
 	 * Fails if the array does not equal the given value array, within specified value difference.
 	 */
-	public static void approxArray(double diff, double[] array, double... expected) {
-		rawArray(array, expected,
-			(lhs, rhs, format, args) -> approx((Double) lhs, (Double) rhs, diff, format, args));
+	public static void approxArray(double diff, double[] actual, double... expected) {
+		Assert.<Double, Object>rawArray(actual, expected,
+			(i, ai, a, ei, e) -> indexApprox(i, ai, a, ei, e, diff));
 	}
 
 	// collections
@@ -799,144 +791,135 @@ public class Assert {
 	 * Fails if the iterator does not have equal elements in order.
 	 */
 	@SafeVarargs
-	public static <T> void iterator(Iterator<T> lhs, T... ts) {
-		iterator(lhs, Lists.wrap(ts));
+	public static <T> void iterator(Iterator<? extends T> actual, T... expected) {
+		iterator(actual, Lists.wrap(expected));
 	}
 
 	/**
 	 * Fails if the iterator does not have equal elements in order.
 	 */
-	public static <T> void iterator(Iterator<T> lhs, Iterable<T> rhs) {
-		var lhsList = Immutable.list(Iterables.of(lhs));
-		var rhsList = Immutable.list(rhs);
-		list(lhsList, rhsList);
-		no(lhs.hasNext(), "Has more elements");
-		noSuchElement(lhs::next);
+	public static <T> void iterator(Iterator<? extends T> actual, Iterable<? extends T> expected) {
+		if (nullCheck(actual, expected)) return;
+		list(Immutable.list(Iterables.of(actual)), Immutable.list(expected));
+		no(actual.hasNext(), "Has more elements");
+		noSuchElement(actual::next);
 	}
 
 	/**
 	 * Fails if the list does not have equal elements in order.
 	 */
-	public static <T> void list(List<? extends T> lhs, List<? extends T> rhs) {
-		if (rhs == null) isNull(lhs);
-		else {
-			list(lhs, 0, rhs, 0, lhs.size());
-			equal(lhs.size(), rhs.size(), "List size");
-		}
+	public static <T> void list(List<? extends T> actual, List<? extends T> expected) {
+		if (nullCheck(actual, expected)) return;
+		list(actual, 0, expected, 0, actual.size());
+		size(actual.size(), actual, expected.size(), expected);
 	}
 
 	/**
 	 * Fails if the list does not have equal elements in order.
 	 */
-	public static <T> void list(List<? extends T> lhs, int lhsOffset, List<? extends T> rhs,
-		int rhsOffset, int len) {
-		list(lhs, lhsOffset, rhs, rhsOffset, len, DEEP_EQUALS_ITEM);
+	public static <T> void list(List<? extends T> actual, int actualOffset,
+		List<? extends T> expected, int expectedOffset, int len) {
+		if (nullCheck(actual, expected)) return;
+		listItems(actual, actualOffset, expected, expectedOffset, len);
 	}
 
 	/**
 	 * Fails if the map is null or has elements.
 	 */
-	public static <K, V> void map(Map<K, V> subject) {
-		equal(subject, Map.of());
+	public static <K, V> void map(Map<K, V> actual) {
+		equal(actual, Map.of());
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the given elements.
 	 */
-	public static <K, V> void map(Map<K, V> subject, K k, V v) {
-		equal(subject, Immutable.mapOf(k, v));
+	public static <K, V> void map(Map<K, V> actual, K k, V v) {
+		equal(actual, Immutable.mapOf(k, v));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the given elements.
 	 */
-	public static <K, V> void map(Map<K, V> subject, K k0, V v0, K k1, V v1) {
-		unordered(subject, Immutable.listOf(k0, k1), Immutable.listOf(v0, v1));
+	public static <K, V> void map(Map<K, V> actual, K k0, V v0, K k1, V v1) {
+		unordered(actual, Immutable.listOf(k0, k1), Immutable.listOf(v0, v1));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the given elements.
 	 */
-	public static <K, V> void map(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
-		unordered(subject, Immutable.listOf(k0, k1, k2), Immutable.listOf(v0, v1, v2));
+	public static <K, V> void map(Map<K, V> actual, K k0, V v0, K k1, V v1, K k2, V v2) {
+		unordered(actual, Immutable.listOf(k0, k1, k2), Immutable.listOf(v0, v1, v2));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the given elements.
 	 */
-	public static <K, V> void map(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
+	public static <K, V> void map(Map<K, V> actual, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3) {
-		unordered(subject, Immutable.listOf(k0, k1, k2, k3), Immutable.listOf(v0, v1, v2, v3));
+		unordered(actual, Immutable.listOf(k0, k1, k2, k3), Immutable.listOf(v0, v1, v2, v3));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the given elements.
 	 */
-	public static <K, V> void map(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3,
+	public static <K, V> void map(Map<K, V> actual, K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3,
 		K k4, V v4) {
-		unordered(subject, Immutable.listOf(k0, k1, k2, k3, k4),
+		unordered(actual, Immutable.listOf(k0, k1, k2, k3, k4),
 			Immutable.listOf(v0, v1, v2, v3, v4));
 	}
 
 	/**
 	 * Fails if the map does not contain the key/value entry.
 	 */
-	public static <K, V> void entry(Map<K, V> subject, K key, V value) {
-		equal(subject.get(key), value, "Unexpected value for key %s", key);
+	public static <K, V> void entry(Map<K, V> actual, K key, V value) {
+		notNull(actual);
+		if (!Objects.equals(actual.get(key), value)) throw expectedItem(actual.get(key), actual,
+			value, Immutable.mapOf(key, value), "Unexpected value for key %s", key);
 	}
 
 	/**
 	 * Fails if the iterator allows mutation.
 	 */
-	public static <T> void immutable(Iterator<T> iterator) {
-		notNull(iterator);
-		if (!iterator.hasNext()) return;
-		iterator.next();
-		unsupportedOp(() -> iterator.remove());
+	public static <T> void immutable(Iterator<T> actual) {
+		notNull(actual);
+		if (!actual.hasNext()) return;
+		actual.next();
+		unsupportedOp(() -> actual.remove());
 	}
 
 	/**
 	 * Fails if the collection allows mutation.
 	 */
-	public static <T, C extends Collection<T>> C immutable(C collection) {
-		notNull(collection);
-		unsupportedOp(() -> collection.add(null));
-		unsupportedOp(() -> collection.addAll(Immutable.setOf((T) null)));
-		if (collection instanceof List<?> list) immutableList(list);
-		if (collection.isEmpty()) return collection;
-		var t = collection.iterator().next();
-		unsupportedOp(() -> collection.remove(t));
-		unsupportedOp(() -> collection.removeAll(Immutable.setOf(t)));
-		unsupportedOp(() -> collection.retainAll(Set.of()));
-		unsupportedOp(collection::clear);
-		immutable(collection.iterator());
-		return collection;
-	}
-
-	private static <T> void immutableList(List<T> list) {
-		unsupportedOp(() -> list.set(0, null));
-		unsupportedOp(() -> list.add(0, null));
-		unsupportedOp(() -> list.addAll(0, Immutable.setOf((T) null)));
-		unsupportedOp(() -> list.remove(0));
-		immutable(list.listIterator());
-		immutable(list.listIterator(0));
+	public static <T, C extends Collection<T>> C immutable(C actual) {
+		notNull(actual);
+		unsupportedOp(() -> actual.add(null));
+		unsupportedOp(() -> actual.addAll(Immutable.setOf((T) null)));
+		if (actual instanceof List<?> list) immutableList(list);
+		if (actual.isEmpty()) return actual;
+		var t = actual.iterator().next();
+		unsupportedOp(() -> actual.remove(t));
+		unsupportedOp(() -> actual.removeAll(Immutable.setOf(t)));
+		unsupportedOp(() -> actual.retainAll(Set.of()));
+		unsupportedOp(actual::clear);
+		immutable(actual.iterator());
+		return actual;
 	}
 
 	/**
 	 * Fails if the map allows mutation.
 	 */
-	public static <K, V, M extends Map<K, V>> M immutable(M map) {
-		notNull(map);
-		unsupportedOp(() -> map.put(null, null));
-		unsupportedOp(() -> map.putAll(Immutable.mapOf(null, null)));
-		if (map.isEmpty()) return map;
-		var k = map.keySet().iterator().next();
-		unsupportedOp(() -> map.remove(k));
-		unsupportedOp(map::clear);
-		immutable(map.entrySet());
-		immutable(map.keySet());
-		immutable(map.values());
-		return map;
+	public static <K, V, M extends Map<K, V>> M immutable(M actual) {
+		notNull(actual);
+		unsupportedOp(() -> actual.put(null, null));
+		unsupportedOp(() -> actual.putAll(Immutable.mapOf(null, null)));
+		if (actual.isEmpty()) return actual;
+		var k = actual.keySet().iterator().next();
+		unsupportedOp(() -> actual.remove(k));
+		unsupportedOp(actual::clear);
+		immutable(actual.entrySet());
+		immutable(actual.keySet());
+		immutable(actual.values());
+		return actual;
 	}
 
 	// streams
@@ -945,29 +928,36 @@ public class Assert {
 	 * Fails if the stream does does not contain exactly the values in order.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T> void stream(Stream<E, T> stream, T... ts) throws E {
-		ordered(stream.toList(), ts);
+	public static <E extends Exception, T> void stream(Stream<E, T> actual, T... expected)
+		throws E {
+		notNull(actual);
+		ordered(actual.toList(), expected);
 	}
 
 	/**
 	 * Fails if the stream does does not contain exactly the values in order.
 	 */
-	public static <E extends Exception> void stream(IntStream<E> stream, int... is) throws E {
-		array(stream.toArray(), is);
+	public static <E extends Exception> void stream(IntStream<E> actual, int... expected) throws E {
+		notNull(actual);
+		array(actual.toArray(), expected);
 	}
 
 	/**
 	 * Fails if the stream does does not contain exactly the values in order.
 	 */
-	public static <E extends Exception> void stream(LongStream<E> stream, long... ls) throws E {
-		array(stream.toArray(), ls);
+	public static <E extends Exception> void stream(LongStream<E> actual, long... expected)
+		throws E {
+		notNull(actual);
+		array(actual.toArray(), expected);
 	}
 
 	/**
 	 * Fails if the stream does does not contain exactly the values in order.
 	 */
-	public static <E extends Exception> void stream(DoubleStream<E> stream, double... ds) throws E {
-		array(stream.toArray(), ds);
+	public static <E extends Exception> void stream(DoubleStream<E> actual, double... expected)
+		throws E {
+		notNull(actual);
+		array(actual.toArray(), expected);
 	}
 
 	// unordered
@@ -977,114 +967,120 @@ public class Assert {
 	 * information if not.
 	 */
 	@SafeVarargs
-	public static <T> void unordered(T[] lhs, T... ts) {
-		unordered(Lists.wrap(lhs), ts);
+	public static <T> void unordered(T[] actual, T... expected) {
+		notNull(actual);
+		unordered(Lists.wrap(actual), expected);
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(boolean[] lhs, boolean... expected) {
-		unordered(Array.BOOL.list(lhs), Array.BOOL.list(expected));
+	public static void unordered(boolean[] actual, boolean... expected) {
+		unordered(Array.BOOL.list(actual), Array.BOOL.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(byte[] lhs, byte... expected) {
-		unordered(Array.BYTE.list(lhs), Array.BYTE.list(expected));
+	public static void unordered(byte[] actual, byte... expected) {
+		unordered(Array.BYTE.list(actual), Array.BYTE.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(byte[] lhs, int... values) {
-		unordered(lhs, Array.BYTE.of(values));
+	public static void unordered(byte[] actual, int... expected) {
+		unordered(actual, Array.BYTE.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(char[] lhs, char... expected) {
-		unordered(Array.CHAR.list(lhs), Array.CHAR.list(expected));
+	public static void unordered(char[] actual, char... expected) {
+		unordered(Array.CHAR.list(actual), Array.CHAR.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(char[] lhs, int... expected) {
-		unordered(lhs, Array.CHAR.of(expected));
+	public static void unordered(char[] actual, int... expected) {
+		unordered(actual, Array.CHAR.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(short[] lhs, short... expected) {
-		unordered(Array.SHORT.list(lhs), Array.SHORT.list(expected));
+	public static void unordered(short[] actual, short... expected) {
+		unordered(Array.SHORT.list(actual), Array.SHORT.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(short[] lhs, int... expected) {
-		unordered(lhs, Array.SHORT.of(expected));
+	public static void unordered(short[] actual, int... expected) {
+		unordered(actual, Array.SHORT.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(int[] lhs, int... expected) {
-		unordered(Array.INT.list(lhs), Array.INT.list(expected));
+	public static void unordered(int[] actual, int... expected) {
+		unordered(Array.INT.list(actual), Array.INT.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(long[] lhs, long... expected) {
-		unordered(Array.LONG.list(lhs), Array.LONG.list(expected));
+	public static void unordered(long[] actual, long... expected) {
+		unordered(Array.LONG.list(actual), Array.LONG.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(float[] lhs, float... expected) {
-		unordered(Array.FLOAT.list(lhs), Array.FLOAT.list(expected));
+	public static void unordered(float[] actual, float... expected) {
+		unordered(Array.FLOAT.list(actual), Array.FLOAT.list(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(float[] lhs, double... expected) {
-		unordered(lhs, Array.FLOAT.of(expected));
+	public static void unordered(float[] actual, double... expected) {
+		unordered(actual, Array.FLOAT.of(expected));
 	}
 
 	/**
 	 * Fails if the array does not contain exactly the elements in any order.
 	 */
-	public static void unordered(double[] lhs, double... expected) {
-		unordered(Array.DOUBLE.list(lhs), Array.DOUBLE.list(expected));
+	public static void unordered(double[] actual, double... expected) {
+		unordered(Array.DOUBLE.list(actual), Array.DOUBLE.list(expected));
 	}
 
 	/**
 	 * Fails if the collection does not contain exactly the elements in any order.
 	 */
 	@SafeVarargs
-	public static <T> void unordered(Collection<T> lhs, T... ts) {
-		unordered(lhs, Arrays.asList(ts));
+	public static <T> void unordered(Collection<T> actual, T... expected) {
+		notNull(actual);
+		unordered(actual, Arrays.asList(expected));
 	}
 
 	/**
 	 * Fails if the collection does not contain exactly the elements in any order.
 	 */
-	public static <T> void unordered(Collection<? extends T> lhs, Collection<? extends T> rhs) {
+	public static <T> void unordered(Collection<? extends T> actual,
+		Collection<? extends T> expected) {
+		if (nullCheck(actual, expected)) return;
 		int i = 0;
-		for (T t : lhs) {
-			if (!rhs.contains(t)) throw failure("Unexpected element at position %d: %s", i, str(t));
+		for (T actualItem : actual) {
+			if (!expected.contains(actualItem)) throw expected(actual, expected,
+				"Unexpected element at position [%d]: %s", i, full(actualItem));
 			i++;
 		}
-		for (T t : rhs)
-			if (!lhs.contains(t)) throw failure("Missing element: %s", str(t));
-		equal(lhs.size(), rhs.size(), "Unexpected collection size");
+		for (T expectedItem : expected)
+			if (!actual.contains(expectedItem))
+				throw expected(actual, expected, "Missing element: %s", full(expectedItem));
+		size(actual.size(), actual, expected.size(), expected);
 	}
 
 	// ordered
@@ -1093,103 +1089,107 @@ public class Assert {
 	 * Fails if the iterated values do not equal the elements in order.
 	 */
 	@SafeVarargs
-	public static <T> void ordered(Iterable<T> lhs, T... ts) {
-		ordered(lhs, Arrays.asList(ts));
+	public static <T> void ordered(Iterable<T> actual, T... expected) {
+		ordered(actual, Arrays.asList(expected));
 	}
 
 	/**
 	 * Fails if the iterated values do not equal the elements in order.
 	 */
-	public static <T> void ordered(Iterable<T> lhs, Iterable<T> rhs) {
-		iterator(lhs.iterator(), rhs);
+	public static <T> void ordered(Iterable<T> actual, Iterable<T> expected) {
+		if (nullCheck(actual, expected)) return;
+		iterator(actual.iterator(), expected);
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the keys and values in order.
 	 */
-	public static <K, V> void ordered(Map<K, V> subject, K k, V v) {
-		map(subject, k, v);
+	public static <K, V> void ordered(Map<K, V> actual, K k, V v) {
+		map(actual, k, v);
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the keys and values in order.
 	 */
-	public static <K, V> void ordered(Map<K, V> subject, K k0, V v0, K k1, V v1) {
-		ordered(subject, Immutable.listOf(k0, k1), Immutable.listOf(v0, v1));
+	public static <K, V> void ordered(Map<K, V> actual, K k0, V v0, K k1, V v1) {
+		ordered(actual, Immutable.listOf(k0, k1), Immutable.listOf(v0, v1));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the keys and values in order.
 	 */
-	public static <K, V> void ordered(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
-		ordered(subject, Immutable.listOf(k0, k1, k2), Immutable.listOf(v0, v1, v2));
+	public static <K, V> void ordered(Map<K, V> actual, K k0, V v0, K k1, V v1, K k2, V v2) {
+		ordered(actual, Immutable.listOf(k0, k1, k2), Immutable.listOf(v0, v1, v2));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the keys and values in order.
 	 */
-	public static <K, V> void ordered(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
+	public static <K, V> void ordered(Map<K, V> actual, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3) {
-		ordered(subject, Immutable.listOf(k0, k1, k2, k3), Immutable.listOf(v0, v1, v2, v3));
+		ordered(actual, Immutable.listOf(k0, k1, k2, k3), Immutable.listOf(v0, v1, v2, v3));
 	}
 
 	/**
 	 * Fails if the map does not contain exactly the keys and values in order.
 	 */
-	public static <K, V> void ordered(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
+	public static <K, V> void ordered(Map<K, V> actual, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3, K k4, V v4) {
-		ordered(subject, Immutable.listOf(k0, k1, k2, k3, k4),
-			Immutable.listOf(v0, v1, v2, v3, v4));
+		ordered(actual, Immutable.listOf(k0, k1, k2, k3, k4), Immutable.listOf(v0, v1, v2, v3, v4));
 	}
 
 	// strings
 
 	/**
-	 * Checks string representation is equal to given formatted string.
+	 * Checks string representation is equal to the formatted string.
 	 */
 	public static void string(Object actual, String format, Object... objs) {
-		if (format == null) equal(actual, null);
-		else string(String.valueOf(actual), Strings.format(format, objs));
+		if (nullCheck(actual, format)) return;
+		var actualStr = str(actual);
+		var expectedStr = fmt(format, objs);
+		if (!Objects.equals(actualStr, expectedStr)) throw expectedChar(actualStr, expectedStr);
 	}
 
 	/**
 	 * Checks string representation split into lines.
 	 */
 	public static void lines(Object actual, String... expectedLineArray) {
-		var actualLines = Regex.Split.LINE.list(String.valueOf(actual));
+		notNull(actual);
+		var actualLines = Regex.Split.LINE.list(str(actual));
 		var expectedLines = Arrays.asList(expectedLineArray);
 		int lines = Math.max(actualLines.size(), expectedLines.size());
-		for (int i = 0; i < lines; i++) {
-			var actualLine = Lists.at(actualLines, i, "");
-			var expectedLine = Lists.at(expectedLines, i, "");
-			if (Objects.equals(actualLine, expectedLine)) continue;
-			throw failure("Line %d%nExpected: %s%n  actual: %s%n%nExpected:%n%s%n%nActual:%n%s%n",
-				i + 1, expectedLine.trim(), actualLine.trim(), limitedLines(expectedLines, i),
-				limitedLines(actualLines, i));
+		for (int line = 0; line < lines; line++) {
+			var actualLine = Lists.at(actualLines, line, "");
+			var expectedLine = Lists.at(expectedLines, line, "");
+			if (!Objects.equals(actualLine, expectedLine))
+				throw expectedLine(line, actualLine, actualLines, expectedLine, expectedLines);
 		}
 	}
 
 	/**
 	 * Checks multi-line text, with line-specific failure info.
 	 */
-	public static void text(Object actual, String expected) {
-		lines(actual, Regex.Split.LINE.array(expected));
+	public static void text(Object actual, String format, Object... objs) {
+		if (nullCheck(actual, format)) return;
+		lines(actual, Regex.Split.LINE.array(fmt(format, objs)));
 	}
 
 	/**
 	 * Checks string representation contains the formatted string.
 	 */
 	public static void contains(Object actual, String format, Object... objs) {
-		var s = String.valueOf(actual);
-		var text = Strings.format(format, objs);
-		if (s.contains(text)) return;
-		throw failure("%sNot contained in string\nString: %s", nl(text), s);
+		if (nullCheck(actual, format)) return;
+		var actualStr = str(actual);
+		var expectedStr = fmt(format, objs);
+		if (!actualStr.contains(expectedStr))
+			throw expected(actualStr, expectedStr, "Must contain string");
 	}
 
 	/**
 	 * Checks regex match against the string.
 	 */
 	public static void match(Object actual, String pattern, Object... objs) {
+		if (nullCheck(actual, pattern)) return;
 		match(actual, Regex.compile(pattern, objs));
 	}
 
@@ -1197,16 +1197,10 @@ public class Assert {
 	 * Checks regex match against the string.
 	 */
 	public static void match(Object actual, Pattern pattern) {
-		match(actual, pattern, null);
-	}
-
-	/**
-	 * Checks regex match against the string.
-	 */
-	public static void match(Object actual, Pattern pattern, String format, Object... args) {
-		if (pattern.matcher(String.valueOf(actual)).matches()) return;
-		throw failure("%sDoes not match regex \"%s\"\nString: %s", nl(format, args),
-			pattern.pattern(), actual);
+		if (nullCheck(actual, pattern)) return;
+		var actualStr = str(actual);
+		if (!pattern.matcher(actualStr).matches())
+			throw pattern(actualStr, pattern, "Pattern must match");
 	}
 
 	/**
@@ -1220,23 +1214,17 @@ public class Assert {
 	 * Checks regex does not match against the string.
 	 */
 	public static void noMatch(Object actual, Pattern pattern) {
-		noMatch(actual, pattern, null);
-	}
-
-	/**
-	 * Checks regex does not match against the string.
-	 */
-	public static void noMatch(Object actual, Pattern pattern, String format, Object... args) {
-		var s = String.valueOf(actual);
-		var m = pattern.matcher(s);
-		if (!m.matches()) return;
-		throw failure("%sRegex match \"%s\"\nString: %s", nl(format, args), pattern.pattern(), s);
+		notNull(actual);
+		var actualStr = str(actual);
+		if (pattern.matcher(actualStr).matches())
+			throw pattern(actualStr, pattern, "Pattern must not match");
 	}
 
 	/**
 	 * Checks regex find against the string.
 	 */
 	public static void find(Object actual, String pattern, Object... objs) {
+		if (nullCheck(actual, pattern)) return;
 		find(actual, Regex.compile(pattern, objs));
 	}
 
@@ -1244,16 +1232,10 @@ public class Assert {
 	 * Checks regex find against the string.
 	 */
 	public static void find(Object actual, Pattern pattern) {
-		find(actual, pattern, null);
-	}
-
-	/**
-	 * Checks regex find against the string.
-	 */
-	public static void find(Object actual, Pattern pattern, String format, Object... args) {
-		if (pattern.matcher(String.valueOf(actual)).find()) return;
-		throw failure("%sNot found by regex \"%s\"\nString: %s", nl(format, args),
-			pattern.pattern(), actual);
+		if (nullCheck(actual, pattern)) return;
+		var actualStr = str(actual);
+		if (!pattern.matcher(actualStr).find())
+			throw pattern(actualStr, pattern, "Pattern not found");
 	}
 
 	/**
@@ -1267,26 +1249,20 @@ public class Assert {
 	 * Checks regex not found against the string.
 	 */
 	public static void notFound(Object actual, Pattern pattern) {
-		notFound(actual, pattern, null);
-	}
-
-	/**
-	 * Checks regex not found against the string.
-	 */
-	public static void notFound(Object actual, Pattern pattern, String format, Object... args) {
-		String s = String.valueOf(actual);
-		Matcher m = pattern.matcher(s);
-		if (!m.find()) return;
-		throw failure("%sFound by regex \"%s\"\nString: %s (%s)", nl(format, args),
-			pattern.pattern(), s, m.group());
+		notNull(actual);
+		var actualStr = str(actual);
+		var matcher = pattern.matcher(actualStr);
+		if (matcher.find()) throw pattern(actualStr, pattern, "Pattern found at index [%d]: %s",
+			matcher.start(), full(matcher.group()));
 	}
 
 	/**
 	 * Check ascii read from byte reader.
 	 */
-	public static void ascii(ByteReader reader, String s) {
-		var actual = reader.readAscii(s.length());
-		equal(actual, s);
+	public static void ascii(ByteReader actual, String format, Object... args) {
+		if (nullCheck(actual, format)) return;
+		var expected = fmt(format, args);
+		equal(actual.readAscii(expected.length()), expected);
 	}
 
 	// other types
@@ -1294,20 +1270,22 @@ public class Assert {
 	/**
 	 * Fails if the type value fields do not equal the given values.
 	 */
-	public static <T> void typeValue(TypeValue<T> t, T type, int value) {
-		Assert.equal(t.intValue(), value);
-		Assert.equal(t.type(), type);
+	public static <T> void typeValue(TypeValue<T> actual, T type, int value) {
+		notNull(actual);
+		equal(actual.intValue(), value);
+		equal(actual.type(), type);
 	}
 
 	/**
 	 * Fails if the type value fields do not equal the given values.
 	 */
-	public static <T> void typeValue(TypeValue<T> t, T type, int value, String namePattern,
+	public static <T> void typeValue(TypeValue<T> actual, T type, int value, String namePattern,
 		Object... args) {
-		Assert.equal(t.intValue(), value);
-		Assert.equal(t.type(), type);
-		if (namePattern == null) Assert.isNull(t.name());
-		else Assert.match(t.name(), namePattern, args);
+		notNull(actual);
+		equal(actual.intValue(), value);
+		equal(actual.type(), type);
+		if (namePattern == null) isNull(actual.name());
+		else match(actual.name(), namePattern, args);
 	}
 
 	// I/O
@@ -1315,130 +1293,136 @@ public class Assert {
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(CharBuffer buffer, char... array) {
-		array(Buffers.CHAR.get(buffer), array);
+	public static void buffer(CharBuffer actual, char... expected) {
+		array(Buffers.CHAR.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against string.
 	 */
-	public static void buffer(CharBuffer buffer, String s) {
-		buffer(buffer, s.toCharArray());
+	public static void buffer(CharBuffer actual, String expected) {
+		if (nullCheck(actual, expected)) return;
+		buffer(actual, expected.toCharArray());
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(ByteBuffer buffer, byte[] array) {
-		array(Buffers.BYTE.get(buffer), array);
+	public static void buffer(ByteBuffer actual, byte[] expected) {
+		array(Buffers.BYTE.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(ByteBuffer buffer, int... array) {
-		array(Buffers.BYTE.get(buffer), array);
+	public static void buffer(ByteBuffer actual, int... expected) {
+		array(Buffers.BYTE.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(ShortBuffer buffer, short[] array) {
-		array(Buffers.SHORT.get(buffer), array);
+	public static void buffer(ShortBuffer actual, short[] expected) {
+		array(Buffers.SHORT.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(ShortBuffer buffer, int... array) {
-		array(Buffers.SHORT.get(buffer), array);
+	public static void buffer(ShortBuffer actual, int... expected) {
+		array(Buffers.SHORT.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(IntBuffer buffer, int... array) {
-		array(Buffers.INT.get(buffer), array);
+	public static void buffer(IntBuffer actual, int... expected) {
+		array(Buffers.INT.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(LongBuffer buffer, long... array) {
-		array(Buffers.LONG.get(buffer), array);
+	public static void buffer(LongBuffer actual, long... expected) {
+		array(Buffers.LONG.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(FloatBuffer buffer, float[] array) {
-		array(Buffers.FLOAT.get(buffer), array);
+	public static void buffer(FloatBuffer actual, float[] expected) {
+		array(Buffers.FLOAT.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(FloatBuffer buffer, double... array) {
-		array(Buffers.FLOAT.get(buffer), array);
+	public static void buffer(FloatBuffer actual, double... expected) {
+		array(Buffers.FLOAT.get(actual), expected);
 	}
 
 	/**
 	 * Checks buffer values against given array.
 	 */
-	public static void buffer(DoubleBuffer buffer, double... array) {
-		array(Buffers.DOUBLE.get(buffer), array);
+	public static void buffer(DoubleBuffer actual, double... expected) {
+		array(Buffers.DOUBLE.get(actual), expected);
 	}
 
 	/**
 	 * Checks bytes read from input stream.
 	 */
-	public static void read(InputStream in, ByteProvider bytes) throws IOException {
-		read(in, bytes.copy(0));
+	public static void read(InputStream actual, ByteProvider expected) throws IOException {
+		if (nullCheck(actual, expected)) return;
+		read(actual, expected.copy(0));
 	}
 
 	/**
 	 * Checks bytes read from input stream.
 	 */
-	public static void read(InputStream in, int... bytes) throws IOException {
-		read(in, Array.BYTE.of(bytes));
+	public static void read(InputStream actual, int... expected) throws IOException {
+		read(actual, Array.BYTE.of(expected));
 	}
 
 	/**
 	 * Checks bytes read from input stream.
 	 */
-	public static void read(InputStream in, byte[] bytes) throws IOException {
-		array(in.readNBytes(bytes.length), bytes);
+	public static void read(InputStream actual, byte[] expected) throws IOException {
+		notNull(actual);
+		array(actual.readNBytes(expected.length), expected);
 	}
 
 	/**
 	 * Checks if file exists.
 	 */
-	public static void exists(Path path, boolean exists) {
-		if (Files.exists(path) == exists) return;
-		throw failure(exists ? "Path does not exist: %s" : "Path exists: %s", path);
+	public static void exists(Path actual, boolean exists) {
+		notNull(actual);
+		if (Files.exists(actual) == exists) return;
+		throw failure(exists ? "Path does not exist: %s" : "Path exists: %s", actual);
 	}
 
 	/**
 	 * Checks if file exists.
 	 */
-	public static void dir(Path path, boolean isDir) {
-		if (Files.isDirectory(path) == isDir) return;
-		throw failure(isDir ? "Path is not a directory: %s" : "Path is a directory: %s", path);
+	public static void dir(Path actual, boolean isDir) {
+		notNull(actual);
+		if (Files.isDirectory(actual) == isDir) return;
+		throw failure(isDir ? "Path is not a directory: %s" : "Path is a directory: %s", actual);
 	}
 
 	/**
 	 * Checks contents of two directories are equal, with specific failure information if not.
 	 */
-	public static void dir(Path lhsDir, Path rhsDir) throws IOException {
-		var lhsPathsRelative = PathList.of(lhsDir).relative().sort().list();
-		var rhsPathsRelative = PathList.of(rhsDir).relative().sort().list();
-		ordered(lhsPathsRelative, rhsPathsRelative);
-		for (var path : lhsPathsRelative) {
-			var lhsFile = lhsDir.resolve(path);
-			var rhsFile = rhsDir.resolve(path);
-			boolean rhsIsDir = Files.isDirectory(rhsFile);
-			dir(lhsFile, rhsIsDir);
-			if (!rhsIsDir) file(lhsFile, rhsFile);
+	public static void dir(Path actual, Path expected) throws IOException {
+		if (nullCheck(actual, expected)) return;
+		var actualRelative = PathList.of(actual).relative().sort().list();
+		var expectedRelative = PathList.of(expected).relative().sort().list();
+		ordered(actualRelative, expectedRelative);
+		for (var actualPath : actualRelative) {
+			var actualFile = actual.resolve(actualPath);
+			var expectedFile = expected.resolve(actualPath);
+			boolean expectedIsDir = Files.isDirectory(expectedFile);
+			dir(actualFile, expectedIsDir);
+			if (!expectedIsDir) file(actualFile, expectedFile);
 		}
 	}
 
@@ -1446,75 +1430,65 @@ public class Assert {
 	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
 	public static void file(Path actual, Path expected) throws IOException {
-		equal(Files.size(actual), Files.size(expected), "Invalid file size");
+		if (nullCheck(actual, expected)) return;
+		size(Files.size(actual), actual, Files.size(expected), expected);
 		long pos = Files.mismatch(actual, expected);
-		if (pos >= 0) throw failure("File byte mismatch at index %d", pos);
+		if (pos >= 0) throw expected(actual, expected, "File mismatch at offset [%d]", pos);
 	}
 
 	/**
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
-	public static void file(Path actual, int... bytes) throws IOException {
-		file(actual, ByteProvider.of(bytes));
+	public static void file(Path actual, int... expected) throws IOException {
+		file(actual, ByteProvider.of(expected));
 	}
 
 	/**
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
-	public static void file(Path actual, byte[] bytes) throws IOException {
-		file(actual, ByteProvider.of(bytes));
+	public static void file(Path actual, byte[] expected) throws IOException {
+		file(actual, ByteProvider.of(expected));
 	}
 
 	/**
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
-	public static void file(Path actual, ByteProvider byteProvider) throws IOException {
-		equal(Files.size(actual), (long) byteProvider.length(), "Invalid file size");
-		byte[] actualBytes = Files.readAllBytes(actual);
+	public static void file(Path actual, ByteProvider expected) throws IOException {
+		if (nullCheck(actual, expected)) return;
+		size(Files.size(actual), actual, expected.length(), expected);
+		var actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
-			if (actualBytes[i] != byteProvider.getByte(i))
-				throw failure("File byte mismatch at index %d", i);
+			if (actualBytes[i] != expected.getByte(i)) throw expectedItem(actualBytes[i], actual,
+				expected.getByte(i), expected, "File mismatch at offset [%d]", i);
 	}
 
 	/**
 	 * Checks the paths are the same.
 	 */
 	public static void path(Path actual, String expected, String... more) {
-		if (expected == null) equal(actual, null);
-		else equal(actual, Paths.newPath(actual, expected, more));
+		if (nullCheck(actual, expected)) return;
+		equal(actual, Paths.newPath(actual, expected, more));
 	}
 
 	/**
 	 * Assert a collection of paths in non-specific order, using the first path's file system.
 	 */
-	public static void paths(Collection<Path> actual, String... paths) {
+	public static void paths(Collection<Path> actual, String... expected) {
+		notNull(actual);
 		@SuppressWarnings("resource")
 		var fs = Paths.fs(Iterables.first(actual));
-		var expected = Streams.of(paths).map(fs::getPath).collect(Collectors.toList());
-		unordered(actual, expected);
+		var expectedPaths = Streams.of(expected).map(fs::getPath).collect(Collectors.toList());
+		unordered(actual, expectedPaths);
 	}
 
 	// support
-
-	private static void rawArray(Object lhs, Object rhs) {
-		if (rhs == null) isNull(lhs);
-		else {
-			notNull(lhs);
-			rawArray(lhs, rhs, DEEP_EQUALS_ITEM);
-		}
-	}
-
-	private static AssertionError unexpected(Object actual, Object expected, String format,
-		Object... args) {
-		return failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected),
-			str(actual));
-	}
 
 	private static void constructorIsPrivate(Class<?> cls) {
 		try {
 			var constructor = cls.getDeclaredConstructor();
 			yes(Modifier.isPrivate(constructor.getModifiers()), "Constructor is not private: %s()",
-				cls.getSimpleName());
+				name(cls));
+			// instantiate for code coverage
 			constructor.setAccessible(true);
 			constructor.newInstance();
 			constructor.setAccessible(false);
@@ -1523,8 +1497,19 @@ public class Assert {
 		}
 	}
 
-	private static boolean doubleEqual(double value, double other) {
-		return Double.doubleToLongBits(value) == Double.doubleToLongBits(other);
+	private static void rawArray(Object actual, Object expected) {
+		rawArray(actual, expected, Assert::indexDeepEqual);
+	}
+
+	private static <T, U> void rawArray(U actual, U expected, IndexedAssert<T, U> indexedAssert) {
+		if (nullCheck(actual, expected)) return;
+		int actualLen = RawArray.length(ensureArray(actual));
+		int expectedLen = RawArray.length(ensureArray(expected));
+		if (actualLen != expectedLen) throw expectedItem(str(actualLen), actual, str(expectedLen),
+			expected, "Mismatched array length");
+		for (int i = 0; i < expectedLen; i++)
+			indexedAssert.accept(i, RawArray.get(actual, i), actual, RawArray.get(expected, i),
+				expected);
 	}
 
 	private static Object ensureArray(Object array) {
@@ -1532,87 +1517,177 @@ public class Assert {
 		return array;
 	}
 
-	private static void rawArray(Object lhs, Object rhs, Item itemAssert) {
-		int lhsLen = RawArray.length(ensureArray(lhs));
-		int rhsLen = RawArray.length(ensureArray(rhs));
-		equal(lhsLen, rhsLen, "Invalid array size");
-		for (int i = 0; i < lhsLen; i++)
-			index(i, RawArray.get(lhs, i), true, RawArray.get(rhs, i), true, itemAssert);
+	private static void indexApprox(int index, int precision, double actualItem, Object actual,
+		double expectedItem, Object expected) {
+		if (!Double.isFinite(expectedItem))
+			indexEqual(index, actualItem, actual, expectedItem, expected);
+		else indexEqual(index, Maths.round(precision, actualItem), actual,
+			Maths.round(precision, expectedItem), expected);
 	}
 
-	private static <T> void list(List<? extends T> lhs, int lhsOffset, List<? extends T> rhs,
-		int rhsOffset, int len, Item itemAssert) {
-		int lhsLen = lhs.size();
-		int rhsLen = rhs.size();
+	private static void indexApprox(int index, double actualItem, Object actual,
+		double expectedItem, Object expected, double diff) {
+		if (!Double.isFinite(expectedItem))
+			indexEqual(index, actualItem, actual, expectedItem, expected);
+		else if (Math.abs(expectedItem - actualItem) > diff) throw failure(
+			"Not approximately equal at index [%d]%nExpected: %s (\u00b1%s)  %s%n  Actual: %s  %s",
+			index, expectedItem, diff, full(expected), actualItem, full(actual));
+	}
+
+	private static void indexEqual(int index, Object actualItem, Object actual, Object expectedItem,
+		Object expected) {
+		if (!Objects.equals(actualItem, expectedItem)) throw expectedItem(actualItem, actual,
+			expectedItem, expected, "Not equal at index [%d]", index);
+	}
+
+	private static void indexDeepEqual(int index, Object actualItem, Object actual,
+		Object expectedItem, Object expected) {
+		if (!Objects.deepEquals(actualItem, expectedItem)) throw expectedItem(actualItem, actual,
+			expectedItem, expected, "Not equal at index [%d]", index);
+	}
+
+	private static <T> void listItems(List<? extends T> actual, int actualOffset,
+		List<? extends T> expected, int expectedOffset, int len) {
+		int actualLen = actual.size();
+		int expectedLen = expected.size();
 		for (int i = 0; i < len; i++) {
-			boolean hasLhs = lhsOffset + i < lhsLen;
-			T lhsVal = hasLhs ? lhs.get(lhsOffset + i) : null;
-			boolean hasRhs = rhsOffset + i < rhsLen;
-			T rhsVal = hasRhs ? rhs.get(rhsOffset + i) : null;
-			index(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
+			var actualItem = Lists.at(actual, actualOffset + i);
+			var expectedItem = Lists.at(expected, expectedOffset + i);
+			if (!Maths.within(actualOffset + i, 0, actualLen - 1)) throw expectedItem(actualItem,
+				actual, expectedItem, expected, "No value at index [%d]", actualOffset + i);
+			if (!Maths.within(expectedOffset + i, 0, expectedLen - 1))
+				throw expectedItem(actualItem, actual, expectedItem, expected,
+					"Unexpected value at index [%d]", actualOffset + i);
+			indexDeepEqual(actualOffset + i, actualItem, actual, expectedItem, expected);
 		}
 	}
 
-	private static <T> void index(int i, T lhs, boolean hasLhs, T rhs, boolean hasRhs,
-		Item itemAssert) {
-		if (!hasLhs && !hasRhs) throw failure("No value at index %d", i);
-		if (!hasLhs) throw failure("No value at index %d, expected: %s", i, str(rhs));
-		if (!hasRhs) throw failure("Unexpected value at index %d: %s", i, str(lhs));
-		itemAssert.item(lhs, rhs, "Index %d", i);
-	}
-
-	private static <K, V> void unordered(Map<K, V> subject, List<K> keys, List<V> values) {
+	private static <K, V> void unordered(Map<K, V> actual, List<K> keys, List<V> values) {
 		for (int i = 0; i < keys.size(); i++)
-			entry(subject, keys.get(i), values.get(i));
-		unordered(subject.keySet(), keys);
-		unordered(subject.values(), values);
+			entry(actual, keys.get(i), values.get(i));
+		unordered(actual.keySet(), keys);
+		unordered(actual.values(), values);
 	}
 
-	private static <K, V> void ordered(Map<K, V> subject, List<K> keys, List<V> values) {
+	private static <K, V> void ordered(Map<K, V> actual, List<K> keys, List<V> values) {
 		for (int i = 0; i < keys.size(); i++)
-			equal(subject.get(keys.get(i)), values.get(i));
-		ordered(subject.keySet(), keys);
-		ordered(subject.values(), values);
+			equal(actual.get(keys.get(i)), values.get(i));
+		ordered(actual.keySet(), keys);
+		ordered(actual.values(), values);
 	}
 
-	private static String limitedLines(List<String> lines, int index) {
+	private static void size(long actualSize, Object actual, long expectedSize, Object expected) {
+		if (actualSize != expectedSize) throw expectedItem(str(actualSize), actual,
+			str(expectedSize), expected, "Mismatched sizes");
+	}
+
+	private static boolean nullCheck(Object actual, Object expected) {
+		if (expected == null) isNull(actual);
+		else notNull(actual);
+		return expected == null;
+	}
+
+	private static <T> void immutableList(List<T> actual) {
+		notNull(actual);
+		unsupportedOp(() -> actual.set(0, null));
+		unsupportedOp(() -> actual.add(0, null));
+		unsupportedOp(() -> actual.addAll(0, Immutable.setOf((T) null)));
+		unsupportedOp(() -> actual.remove(0));
+		immutable(actual.listIterator());
+		immutable(actual.listIterator(0));
+	}
+
+	private static AssertionError pattern(String actual, Pattern pattern, String format,
+		Object... args) {
+		return failure("%s%nPattern: %s%n Actual: %s", fmt(format, args), full(pattern.pattern()),
+			full(actual));
+	}
+
+	private static AssertionError expected(Object actual, Object expected, String format,
+		Object... args) {
+		return failure("%s%nExpected: %s%n  Actual: %s", fmt(format, args), full(expected),
+			full(actual));
+	}
+
+	private static AssertionError expectedItem(Object actualItem, Object actual,
+		Object expectedItem, Object expected, String format, Object... args) {
+		return failure("%s%nExpected: %s  %s%n  Actual: %s  %s", fmt(format, args),
+			full(expectedItem), full(expected), full(actualItem), full(actual));
+	}
+
+	private static AssertionError expectedChar(String actual, String expected) {
+		for (int i = 0;; i++) {
+			var actualChar = Chars.at(actual, i);
+			var expectedChar = Chars.at(expected, i);
+			if (Objects.equals(actualChar, expectedChar)) continue;
+			return failure(
+				"Mismatched char at index [%d]%nExpected: %-11s  %s%n  Actual: %-11s  %s", i,
+				chr(expectedChar), full(expected), chr(actualChar), actual);
+		}
+	}
+
+	private static AssertionError expectedLine(int line, String actualLine,
+		List<String> actualLines, String expectedLine, List<String> expectedLines) {
+		for (int i = 0;; i++) {
+			var actualChar = Chars.at(actualLine, i);
+			var expectedChar = Chars.at(expectedLine, i);
+			if (Objects.equals(actualChar, expectedChar)) continue;
+			return failure(
+				"Mismatched char at line [%d] index [%d]%n"
+					+ "Expected: %-11s  %s%n  Actual: %-11s  %s%n%n"
+					+ "Expected passage:%n%s%n%nActual passage:%n%s%n",
+				line, i, chr(expectedChar), full(expectedLine), chr(actualChar), full(actualLine),
+				passage(expectedLines, line), passage(actualLines, line));
+		}
+	}
+
+	private static String passage(List<String> lines, int index) {
 		int start = Math.max(0, index - LINE_COUNT);
 		int end = Math.min(lines.size(), index + LINE_COUNT + 1);
-		return Text.addLineNumbers(Lists.sub(lines, start, end - start), start + 1);
+		var list = Lists.sub(lines, start, end - start);
+		list = Lists.adapt(l -> full(l), list);
+		return Text.addLineNumbers(list, start);
 	}
 
-	private static void string(String actual, String expected) {
-		if (Objects.equals(actual, expected)) return;
-		for (int i = 0;; i++) {
-			if (i >= actual.length())
-				throw unexpected(actual, expected, "Expected [%d]: %s", i, chr(expected, i));
-			if (i >= expected.length())
-				throw unexpected(actual, expected, "Unexpected [%d]: %s", i, chr(actual, i));
-			if (actual.charAt(i) != expected.charAt(i)) throw unexpected(actual, expected,
-				"Expected [%d] %s: %s", i, chr(expected, i), chr(actual, i));
-		}
+	private static String def(String format, Object[] args, String formatDef, Object... argsDef) {
+		return Strings.isEmpty(format) ? fmt(formatDef, argsDef) : fmt(format, args);
 	}
 
-	private static String nl(String format, Object... args) {
-		var s = Strings.format(format, args);
-		return s.isEmpty() ? "" : s + '\n';
+	private static String name(Object obj) {
+		if (obj instanceof Class<?> c) return Reflect.name(c);
+		return Reflect.name(Reflect.getClass(obj));
 	}
 
-	private static String str(Object obj) {
+	private static String str(Object s) {
+		return String.valueOf(s);
+	}
+
+	private static String fmt(String format, Object... args) {
+		return Strings.format(format, args);
+	}
+
+	private static String chr(Character c) {
+		if (c == null) return "none";
+		var esc = Chars.escape(c);
+		if (esc.length() > 2) return esc;
+		return String.format("%s (\\u%04x)", esc, (int) c);
+	}
+
+	private static String full(Object obj) {
+		// Distinguish strings shown when object equality fails
 		return switch (obj) {
 			case Byte _ -> String.format("%d (0x%1$02x)", obj);
 			case Short _ -> String.format("%d (0x%1$04x)", obj);
 			case Integer _ -> String.format("%d (0x%1$08x)", obj);
 			case Long _ -> String.format("%dL (0x%1$016x)", obj);
 			case Float _ -> String.format("%sf", obj);
+			case CharSequence c -> Chars.escape(c);
 			case null -> Strings.NULL;
 			default -> RawArray.toString(obj);
 		};
 	}
 
-	private static String chr(String s, int index) {
-		var c = Chars.at(s, index);
-		if (Chars.isPrintable(c)) return String.format("%c (\\u%04x)", c, (int) c);
-		return String.format("\\u%04x", (int) c);
+	private static boolean doubleEqual(double value, double other) {
+		return Double.doubleToLongBits(value) == Double.doubleToLongBits(other);
 	}
 }

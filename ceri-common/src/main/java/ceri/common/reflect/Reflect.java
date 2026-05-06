@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
@@ -171,6 +172,15 @@ public class Reflect {
 	public static String name(Class<?> cls) {
 		if (cls == null) return Strings.NULL;
 		return name(cls.getTypeName());
+	}
+
+	/**
+	 * Returns a method/constructor parameter name. This will be of the form {@code method.argN}
+	 * unless names are stored by compiling with {@code -parameters}.
+	 */
+	public static String name(Parameter param) {
+		if (param == null) return Strings.NULL;
+		return param.getDeclaringExecutable().getName() + "." + param.getName();
 	}
 
 	/**

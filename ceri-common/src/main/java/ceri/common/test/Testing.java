@@ -80,13 +80,6 @@ public class Testing {
 	}
 
 	/**
-	 * Resolves the annotation value from type and ancestors, or null if not available.
-	 */
-	public static Integer resolveI(AnnotatedElement e) {
-		return Annotations.resolve(e, I.class, I::value);
-	}
-
-	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
 	public static void exec(Class<?>... classes) {

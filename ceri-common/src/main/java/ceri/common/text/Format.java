@@ -20,6 +20,7 @@ public class Format {
 	public static final LongFunction DEC_UBYTE = DEC::ubyte;
 	public static final LongFunction DEC_USHORT = DEC::ushort;
 	public static final LongFunction DEC_UINT = DEC::uint;
+	public static final LongFunction DEC_HEX = Format::decHex;
 	public static final LongFunction UDEC_HEX = Format::udecHex;
 	public static final LongFunction UDEC_OR_HEX = Format::udecOrHex;
 	public static final OfLong BIN =
@@ -247,6 +248,14 @@ public class Format {
 	 */
 	public static String hex(long value, String prefix, int minDigits, int maxDigits) {
 		return format(value, true, prefix, Radix.HEX.n, minDigits, maxDigits);
+	}
+
+	/**
+	 * Returns the unsigned decimal number and hex if not from 0 to 9.
+	 */
+	public static String decHex(long value) {
+		if (value >= -9L && value <= 9L) return Long.toString(value);
+		return Long.toString(value) + "|" + hex(value);
 	}
 
 	/**

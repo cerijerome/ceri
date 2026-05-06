@@ -284,7 +284,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	 * Join items based on type.
 	 */
 	@SafeVarargs
-	public final <E extends Exception, T> String joinAll(Excepts.Function<E, T, ?> stringFn,
+	public final <E extends Exception, T> String joinAll(Excepts.Function<E, ? super T, ?> stringFn,
 		T... ts) throws E {
 		if (stringFn == null) return "";
 		return joinAll((b, t) -> b.append(stringFn.apply(t)), ts);
@@ -309,7 +309,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	/**
 	 * Join items based on type.
 	 */
-	public <E extends Exception, T> String join(Excepts.Function<E, T, ?> stringFn,
+	public <E extends Exception, T> String join(Excepts.Function<E, ? super T, ?> stringFn,
 		Iterable<T> iterable) throws E {
 		if (stringFn == null) return "";
 		return join((b, t) -> b.append(stringFn.apply(t)), iterable);

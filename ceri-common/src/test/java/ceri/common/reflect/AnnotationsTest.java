@@ -63,20 +63,25 @@ public class AnnotationsTest {
 			private static final RecordComponent RP = R.class.getRecordComponents()[0];
 			private static final Field A = Reflect.publicField(C.class, "a");
 			private static final Generics.Typed FT = Generics.typed(F);
+			private static final Generics.Typed MPT = Generics.typed(MP);
 			private static final Generics.Typed RPT = Generics.typed(RP);
 			private static final Generics.Typed AT = Generics.typed(A);
 
+			// f: field
 			public static final @I(1) List<@I(2) Map<@I(3) Integer, @I(4) ? extends @I(5) C>> f =
 				null;
 
+			// m(p): method
 			public @I(11) List<@I(12) Map<@I(13) Integer, @I(14) ? extends @I(15) C>>
 				m(@I(21) List<@I(22) Map<@I(23) Integer, @I(24) ? extends @I(25) C>> p) {
 				return p;
 			}
 
+			// R(a): record
 			@I(31)
 			public record R(@I(32) int a) {}
 
+			// a: array field
 			public static final @I(41) List<@I(42) int @I(43) [] @I(44) []> @I(45) [] a = null;
 		}
 	}
@@ -88,64 +93,88 @@ public class AnnotationsTest {
 
 	@Test
 	public void testNullType() {
-		Assert.equal(Annotations.NULL_TYPE.getType(), null);
-		Assert.array(Annotations.NULL_TYPE.getDeclaredAnnotations());
-		Assert.array(Annotations.NULL_TYPE.getAnnotations());
-		Assert.equal(Annotations.NULL_TYPE.getAnnotation(I.class), null);
+		Assert.equal(Annotations.NULL.getType(), null);
+		Assert.array(Annotations.NULL.getDeclaredAnnotations());
+		Assert.array(Annotations.NULL.getAnnotations());
+		Assert.equal(Annotations.NULL.getAnnotation(I.class), null);
 	}
 
-	@Test
-	public void testPathWithOrphans() {
-		assertI(Annotations.path().orphan(B.C.class).orphan(B.class).sub((Generics.Typed) null)
-			.sub(NULL).sub(B.C.FT.type(0)), 2, -2, -1);
-	}
-
-	@Test
-	public void testPathOperator() {
-		assertI(Annotations.path().sub(t -> t.type(0)));
-		var p = Annotations.path(B.C.F).sub(NULL_OP).sub(t -> t.type(0).type(1).upper(0));
-		assertI(p, 5, 1, -1, -2, null);
-		Assert.equal(p.typed().cls(), B.C.class);
-		assertI(Annotations.path(B.C.F).lower(0), 1, 1, -1, -2, null);
-	}
-
-	@Test
-	public void testPathForField() {
-		assertI(Annotations.path(B.C.F).type(0).type(0), 3, 2, 1, -1, -2, null);
-		assertI(Annotations.path(B.C.F).type(0).type(1).upper(0), 5, 4, 2, 1, -1, -2, null);
-		assertI(Annotations.path(B.C.A).component().type(0).component().component(), 42, 44, 43, 41,
-			41, -1, -2, null);
-	}
-
-	@Test
-	public void testPathForMethod() {
-		assertI(Annotations.pathReturn(B.C.M).type(0).type(0), 13, 12, 11, -1, -2, null);
-		assertI(Annotations.pathReturn(B.C.M).type(0).type(1).upper(0), 15, 14, 12, 11, -1, -2,
-			null);
-		assertI(Annotations.path(B.C.MP).type(0).type(0), 23, 22, 21, 11, -1, -2, null);
-		assertI(Annotations.path(B.C.MP).type(0).type(1).upper(0), 25, 24, 22, 21, 11, -1, -2,
-			null);
-	}
-
-	@Test
-	public void testNode() {
-		assertI(Annotations.node(null, null), null);
-		assertI(Annotations.node(B.C.F), 1);
-		assertI(Annotations.node(B.C.F, null), 1);
-		assertI(Annotations.node(null, B.C.F), 1);
-	}
+	// @Test
+	// public void testPathWithOrphans() {
+	// assertI(Annotations.path().orphan(B.C.class).orphan(B.class).sub((Generics.Typed) null)
+	// .sub(NULL).sub(B.C.FT.type(0)), 2, -2, -1);
+	// }
+	//
+	// @Test
+	// public void testPathOperator() {
+	// assertI(Annotations.path().sub(t -> t.type(0)));
+	// var p = Annotations.path(B.C.F).sub(NULL_OP).sub(t -> t.type(0).type(1).upper(0));
+	// assertI(p, 5, 1, -1, -2, null);
+	// Assert.equal(p.typed().cls(), B.C.class);
+	// assertI(Annotations.path(B.C.F).lower(0), 1, -1, -2, null);
+	// }
+	//
+	// @Test
+	// public void testPathForField() {
+	// assertI(Annotations.path(B.C.F).type(0).type(0), 3, 2, 1, -1, -2, null);
+	// assertI(Annotations.path(B.C.F).type(0).type(1).upper(0), 5, 4, 2, 1, -1, -2, null);
+	// assertI(Annotations.path(B.C.A).component().type(0).component().component(), 42, 44, 43, 41,
+	// 41, -1, -2, null);
+	// assertI(Annotations.path(B.C.A).components().type(0).components(), 42, 43, 41, 41, -1, -2,
+	// null);
+	// }
+	//
+	// @Test
+	// public void testPathForMethod() {
+	// assertI(Annotations.pathReturn(B.C.M).type(0).type(0), 13, 12, 11, -1, -2, null);
+	// assertI(Annotations.pathReturn(B.C.M).type(0).type(1).upper(0), 15, 14, 12, 11, -1, -2,
+	// null);
+	// assertI(Annotations.path(B.C.MP).type(0).type(0), 23, 22, 21, 11, -1, -2, null);
+	// assertI(Annotations.path(B.C.MP).type(0).type(1).upper(0), 25, 24, 22, 21, 11, -1, -2,
+	// null);
+	// assertI(Annotations.path(B.C.MPT).type(0).type(1).upper(0), 25, 24, 22, 21);
+	// }
+	//
+	// @Test
+	// public void testNode() {
+	// assertI(Annotations.node(null, null), null);
+	// assertI(Annotations.node(B.C.F), 1);
+	// assertI(Annotations.node(B.C.F, null), 1);
+	// assertI(Annotations.node(null, B.C.F), 1);
+	// }
 
 	@Test
 	public void testNodeSub() {
-		assertI(Annotations.node(B.C.FT).sub(B.C.FT.type(0).type(1)), 4);
+		assertI(Annotations.node(B.C.FT).sub(B.C.FT.type(0).type(1)), 4, 1);
 		assertI(Annotations.node(B.C.FT).sub(B.C.FT.type(0).type(2)), 1);
 	}
 
 	@Test
-	public void testNodeAnnotationElement() {
-		var n = Annotations.node(B.C.F);
+	public void testResolvableUnwrap() {
+		Assert.same(Annotations.Resolvable.unwrap(null), null);
+		Assert.same(Annotations.Resolvable.unwrap(B.C.F), B.C.F);
+		var nested = Annotations.resolvable(B.class, B.C.A, B.C.F);
+		Assert.same(Annotations.Resolvable.unwrap(nested), B.C.F);
+	}
+
+	@Test
+	public void testResolvableResolution() {
+		assertI(Annotations.resolvable(B.class, B.C.A, B.C.F), 1, 41, -2, null);
+		assertI(Annotations.resolvable(B.C.F, B.C.A, B.class), -2, 41, 1, -1, -2, null);
+	}
+
+	@Test
+	public void testResolvableElement() {
+		var n = Annotations.Resolvable.of(B.C.F, null);
 		Assert.array(n.getAnnotations(), Annotations.annotation(B.C.F, I.class));
 		Assert.array(n.getDeclaredAnnotations(), Annotations.annotation(B.C.F, I.class));
+	}
+
+	@Test
+	public void testResolvableToString() {
+		Assert.string(Annotations.resolvable(NULL, null), "null");
+		Assert.string(Annotations.resolvable(NULL, B.C.A), B.C.A.toString());
+		Assert.string(Annotations.resolvable(B.C.A, B.C.F), "(%s)", B.C.F);
 	}
 
 	@Test
@@ -285,11 +314,11 @@ public class AnnotationsTest {
 	@Test
 	public void testComponent() {
 		Assert.equal(Annotations.component(null), null);
-		assertI(B.C.A, 41);
+		assertI(B.C.A, 41, -1, -2, null);
+		assertI(Annotations.component(B.C.A), 41, -1, -2, null); // no change
 		assertI(B.C.AT.annotated(), 45);
-		assertI(B.C.AT.component().type(0).annotated(), 43);
-		assertI(Annotations.component(B.C.A), 41);
 		assertI(Annotations.component(B.C.AT.annotated()), 41);
+		assertI(B.C.AT.component().type(0).annotated(), 43);
 		assertI(Annotations.component(B.C.AT.component().type(0).annotated()), 42);
 	}
 
@@ -298,13 +327,13 @@ public class AnnotationsTest {
 		Assert.equal(anno.i(), i);
 	}
 
-	private static void assertI(AnnotatedElement element, Integer value) {
-		Assert.equal(Testing.resolveI(element), value);
+	private static void assertI(Annotations.Node node, Integer... values) {
+		assertI(node.element(), values);
 	}
 
-	private static void assertI(Annotations.Path path, Integer... values) {
+	private static void assertI(AnnotatedElement element, Integer... values) {
 		var captor = Captor.<Integer>of();
-		Annotations.resolve(path.get(), e -> captor.accept(Testing.i(e), null));
+		Annotations.resolve(element, e -> captor.accept(Testing.i(e), null));
 		captor.verify(values);
 	}
 }

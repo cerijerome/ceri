@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.nio.file.Path;
 import java.util.AbstractList;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -125,11 +127,20 @@ public class AssertTest {
 
 	@Test
 	public void testInstance() {
+		Assert.instance(null, null);
 		Assert.instance(1, Object.class);
 		Assert.instance(1, Number.class);
 		Assert.instance(1, Integer.class);
 		Assert.assertion(() -> Assert.instance(1, String.class));
 		Assert.assertion(() -> Assert.instance(1, Long.class));
+	}
+
+	@Test
+	public void testDeepEqual() {
+		Assert.deepEqual(null, null);
+		Assert.deepEqual(new int[][] { {}, null, { -1, 1 } }, new int[][] { {}, null, { -1, 1 } });
+		Assert.assertion(
+			() -> Assert.deepEqual(new int[][] { {}, { -1, 1 } }, new int[][] { null, { -1, 1 } }));
 	}
 
 	@Test
@@ -287,12 +298,14 @@ public class AssertTest {
 
 	@Test
 	public void testArrayForByteProvider() {
+		Assert.array((ByteProvider) null, (byte[]) null);
 		Assert.array(ByteProvider.of(1, 2, 3), 1, 2, 3);
 		Assert.assertion(() -> Assert.array(ByteProvider.of(1, 2, 3), 1, 2));
 	}
 
 	@Test
 	public void testApproxArray() {
+		Assert.approxArray(new double[] { Double.NaN }, Double.NaN);
 		Assert.approxArray(Array.DOUBLE.of(0.1234, 0.1235), 0.1233, 0.1236);
 		Assert.approxArray(4, Array.DOUBLE.of(0.1234, 0.1235), 0.1234, 0.1235);
 		Assert.assertion(() -> Assert.approxArray(Array.DOUBLE.of(0.1234, 0.1235), 0.1235, 0.1235));
@@ -300,6 +313,7 @@ public class AssertTest {
 
 	@Test
 	public void testApproxArrayWithDiff() {
+		Assert.approxArray(0.1, new double[] { Double.NaN }, Double.NaN);
 		Assert.approxArray(0.001, Array.DOUBLE.of(0.1234, 0.1235), 0.1233, 0.1236);
 		Assert.approxArray(0.0001, Array.DOUBLE.of(0.1234, 0.1235), 0.1234, 0.1235);
 		Assert.assertion(
@@ -309,8 +323,14 @@ public class AssertTest {
 	// collections
 
 	@Test
+	public void testIterator() {
+		Assert.iterator(null, (Iterable<?>) null);
+	}
+
+	@Test
 	public void testList() {
 		Assert.list(null, null);
+		Assert.list(null, 0, null, 0, 1);
 		Assert.list(List.of(1), 0, List.of(1), 0, 1);
 		Assert.assertion(() -> Assert.list(List.of(), null));
 		Assert.assertion(() -> Assert.list(List.of(), 0, List.of(), 0, 1));
@@ -329,6 +349,13 @@ public class AssertTest {
 		Assert.map(Map.of(1, "A", 2, "B", 3, "C", 4, "D"), 1, "A", 2, "B", 3, "C", 4, "D");
 		Assert.map(Map.of(1, "A", 2, "B", 3, "C", 4, "D", 5, "E"), 1, "A", 2, "B", 3, "C", 4, "D",
 			5, "E");
+	}
+
+	@Test
+	public void testMapEntry() {
+		Assert.entry(Maps.of(null, null), null, null);
+		Assert.entry(Maps.of(1, "a", 2, "b"), 2, "b");
+		Assert.assertion(() -> Assert.entry(Maps.of(1, "a", 2, "b"), 2, "a"));
 	}
 
 	@Test
@@ -370,6 +397,7 @@ public class AssertTest {
 
 	@Test
 	public void testUnordered() {
+		Assert.unordered((List<?>) null, (Set<?>) null);
 		Assert.unordered(Array.of(1, -1, null), null, 1, -1);
 		var list = Array.INT.list(5, 1, 4, 2, 3);
 		Assert.unordered(list, 1, 2, 3, 4, 5);
@@ -399,6 +427,7 @@ public class AssertTest {
 
 	@Test
 	public void testOrdered() {
+		Assert.ordered((Iterable<Object>) null, (List<Object>) null);
 		var set = Sets.<Integer>tree();
 		Assert.ordered(set);
 		Collections.addAll(set, IMAX, IMIN, 0);
@@ -434,7 +463,7 @@ public class AssertTest {
 		Assert.assertion(() -> Assert.string("", "\0"));
 		Assert.assertion(() -> Assert.string(0100, "0100"));
 		Assert.assertion(() -> Assert.string("x123.1", "%s%d%f", "x", 12, 3.1));
-		Assert.assertion(() -> Assert.string("abcdef", "abcde"));
+		Assert.assertion(() -> Assert.string("abcde\u0001", "abcde"));
 	}
 
 	@Test
@@ -448,6 +477,7 @@ public class AssertTest {
 
 	@Test
 	public void testText() {
+		Assert.text(null, null);
 		Assert.text("", "");
 		Assert.text("", "\n");
 		Assert.text(lines(3), lines(3));
@@ -457,12 +487,15 @@ public class AssertTest {
 
 	@Test
 	public void testContains() {
+		Assert.contains(null, null);
 		Assert.contains("aBcDe", "cD");
 		Assert.assertion(() -> Assert.contains("aBcDe", "cd"));
 	}
 
 	@Test
 	public void testMatch() {
+		Assert.match(null, (String) null);
+		Assert.match(null, (Pattern) null);
 		var p = Pattern.compile("[a-z]+");
 		Assert.match("abc", p);
 		Assert.match("test", "%1$s..%1$s", "t");
@@ -475,16 +508,18 @@ public class AssertTest {
 		Assert.noMatch("123", p);
 		Assert.noMatch("123", "%1$s..%1$s", "\\d");
 		Assert.assertion(() -> Assert.noMatch("test", "%1$s..%1$s", "t"));
-		Assert.assertion(() -> Assert.noMatch("test", p, "message"));
+		Assert.assertion(() -> Assert.noMatch("test", p));
 	}
 
 	@Test
 	public void testFind() {
+		Assert.find(null, (String) null);
+		Assert.find(null, (Pattern) null);
 		var p = Pattern.compile("[a-z]+");
 		Assert.find("123abc456", p);
 		Assert.find("123test456", "%1$s..%1$s", "t");
 		Assert.assertion(() -> Assert.find("test", "%1$s..%1$s", "T"));
-		Assert.assertion(() -> Assert.find("123456", p, "message"));
+		Assert.assertion(() -> Assert.find("123456", p));
 	}
 
 	@Test
@@ -495,6 +530,7 @@ public class AssertTest {
 
 	@Test
 	public void testAscii() {
+		Assert.ascii(null, null);
 		var r = Bytes.toAscii("tests").reader(0);
 		Assert.ascii(r, "test");
 		r.reset();
@@ -518,6 +554,7 @@ public class AssertTest {
 
 	@Test
 	public void testBuffer() {
+		Assert.buffer((CharBuffer) null, (String) null);
 		Assert.buffer(ByteBuffer.wrap(Array.BYTE.of()));
 		Assert.buffer(ByteBuffer.wrap(Array.BYTE.of(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
 		Assert.buffer(ShortBuffer.wrap(Array.SHORT.of(-1, 1, 0)), new short[] { -1, 1, 0 });
@@ -526,6 +563,7 @@ public class AssertTest {
 
 	@Test
 	public void testRead() throws IOException {
+		Assert.read(null, (ByteProvider) null);
 		var in = new ByteArrayInputStream(Array.BYTE.of(1, 2, 3));
 		Assert.read(in, 1, 2, 3);
 		in.reset();
@@ -553,6 +591,7 @@ public class AssertTest {
 
 	@Test
 	public void testDir() throws IOException {
+		Assert.dir(null, null);
 		helper = FileTestHelper.builder().root("a").dir("a/0/d0") //
 			.file("a/0/f0", "xxxxxx") //
 			.file("a/0/f1", "") //
@@ -571,6 +610,8 @@ public class AssertTest {
 
 	@Test
 	public void testFile() throws IOException {
+		Assert.file((Path) null, (Path) null);
+		Assert.file((Path) null, (ByteProvider) null);
 		helper = FileTestHelper.builder().dir("a").dir("b").file("c", "").file("d", "D")
 			.file("e", "E").build();
 		Assert.assertion(() -> Assert.file(helper.path("a"), helper.path("c")));

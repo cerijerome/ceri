@@ -163,7 +163,7 @@ public class GenericsTest {
 		Assert.equal(Generics.typedFrom(null), Typed.NULL);
 		assertType(Generics.typedFrom(new int[1][1]), int[][].class);
 		assertType(Generics.typedFrom(TYPE), TYPE);
-		assertType(Generics.typedFrom(Annotations.NULL_TYPE), NULL);
+		assertType(Generics.typedFrom(Annotations.NULL), NULL);
 		assertType(Generics.typedFrom(listS), t_listS);
 		assertType(Generics.typedFrom(t2d), types.t_t2d);
 	}
@@ -172,6 +172,7 @@ public class GenericsTest {
 	public void testTypedParameter() {
 		Assert.equal(Generics.typed((Parameter) null).isNull(), true);
 		Assert.equal(Generics.typed(t2d).component().component().varName(), "T");
+		Assert.equal(Generics.typed(t2d).components().varName(), "T");
 	}
 
 	@Test
@@ -253,7 +254,7 @@ public class GenericsTest {
 	public void testTypedTypes() {
 		assertType(Generics.Typed.NULL.type(0), NULL);
 		assertType(Generics.typed(TYPE).type(1), NULL);
-		assertType(Generics.typed(Annotations.NULL_TYPE).type(0), NULL);
+		assertType(Generics.typed(Annotations.NULL).type(0), NULL);
 		assertType(Generics.typed(mapListListT).type(0), t_list);
 		assertType(Generics.typed(mapListListT).type(1), types.t_listT);
 		assertType(Generics.typed(mapListListT).type(2), NULL);
@@ -270,7 +271,7 @@ public class GenericsTest {
 		assertType(Generics.Typed.NULL.upper(0), NULL);
 		assertType(Generics.Typed.NULL.upper(0), NULL); // uses cached value
 		assertType(Generics.typed(TYPE).upper(0), Object.class);
-		assertType(Generics.typed(Annotations.NULL_TYPE).upper(0), Object.class);
+		assertType(Generics.typed(Annotations.NULL).upper(0), Object.class);
 		assertType(t.typed.upper(0), Object.class);
 		assertType(t_list.typed.upper(0), t_list);
 		assertType(t_list.typed.type(0).upper(0), Object.class);
@@ -288,7 +289,7 @@ public class GenericsTest {
 		var t = new Generics.Token<>() {};
 		Assert.ordered(Generics.Typed.NULL.lower());
 		Assert.ordered(Generics.typed(TYPE).lower());
-		Assert.ordered(Generics.typed(Annotations.NULL_TYPE).lower());
+		Assert.ordered(Generics.typed(Annotations.NULL).lower());
 		assertType(t.typed.lower(0), Object.class);
 		assertType(t_list.typed.lower(0), t_list);
 		assertType(t_list.typed.type(0).lower(0), NULL);
@@ -323,7 +324,7 @@ public class GenericsTest {
 	@Test
 	public void testClassFrom() {
 		Assert.same(Generics.classFrom((AnnotatedType) null), null);
-		Assert.same(Generics.classFrom(Annotations.NULL_TYPE), null);
+		Assert.same(Generics.classFrom(Annotations.NULL), null);
 		Assert.same(Generics.classFrom(listN2d.getAnnotatedType()), List[][].class);
 	}
 

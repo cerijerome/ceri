@@ -32,6 +32,7 @@ public class FormatTest {
 		Assert.string(Format.DEC_UINT.apply(0L), "0");
 		Assert.string(Format.DEC_UINT.apply(-1L), "%s", 0xffffffffL);
 		Assert.string(Format.DEC_UINT.apply(LMAX), "%s", 0xffffffffL);
+		Assert.string(Format.DEC_HEX.apply(0L), "0");
 		Assert.string(Format.UDEC_HEX.apply(0L), "0");
 		Assert.string(Format.UDEC_OR_HEX.apply(0L), "0");
 	}
@@ -104,6 +105,17 @@ public class FormatTest {
 	public void testSignedHex() {
 		Assert.string(Format.format(-1, false, "", 10, 2, 4), "-01");
 		Assert.string(Format.format(-11111, false, "", 10, 2, 4), "-1111");
+	}
+
+	@Test
+	public void testSignedDecAndHex() {
+		Assert.string(Format.decHex(0), "0");
+		Assert.string(Format.decHex(9), "9");
+		Assert.string(Format.decHex(-1), "-1");
+		Assert.string(Format.decHex(-9), "-9");
+		Assert.string(Format.decHex(15), "15|0xf");
+		Assert.string(Format.decHex(LMIN), "%s|0x8000000000000000", LMIN);
+		Assert.string(Format.decHex(-10), "-10|0xfffffffffffffff6");
 	}
 
 	@Test
