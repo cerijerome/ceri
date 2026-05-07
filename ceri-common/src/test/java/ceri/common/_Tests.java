@@ -270,6 +270,7 @@ import ceri.common.test.Testing;
 	ceri.common.text.TableBehavior.class, //
 	ceri.common.text.TextTest.class, //
 	ceri.common.text.ToStringBehavior.class, //
+	ceri.common.text.TransformerBehavior.class, //
 	ceri.common.text.Utf8Test.class, //
 	// time
 	ceri.common.time.DatesTest.class, //

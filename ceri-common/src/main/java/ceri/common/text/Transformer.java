@@ -23,6 +23,7 @@ public class Transformer implements Functions.Function<Object, String> {
 	private static final Joiner MAP_JOINER = joiner(Joiner.LIST, 10);
 	public static final Transformer DEFAULT = builder().build();
 	private final List<Transform<Object, ?>> transforms;
+	private final Functions.Supplier<?> nullSupplier;
 	private final String remainder;
 	private final int levels;
 
@@ -33,9 +34,7 @@ public class Transformer implements Functions.Function<Object, String> {
 		/**
 		 * Returns true if the nested levels are exceeded.
 		 */
-		default boolean overflow() {
-			return true;
-		}
+		boolean overflow();
 	}
 
 	/**
@@ -168,6 +167,7 @@ public class Transformer implements Functions.Function<Object, String> {
 	 */
 	public static class Builder {
 		final List<Transform<Object, ?>> transforms = Lists.of();
+		Functions.Supplier<?> nullSupplier = () -> Strings.NULL;
 		Joiner iterableJoiner = ITERABLE_JOINER;
 		Joiner mapJoiner = MAP_JOINER;
 		String kvSeparator = "=";
@@ -198,6 +198,21 @@ public class Transformer implements Functions.Function<Object, String> {
 		public Builder maps(Joiner joiner, String kvSeparator) {
 			mapJoiner = Basics.def(joiner, mapJoiner);
 			this.kvSeparator = Basics.def(kvSeparator, "=");
+			return this;
+		}
+
+		/**
+		 * Sets the null transform value.
+		 */
+		public Builder setNull(String nullVal) {
+			return setNull(() -> nullVal);
+		}
+
+		/**
+		 * Sets a transform for null values.
+		 */
+		public Builder setNull(Functions.Supplier<?> supplier) {
+			if (supplier != null) nullSupplier = supplier;
 			return this;
 		}
 
@@ -241,7 +256,7 @@ public class Transformer implements Functions.Function<Object, String> {
 		 * Creates the transformer.
 		 */
 		public Transformer build() {
-			return new Transformer(fix(this), remainder, levels);
+			return new Transformer(fix(this), nullSupplier, remainder, levels);
 		}
 	}
 
@@ -252,8 +267,10 @@ public class Transformer implements Functions.Function<Object, String> {
 		return new Builder();
 	}
 
-	private Transformer(List<Transform<Object, ?>> transforms, String remainder, int levels) {
+	private Transformer(List<Transform<Object, ?>> transforms, Functions.Supplier<?> nullSupplier,
+		String remainder, int levels) {
 		this.transforms = transforms;
+		this.nullSupplier = nullSupplier;
 		this.remainder = remainder;
 		this.levels = levels;
 	}
@@ -269,7 +286,7 @@ public class Transformer implements Functions.Function<Object, String> {
 	// support
 
 	private Object transform(Context context, Object arg) {
-		if (arg == null) return arg;
+		if (arg == null) return nullSupplier.get();
 		for (var transform : transforms) {
 			var result = transform.apply(context, arg);
 			if (result != null) return result;

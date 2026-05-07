@@ -55,6 +55,7 @@ public class Annotations {
 		 */
 		public static Resolvable of(AnnotatedElement parent, AnnotatedElement element) {
 			if (isNull(element)) return isNull(parent) ? NULL : of(null, parent);
+			if (parent == element) parent = null;
 			return new Resolvable(parent, element);
 		}
 
@@ -227,7 +228,7 @@ public class Annotations {
 	public static AnnotatedElement safe(AnnotatedElement element) {
 		return Basics.def(element, NULL);
 	}
-	
+
 	/**
 	 * Returns a normalized resolvable element for the given type and parent.
 	 */
