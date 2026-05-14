@@ -13,8 +13,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import ceri.common.array.Array;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Excepts;
@@ -94,6 +94,18 @@ public class Annotations {
 		}
 
 		@Override
+		public int hashCode() {
+			return Objects.hash(element(), parent());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			return (obj instanceof Resolvable r) && Objects.equals(element(), r.element())
+				&& Objects.equals(parent(), r.parent());
+		}
+
+		@Override
 		public String toString() {
 			return "(" + element() + ")";
 		}
@@ -106,6 +118,13 @@ public class Annotations {
 		public static final Node NULL = new Node(Generics.Typed.NULL, Annotations.NULL);
 		private Generics.Typed typed;
 		private AnnotatedElement element;
+
+		/**
+		 * Returns true if the node is null or the null node instance.
+		 */
+		public static boolean isNull(Node node) {
+			return node == null || node == NULL;
+		}
 
 		/**
 		 * Returns a normalized instance for the type and element.
@@ -173,45 +192,93 @@ public class Annotations {
 		}
 
 		/**
-		 * Traverses to and adds the generic sub-type of given index.
+		 * Returns the number of types available.
+		 */
+		public int types() {
+			return typed().types().size();
+		}
+
+		/**
+		 * Traverses to and adds the generic sub-type of given index, if available.
 		 */
 		public Node type(int index) {
 			return sub(t -> t.type(index));
 		}
 
 		/**
-		 * Traverses to and adds the generic array component.
+		 * Returns true if the type is a generic array or array class.
+		 */
+		public boolean isArray() {
+			return typed().isArray();
+		}
+
+		/**
+		 * Traverses to and adds the next generic array component, if available.
 		 */
 		public Node component() {
 			return sub(Generics.Typed::component);
 		}
 
 		/**
-		 * Traverses to and adds the multi-dimensional array component.
+		 * Traverses to and adds the multi-dimensional array component, if available.
 		 */
 		public Node components() {
 			return sub(Generics.Typed::components);
 		}
 
 		/**
-		 * Traverses to and adds the generic upper bound of given index.
+		 * Returns the number of upper bounds available.
+		 */
+		public int upper() {
+			return typed().upper().size();
+		}
+
+		/**
+		 * Traverses to and adds the generic upper bound of given index, if available.
 		 */
 		public Node upper(int index) {
 			return sub(t -> t.upper(index));
 		}
 
 		/**
-		 * Traverses to and adds the generic lower bound of given index.
+		 * Returns the number of lower bounds available.
+		 */
+		public int lower() {
+			return typed().lower().size();
+		}
+
+		/**
+		 * Traverses to and adds the generic lower bound of given index, if available.
 		 */
 		public Node lower(int index) {
 			return sub(t -> t.lower(index));
 		}
 
 		private Node sub(Generics.Typed typed, AnnotatedElement element) {
-			if (typed == null) typed = Generics.Typed.NULL;
+			if (Generics.Typed.isNull(typed)) typed = this.typed;
 			element = Annotations.resolvableElement(element(), element);
 			if (typed == typed() && element == element()) return this;
 			return of(typed, element);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(typed(), element());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			return (obj instanceof Node n) && Objects.equals(typed(), n.typed())
+				&& Objects.equals(element(), n.element());
+		}
+
+		@Override
+		public String toString() {
+			var name = shortNameOf(element());
+			var typed = typed().toString();
+			if (Strings.isEmpty(name) || name.equals(typed)) return typed;
+			return typed + ":" + name;
 		}
 	}
 
@@ -240,7 +307,7 @@ public class Annotations {
 	 * Returns a normalized resolvable element for the given elements.
 	 */
 	public static AnnotatedElement resolvable(AnnotatedElement... elements) {
-		if (Array.isEmpty(elements)) return NULL;
+		if (ceri.common.array.Array.isEmpty(elements)) return NULL;
 		var element = safe(elements[0]);
 		for (int i = 1; i < elements.length; i++)
 			element = resolvableElement(element, elements[i]);
@@ -280,6 +347,13 @@ public class Annotations {
 	 */
 	public static Node nodeReturn(Executable exec) {
 		return Node.of(Generics.typedReturn(exec), exec);
+	}
+
+	/**
+	 * Returns a node for the record component type and annotated element.
+	 */
+	public static Node node(RecordComponent comp) {
+		return Node.of(Generics.typed(comp), comp);
 	}
 
 	/**
@@ -565,6 +639,17 @@ public class Annotations {
 		if (isNull(element)) return isNull(parent) ? NULL : parent;
 		if (isNull(parent) || element == parent) return element;
 		return Resolvable.of(parent, element);
+	}
+
+	private static String shortNameOf(Object obj) {
+		return switch (obj) {
+			case Class<?> c -> c.getSimpleName();
+			case Member m -> m.getName();
+			case Parameter e -> e.getName(); // argN unless compiled with -parameters
+			case RecordComponent r -> r.getName();
+			case AnnotatedType a -> shortNameOf(a.getType());
+			case null, default -> "";
+		};
 	}
 
 	private static AnnotatedType ofNull() {

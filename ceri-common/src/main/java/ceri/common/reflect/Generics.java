@@ -36,46 +36,60 @@ public class Generics {
 	 * A token to pass a structured generic type at runtime.
 	 */
 	public static abstract class Token<T> {
-		public static final Token<?> NULL = new Token<>(Typed.NULL) {};
-		public final Typed typed;
+		public static final Token<?> NULL = new Token<>(Annotations.Node.NULL) {};
+		private final Annotations.Node node;
 
 		protected Token() {
 			var superClass = (AnnotatedParameterizedType) getClass().getAnnotatedSuperclass();
-			typed = typed(superClass.getAnnotatedActualTypeArguments()[0]);
+			node = Annotations.node(superClass.getAnnotatedActualTypeArguments()[0]);
 		}
 
-		private Token(Typed typed) {
-			this.typed = typed;
+		private Token(Annotations.Node node) {
+			this.node = node;
+		}
+
+		/**
+		 * Provides the annotated node wrapper.
+		 */
+		public Annotations.Node node() {
+			return node;
+		}
+
+		/**
+		 * Provides the generic type wrapper.
+		 */
+		public Typed typed() {
+			return node().typed();
 		}
 
 		/**
 		 * Provides the type.
 		 */
 		public Type type() {
-			return typed.raw();
+			return typed().raw();
 		}
 
 		/**
 		 * Provides the class, or null if the type if not a class or parameterized type.
 		 */
 		public Class<T> cls() {
-			return typed.cls();
+			return typed().cls();
 		}
 
 		@Override
 		public int hashCode() {
-			return typed.hashCode();
+			return typed().hashCode();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			return (obj instanceof Token<?> t) && Objects.equals(typed, t.typed);
+			return (obj instanceof Token<?> t) && Objects.equals(typed(), t.typed());
 		}
 
 		@Override
 		public String toString() {
-			return typed.toString();
+			return node.toString();
 		}
 	}
 

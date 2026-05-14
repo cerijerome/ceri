@@ -127,6 +127,16 @@ public class AnnotationsTest {
 	}
 
 	@Test
+	public void testResolvableEquals() {
+		var t = Annotations.Resolvable.of(B.C.M, B.C.MPT.annotated());
+		var eq0 = Annotations.resolvable(B.C.M, B.C.MPT.annotated());
+		var ne0 = Annotations.Resolvable.of(B.C.M, Annotations.Resolvable.NULL);
+		var ne1 = Annotations.Resolvable.of(B.C.MPT.annotated(), B.C.MPT.annotated());
+		Testing.exerciseEquals(t, eq0);
+		Assert.notEqualAll(t, ne0, ne1);
+	}
+
+	@Test
 	public void testResolvableToString() {
 		Assert.string(Annotations.resolvable(NULL, null), "null");
 		Assert.string(Annotations.resolvable(NULL, B.C.A), B.C.A.toString());
@@ -138,6 +148,23 @@ public class AnnotationsTest {
 		assertI(Annotations.resolvable(), (Integer) null);
 		assertI(Annotations.resolvable(B.C.class), -1, -2, null);
 		assertI(Annotations.resolvable(B.class, B.C.MP), 21, -2, null);
+	}
+
+	@Test
+	public void testNodeEquals() {
+		var t = Annotations.Node.of(B.C.AT, B.C.class);
+		var eq0 = Annotations.Node.of(B.C.AT, B.C.class);
+		var ne0 = Annotations.Node.of(B.C.AT, B.C.A);
+		var ne1 = Annotations.Node.of(B.C.FT, B.C.class);
+		Testing.exerciseEquals(t, eq0);
+		Assert.notEqualAll(t, ne0, ne1);
+	}
+
+	@Test
+	public void testNodeIsNull() {
+		Assert.equal(Annotations.Node.isNull(null), true);
+		Assert.equal(Annotations.Node.isNull(Annotations.Node.NULL), true);
+		Assert.equal(Annotations.Node.isNull(Annotations.node(B.C.F)), false);
 	}
 
 	@Test
@@ -164,7 +191,7 @@ public class AnnotationsTest {
 	}
 
 	@Test
-	public void testNodeTraversal() {
+	public void testNodeResolution() {
 		var node = Annotations.node(B.C.F);
 		assertI(node, 1, -1, -2, null);
 		assertI(node.type(0).type(1).upper(0), 5, 4, 2, 1, -1, -2, null);
@@ -172,6 +199,35 @@ public class AnnotationsTest {
 		node = Annotations.node(B.C.A);
 		assertI(node, 41, -1, -2, null);
 		assertI(node.component().type(0).components(), 42, 43, 41, 41, -1, -2, null);
+	}
+
+	@Test
+	public void testNodeIsArray() {
+		Assert.equal(Annotations.node(B.C.A).isArray(), true);
+		Assert.equal(Annotations.node(B.C.A).component().isArray(), false);
+	}
+
+	@Test
+	public void testNodeTypes() {
+		var node = Annotations.node(B.C.F);
+		Assert.equal(node.types(), 1);
+		Assert.equal(node.type(0).types(), 2);
+	}
+
+	@Test
+	public void testNodeBounds() {
+		var node = Annotations.node(B.C.F);
+		Assert.equal(node.upper(), 1);
+		Assert.equal(node.lower(), 1);
+		Assert.equal(node.type(0).type(1).upper(), 1);
+		Assert.equal(node.type(0).type(1).lower(), 0);
+	}
+
+	@Test
+	public void testNodeString() {
+		Assert.string(Annotations.node(B.C.F), "List<Map<Integer, ? extends C>>:f");
+		Assert.match(Annotations.node(B.C.MP), "\\QList<Map<Integer, ? extends C>>:\\E.*");
+		Assert.string(Annotations.node(B.C.RP), "int:a");
 	}
 
 	@Test

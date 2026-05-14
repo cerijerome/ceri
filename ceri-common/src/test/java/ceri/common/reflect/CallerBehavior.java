@@ -33,5 +33,4 @@ public class CallerBehavior {
 		Caller caller = Caller.fromStackTraceElement(ste);
 		Assert.equal(caller.pkg(), getClass().getPackage().getName());
 	}
-
 }

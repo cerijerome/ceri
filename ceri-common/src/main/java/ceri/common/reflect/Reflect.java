@@ -81,7 +81,7 @@ public class Reflect {
 		@Override
 		public String toString() {
 			if (element() == null) return Strings.NULL;
-			return Reflect.name(element.getClassName()) + "." + element.getMethodName() + ":"
+			return Reflect.localName(element.getClassName()) + "." + element.getMethodName() + ":"
 				+ element.getLineNumber();
 		}
 	}
@@ -171,14 +171,14 @@ public class Reflect {
 	 */
 	public static String name(Class<?> cls) {
 		if (cls == null) return Strings.NULL;
-		return name(cls.getTypeName());
+		return localName(cls.getTypeName());
 	}
 
 	/**
 	 * Returns a method/constructor parameter name. This will be of the form {@code method.argN}
 	 * unless names are stored by compiling with {@code -parameters}.
 	 */
-	public static String name(Parameter param) {
+	public static String localName(Parameter param) {
 		if (param == null) return Strings.NULL;
 		return param.getDeclaringExecutable().getName() + "." + param.getName();
 	}
@@ -187,9 +187,9 @@ public class Reflect {
 	 * Extracts the class name without package. Inner class names show the hierarchy. '$' is treated
 	 * as a name separator.
 	 */
-	public static String name(String fullName) {
-		if (fullName == null) return Strings.NULL;
-		return fullName.substring(fullName.lastIndexOf(".") + 1).replace('$', '.');
+	public static String localName(String fullClassName) {
+		if (fullClassName == null) return Strings.NULL;
+		return fullClassName.substring(fullClassName.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class Reflect {
 	}
 
 	/**
-	 * Returns "{@code @<hex-hashcode>}" for logging/identification purposes.
+	 * Returns {@code @<hex-hashcode>} for logging/identification purposes.
 	 */
 	public static String hashId(Object obj) {
 		if (obj == null) return null;
@@ -213,7 +213,7 @@ public class Reflect {
 	}
 
 	/**
-	 * Returns '&lt;class-name&gt;@&lt;hash&gt;'.
+	 * Returns {@code <class-name>@<hash>}.
 	 */
 	public static String nameHash(Object obj) {
 		if (obj == null) return Strings.NULL;

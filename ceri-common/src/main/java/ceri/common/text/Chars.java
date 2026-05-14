@@ -31,6 +31,7 @@ public class Chars {
 		'\u2014', '\u2015', '\u2e3a', '\u2e3b', '\ufe58', '\ufe63', '\uff0d');
 	public static final Set<Character> MARKERS = Set.of('\u061c', '\u200e', '\u200f', '\u202a',
 		'\u202b', '\u202c', '\u202d', '\u202e', '\u2066', '\u2067', '\u2068', '\u2069');
+	private static final Map<Charset, Bytes.Order> CHARSET_BYTE_ORDERS = charsetByteOrders();
 	public static Charset UTF8 = StandardCharsets.UTF_8;
 	/** Charset with native byte order */
 	public static Charset UTF16 =
@@ -44,7 +45,7 @@ public class Chars {
 	/**
 	 * Charset information; byte order mark, nul-terminator and average bytes per encoded char.
 	 */
-	public record Info(ByteProvider bom, ByteProvider term, float bytesPerChar) {
+	public record Info(Bytes.Order order, ByteProvider bom, ByteProvider term, float bytesPerChar) {
 		private static final ByteProvider ZERO_BYTE = ByteProvider.of(0);
 		private static final Map<Charset, Info> cache = Maps.syncWeak();
 
@@ -60,7 +61,8 @@ public class Chars {
 			var bom = bom(bytes, n);
 			var term = term(bytes, n);
 			var bytesPerChar = charset.newEncoder().averageBytesPerChar();
-			return new Info(bom, term, bytesPerChar);
+			var order = CHARSET_BYTE_ORDERS.getOrDefault(charset, Bytes.Order.unspecified);
+			return new Info(order, bom, term, bytesPerChar);
 		}
 
 		/**
@@ -138,6 +140,14 @@ public class Chars {
 	 */
 	public static Charset safe(Charset charset) {
 		return charset == null ? Charset.defaultCharset() : charset;
+	}
+
+	/**
+	 * Simple check if the charset is UTF8/16/32 with any byte order.
+	 */
+	public static boolean isUtf(Charset charset) {
+		if (charset == null) return false;
+		return Strings.startsWith(false, charset.name(), "UTF");
 	}
 
 	/**
@@ -393,5 +403,15 @@ public class Chars {
 		if (!escapedChar.startsWith(format.prefix())) return -1;
 		return Integer.parseUnsignedInt(escapedChar, format.prefix().length(), escapedChar.length(),
 			format.radix());
+	}
+
+	private static Map<Charset, Bytes.Order> charsetByteOrders() {
+		return Maps.Builder.<Charset, Bytes.Order>of()
+			.putKeys(Bytes.Order.big, StandardCharsets.UTF_16BE, StandardCharsets.UTF_32BE)
+			.putKeys(Bytes.Order.little, StandardCharsets.UTF_16LE, StandardCharsets.UTF_32LE)
+			.putKeys(Bytes.Order.platform, StandardCharsets.UTF_16, StandardCharsets.UTF_32)
+			.putKeys(Bytes.Order.unspecified, StandardCharsets.UTF_8, StandardCharsets.US_ASCII,
+				StandardCharsets.ISO_8859_1)
+			.wrap();
 	}
 }

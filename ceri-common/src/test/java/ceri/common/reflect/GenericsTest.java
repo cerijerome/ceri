@@ -96,6 +96,7 @@ public class GenericsTest {
 
 	@Test
 	public void testTokenString() {
+		Assert.string(new Generics.Token<int[]>() {}, "int[]");
 		Assert.string(t_listN2d, "List<? extends Number>[][]");
 	}
 
@@ -125,11 +126,11 @@ public class GenericsTest {
 	@Test
 	public void testTypedEquals() {
 		Assert.same(Generics.typed(Object.class), Generics.typed(Object.class));
-		var t = new Generics.Token<List<String>>() {}.typed;
-		var eq = new Generics.Token<List<String>>() {}.typed;
-		var ne0 = new Generics.Token<List<?>>() {}.typed;
-		var ne1 = new Generics.Token<ArrayList<String>>() {}.typed;
-		var ne2 = new Generics.Token<List<? super String>>() {}.typed;
+		var t = new Generics.Token<List<String>>() {}.typed();
+		var eq = new Generics.Token<List<String>>() {}.typed();
+		var ne0 = new Generics.Token<List<?>>() {}.typed();
+		var ne1 = new Generics.Token<ArrayList<String>>() {}.typed();
+		var ne2 = new Generics.Token<List<? super String>>() {}.typed();
 		var ne3 = Generics.typed(void.class);
 		Testing.exerciseEquals(t, eq);
 		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
@@ -204,7 +205,7 @@ public class GenericsTest {
 		Assert.equal(Generics.typed(listS).type(0).isUnbounded(), false);
 		Assert.equal(Generics.typed(listN2d).component().component().type(0).isUnbounded(), false);
 		Assert.equal(Generics.typed(mapListListT).type(0).type(0).isUnbounded(), true);
-		Assert.equal(new Generics.Token<>() {}.typed.isUnbounded(), false); // Object.class
+		Assert.equal(new Generics.Token<>() {}.typed().isUnbounded(), false); // Object.class
 	}
 
 	@Test
@@ -272,16 +273,16 @@ public class GenericsTest {
 		assertType(Generics.Typed.NULL.upper(0), NULL); // uses cached value
 		assertType(Generics.typed(TYPE).upper(0), Object.class);
 		assertType(Generics.typed(Annotations.NULL).upper(0), Object.class);
-		assertType(t.typed.upper(0), Object.class);
-		assertType(t_list.typed.upper(0), t_list);
-		assertType(t_list.typed.type(0).upper(0), Object.class);
-		Assert.equal(t_listd.typed.upper(0).cls(), List[].class);
-		assertType(types.t_listT.typed.type(0).upper(0), Object.class);
-		assertType(d(t.typed).upper(0), Object.class);
-		assertType(d(t_list.typed).upper(0), t_list);
-		assertType(d(t_list.typed).type(0).upper(0), Object.class);
-		Assert.equal(d(t_listd.typed).upper(0).cls(), List[].class);
-		assertType(d(types.t_listT.typed).type(0).upper(0), Object.class);
+		assertType(t.typed().upper(0), Object.class);
+		assertType(t_list.typed().upper(0), t_list);
+		assertType(t_list.typed().type(0).upper(0), Object.class);
+		Assert.equal(t_listd.typed().upper(0).cls(), List[].class);
+		assertType(types.t_listT.typed().type(0).upper(0), Object.class);
+		assertType(d(t.typed()).upper(0), Object.class);
+		assertType(d(t_list.typed()).upper(0), t_list);
+		assertType(d(t_list.typed()).type(0).upper(0), Object.class);
+		Assert.equal(d(t_listd.typed()).upper(0).cls(), List[].class);
+		assertType(d(types.t_listT.typed()).type(0).upper(0), Object.class);
 	}
 
 	@Test
@@ -290,16 +291,16 @@ public class GenericsTest {
 		Assert.ordered(Generics.Typed.NULL.lower());
 		Assert.ordered(Generics.typed(TYPE).lower());
 		Assert.ordered(Generics.typed(Annotations.NULL).lower());
-		assertType(t.typed.lower(0), Object.class);
-		assertType(t_list.typed.lower(0), t_list);
-		assertType(t_list.typed.type(0).lower(0), NULL);
-		Assert.equal(t_listd.typed.lower(0).cls(), List[].class);
-		assertType(types.t_listT.typed.type(0).lower(0), NULL);
-		assertType(d(t.typed).lower(0), Object.class);
-		assertType(d(t_list.typed).lower(0), t_list);
-		assertType(d(t_list.typed).type(0).lower(0), NULL);
-		Assert.equal(d(t_listd.typed).lower(0).cls(), List[].class);
-		assertType(d(types.t_listT.typed).type(0).lower(0), NULL);
+		assertType(t.typed().lower(0), Object.class);
+		assertType(t_list.typed().lower(0), t_list);
+		assertType(t_list.typed().type(0).lower(0), NULL);
+		Assert.equal(t_listd.typed().lower(0).cls(), List[].class);
+		assertType(types.t_listT.typed().type(0).lower(0), NULL);
+		assertType(d(t.typed()).lower(0), Object.class);
+		assertType(d(t_list.typed()).lower(0), t_list);
+		assertType(d(t_list.typed()).type(0).lower(0), NULL);
+		Assert.equal(d(t_listd.typed()).lower(0).cls(), List[].class);
+		assertType(d(types.t_listT.typed()).type(0).lower(0), NULL);
 	}
 
 	@Test
@@ -372,6 +373,6 @@ public class GenericsTest {
 	}
 
 	private static void assertArray(Generics.Array array, Generics.Token<?> token, int dims) {
-		assertArray(array, token.typed, dims);
+		assertArray(array, token.typed(), dims);
 	}
 }

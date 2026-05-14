@@ -299,7 +299,7 @@ public class ReflectTest {
 	@Test
 	public void testName() {
 		Assert.string(Reflect.name((Class<?>) null), "null");
-		Assert.string(Reflect.name((String) null), "null");
+		Assert.string(Reflect.localName((String) null), "null");
 		Assert.string(Reflect.name(int.class), "int");
 		Assert.string(Reflect.name(byte[].class), "byte[]");
 		Assert.string(Reflect.name(Abstract.class), "%s.%s", getClass().getSimpleName(),
@@ -307,8 +307,8 @@ public class ReflectTest {
 		Assert.string(Reflect.name(Abstract[].class), "%s.%s[]", getClass().getSimpleName(),
 			Abstract.class.getSimpleName());
 		var param = Reflect.publicMethod(General.class, "intMethod").getParameters()[0];
-		Assert.string(Reflect.name((Parameter) null), "null");
-		Assert.match(Reflect.name(param), "intMethod\\.(i|arg0)");
+		Assert.string(Reflect.localName((Parameter) null), "null");
+		Assert.match(Reflect.localName(param), "intMethod\\.(i|arg0)");
 	}
 
 	@Test

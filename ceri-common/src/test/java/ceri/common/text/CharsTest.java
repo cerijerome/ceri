@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.Bytes;
 import ceri.common.io.Buffers;
 import ceri.common.test.Assert;
 
@@ -40,17 +41,18 @@ public class CharsTest {
 	@Test
 	public void testCharsetInfo() {
 		Assert.equal(Chars.Info.of(StandardCharsets.US_ASCII),
-			new Chars.Info(ByteProvider.of(), ByteProvider.of(0), 1.0f));
+			new Chars.Info(Bytes.Order.unspecified, ByteProvider.of(), ByteProvider.of(0), 1.0f));
 		Assert.equal(Chars.Info.of(StandardCharsets.UTF_8),
-			new Chars.Info(ByteProvider.of(), ByteProvider.of(0), 1.1f));
-		Assert.equal(Chars.Info.of(StandardCharsets.UTF_16),
-			new Chars.Info(ByteProvider.of(0xfe, 0xff), ByteProvider.of(0, 0), 2.0f));
-		Assert.equal(Chars.Info.of(StandardCharsets.UTF_32),
-			new Chars.Info(ByteProvider.of(), ByteProvider.of(0, 0, 0, 0), 4.0f));
+			new Chars.Info(Bytes.Order.unspecified, ByteProvider.of(), ByteProvider.of(0), 1.1f));
+		Assert.equal(Chars.Info.of(StandardCharsets.UTF_16), new Chars.Info(Bytes.Order.platform,
+			ByteProvider.of(0xfe, 0xff), ByteProvider.of(0, 0), 2.0f));
+		Assert.equal(Chars.Info.of(StandardCharsets.UTF_32), new Chars.Info(Bytes.Order.platform,
+			ByteProvider.of(), ByteProvider.of(0, 0, 0, 0), 4.0f));
 		Assert.equal(Chars.Info.from(testCharset(1.2f, 2.0f, 0x22, 0x44)), // x-IBM300 encoding
-			new Chars.Info(ByteProvider.of(), ByteProvider.of(0), 1.2f));
+			new Chars.Info(Bytes.Order.unspecified, ByteProvider.of(), ByteProvider.of(0), 1.2f));
 		Assert.equal(Chars.Info.from(testCharset(1.1f, 4.0f, 0xef, 0xbb, 0xbf, 0)), // UTF BOM
-			new Chars.Info(ByteProvider.of(0xef, 0xbb, 0xbf), ByteProvider.of(0), 1.1f));
+			new Chars.Info(Bytes.Order.unspecified, ByteProvider.of(0xef, 0xbb, 0xbf),
+				ByteProvider.of(0), 1.1f));
 	}
 
 	@Test
@@ -64,6 +66,14 @@ public class CharsTest {
 	public void testCompactName() {
 		Assert.string(Chars.compactName(null), "");
 		Assert.string(Chars.compactName(StandardCharsets.ISO_8859_1), "iso88591");
+	}
+
+	@Test
+	public void testIsUTf() {
+		Assert.equal(Chars.isUtf(null), false);
+		Assert.equal(Chars.isUtf(Chars.UTF8), true);
+		Assert.equal(Chars.isUtf(StandardCharsets.UTF_32LE), true);
+		Assert.equal(Chars.isUtf(StandardCharsets.US_ASCII), false);
 	}
 
 	@Test
