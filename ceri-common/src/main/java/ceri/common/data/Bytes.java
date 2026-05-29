@@ -47,6 +47,11 @@ public class Bytes {
 
 		public final ByteOrder order;
 
+		public static Order of(ByteOrder order) {
+			if (order == null) return unspecified;
+			return order == ByteOrder.BIG_ENDIAN ? big : little;
+		}
+
 		public static String symbol(Order order) {
 			return isSpecific(order) ? symbol(order.order) : "";
 		}
@@ -141,7 +146,18 @@ public class Bytes {
 	public static <T> T ordered(T big, T little) {
 		return Basics.ternary(Bytes.IS_BIG_ENDIAN, big, little);
 	}
-	
+
+	/**
+	 * Reverses the byte order.
+	 */
+	public static ByteOrder reverse(ByteOrder order) {
+		return switch (order) {
+			case LITTLE_ENDIAN -> ByteOrder.BIG_ENDIAN;
+			case BIG_ENDIAN -> ByteOrder.LITTLE_ENDIAN;
+			case null -> null;
+		};
+	}
+
 	/**
 	 * Converts hex string to its minimal byte array. Uses BigInteger.toByteArray, but removes
 	 * leading 0 byte if it exists. Remove any delimiters before calling this.

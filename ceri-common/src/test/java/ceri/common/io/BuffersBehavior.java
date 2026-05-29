@@ -4,15 +4,30 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import org.junit.Test;
+import ceri.common.array.Array;
 import ceri.common.array.DynamicArray;
 import ceri.common.data.Bytes;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 
 public class BuffersBehavior {
+
+	@Test
+	public void shouldNotBreachEqualsContract() {
+		var t = Buffers.FLOAT;
+		var eq0 = Buffers.FLOAT;
+		var eq1 = new Buffers<>(FloatBuffer.class, Array.FLOAT, Float.BYTES, FloatBuffer::wrap,
+			FloatBuffer::get, FloatBuffer::put, FloatBuffer::asReadOnlyBuffer,
+			FloatBuffer::mismatch, ByteBuffer::asFloatBuffer) {};
+		var ne0 = Buffers.DOUBLE;
+		Testing.exerciseEquals(t, eq0, eq1);
+		Assert.notEqualAll(t, ne0);
+	}
 
 	@Test
 	public void shouldCreateCharBuffer() {

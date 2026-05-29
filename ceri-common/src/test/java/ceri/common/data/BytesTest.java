@@ -22,6 +22,13 @@ public class BytesTest {
 	}
 
 	@Test
+	public void testByteOrderOf() {
+		Assert.equal(Bytes.Order.of(null), Bytes.Order.unspecified);
+		Assert.equal(Bytes.Order.of(ByteOrder.LITTLE_ENDIAN), Bytes.Order.little);
+		Assert.equal(Bytes.Order.of(ByteOrder.BIG_ENDIAN), Bytes.Order.big);
+	}
+
+	@Test
 	public void testByteOrderSymbol() {
 		Assert.string(Bytes.Order.symbol((Bytes.Order) null), "");
 		Assert.string(Bytes.Order.symbol(Bytes.Order.big), ">");
@@ -41,6 +48,13 @@ public class BytesTest {
 		Assert.equal(Bytes.Order.order(null), ByteOrder.nativeOrder());
 		Assert.equal(Bytes.Order.order(Bytes.Order.big), ByteOrder.BIG_ENDIAN);
 		Assert.equal(Bytes.Order.order(Bytes.Order.little), ByteOrder.LITTLE_ENDIAN);
+	}
+
+	@Test
+	public void testReverseByteORder() {
+		Assert.equal(Bytes.reverse(null), null);
+		Assert.equal(Bytes.reverse(ByteOrder.BIG_ENDIAN), ByteOrder.LITTLE_ENDIAN);
+		Assert.equal(Bytes.reverse(ByteOrder.LITTLE_ENDIAN), ByteOrder.BIG_ENDIAN);
 	}
 
 	@Test

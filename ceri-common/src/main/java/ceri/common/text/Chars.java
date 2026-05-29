@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -13,6 +14,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.Bytes;
 import ceri.common.io.Buffers;
 import ceri.common.math.Radix;
+import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 
 public class Chars {
@@ -63,6 +65,13 @@ public class Chars {
 			var bytesPerChar = charset.newEncoder().averageBytesPerChar();
 			var order = CHARSET_BYTE_ORDERS.getOrDefault(charset, Bytes.Order.unspecified);
 			return new Info(order, bom, term, bytesPerChar);
+		}
+
+		/**
+		 * Returns the common char encoding size in bytes, assumed to be the terminator size.
+		 */
+		public int size() {
+			return term().length();
 		}
 
 		/**
@@ -148,6 +157,19 @@ public class Chars {
 	public static boolean isUtf(Charset charset) {
 		if (charset == null) return false;
 		return Strings.startsWith(false, charset.name(), "UTF");
+	}
+
+	/**
+	 * Returns the charset with byte order applied.
+	 */
+	public static Charset apply(Charset charset, ByteOrder order) {
+		if (charset == null || order == null) return charset;
+		var info = Info.of(charset);
+		if (!Bytes.Order.isSpecific(info.order()) || order == info.order().order) return charset;
+		var be = order == ByteOrder.BIG_ENDIAN;
+		if (info.size() == Short.BYTES)
+			return Basics.ternary(be, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE);
+		return Basics.ternary(be, StandardCharsets.UTF_32BE, StandardCharsets.UTF_32LE);
 	}
 
 	/**

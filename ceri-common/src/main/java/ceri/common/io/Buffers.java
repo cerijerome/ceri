@@ -9,6 +9,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.util.Objects;
+import java.util.Set;
 import ceri.common.array.Array;
 import ceri.common.array.PrimitiveArray;
 import ceri.common.array.RawArray;
@@ -28,6 +30,9 @@ public abstract class Buffers<B extends Buffer, A> {
 	public static final OfLong LONG = new OfLong();
 	public static final OfFloat FLOAT = new OfFloat();
 	public static final OfDouble DOUBLE = new OfDouble();
+	public static final Set<Class<? extends Buffer>> BASE_TYPES =
+		Set.of(CharBuffer.class, ByteBuffer.class, ShortBuffer.class, IntBuffer.class,
+			LongBuffer.class, FloatBuffer.class, DoubleBuffer.class);
 	private final Class<B> bufferType;
 	private final PrimitiveArray<A, ?> array;
 	private final int typeSize;
@@ -43,11 +48,11 @@ public abstract class Buffers<B extends Buffer, A> {
 	// 1) Why is ByteBuffer created with big-endian and not native byte order?
 	// 2) Why is order() not defined on base class Buffer?
 
-	private interface Wrapper<B extends Buffer, A> {
+	interface Wrapper<B extends Buffer, A> {
 		B apply(A array, int index, int length);
 	}
 
-	private interface Getter<B extends Buffer, A> {
+	interface Getter<B extends Buffer, A> {
 		B apply(B buffer, A array, int index, int length);
 	}
 
@@ -482,10 +487,9 @@ public abstract class Buffers<B extends Buffer, A> {
 		return support.getBytes(Reflect.unchecked(buffer));
 	}
 
-	private Buffers(Class<B> bufferType, PrimitiveArray<A, ?> array, int typeSize,
-		Wrapper<B, A> wrap, Getter<B, A> get, Functions.BiOperator<B> put,
-		Functions.Operator<B> readOnly, Functions.ToIntBiFunction<B, B> mismatch,
-		Functions.Function<ByteBuffer, B> adapt) {
+	Buffers(Class<B> bufferType, PrimitiveArray<A, ?> array, int typeSize, Wrapper<B, A> wrap,
+		Getter<B, A> get, Functions.BiOperator<B> put, Functions.Operator<B> readOnly,
+		Functions.ToIntBiFunction<B, B> mismatch, Functions.Function<ByteBuffer, B> adapt) {
 		this.bufferType = bufferType;
 		this.array = array;
 		this.typeSize = typeSize;
@@ -857,6 +861,22 @@ public abstract class Buffers<B extends Buffer, A> {
 		position(from, fromPos);
 		position(to, toPos);
 		return copy(from, to, count);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(bufferType);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		return (obj instanceof Buffers b) && Objects.equals(bufferType, b.bufferType);
+	}
+
+	@Override
+	public String toString() {
+		return array.component().toString();
 	}
 
 	// support

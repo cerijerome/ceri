@@ -1,5 +1,7 @@
 package ceri.common.concurrent;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -136,6 +138,46 @@ public class Lazy<T> {
 	}
 
 	/**
+	 * Wrapper interface for class value accessors.
+	 */
+	public interface ForClass<T> {
+		/**
+		 * Get the value for the class.
+		 */
+		T get(Class<?> cls);
+
+		/**
+		 * Get the value for the class, or return default.
+		 */
+		default T get(Class<?> cls, T def) {
+			return Basics.def(get(cls), def);
+		}
+
+		/**
+		 * Remove the value for the class.
+		 */
+		void remove(Class<?> cls);
+	}
+
+	/**
+	 * Provides class-based values with weak references.
+	 */
+	public static <T> ForClass<T> weakClassValue(Functions.Function<Class<?>, T> computer) {
+		if (computer == null) return null;
+		var classValue = classValueOf(c -> new WeakReference<>(computer.apply(c)));
+		return forClass(classValue, c -> getRefValue(classValue, c));
+	}
+
+	/**
+	 * Provides class-based values.
+	 */
+	public static <T> ForClass<T> classValue(Functions.Function<Class<?>, T> computer) {
+		if (computer == null) return null;
+		var classValue = classValueOf(computer);
+		return forClass(classValue, classValue::get);
+	}
+
+	/**
 	 * Provides a lazily-instantiated constant that requires a supplier.
 	 */
 	public static <E extends Exception, T> Function<E, T> of() {
@@ -197,6 +239,17 @@ public class Lazy<T> {
 		return supplier(null, supplier);
 	}
 
+	private Lazy(Lock lock) {
+		this.lock = lock;
+	}
+
+	private <E extends Exception> T get(Excepts.Supplier<E, T> supplier) throws E {
+		if (value == null) try (var _ = Concurrent.locker(lock)) { // double-checked locking
+			value = Basics.def(value, supplier);
+		}
+		return value;
+	}
+
 	private static <E extends Exception, T> Supplier<E, T> supplier(Lock lock,
 		Excepts.Supplier<E, T> supplier) {
 		Objects.requireNonNull(supplier);
@@ -214,14 +267,36 @@ public class Lazy<T> {
 		};
 	}
 
-	private Lazy(Lock lock) {
-		this.lock = lock;
+	private static <T> ClassValue<T> classValueOf(Functions.Function<Class<?>, T> computer) {
+		return new ClassValue<>() {
+			@Override
+			protected T computeValue(Class<?> type) {
+				return computer.apply(type);
+			}
+		};
 	}
 
-	private <E extends Exception> T get(Excepts.Supplier<E, T> supplier) throws E {
-		if (value == null) try (var _ = Concurrent.locker(lock)) { // double-checked locking
-			value = Basics.def(value, supplier);
+	private static <T> ForClass<T> forClass(ClassValue<?> classValue,
+		Functions.Function<Class<?>, T> getter) {
+		return new ForClass<>() {
+			@Override
+			public T get(Class<?> cls) {
+				if (cls == null) return null;
+				return getter.apply(cls);
+			}
+
+			@Override
+			public void remove(Class<?> cls) {
+				classValue.remove(cls);
+			}
+		};
+	}
+
+	private static <T> T getRefValue(ClassValue<? extends Reference<T>> classValue, Class<?> cls) {
+		while (true) {
+			var value = classValue.get(cls).get();
+			if (value != null) return value;
+			classValue.remove(cls);
 		}
-		return value;
 	}
 }

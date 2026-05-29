@@ -3,6 +3,7 @@ package ceri.common.array;
 import java.util.Objects;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 
@@ -11,6 +12,16 @@ public class TypedArrayBehavior {
 	private static final Integer[] EMPTY = new Integer[0];
 	private final Integer[] ints = Array.of(-1, null, 1, null, 1);
 	private final TypedArray.Type.Integral<Integer> typed = Array.INT.box();
+
+	@Test
+	public void shouldNotBreachEqualsContract() {
+		var t = Array.FLOAT;
+		var eq0 = Array.FLOAT;
+		var eq1 = new PrimitiveArray.OfFloat();
+		var ne0 = Array.DOUBLE;
+		Testing.exerciseEquals(t, eq0, eq1);
+		Assert.notEqualAll(t, ne0);
+	}
 
 	@Test
 	public void shouldProvideComponentType() {
@@ -138,6 +149,8 @@ public class TypedArrayBehavior {
 
 	@Test
 	public void shouldProvideString() {
+		Assert.equal(Array.INT.toString(), "int[]");
+		Assert.equal(typed.toString(), "Integer[]");
 		Assert.equal(typed.toString(NULL), "null");
 		Assert.equal(typed.toString(EMPTY), "[]");
 		Assert.equal(typed.toString(ints), "[-1, null, 1, null, 1]");

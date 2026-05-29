@@ -3,6 +3,8 @@ package ceri.common.reflect;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -49,6 +51,32 @@ public class Reflect {
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
 	private Reflect() {}
+
+	/**
+	 * Provides reference access to values.
+	 */
+	public enum RefType {
+		direct,
+		soft,
+		weak;
+
+		/**
+		 * Provides reference access to a value.
+		 */
+		public <T> Functions.Supplier<T> of(T value) {
+			return switch (this) {
+				case soft -> {
+					var ref = new SoftReference<>(value);
+					yield () -> ref.get();
+				}
+				case weak -> {
+					var ref = new WeakReference<>(value);
+					yield () -> ref.get();
+				}
+				case direct -> () -> value;
+			};
+		}
+	}
 
 	/**
 	 * Exception thrown by application code when creation of an object fails.
@@ -236,6 +264,13 @@ public class Reflect {
 		if (l == r) return true;
 		if (l == null || r == null) return false;
 		return l.get() == r.get();
+	}
+
+	/**
+	 * Provides reference access to a value.
+	 */
+	public static <T> Functions.Supplier<T> ref(RefType type, T value) {
+		return Basics.def(type, RefType.direct).of(value);
 	}
 
 	/**

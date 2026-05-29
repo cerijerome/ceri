@@ -163,6 +163,13 @@ public class Generics {
 			return typed == null || typed.isNull();
 		}
 
+		/**
+		 * Returns true if the primitive void type.
+		 */
+		public static boolean isVoid(Typed typed) {
+			return typed != null && typed.isVoid();
+		}
+
 		private Typed(Type type) {
 			this.cls = Generics.classFrom(type);
 		}
@@ -177,6 +184,13 @@ public class Generics {
 		 */
 		public boolean isNull() {
 			return raw() == null;
+		}
+
+		/**
+		 * Returns true if this represents the primitive void type.
+		 */
+		public boolean isVoid() {
+			return VOID.equals(this);
 		}
 
 		/**

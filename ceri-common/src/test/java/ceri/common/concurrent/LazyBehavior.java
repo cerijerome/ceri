@@ -3,8 +3,47 @@ package ceri.common.concurrent;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
+import ceri.common.util.Counter;
 
 public class LazyBehavior {
+
+	@Test
+	public void testWeakClassValue() {
+		Assert.equal(Lazy.weakClassValue(null), null);
+		var c = Counter.of(0);
+		var cv = Lazy.weakClassValue(_ -> {
+			c.inc(1);
+			return new Object();
+		});
+		Assert.equal(cv.get(null), null);
+		Assert.equal(cv.get(null, -1), -1);
+		Assert.same(cv.get(String.class), cv.get(String.class));
+		Assert.equal(c.get(), 1);
+		Assert.same(cv.get(String.class), cv.get(String.class));
+		Assert.equal(c.get(), 1);
+		Testing.gc();
+		Assert.same(cv.get(String.class), cv.get(String.class));
+		Assert.equal(c.get(), 2);
+	}
+
+	@Test
+	public void testClassValue() {
+		Assert.equal(Lazy.classValue(null), null);
+		var cv = Lazy.classValue(_ -> new Object());
+		Assert.equal(cv.get(null), null);
+		Assert.equal(cv.get(null, -1), -1);
+		Assert.same(cv.get(String.class), cv.get(String.class));
+	}
+
+	@Test
+	public void testClassValueRemove() {
+		var cv = Lazy.classValue(_ -> new Object());
+		var obj = cv.get(String.class);
+		Assert.same(cv.get(String.class), obj);
+		cv.remove(String.class);
+		Assert.notSame(cv.get(String.class), obj);
+	}
 
 	@Test
 	public void shouldInstantiateOnce() {

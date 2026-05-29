@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import ceri.common.array.Array;
+import ceri.common.array.RawArray;
 import ceri.common.collect.Iterables;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.SimpleExecutor;
@@ -30,8 +31,8 @@ import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.io.Resource;
-import ceri.common.math.Maths;
 import ceri.common.property.Property;
 import ceri.common.property.TypedProperties;
 import ceri.common.reflect.Annotations;
@@ -48,7 +49,6 @@ public class Testing {
 	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
-	public static final boolean isTest = Reflect.stackHasPackage(org.junit.Assert.class);
 	public static final byte BMIN = Byte.MIN_VALUE;
 	public static final byte BMAX = Byte.MAX_VALUE;
 	public static final short SMIN = Short.MIN_VALUE;
@@ -61,6 +61,23 @@ public class Testing {
 	public static final double DPINF = Double.POSITIVE_INFINITY;
 
 	private Testing() {}
+
+	/**
+	 * Separate junit refs so this class can be used outside of tests.
+	 */
+	private static class Junit {
+		private static final boolean isTest = Reflect.stackHasPackage(org.junit.Assert.class);
+
+		private Junit() {}
+
+		private static void exec(PrintStream out, Class<?>... classes) {
+			var core = new org.junit.runner.JUnitCore();
+			var tp = new TestPrinter();
+			core.addListener(tp);
+			core.run(classes);
+			tp.print(out);
+		}
+	}
 
 	/**
 	 * A simple value annotation.
@@ -80,6 +97,13 @@ public class Testing {
 	}
 
 	/**
+	 * Returns true if currently running as a junit test.
+	 */
+	public static boolean isTest() {
+		return Junit.isTest;
+	}
+
+	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
 	public static void exec(Class<?>... classes) {
@@ -90,11 +114,7 @@ public class Testing {
 	 * Executes tests and prints test names in readable phrases.
 	 */
 	public static void exec(PrintStream out, Class<?>... classes) {
-		var core = new org.junit.runner.JUnitCore();
-		var tp = new TestPrinter();
-		core.addListener(tp);
-		core.run(classes);
-		tp.print(out);
+		Junit.exec(out, classes);
 	}
 
 	/**
@@ -414,13 +434,61 @@ public class Testing {
 	}
 
 	/**
-	 * Returns a random byte array of given size.
+	 * Returns a random array of given size.
+	 */
+	public static boolean[] randomBools(int size) {
+		return random(new boolean[size], (a, r, i) -> a[i] = r.nextBoolean());
+	}
+
+	/**
+	 * Returns a random array of given size.
+	 */
+	public static char[] randomChars(int size) {
+		return random(new char[size], (a, r, i) -> a[i] = (char) r.nextInt(0x10000));
+	}
+
+	/**
+	 * Returns a random array of given size.
 	 */
 	public static byte[] randomBytes(int size) {
-		byte[] bytes = new byte[size];
-		for (int i = 0; i < bytes.length; i++)
-			bytes[i] = (byte) Maths.random(0, Maths.MAX_UBYTE);
-		return bytes;
+		var array = new byte[size];
+		ThreadLocalRandom.current().nextBytes(array);
+		return array;
+	}
+
+	/**
+	 * Returns a random array of given size.
+	 */
+	public static short[] randomShorts(int size) {
+		return random(new short[size], (a, r, i) -> a[i] = (short) r.nextInt(0x10000));
+	}
+
+	/**
+	 * Returns a random array of given size.
+	 */
+	public static int[] randomInts(int size) {
+		return random(new int[size], (a, r, i) -> a[i] = r.nextInt());
+	}
+
+	/**
+	 * Returns a random array of given size.
+	 */
+	public static long[] randomLongs(int size) {
+		return random(new long[size], (a, r, i) -> a[i] = r.nextLong());
+	}
+
+	/**
+	 * Returns a random array of given size.
+	 */
+	public static float[] randomFloats(int size) {
+		return random(new float[size], (a, r, i) -> a[i] = r.nextFloat());
+	}
+
+	/**
+	 * Returns a random array of given size.
+	 */
+	public static double[] randomDoubles(int size) {
+		return random(new double[size], (a, r, i) -> a[i] = r.nextDouble());
 	}
 
 	/**
@@ -447,5 +515,13 @@ public class Testing {
 		if (t0 == t1) t0.equals(t1);
 		Assert.equal(t0.hashCode(), t1.hashCode());
 		Assert.equal(t0.toString(), t1.toString());
+	}
+
+	private static <A> A random(A array, Functions.BiObjIntConsumer<A, Random> gen) {
+		var rnd = ThreadLocalRandom.current();
+		int size = RawArray.length(array);
+		for (int i = 0; i < size; i++)
+			gen.accept(array, rnd, i);
+		return array;
 	}
 }

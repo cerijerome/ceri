@@ -1,6 +1,7 @@
 package ceri.common.array;
 
 import java.util.Arrays;
+import java.util.Objects;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Joiner;
@@ -516,6 +517,22 @@ public abstract class TypedArray<T> {
 	public String toString(Functions.ObjIntFunction<? super T, ? super String> stringFn,
 		Joiner joiner, T array, int offset, int length) {
 		return RawArray.toString(stringFn, joiner, array, offset, length);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(cls);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		return (obj instanceof TypedArray t) && Objects.equals(cls, t.cls);
+	}
+
+	@Override
+	public String toString() {
+		return Reflect.simple(cls);
 	}
 
 	/**

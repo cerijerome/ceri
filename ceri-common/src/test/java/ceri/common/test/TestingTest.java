@@ -35,7 +35,7 @@ public class TestingTest {
 
 	@Test
 	public void testIsTest() {
-		Assert.yes(Testing.isTest);
+		Assert.yes(Testing.isTest());
 	}
 
 	@SuppressWarnings("resource")
@@ -218,9 +218,16 @@ public class TestingTest {
 	}
 
 	@Test
-	public void testRandomBytes() {
+	public void testRandomArrays() {
+		Assert.equal(Testing.randomBools(5).length, 5);
+		Assert.equal(Testing.randomChars(4).length, 4);
 		Assert.equal(Testing.randomBytes(0).length, 0);
 		Assert.equal(Testing.randomBytes(100).length, 100);
+		Assert.equal(Testing.randomShorts(3).length, 3);
+		Assert.equal(Testing.randomInts(2).length, 2);
+		Assert.equal(Testing.randomLongs(3).length, 3);
+		Assert.equal(Testing.randomFloats(4).length, 4);
+		Assert.equal(Testing.randomDoubles(5).length, 5);
 	}
 
 	@Test

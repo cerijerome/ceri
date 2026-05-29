@@ -144,6 +144,14 @@ public class GenericsTest {
 	}
 
 	@Test
+	public void testTypedIsPrimitiveVoid() {
+		Assert.equal(Generics.Typed.isVoid(null), false);
+		Assert.equal(Generics.Typed.isVoid(Generics.Typed.VOID), true);
+		Assert.equal(Generics.Typed.isVoid(Generics.typed(void.class)), true);
+		Assert.equal(Generics.Typed.isVoid(Generics.typed(Void.class)), false);
+	}
+
+	@Test
 	public void testTypedAnnotated() {
 		Assert.equal(Generics.Typed.NULL.annotated(), null);
 		Assert.equal(Testing.i(Generics.typed(Types.class).annotated()), -1);

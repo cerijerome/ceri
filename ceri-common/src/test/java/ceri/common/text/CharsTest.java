@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -56,6 +57,13 @@ public class CharsTest {
 	}
 
 	@Test
+	public void testCharsetInfoSize() {
+		Assert.equal(Chars.Info.of(StandardCharsets.US_ASCII).size(), 1);
+		Assert.equal(Chars.Info.of(StandardCharsets.UTF_8).size(), 1);
+		Assert.equal(Chars.Info.of(StandardCharsets.UTF_32).size(), 4);
+	}
+
+	@Test
 	public void testCharsetInfoByteEstimate() {
 		Assert.equal(Chars.Info.of(StandardCharsets.US_ASCII).byteEstimate(null), 0);
 		Assert.equal(Chars.Info.of(StandardCharsets.US_ASCII).byteEstimate("testing"), 7);
@@ -74,6 +82,19 @@ public class CharsTest {
 		Assert.equal(Chars.isUtf(Chars.UTF8), true);
 		Assert.equal(Chars.isUtf(StandardCharsets.UTF_32LE), true);
 		Assert.equal(Chars.isUtf(StandardCharsets.US_ASCII), false);
+	}
+
+	@Test
+	public void testApplyByteOrder() {
+		Assert.equal(Chars.apply(null, ByteOrder.BIG_ENDIAN), null);
+		Assert.equal(Chars.apply(Chars.UTF16, null), Chars.UTF16);
+		Assert.equal(Chars.apply(Chars.UTF8, ByteOrder.BIG_ENDIAN), Chars.UTF8);
+		Assert.equal(Chars.apply(Chars.UTF16, ByteOrder.BIG_ENDIAN), StandardCharsets.UTF_16BE);
+		Assert.equal(Chars.apply(Chars.UTF32, ByteOrder.LITTLE_ENDIAN), StandardCharsets.UTF_32LE);
+		Assert.equal(Chars.apply(StandardCharsets.UTF_32BE, ByteOrder.LITTLE_ENDIAN),
+			StandardCharsets.UTF_32LE);
+		Assert.equal(Chars.apply(StandardCharsets.UTF_32LE, ByteOrder.BIG_ENDIAN),
+			StandardCharsets.UTF_32BE);
 	}
 
 	@Test

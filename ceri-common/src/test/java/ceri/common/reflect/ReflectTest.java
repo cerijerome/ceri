@@ -344,7 +344,7 @@ public class ReflectTest {
 		Assert.equal(Reflect.same(E.class, E.class), true);
 		class TestSame {
 			static {
-				Assert.equal(E_CLASS.equals(E.class), false);
+				Assert.equal(E_CLASS == E.class, false);
 				Assert.equal(Reflect.same(E_CLASS, E.class), true);
 			}
 		}
@@ -368,6 +368,14 @@ public class ReflectTest {
 		Assert.equal(Reflect.same(wr0, wr1), false);
 		Assert.equal(Reflect.same(wr0, wr0), true);
 		Assert.equal(Reflect.same(wr0, sr0), true);
+	}
+
+	@Test
+	public void testRef() {
+		Assert.equal(Reflect.ref(null, null).get(), null);
+		Assert.equal(Reflect.ref(null, "test").get(), "test");
+		Assert.equal(Reflect.ref(Reflect.RefType.soft, "test").get(), "test");
+		Assert.equal(Reflect.ref(Reflect.RefType.weak, "test").get(), "test");
 	}
 
 	@Test
