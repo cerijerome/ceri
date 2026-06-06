@@ -284,6 +284,15 @@ public class RawArrayTest {
 	}
 
 	@Test
+	public void testDeepReplaceByDepth() {
+		Assert.equal(RawArray.deepReplace(null, 1, x -> x), null);
+		Assert.equal(RawArray.deepReplace("test", 1, null), "test");
+		var deepObjs = RawArray.deepClone(this.deepObjs);
+		Assert.same(RawArray.deepReplace(deepObjs, 2, _ -> new Object[0]), deepObjs);
+		Assert.deepEqual(deepObjs, new Object[][][] { { {} }, null, {}, { {}, {} }, { {}, {} } });
+	}
+
+	@Test
 	public void testDeepClone() {
 		Assert.equal(RawArray.deepClone(null), null);
 		Assert.equal(RawArray.deepClone(obj), obj);

@@ -446,6 +446,14 @@ public class ReflectTest {
 	}
 
 	@Test
+	public void testBoxed() {
+		Assert.equal(Reflect.boxed(null), null);
+		Assert.equal(Reflect.boxed(void.class), Void.class);
+		Assert.equal(Reflect.boxed(float.class), Float.class);
+		Assert.equal(Reflect.boxed(Byte.class), Byte.class);
+	}
+
+	@Test
 	public void testIsPrimitive() {
 		Assert.equal(Reflect.isPrimitive(null), false);
 		Assert.equal(Reflect.isPrimitive(boolean.class), true);

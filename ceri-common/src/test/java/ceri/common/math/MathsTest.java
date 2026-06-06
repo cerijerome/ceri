@@ -643,6 +643,7 @@ public class MathsTest {
 		Assert.range(Maths.random(), 0.0, 1.0);
 		Assert.range(Maths.random(0.1), 0.0, 0.1);
 		Assert.range(Maths.random(Double.MAX_VALUE), 0.0, Double.MAX_VALUE);
+		Assert.equal(Maths.random(-1.0, -1.0), -1.0);
 		Assert.range(Maths.random(-1.0, 2.0), -1.0, 2.0);
 		Assert.range(Maths.random(-1.0, 0.0), -1.0, 0.0);
 	}

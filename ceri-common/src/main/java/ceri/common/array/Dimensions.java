@@ -185,6 +185,16 @@ public class Dimensions {
 		return new Dimensions(dims.slice(0, dims.length() - 1));
 	}
 
+	/**
+	 * Returns the dimensions as array brackets.
+	 */
+	public String arrayString() {
+		var b = new StringBuilder();
+		for (int i = 0; i < count(); i++)
+			b.append('[').append(dim(i)).append(']');
+		return b.toString();
+	}
+
 	@Override
 	public int hashCode() {
 		return dims.hashCode();

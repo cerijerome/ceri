@@ -16,6 +16,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -37,8 +38,11 @@ import ceri.common.util.Basics;
  * Utility methods related to reflection
  */
 public class Reflect {
-	public static final Set<Class<?>> PRIMITIVES = Set.of(boolean.class, char.class, byte.class,
-		short.class, int.class, long.class, float.class, double.class);
+	public static final Map<Class<?>, Class<?>> PRIMITIVE_MAP =
+		Map.of(boolean.class, Boolean.class, char.class, Character.class, byte.class, Byte.class,
+			short.class, Short.class, int.class, Integer.class, long.class, Long.class, float.class,
+			Float.class, double.class, Double.class);
+	public static final Set<Class<?>> PRIMITIVES = PRIMITIVE_MAP.keySet();
 	public static final Set<Class<?>> PRIMITIVE_NUMBERS =
 		Set.of(byte.class, short.class, int.class, long.class, float.class, double.class);
 	public static final Set<Class<?>> PRIMITIVE_INTS =
@@ -328,10 +332,19 @@ public class Reflect {
 	}
 
 	/**
+	 * Returns the boxed class if a primitive or void, otherwise returns the same class.
+	 */
+	public static Class<?> boxed(Class<?> cls) {
+		if (cls == void.class) return Void.class;
+		if (cls == null || !cls.isPrimitive()) return cls;
+		return PRIMITIVE_MAP.get(cls);
+	}
+
+	/**
 	 * Returns true if the type is a primitive type.
 	 */
 	public static boolean isPrimitive(Class<?> cls) {
-		return cls != null && PRIMITIVES.contains(cls);
+		return cls != null && cls.isPrimitive();
 	}
 
 	/**

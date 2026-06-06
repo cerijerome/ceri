@@ -107,6 +107,13 @@ public class DimensionsBehavior {
 		dims = assertCount(dims.outer(), 0, 0);
 	}
 
+	@Test
+	public void shouldProvideString() {
+		Assert.equal(Dimensions.NONE.arrayString(), "");
+		Assert.equal(Dimensions.of(0).arrayString(), "[0]");
+		Assert.equal(Dimensions.of(3, 1, 2).arrayString(), "[3][1][2]");
+	}
+
 	private static void assertDims(Dimensions dims, int... values) {
 		Assert.array(dims.dims, values);
 	}

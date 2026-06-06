@@ -162,7 +162,7 @@ public class Lazy<T> {
 	/**
 	 * Provides class-based values with weak references.
 	 */
-	public static <T> ForClass<T> weakClassValue(Functions.Function<Class<?>, T> computer) {
+	public static <T> ForClass<T> weakForClass(Functions.Function<Class<?>, T> computer) {
 		if (computer == null) return null;
 		var classValue = classValueOf(c -> new WeakReference<>(computer.apply(c)));
 		return forClass(classValue, c -> getRefValue(classValue, c));
@@ -171,7 +171,7 @@ public class Lazy<T> {
 	/**
 	 * Provides class-based values.
 	 */
-	public static <T> ForClass<T> classValue(Functions.Function<Class<?>, T> computer) {
+	public static <T> ForClass<T> forClass(Functions.Function<Class<?>, T> computer) {
 		if (computer == null) return null;
 		var classValue = classValueOf(computer);
 		return forClass(classValue, classValue::get);
@@ -198,21 +198,6 @@ public class Lazy<T> {
 	 */
 	public static <E extends Exception, T> Function<E, T> unsafe() {
 		return function(null);
-	}
-
-	private static <E extends Exception, T> Function<E, T> function(Lock lock) {
-		var cc = new Lazy<T>(lock);
-		return new Function<>() {
-			@Override
-			public T get(Excepts.Supplier<E, T> supplier) throws E {
-				return cc.get(supplier);
-			}
-
-			@Override
-			public T value() {
-				return cc.value;
-			}
-		};
 	}
 
 	/**
@@ -248,6 +233,21 @@ public class Lazy<T> {
 			value = Basics.def(value, supplier);
 		}
 		return value;
+	}
+
+	private static <E extends Exception, T> Function<E, T> function(Lock lock) {
+		var cc = new Lazy<T>(lock);
+		return new Function<>() {
+			@Override
+			public T get(Excepts.Supplier<E, T> supplier) throws E {
+				return cc.get(supplier);
+			}
+
+			@Override
+			public T value() {
+				return cc.value;
+			}
+		};
 	}
 
 	private static <E extends Exception, T> Supplier<E, T> supplier(Lock lock,

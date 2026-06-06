@@ -559,7 +559,16 @@ public class RawArray {
 	 * Iterates each leaf of an n-dimensional array, replacing it with the operation result.
 	 */
 	public static <T, U> U deepReplace(U array, Functions.Operator<T> operator) {
-		if (operator != null) deepReplace(array, dimensions(array), operator);
+		if (operator != null) deepReplaceByDepth(array, dimensions(array), operator);
+		return array;
+	}
+
+	/**
+	 * Iterates each element of an n-dimensional array at given dimension depth, replacing it with
+	 * the operation result.
+	 */
+	public static <T, U> U deepReplace(U array, int depth, Functions.Operator<T> operator) {
+		if (operator != null) deepReplaceByDepth(array, depth, operator);
 		return array;
 	}
 
@@ -653,16 +662,17 @@ public class RawArray {
 		return clone;
 	}
 
-	private static <T> Object deepReplace(Object array, int dims, Functions.Operator<T> operator) {
-		if (dims-- == 0) return operator.apply(Reflect.unchecked(array));
-		if (array == null) return null;
+	private static <T> void deepReplaceByDepth(Object array, int depth,
+		Functions.Operator<T> operator) {
+		if (depth <= 0) return;
 		int length = length(array);
 		for (int i = 0; i < length; i++) {
 			var inner = get(array, i);
-			var replace = deepReplace(inner, dims, operator);
-			if (dims == 0 && inner != replace) set(array, i, replace);
+			if (depth == 1) {
+				var replace = operator.apply(Reflect.unchecked(inner));
+				if (inner != replace) set(array, i, replace);
+			} else deepReplaceByDepth(inner, depth - 1, operator);
 		}
-		return array;
 	}
 
 	private static <T, R> Object deepAdapt(Object array, int dims, Class<?> adaptCls,

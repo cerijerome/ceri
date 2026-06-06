@@ -45,30 +45,49 @@ public class Bytes {
 		big(ByteOrder.BIG_ENDIAN),
 		little(ByteOrder.LITTLE_ENDIAN);
 
+		/** The standard order type. */
 		public final ByteOrder order;
 
+		/**
+		 * Converts the standard order type to this enum.
+		 */
 		public static Order of(ByteOrder order) {
 			if (order == null) return unspecified;
 			return order == ByteOrder.BIG_ENDIAN ? big : little;
 		}
 
+		/**
+		 * Returns a symbol for the order.
+		 */
 		public static String symbol(Order order) {
 			return isSpecific(order) ? symbol(order.order) : "";
 		}
 
+		/**
+		 * Returns a symbol for the standard order type.
+		 */
 		public static String symbol(ByteOrder order) {
 			if (order == null) return "";
 			return order == ByteOrder.BIG_ENDIAN ? ">" : "<";
 		}
 
+		/**
+		 * Returns true if the order is non-null and not unspecified.
+		 */
 		public static boolean isValid(Order order) {
 			return order != null && order != unspecified;
 		}
 
+		/**
+		 * Returns true if the order is either big or little.
+		 */
 		public static boolean isSpecific(Order order) {
 			return order == big || order == little;
 		}
 
+		/**
+		 * Returns the standard order for the enum.
+		 */
 		public static ByteOrder order(Order order) {
 			return isSpecific(order) ? order.order : platform.order;
 		}

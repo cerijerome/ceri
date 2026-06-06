@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
-import ceri.common.array.Dimensions;
 import ceri.common.reflect.Generics.Typed;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -113,14 +112,6 @@ public class GenericsTest {
 	public void testGenericArrayOf() {
 		assertArray(Generics.Array.of(null, 0), Generics.Typed.NULL, 0);
 		Assert.string(Generics.Array.of(int.class, 2), "int[][]");
-	}
-
-	@Test
-	public void testArrayStringRepresentation() {
-		var dims = Dimensions.of(1, 2, 3);
-		Assert.string(Generics.Array.of(int.class, 0).toString(dims), "int");
-		Assert.string(Generics.Array.of(int.class, 1).toString(dims), "int[1]");
-		Assert.string(Generics.Array.of(int.class, 3).toString(dims), "int[1][2][3]");
 	}
 
 	@Test

@@ -511,6 +511,7 @@ public class Maths {
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
 	public static int random(int min, int max) {
+		if (max <= min) return min;
 		if (min == Integer.MIN_VALUE && max == Integer.MAX_VALUE)
 			return ThreadLocalRandom.current().nextInt();
 		if (max == Integer.MAX_VALUE) return ThreadLocalRandom.current().nextInt(min - 1, max) + 1;
@@ -528,6 +529,7 @@ public class Maths {
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
 	public static long random(long min, long max) {
+		if (max <= min) return min;
 		if (min == Long.MIN_VALUE && max == Long.MAX_VALUE)
 			return ThreadLocalRandom.current().nextLong();
 		if (max == Long.MAX_VALUE) return ThreadLocalRandom.current().nextLong(min - 1, max) + 1;
@@ -552,6 +554,7 @@ public class Maths {
 	 * Generates a pseudo-random number from min (inclusive) to max (exclusive).
 	 */
 	public static double random(double min, double maxExclusive) {
+		if (maxExclusive <= min) return min;
 		return ThreadLocalRandom.current().nextDouble(min, maxExclusive);
 	}
 

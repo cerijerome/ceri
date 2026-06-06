@@ -10,9 +10,9 @@ public class LazyBehavior {
 
 	@Test
 	public void testWeakClassValue() {
-		Assert.equal(Lazy.weakClassValue(null), null);
+		Assert.equal(Lazy.weakForClass(null), null);
 		var c = Counter.of(0);
-		var cv = Lazy.weakClassValue(_ -> {
+		var cv = Lazy.weakForClass(_ -> {
 			c.inc(1);
 			return new Object();
 		});
@@ -29,8 +29,8 @@ public class LazyBehavior {
 
 	@Test
 	public void testClassValue() {
-		Assert.equal(Lazy.classValue(null), null);
-		var cv = Lazy.classValue(_ -> new Object());
+		Assert.equal(Lazy.forClass(null), null);
+		var cv = Lazy.forClass(_ -> new Object());
 		Assert.equal(cv.get(null), null);
 		Assert.equal(cv.get(null, -1), -1);
 		Assert.same(cv.get(String.class), cv.get(String.class));
@@ -38,7 +38,7 @@ public class LazyBehavior {
 
 	@Test
 	public void testClassValueRemove() {
-		var cv = Lazy.classValue(_ -> new Object());
+		var cv = Lazy.forClass(_ -> new Object());
 		var obj = cv.get(String.class);
 		Assert.same(cv.get(String.class), obj);
 		cv.remove(String.class);

@@ -17,7 +17,6 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.List;
 import java.util.Objects;
-import ceri.common.array.Dimensions;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -127,13 +126,6 @@ public class Generics {
 		 */
 		public Class<?> cls() {
 			return component() == null ? null : component().cls();
-		}
-
-		/**
-		 * Returns the string representation with given dimension sizes.
-		 */
-		public String toString(Dimensions dims) {
-			return isArray() ? arrayString(component(), dimensions(), dims) : toString();
 		}
 
 		@Override
@@ -594,13 +586,6 @@ public class Generics {
 			typed = component;
 			dims++;
 		}
-	}
-
-	private static String arrayString(Typed component, int dimCount, Dimensions dims) {
-		var b = new StringBuilder().append(component);
-		for (int i = 0; i < dimCount; i++)
-			b.append('[').append(dims.dim(i)).append(']');
-		return b.toString();
 	}
 
 	private static String string(boolean compact, Typed typed) {
