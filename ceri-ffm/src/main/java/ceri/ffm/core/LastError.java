@@ -38,7 +38,7 @@ public class LastError {
 	}
 
 	public record State(int code, String message) {
-		public static final State OK = new State(0, "OK");
+		public static final State OK = new State(LastError.OK, "OK");
 
 		/**
 		 * Throws an exception if the error code is non-zero.
@@ -93,7 +93,7 @@ public class LastError {
 	 * Looks up the description of the error code.
 	 */
 	public static String message(int code) {
-		if (code == OK) return "OK";
+		if (code == OK) return State.OK.message();
 		var s = Functional.muteGet(() -> strerror(code), "");
 		return s.startsWith(UNKNOWN) ? "" : s;
 	}

@@ -9,10 +9,6 @@ Alignment: https://c-faq.com/struct/align.esr.html
 
 
 Todo:
-- type handler base
-- wstring encoding: byte order, array order
-- test out struct alignment offsets
-- convert struct <-> object?
 - callback testing
 - test jextract on clib
 - understand how to handle ABI in general
@@ -149,6 +145,13 @@ Alignment
 - JNA: platform def, 1, gnuc (field <= 4), msvc (field)
 - current issue with Windows ABI compatibility?
   - upcall with struct + pointer fails inconsistently
+- alignment rules:
+  - layout address must be multiple of alignment
+  - sequence cannot have element alignment > element size
+  - sequence inherits element alignment on creation
+  - sequence alignment cannot be less then element alignment
+  - changing sequence alignment does not change element alignment
+  - struct alignment cannot be less than any member
 
 
 Type Mapping

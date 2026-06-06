@@ -2,6 +2,7 @@ package ceri.ffm.type;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -24,6 +25,7 @@ public record Terminator(int size) {
 	 * Returns an instance for given layout size in bytes.
 	 */
 	public static Terminator from(MemoryLayout layout) {
+		if (layout == null) return null;
 		return of(Layouts.sizeInt(layout));
 	}
 
@@ -82,7 +84,7 @@ public record Terminator(int size) {
 	 * Returns the memory slice from offset to start of terminator, or null if not found.
 	 */
 	public MemorySegment slice(MemorySegment memory, long offset, long length) {
-		if (Segments.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return memory;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		long pos = pos(memory, offset, length);
@@ -131,19 +133,25 @@ public record Terminator(int size) {
 	}
 
 	/**
+	 * Sets the terminator at given index, within bounds. Returns the number of bytes set.
+	 */
+	public int setAt(MemorySegment memory, long index) {
+		return set(memory, size() * index);
+	}
+
+	/**
 	 * Sets the terminator at given offset, within bounds. Returns the number of bytes set.
 	 */
-	public int set(MemorySegment memory, long offset, int max) {
+	public static int set(MemorySegment memory, long offset, int size) {
 		if (Segments.isNull(memory)) return 0;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
-		max = (int) Maths.limit(max, 0L, memory.byteSize() - offset);
-		int size = (int) Maths.limit(max, 0L, size());
+		size = (int) Maths.limit(size, 0L, memory.byteSize() - offset);
 		switch (size) {
 			case 0 -> {}
 			case Byte.BYTES -> memory.set(Layouts.BYTE, offset, (byte) 0);
-			case Short.BYTES -> memory.set(Layouts.SHORT, offset, (short) 0);
-			case Integer.BYTES -> memory.set(Layouts.INT, offset, 0);
-			case Long.BYTES -> memory.set(Layouts.LONG, offset, 0L);
+			case Short.BYTES -> memory.set(ValueLayout.JAVA_SHORT_UNALIGNED, offset, (short) 0);
+			case Integer.BYTES -> memory.set(ValueLayout.JAVA_INT_UNALIGNED, offset, 0);
+			case Long.BYTES -> memory.set(ValueLayout.JAVA_LONG_UNALIGNED, offset, 0L);
 			default -> memory.asSlice(offset, size).fill((byte) 0);
 		}
 		return size;

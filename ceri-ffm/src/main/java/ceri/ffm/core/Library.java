@@ -38,8 +38,6 @@ public class Library<T> {
 
 	// TODO:
 	// call args:
-	// - pointers
-	// - structs and unions
 	// - work through clib
 
 	private static final String FILE = "file.txt";
@@ -190,15 +188,15 @@ public class Library<T> {
 		if (method.isDefault()) return InvocationHandler.invokeDefault(proxy, method, args);
 		args = Basics.def(args, Array.OBJECT.empty);
 		var call = call(method);
-		if (!method.isVarArgs()) return invokeCall(call, args);
-		return invokeVarArgs(method, call, args);
+		if (method.isVarArgs()) return invokeVarArgs(call, args);
+		return invokeCall(call, args);
 	}
 
-	private Object invokeVarArgs(Method method, Call call, Object[] args) throws Throwable {
+	private Object invokeVarArgs(Call call, Object[] args) throws Throwable {
 		var varArgs = (Object[]) Array.last(args);
 		var flatArgs = flatten(args, varArgs);
 		if (Array.isEmpty(varArgs)) return invokeCall(call, flatArgs);
-		call = varArgsCall(method, call, varArgs);
+		call = varArgsCall(call, varArgs);
 		return invokeCall(call, flatArgs);
 	}
 
@@ -207,10 +205,9 @@ public class Library<T> {
 		return methods.computeIfAbsent(key, _ -> calls.call(method));
 	}
 
-	private Call varArgsCall(Method method, Call call, Object[] varArgs) {
-		var key = key(method, varArgs);
-		return methods.computeIfAbsent(key,
-			_ -> calls.varArgsCall(call, method, key.varArgTypes()));
+	private Call varArgsCall(Call call, Object[] varArgs) {
+		var key = key(call.method, varArgs);
+		return methods.computeIfAbsent(key, _ -> calls.varArgsCall(call, key.varArgTypes()));
 	}
 
 	private T ensureProxy() {

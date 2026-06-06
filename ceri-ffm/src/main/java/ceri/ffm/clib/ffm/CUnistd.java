@@ -190,7 +190,7 @@ public class CUnistd {
 			int n = read(fd, buffer, rem);
 			if (n <= 0) break; // n < rem?
 			rem -= n;
-			buffer = buffer.share(n);
+			buffer = buffer.slice(n);
 		}
 		return length - rem;
 	}

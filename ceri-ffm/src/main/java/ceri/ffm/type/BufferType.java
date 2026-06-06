@@ -1,7 +1,9 @@
 package ceri.ffm.type;
 
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SequenceLayout;
 import java.lang.foreign.ValueLayout;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -13,6 +15,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.array.Dimensions;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
@@ -20,10 +23,13 @@ import ceri.common.io.Buffers;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.ToString;
 import ceri.common.util.Counter;
 import ceri.common.util.Truth;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
+import ceri.ffm.reflect.Refine;
+import ceri.ffm.test.FfmTesting;
 
 /**
  * Operational support for Buffers.
@@ -48,12 +54,144 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	private final Buffers<B, A> buffers;
 	private final Primitive<T, A, L> primitive;
 
+	public static void main(String[] args) {
+		var s = INT;
+		long a = 1;
+		System.out.println(s);
+		System.out.println(s.with(a, ByteOrder.BIG_ENDIAN));
+		System.out.println(s.support(10, false));
+		System.out.println(s.support(10, false).with(a, ByteOrder.BIG_ENDIAN));
+		System.out.println(s.with(a, ByteOrder.BIG_ENDIAN).support(6, true));
+		System.out.println(
+			s.with(a, ByteOrder.BIG_ENDIAN).support(6, true).with(a, ByteOrder.LITTLE_ENDIAN));
+		var m = s.support(8, true).alloc(Segments.auto(), Buffers.INT.of(1, 2, 3, 4, 5));
+		FfmTesting.bin(m);
+	}
+
+	public static void main0(String[] args) {
+		var sp = support(IntBuffer.class, 8, false);
+		var m = Primitive.INT.allocAll(Segments.auto(), false, 1, 2, 3, 4, 5, 0, 6, 7, 8, 9, 0, 10,
+			11, 12, 13, 14, 15, 16);
+		// var m = sp.alloc(Segments.auto(), Buffers.INT.of(1, 2, 3, 4, 5, 6, 7, 8, 9));
+		FfmTesting.bin(m);
+		var bb = sp.getArray(m, false);
+		for (var b : bb)
+			FfmTesting.arg(Buffers.INT.get(b));
+		Buffers.INT.putAt(bb[1], 3, -1, -2, -3);
+		FfmTesting.bin(m);
+	}
+
+	/**
+	 * Operational support with fixed-size layout.
+	 */
+	public static class Supporter<B extends Buffer> extends Support.Typed<B, SequenceLayout> {
+		private final BufferType<B, ?, ?, ? extends ValueLayout> buffer;
+		private final boolean nul;
+
+		private Supporter(BufferType<B, ?, ?, ?> buffer, boolean nul, SequenceLayout layout) {
+			super(layout);
+			this.buffer = buffer;
+			this.nul = nul;
+		}
+
+		/**
+		 * Returns the maximum buffer length, including nul-terminator if specified.
+		 */
+		public int count() {
+			return (int) layout().elementCount();
+		}
+
+		/**
+		 * Returns the nul-termination directive.
+		 */
+		public boolean nul() {
+			return nul;
+		}
+
+		@Override
+		public Class<B> type() {
+			return buffer.bufferType();
+		}
+
+		@Override
+		public boolean immutable() {
+			return false;
+		}
+
+		@Override
+		public boolean partial() {
+			return true;
+		}
+
+		@Override
+		public B val() {
+			return buffer.nullVal();
+		}
+
+		@Override
+		public Supporter<B> with(long align, ByteOrder order) {
+			var buffer = this.buffer.with(align, order);
+			var layout = buffer == this.buffer ? layout() : buffer.layout(count());
+			layout = Layouts.align(layout, align);
+			if (buffer == this.buffer && layout == layout()) return this;
+			return new Supporter<>(buffer, nul, layout);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(super.hashCode(), nul);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this) return true;
+			return (obj instanceof Supporter<?> s) && nul == s.nul && equalTo(s);
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, Reflect.simple(type()), count(), nul,
+				Layouts.desc(layout()));
+		}
+
+		@Override
+		B rawGet(MemorySegment memory, long offset, long length) {
+			return buffer.asBuffer(memory, offset, length, nul);
+		}
+
+		@Override
+		void rawRead(MemorySegment memory, long offset, long length, B value) {
+			buffer.readAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul);
+		}
+
+		@Override
+		void rawWrite(MemorySegment memory, long offset, long length, B value) {
+			buffer.writeAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul);
+		}
+	}
+
 	/**
 	 * Interface to provide a buffer from a memory segment, such as wrapping or copying.
 	 */
 	private interface Instantiator<B extends Buffer> {
 		/** Provide a buffer from the memory segment with optional nul-termination. */
 		B apply(MemorySegment memory, long offset, long length, boolean nul);
+	}
+
+	/**
+	 * Returns fixed-layout operational support.
+	 */
+	public static <B extends Buffer> Supporter<B> support(Class<? extends B> cls, Refine.Context context) {
+		return support(cls, context.size(), context.nul());
+	}
+	
+	/**
+	 * Returns fixed-layout operational support.
+	 */
+	public static <B extends Buffer> Supporter<B> support(Class<? extends B> cls, int count,
+		boolean nul) {
+		var buffer = BufferType.<B>of(cls);
+		return buffer == null ? null : buffer.support(count, nul);
 	}
 
 	/**
@@ -103,7 +241,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * Wraps the segment as a byte buffer with natural byte order.
 	 */
 	public static ByteBuffer asByte(MemorySegment memory) {
-		if (Segments.isNull(memory)) return null;
+		if (Segments.isNull(memory)) return BYTE.nullVal();
 		return memory.asByteBuffer().order(ByteOrder.nativeOrder());
 	}
 
@@ -117,6 +255,22 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 */
 	public Primitive<T, A, L> primitive() {
 		return primitive;
+	}
+
+	/**
+	 * Returns fixed-layout operational support.
+	 */
+	public Supporter<B> support(int count, boolean nul) {
+		return new Supporter<>(this, nul, layout(count));
+	}
+
+	/**
+	 * Returns an instance with primitive layout modifications.
+	 */
+	public BufferType<B, T, A, L> with(long align, ByteOrder order) {
+		align = Layouts.elementAlign(layout(), align);
+		var primitive = primitive().with(align, order);
+		return primitive == primitive() ? this : new BufferType<>(buffers, primitive);
 	}
 
 	/**
@@ -277,7 +431,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-termination. Fails if the length is larger than int.
 	 */
 	public B get(MemorySegment memory, long offset, long length, boolean nul) {
-		if (Segments.isNull(memory)) return null;
+		if (memory == null) return nullVal();
 		var array = primitive.getArray(memory, offset, length, nul);
 		return buffers.of(array, 0);
 	}
@@ -564,6 +718,22 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		return rawDeepWrite(memory, offset, length, t, nul);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(primitive);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		return (obj instanceof BufferType b) && Objects.equals(primitive, b.primitive);
+	}
+
+	@Override
+	public String toString() {
+		return ToString.forClass(this, buffers, Layouts.desc(layout()));
+	}
+
 	// support
 
 	private <U> U deepInstantiate(Instantiator<B> instantiator, MemorySegment memory, long offset,
@@ -617,7 +787,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	private int dimsOf(Object t) {
-		var typed = Generics.Typed.from(t).array();
+		var typed = Generics.typedClass(t).array();
 		return Reflect.assignable(bufferType(), typed.cls()) ? typed.dimensions() : -1;
 	}
 
@@ -625,8 +795,12 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		return Dimensions.create(dims, bufferType());
 	}
 
+	private SequenceLayout layout(int count) {
+		return MemoryLayout.sequenceLayout(count, layout());
+	}
+
 	private static Map<Class<?>, BufferType<?, ?, ?, ? extends ValueLayout>> map() {
-		return Immutable.convertMapOf(BufferType::type, t -> t, CHAR, BYTE, SHORT, INT, LONG, FLOAT,
-			DOUBLE);
+		return Immutable.convertMapOf(BufferType::bufferType, t -> t, CHAR, BYTE, SHORT, INT, LONG,
+			FLOAT, DOUBLE);
 	}
 }

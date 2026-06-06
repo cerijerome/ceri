@@ -4,12 +4,9 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteOrder;
-import java.util.Map;
 import ceri.common.array.Array;
 import ceri.common.array.RawArray;
-import ceri.common.collect.Immutable;
 import ceri.common.math.Maths;
-import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
 
@@ -25,7 +22,6 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	public static final OfLong LONG = new OfLong(Layouts.LONG);
 	public static final OfFloat FLOAT = new OfFloat(Layouts.FLOAT);
 	public static final OfDouble DOUBLE = new OfDouble(Layouts.DOUBLE);
-	private static final Map<Class<?>, Support<?, ?, ? extends ValueLayout>> MAP = map();
 
 	/**
 	 * Operational support for boxed primitives.
@@ -52,8 +48,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public Box<T, L> with(String name, long align, ByteOrder order) {
-			var primitive = this.primitive.with(name, align, order);
+		public Box<T, L> with(long align, ByteOrder order) {
+			var primitive = this.primitive.with(align, order);
 			return primitive == this.primitive ? this : new Box<>(primitive);
 		}
 
@@ -63,13 +59,13 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset) {
-			return primitive.rawGet(memory, offset);
+		T rawGet(MemorySegment memory, long offset, long length) {
+			return primitive.rawGet(memory, offset, length);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, T value) {
-			primitive.rawWrite(memory, offset, value);
+		void rawWrite(MemorySegment memory, long offset, long length, T value) {
+			primitive.rawWrite(memory, offset, length, value);
 		}
 	}
 
@@ -98,13 +94,54 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfBool with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfBool::new, layout(), name, align, order);
+		public OfBool with(long align, ByteOrder order) {
+			return Layouts.with(this, OfBool::new, layout(), null, align, order);
 		}
 
 		@Override
 		public Boolean val() {
 			return Boolean.FALSE;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public boolean getBool(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setBool(MemorySegment memory, long offset, boolean value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocBool(boolean value) {
+			return allocBool(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocBool(SegmentAllocator allocator, boolean value) {
+			if (allocator == null) return null;
+			var memory = allocator.allocate(layout());
+			memory.set(layout(), 0, value);
+			return memory;
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, boolean... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -141,12 +178,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		Boolean rawGet(MemorySegment memory, long offset) {
+		Boolean rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Boolean value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Boolean value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -201,13 +238,52 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfChar with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfChar::new, layout(), name, align, order);
+		public OfChar with(long align, ByteOrder order) {
+			return Layouts.with(this, OfChar::new, layout(), null, align, order);
 		}
 
 		@Override
 		public Character val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public char getChar(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.charValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setChar(MemorySegment memory, long offset, char value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocChar(char value) {
+			return allocChar(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocChar(SegmentAllocator allocator, char value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, char... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -225,7 +301,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Wraps the values as a memory segment.
+		 * Wraps the value char array as a memory segment.
 		 */
 		public MemorySegment wrap(CharSequence s) {
 			if (s == null) return null;
@@ -260,12 +336,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Character rawGet(MemorySegment memory, long offset) {
+		Character rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Character value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Character value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -301,13 +377,66 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfByte with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfByte::new, layout(), name, align, order);
+		public OfByte with(long align, ByteOrder order) {
+			return Layouts.with(this, OfByte::new, layout(), null, align, order);
+		}
+
+		/**
+		 * Provides support for pointers of this type.
+		 */
+		public RawPointer.Supporter<Pointer.OfByte> asPointer(boolean constant) {
+			return Pointer.OfByte.support(this, constant);
 		}
 
 		@Override
 		public Byte val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public byte getByte(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.byteValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setByte(MemorySegment memory, long offset, byte value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocByte(byte value) {
+			return allocByte(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocByte(SegmentAllocator allocator, byte value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, byte... array) {
+			return allocAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, int... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -391,12 +520,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Byte rawGet(MemorySegment memory, long offset) {
+		Byte rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Byte value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Byte value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -432,13 +561,59 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfShort with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfShort::new, layout(), name, align, order);
+		public OfShort with(long align, ByteOrder order) {
+			return Layouts.with(this, OfShort::new, layout(), null, align, order);
 		}
 
 		@Override
 		public Short val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public short getShort(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.shortValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setShort(MemorySegment memory, long offset, short value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocShort(short value) {
+			return allocShort(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocShort(SegmentAllocator allocator, short value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, short... array) {
+			return allocAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, int... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -522,12 +697,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Short rawGet(MemorySegment memory, long offset) {
+		Short rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Short value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Short value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -563,13 +738,59 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfInt with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfInt::new, layout(), name, align, order);
+		public OfInt with(long align, ByteOrder order) {
+			return Layouts.with(this, OfInt::new, layout(), null, align, order);
+		}
+
+		/**
+		 * Provides support for pointers of this type.
+		 */
+		public RawPointer.Supporter<Pointer.OfInt> asPointer(boolean constant) {
+			return Pointer.OfInt.support(this, constant);
 		}
 
 		@Override
 		public Integer val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public int getInt(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.intValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setInt(MemorySegment memory, long offset, int value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocInt(int value) {
+			return allocInt(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocInt(SegmentAllocator allocator, int value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, int... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -614,12 +835,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Integer rawGet(MemorySegment memory, long offset) {
+		Integer rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Integer value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Integer value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -655,13 +876,52 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfLong with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfLong::new, layout(), name, align, order);
+		public OfLong with(long align, ByteOrder order) {
+			return Layouts.with(this, OfLong::new, layout(), null, align, order);
 		}
 
 		@Override
 		public Long val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public long getLong(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.longValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setLong(MemorySegment memory, long offset, long value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocLong(long value) {
+			return allocLong(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocLong(SegmentAllocator allocator, long value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, long... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -706,12 +966,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Long rawGet(MemorySegment memory, long offset) {
+		Long rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Long value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Long value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -747,13 +1007,52 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfFloat with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfFloat::new, layout(), name, align, order);
+		public OfFloat with(long align, ByteOrder order) {
+			return Layouts.with(this, OfFloat::new, layout(), null, align, order);
 		}
 
 		@Override
 		public Float val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public float getFloat(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.floatValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setFloat(MemorySegment memory, long offset, float value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocFloat(float value) {
+			return allocFloat(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocFloat(SegmentAllocator allocator, float value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, float... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -798,12 +1097,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Float rawGet(MemorySegment memory, long offset) {
+		Float rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Float value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Float value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -839,13 +1138,52 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfDouble with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, OfDouble::new, layout(), name, align, order);
+		public OfDouble with(long align, ByteOrder order) {
+			return Layouts.with(this, OfDouble::new, layout(), null, align, order);
 		}
 
 		@Override
 		public Double val() {
 			return VAL;
+		}
+
+		/**
+		 * Gets the value at the offset.
+		 */
+		public double getDouble(MemorySegment memory, long offset) {
+			if (!Segments.within(memory, offset, layoutSize())) return VAL.doubleValue();
+			return memory.get(layout(), offset);
+		}
+
+		/**
+		 * Sets the value at the offset.
+		 */
+		public boolean setDouble(MemorySegment memory, long offset, double value) {
+			if (!Segments.within(memory, offset, layoutSize())) return false;
+			memory.set(layout(), offset, value);
+			return true;
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocDouble(double value) {
+			return allocDouble(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory with the value.
+		 */
+		public MemorySegment allocDouble(SegmentAllocator allocator, double value) {
+			if (allocator == null) return null;
+			return allocator.allocateFrom(layout(), value);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		public MemorySegment allocAll(boolean nul, double... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -890,12 +1228,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Double rawGet(MemorySegment memory, long offset) {
+		Double rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, Double value) {
+		void rawWrite(MemorySegment memory, long offset, long length, Double value) {
 			memory.set(layout(), offset, value);
 		}
 
@@ -905,23 +1243,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 	}
 
-	public static <T> Support<T, ?, ? extends ValueLayout> of(Class<?> cls) {
-		return Reflect.unchecked(MAP.get(cls));
-	}
-
-	public static ValueLayout layout(Class<?> cls) {
-		var support = of(cls);
-		return support == null ? null : support.layout();
-	}
-
 	private Primitive(L layout) {
 		super(layout);
 	}
 
+	/**
+	 * Returns the boxed class.
+	 */
 	public abstract Class<T> boxType();
 
 	@Override
-	public abstract Primitive<T, A, L> with(String name, long align, ByteOrder order);
+	public abstract Primitive<T, A, L> with(long align, ByteOrder order);
 
 	/**
 	 * Wraps the bounded array as a memory segment.
@@ -947,11 +1279,6 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		return Segments.slice(rawWrapArray(array), size(index), size(length));
 	}
 
-	@Override
-	public Object deepInit(Object t) {
-		return t; // no nulls to replace
-	}
-
 	// overrides
 
 	@Override
@@ -971,12 +1298,6 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 
 	abstract MemorySegment rawWrapArray(A array);
 
-	@Override
-	int dimsOf(Object t) {
-		if (boxType().isInstance(t)) return 0;
-		return super.dimsOf(t);
-	}
-
 	// support
 
 	private static byte[] bytes(boolean... bools) {
@@ -985,11 +1306,5 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		for (int i = 0; i < bools.length; i++)
 			if (bools[i]) bytes[i] = 1;
 		return bytes;
-	}
-
-	private static Map<Class<?>, Support<?, ?, ? extends ValueLayout>> map() {
-		return Immutable.convertMapOf(Support::type, t -> t, BOOL, CHAR, BYTE, SHORT, INT, LONG,
-			FLOAT, DOUBLE, Box.BOOL, Box.CHAR, Box.BYTE, Box.SHORT, Box.INT, Box.LONG, Box.FLOAT,
-			Box.DOUBLE);
 	}
 }

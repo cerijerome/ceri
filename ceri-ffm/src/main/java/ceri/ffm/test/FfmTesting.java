@@ -4,14 +4,22 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
+import java.nio.charset.Charset;
 import java.util.List;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
 import ceri.common.data.Bytes;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
+import ceri.common.test.Testing;
+import ceri.common.text.Chars;
+import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
+import ceri.ffm.type.Primitive;
+import ceri.ffm.type.RawPointer;
+import ceri.ffm.type.Support;
 import ceri.ffm.util.Args;
 
 public class FfmTesting {
@@ -60,6 +68,24 @@ public class FfmTesting {
 		public static long l(int c, int index) {
 			return Bytes.fromMsb(c++, c++, c++, c++, c++, c++, c++, c)
 				+ (index * 0x808080808080808L);
+		}
+
+		/**
+		 * Generates a string value.
+		 */
+		public static String str(int c, int len) {
+			return str(c, len, len);
+		}
+
+		/**
+		 * Generates a string value.
+		 */
+		public static String str(int c, int min, int max) {
+			int len = Maths.random(min, max);
+			var b = new StringBuilder();
+			for (int i = 0; i < len; i++)
+				b.append((char) (c + i));
+			return b.toString();
 		}
 	}
 
@@ -135,10 +161,81 @@ public class FfmTesting {
 	}
 
 	/**
+	 * Allocates a segment using an encoded, nul-term string.
+	 */
+	public static MemorySegment alloc(String s) {
+		return alloc(s, null);
+	}
+
+	/**
+	 * Allocates a segment using an encoded, nul-term string.
+	 */
+	public static MemorySegment alloc(String s, Charset charset) {
+		return Segments.auto().allocateFrom(s, Chars.safe(charset));
+	}
+
+	/**
+	 * Allocates a segment from values.
+	 */
+	public static MemorySegment allocBytes(int... values) {
+		return Primitive.BYTE.allocAll(Segments.auto(), false, values);
+	}
+
+	/**
+	 * Allocates a segment from values.
+	 */
+	public static MemorySegment alloc(int... values) {
+		return Primitive.INT.allocAll(Segments.auto(), false, values);
+	}
+
+	/**
+	 * Allocates a segment from values.
+	 */
+	public static MemorySegment alloc(long... values) {
+		return Primitive.LONG.allocAll(Segments.auto(), false, values);
+	}
+
+	/**
+	 * Allocates a segment filled with random bytes.
+	 */
+	public static MemorySegment randomBytes(int size) {
+		return Primitive.BYTE.allocArray(A, Testing.randomBytes(size), false);
+	}
+
+	/**
+	 * Allocates a segment filled with random values, and nuls at given indexes.
+	 */
+	public static MemorySegment random(int size, Support<?, ?, ?> support, double... nuls) {
+		var memory = randomBytes(support.layoutSize() * size);
+		var term = support.term();
+		for (var nul : nuls)
+			term.set(memory, (int) (nul * support.layoutSize()));
+		return memory;
+	}
+
+	/**
 	 * Prints the object as an argument.
 	 */
 	public static void arg(Object arg) {
 		P.message(Args.DEFAULT.arg(arg));
+	}
+
+	/**
+	 * Prints the caller method as a title.
+	 */
+	public static void title() {
+		title(Reflect.previousMethodName(1));
+	}
+
+	/**
+	 * Prints a title with border.
+	 */
+	public static void title(String format, Object... args) {
+		var title = Strings.format(format, args);
+		var border = "+-" + "-".repeat(title.length()) + "-+";
+		P.message(border);
+		P.message("| " + title + " |");
+		P.message(border);
 	}
 
 	/**
@@ -157,6 +254,17 @@ public class FfmTesting {
 	}
 
 	/**
+	 * Prints the binary contents of the pointer.
+	 */
+	public static void bin(RawPointer... ps) {
+		for (var p : ps) {
+			P.message(p);
+			print(p.memory());
+			P.message("");
+		}
+	}
+
+	/**
 	 * Prints the binary contents of the memory segment range.
 	 */
 	public static void bin(MemorySegment m, long offset) {
@@ -167,21 +275,16 @@ public class FfmTesting {
 	 * Prints the binary contents of the memory segment range.
 	 */
 	public static void bin(MemorySegment m, long offset, long length) {
-		P.message(m);
-		m = Segments.slice(m, offset, length);
-		if (m != null) P.print(m.toArray(Layouts.BYTE));
+		P.message(Segments.string(m));
+		print(Segments.slice(m, offset, length));
 		P.message("");
 	}
 
-	/**
-	 * Prints the caller method as a title.
-	 */
-	public static void title() {
-		var s = Reflect.previousMethodName(1);
-		P.message("%s%n%s", s, "-".repeat(s.length()));
-	}
-	
 	// support
+
+	private static void print(MemorySegment m) {
+		if (m != null) P.print(m.toArray(Layouts.BYTE));
+	}
 
 	private static MemorySegment fill(MemorySegment m, int filler) {
 		Segments.fill(m, filler);

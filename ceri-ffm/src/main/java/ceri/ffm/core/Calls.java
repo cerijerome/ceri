@@ -1,6 +1,7 @@
 package ceri.ffm.core;
 
 import java.io.IOException;
+import java.lang.foreign.AddressLayout;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
@@ -9,30 +10,37 @@ import java.lang.reflect.Parameter;
 import java.nio.Buffer;
 import java.util.List;
 import ceri.common.array.Array;
-import ceri.common.array.Dimensions;
 import ceri.common.collect.Lists;
 import ceri.common.except.Exceptions;
 import ceri.common.io.Buffers;
 import ceri.common.io.Direction;
-import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.clib.ffm.CStdLib;
 import ceri.ffm.reflect.Refine;
+import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.type.BufferType;
 import ceri.ffm.type.IntType;
-import ceri.ffm.type.MultiArray;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.StringType;
+import ceri.ffm.type.Struct;
 import ceri.ffm.type.Support;
+import ceri.ffm.type.Union;
 
 /**
  * Builds native calls from interface methods and annotated configuration.
  */
 public class Calls {
-	private static final int NUL_TERM_MAX_DEF = 0x100;
+	private static final String RETURN = "return";
+	private static final AddressLayout POINTER_RETURN = Layouts.POINTER.withName(RETURN);
 	private final Linker linker;
 	private final SymbolLookup lookup;
+
+	// string with fixed size (+/-nul) => support
+	// string no fixed size (+nul) => stringtype
+
+	// buffer with fixed size (+/-nul) => support
+	// buffer no fixed size (+nul) => buffertype
 
 	public static void main(String[] args) throws IOException {
 		System.out.println(CStdLib.getenv("USER"));
@@ -43,6 +51,7 @@ public class Calls {
 		System.out.println(CStdLib.getenv("TESTXXX"));
 		CStdLib.setenv("TESTXXX", "yyy", true);
 		System.out.println(CStdLib.getenv("TESTXXX"));
+		System.out.println("Expecting: <user>, null, xxx, xxx, yyy");
 	}
 
 	public static Calls of(Linker linker, SymbolLookup lookup) {
@@ -58,11 +67,11 @@ public class Calls {
 	 * Creates a call from the method.
 	 */
 	public Call call(Method method) {
-		var b = Call.builder(method.getName());
-		rtn(b, method);
+		var b = rtn(Call.builder(method), method);
 		var parameters = method.getParameters();
-		for (int i = 0; i < paramCount(method); i++)
-			arg(b, method, parameters[i]);
+		int paramCount = paramCount(method);
+		for (int i = 0; i < paramCount; i++)
+			arg(b, parameters[i]);
 		if (Refine.lastError(method, false)) b.lastError();
 		return b.build(linker, lookup);
 	}
@@ -70,214 +79,260 @@ public class Calls {
 	/**
 	 * Extends a call with varargs.
 	 */
-	public Call varArgsCall(Call call, Method method, List<Class<?>> varArgTypes) {
+	public Call varArgsCall(Call call, List<Class<?>> varArgTypes) {
 		var b = Call.builder(call).varArg();
-		var context = Refine.context(method);
-		var parameter = Array.last(method.getParameters());
+		var parameter = Array.last(call.method.getParameters());
 		for (int i = 0; i < varArgTypes.size(); i++)
-			varArg(b, context, method, parameter, varArgTypes, i);
+			varArg(b, parameter, varArgTypes, i);
 		return b.build(linker, lookup);
 	}
 
 	// support
 
-	private static void arg(Call.Builder b, Method method, Parameter parameter) {
-		var spec = Native.Kind.validSpec(Generics.typed(parameter));
-		var context = Refine.context(parameter);
-		var arg = arg(context, spec);
-		if (arg != null) b.arg(spec.typed(), arg);
-		else throw Exceptions.illegalArg("Unsupported arg: %s.%s (%s)", method.getName(),
-			parameter.getName(), spec.typed());
+	private static void arg(Call.Builder b, Parameter parameter) {
+		var node = TypeNode.of(parameter);
+		var arg = arg(parameter.getName(), node);
+		if (arg != null) b.arg(node.typed(), arg);
+		else throw Exceptions.illegalArg("Unsupported arg type: %s (%s)",
+			Reflect.localName(parameter), node.typed());
 	}
 
-	private static void varArg(Call.Builder b, Refine.Context context, Method method,
-		Parameter parameter, List<Class<?>> varArgs, int i) {
-		var cls = Lists.at(varArgs, i);
-		var spec = Native.Kind.validSpec(cls);
-		var arg = arg(context, spec);
-		if (arg != null) b.arg(spec.typed(), arg);
-		else throw Exceptions.illegalArg("Unsupported vararg: %s.%s[%d] (%s)", method.getName(),
-			parameter.getName(), i, spec.typed());
+	private static void varArg(Call.Builder b, Parameter parameter, List<Class<?>> varArgs, int i) {
+		var node = TypeNode.of(parameter).sub(Lists.at(varArgs, i));
+		var arg = arg(parameter.getName() + "[" + i + "]", node);
+		if (arg != null) b.arg(node.typed(), arg);
+		else throw Exceptions.illegalArg("Unsupported vararg type: %s[%d] (%s)",
+			Reflect.localName(parameter), i, node.typed());
 	}
 
-	private static void rtn(Call.Builder b, Method method) {
-		if (Reflect.isVoid(method)) return;
-		var spec = Native.Kind.validSpec(Generics.typedReturn(method));
-		var rtn = rtn(Refine.context(method), spec);
-		if (rtn != null) b.rtn(spec.typed(), rtn);
-		else throw Exceptions.illegalArg("Unsupported return type: %s (%s)", method.getName(),
-			spec.typed());
+	private static Call.Builder rtn(Call.Builder b, Method method) {
+		if (Reflect.isVoid(method)) return b;
+		var node = TypeNode.ofReturn(method);
+		var rtn = rtn(node);
+		if (rtn != null) return b.rtn(node.typed(), rtn);
+		throw Exceptions.illegalArg("Unsupported return type: %s (%s)", method.getName(),
+			node.typed());
 	}
 
-	private static Call.Arg<?, ?> arg(Refine.Context context, Native.Kind.Spec spec) {
+	private static Call.Arg<?, ?> arg(String name, TypeNode node) {
+		var spec = node.spec();
 		return switch (spec.kind()) {
-			case primitive, boxed -> primitiveArg(context, spec);
-			case intType -> intArg(context, spec);
-			case string -> stringArg(context, spec);
-			case buffer -> bufferArg(context, spec);
-			case pointer -> pointerArg(context, spec);
+			case primitive, boxed -> primitiveArg(name, spec, node.context());
+			case intType -> intArg(name, spec, node.context());
+			case struct -> structArg(name, spec, node.context());
+			case union -> unionArg(name, spec, node.context());
+			case pointer -> pointerArg(name, node);
+			case primitivePointer -> null; // TODO
+			case pointerType -> null; // TODO
+			case functionPointer -> null; // TODO
+			case string -> stringArg(name, spec, node.context());
+			case buffer -> bufferArg(name, spec, node.context());
 			default -> null;
 		};
 	}
 
-	private static Call.Arg<?, ?> primitiveArg(Refine.Context context, Native.Kind.Spec spec) {
-		var support = support(Primitive.of(spec.component()), context);
-		if (spec.array().isArray()) return arrayArg(support, context);
-		return new Call.Arg<>(support.layout(), (_, t) -> t, null);
+	private static Call.Arg<?, ?> primitiveArg(String name, Native.Spec spec,
+		Refine.Context context) {
+		var support = Support.with(Primitive.of(spec.component()), context);
+		if (spec.isArray()) return arrayArg(name, support, context, context.nul());
+		return new Call.Arg<>(support.layout().withName(name), (_, t) -> t, null);
 	}
 
-	private static <T extends IntType<T>> Call.Arg<?, ?> intArg(Refine.Context context,
-		Native.Kind.Spec spec) {
-		var support = support(IntType.<T>support(spec.component()), context);
-		if (spec.array().isArray()) return arrayArg(support, context);
-		return new Call.Arg<T, Number>(support.layout(), (_, t) -> t.nativeValue(), null);
-	}
-
-	private static Call.Arg<?, ?> stringArg(Refine.Context context, Native.Kind.Spec spec) {
-		var support = StringType.of(context.chars(null));
-		if (spec.array().isArray()) return stringArrayArg(support, context);
-		return new Call.Arg<String, MemorySegment>(Layouts.POINTER,
-			(a, s) -> support.alloc(a, s, true), null);
-	}
-
-	private static <B extends Buffer> Call.Arg<?, ?> bufferArg(Refine.Context context,
-		Native.Kind.Spec spec) {
-		var support = BufferType.<B>of(spec.component());
-		if (spec.array().isArray()) return bufferArrayArg(support, context);
-		var dir = context.direction(Direction.duplex);
-		var nul = context.nul();
-		return new Call.Arg<B, MemorySegment>(Layouts.POINTER,
-			(a, b) -> Buffers.isDirect(b) ? support.ofBuffer(b) : support.alloc(a, b, nul),
-			Direction.out(dir) ? (b, m) -> {
-				if (!Buffers.isDirect(b)) support.read(m, b, nul);
-			} : null);
-	}
-
-	private static <T> Call.Arg<?, ?> pointerArg(Refine.Context context, Native.Kind.Spec spec) {
-		var type = Pointer.Type.of(spec.typed().type(0));
-		var support = support(Pointer.Support.VOID.as(type), context);
-		if (spec.array().isArray()) return arrayArg(support, context);
-		return new Call.Arg<Pointer<T>, MemorySegment>(support.layout(), (_, p) -> p.memory(),
+	private static <T extends IntType<T>> Call.Arg<?, ?> intArg(String name, Native.Spec spec,
+		Refine.Context context) {
+		var support = Support.with(IntType.support(spec.<T>component()), context);
+		if (spec.isArray()) return arrayArg(name, support, context, context.nul());
+		return new Call.Arg<T, Number>(support.layout().withName(name), (_, t) -> t.nativeValue(),
 			null);
 	}
 
-	private static Call.Arg<Object, MemorySegment> arrayArg(Support<?, ?, ?> support,
+	private static Call.Arg<?, ?> structArg(String name, Native.Spec spec, Refine.Context context) {
+		var support = Struct.support(spec.component());
+		return byValArg(name, support, spec, context);
+	}
+
+	private static Call.Arg<?, ?> unionArg(String name, Native.Spec spec, Refine.Context context) {
+		var support = Union.support(spec.component());
+		return byValArg(name, support, spec, context);
+	}
+
+	private static Call.Arg<?, ?> pointerArg(String name, TypeNode node) {
+		var support = Pointer.support(node);
+		return byValArg(name, support, node.spec(), node.context());
+	}
+
+	private static Call.Arg<?, ?> stringArg(String name, Native.Spec spec, Refine.Context context) {
+		var string = StringType.of(context.chars());
+		var nul = context.nul(true);
+		var count = context.size(); // fixed size if > 0
+		if (count > 0) return byRefArg(name, string.support(count, nul), spec, context);
+		if (spec.isArray()) return stringNulArrayArg(name, string, context);
+		return new Call.Arg<String, MemorySegment>(Layouts.POINTER.withName(name),
+			(a, s) -> string.alloc(a, s, nul), null);
+	}
+
+	private static <B extends Buffer> Call.Arg<?, ?> bufferArg(String name, Native.Spec spec,
 		Refine.Context context) {
-		var dir = context.direction(Direction.duplex);
+		var buffer = BufferType.<B>of(spec.component());
 		var nul = context.nul();
-		return new Call.Arg<>(Layouts.POINTER,
-			Direction.in(dir) ? (a, t) -> support.deepAlloc(a, t, nul) :
+		var count = context.size(); // fixed size if > 0
+		if (count > 0) return byRefArg(name, buffer.support(count, nul), spec, context);
+		if (spec.isArray()) return bufferArrayArg(name, buffer, context, nul);
+		var direction = context.direction();
+		return new Call.Arg<B, MemorySegment>(Layouts.POINTER.withName(name),
+			(a, b) -> Buffers.isDirect(b) ? buffer.ofBuffer(b) : buffer.alloc(a, b, nul),
+			Direction.out(direction) ? (b, m) -> {
+				if (!Buffers.isDirect(b)) buffer.read(m, b, nul);
+			} : null);
+	}
+
+	private static <T> Call.Arg<?, ?> byValArg(String name, Support<T, ?, ?> support,
+		Native.Spec spec, Refine.Context context) {
+		var s = Support.with(support, context);
+		if (spec.isArray()) return arrayArg(name, s, context, context.nul());
+		return new Call.Arg<T, MemorySegment>(s.layout().withName(name), (a, t) -> s.alloc(a, t),
+			null);
+	}
+
+	private static <T> Call.Arg<?, ?> byRefArg(String name, Support<T, ?, ?> support,
+		Native.Spec spec, Refine.Context context) {
+		var s = Support.with(support, context);
+		if (spec.isArray()) return arrayArg(name, s, context, false);
+		return new Call.Arg<T, MemorySegment>(Layouts.POINTER.withName(name),
+			(a, t) -> s.alloc(a, t), null);
+	}
+
+	private static Call.Arg<Object, MemorySegment> arrayArg(String name, Support<?, ?, ?> support,
+		Refine.Context context, boolean nul) {
+		var direction = context.direction();
+		return new Call.Arg<>(Layouts.POINTER.withName(name),
+			Direction.in(direction) ? (a, t) -> support.deepAlloc(a, t, nul) :
 				(a, t) -> support.deepAllocEmpty(a, t, nul),
-			Direction.out(dir) ? (t, m) -> support.deepRead(m, t, nul) : null);
+			Direction.out(direction) ? (t, m) -> support.deepRead(m, t, nul) : null);
 	}
 
-	private static Call.Arg<Object, MemorySegment> stringArrayArg(StringType support,
-		Refine.Context context) {
-		var dir = context.direction(Direction.duplex);
-		var count = context.size(NUL_TERM_MAX_DEF);
-		return new Call.Arg<>(Layouts.POINTER, (a, t) -> support.deepAlloc(a, t, true),
-			Direction.out(dir) ? (t, m) -> support.deepRead(m, t, count, true) : null);
+	private static Call.Arg<Object, MemorySegment> stringNulArrayArg(String name,
+		StringType support, Refine.Context context) {
+		var direction = context.direction();
+		var count = context.size(Refine.NUL_MAX_DEF);
+		return new Call.Arg<>(Layouts.POINTER.withName(name),
+			(a, t) -> support.deepAlloc(a, t, true),
+			Direction.out(direction) ? (t, m) -> support.deepRead(m, t, count, true) : null);
 	}
 
-	private static <B extends Buffer> Call.Arg<Object, MemorySegment>
-		bufferArrayArg(BufferType<B, ?, ?, ?> support, Refine.Context context) {
-		var dir = context.direction(Direction.duplex);
-		var nul = context.nul();
-		var count = context.size(NUL_TERM_MAX_DEF);
-		return new Call.Arg<>(Layouts.POINTER,
-			Direction.in(dir) ? (a, t) -> support.deepAlloc(a, t, nul) :
+	private static <B extends Buffer> Call.Arg<Object, MemorySegment> bufferArrayArg(String name,
+		BufferType<B, ?, ?, ?> support, Refine.Context context, boolean nul) {
+		var direction = context.direction();
+		var count = context.size(Refine.NUL_MAX_DEF);
+		return new Call.Arg<>(Layouts.POINTER.withName(name),
+			Direction.in(direction) ? (a, t) -> support.deepAlloc(a, t, nul) :
 				(a, t) -> support.deepAllocEmpty(a, t, nul),
-			Direction.out(dir) ? (t, m) -> support.deepRead(m, t, count, nul) : null);
+			Direction.out(direction) ? (t, m) -> support.deepRead(m, t, count, nul) : null);
 	}
 
-	private static Call.Return<?, ?> rtn(Refine.Context context, Native.Kind.Spec spec) {
+	private static Call.Return<?, ?> rtn(TypeNode node) {
+		var spec = node.spec();
 		return switch (spec.kind()) {
-			case primitive, boxed -> primitiveRtn(context, spec);
-			case intType -> intRtn(context, spec);
-			case string -> stringRtn(context, spec);
-			case buffer -> bufferRtn(context, spec);
-			case pointer -> pointerRtn(context, spec);
+			case primitive, boxed -> primitiveRtn(spec, node.context());
+			case intType -> intRtn(spec, node.context());
+			case struct -> structRtn(spec, node.context());
+			case union -> unionRtn(spec, node.context());
+			case pointer -> pointerRtn(node);
+			case primitivePointer -> null; // TODO
+			case pointerType -> null; // TODO
+			case functionPointer -> null; // TODO
+			case string -> stringRtn(spec, node.context());
+			case buffer -> bufferRtn(spec, node.context());
 			default -> null;
 		};
 	}
 
-	private static Call.Return<?, ?> primitiveRtn(Refine.Context context, Native.Kind.Spec spec) {
-		var support = support(Primitive.of(spec.component()), context);
-		if (spec.array().isArray()) return arrayRtn(support, context, spec);
-		return new Call.Return<>(support.layout(), t -> t);
+	private static Call.Return<?, ?> primitiveRtn(Native.Spec spec, Refine.Context context) {
+		var support = Support.with(Primitive.of(spec.component()), context);
+		if (spec.isArray()) return arrayRtn(support, spec, context, context.nul());
+		return new Call.Return<>(support.layout().withName(RETURN), t -> t);
 	}
 
-	private static <T extends IntType<T>> Call.Return<?, ?> intRtn(Refine.Context context,
-		Native.Kind.Spec spec) {
-		var support = support(IntType.<T>support(spec.component()), context);
-		if (spec.array().isArray()) return arrayRtn(support, context, spec);
-		return new Call.Return<Number, T>(support.layout(), n -> IntType.of(spec.component(), n));
+	private static <T extends IntType<T>> Call.Return<?, ?> intRtn(Native.Spec spec,
+		Refine.Context context) {
+		var support = Support.with(IntType.support(spec.<T>component()), context);
+		if (spec.isArray()) return arrayRtn(support, spec, context, context.nul());
+		return new Call.Return<Number, T>(support.layout().withName(RETURN), n -> support.of(n));
 	}
 
-	private static Call.Return<?, ?> stringRtn(Refine.Context context, Native.Kind.Spec spec) {
-		var support = StringType.of(context.chars(null));
-		if (spec.array().isArray()) return stringArrayRtn(support, context, spec);
-		var size = support.size(context.size(NUL_TERM_MAX_DEF));
-		return new Call.Return<MemorySegment, String>(Layouts.POINTER,
-			m -> support.get(Segments.reslice(m, 0L, size), true));
+	private static Call.Return<?, ?> structRtn(Native.Spec spec, Refine.Context context) {
+		var support = Struct.support(spec.component());
+		return byValRtn(support, spec, context);
 	}
 
-	private static <B extends Buffer> Call.Return<?, ?> bufferRtn(Refine.Context context,
-		Native.Kind.Spec spec) {
-		var support = BufferType.<B>of(spec.component());
-		if (spec.array().isArray()) return bufferArrayRtn(support, context, spec);
+	private static Call.Return<?, ?> unionRtn(Native.Spec spec, Refine.Context context) {
+		var support = Union.support(spec.component());
+		return byValRtn(support, spec, context);
+	}
+
+	private static Call.Return<?, ?> pointerRtn(TypeNode node) {
+		var support = Pointer.support(node);
+		return byValRtn(support, node.spec(), node.context());
+	}
+
+	private static Call.Return<?, ?> stringRtn(Native.Spec spec, Refine.Context context) {
+		var string = StringType.of(context.chars());
+		var nul = context.nul(true);
+		var count = context.size(Refine.NUL_MAX_DEF);
+		if (nul && spec.isArray()) return stringNulArrayRtn(string, spec, context, count);
+		return byRefRtn(string.support(count, nul), spec, context);
+	}
+
+	private static <B extends Buffer> Call.Return<?, ?> bufferRtn(Native.Spec spec,
+		Refine.Context context) {
+		var buffer = BufferType.<B>of(spec.component());
 		var nul = context.nul();
-		var size = support.size(context.size(NUL_TERM_MAX_DEF), nul);
-		return new Call.Return<MemorySegment, B>(Layouts.POINTER,
-			m -> support.asBuffer(Segments.reslice(m, 0L, size), nul));
+		var count = context.size(Refine.NUL_MAX_DEF);
+		if (nul && spec.isArray()) return bufferNulArrayRtn(buffer, spec, context, count);
+		return byRefRtn(buffer.support(count, nul), spec, context);
 	}
 
-	private static <T> Call.Return<?, ?> pointerRtn(Refine.Context context, Native.Kind.Spec spec) {
-		var type = Pointer.Type.<T>of(spec.typed().type(0));
-		var support = support(Pointer.Support.VOID.as(type), context);
-		if (spec.array().isArray()) return arrayRtn(support, context, spec);
-		return new Call.Return<MemorySegment, Pointer<T>>(support.layout(),
-			m -> Pointer.of(type, Segments.reslice(m, 0L, support.layoutSize())));
+	private static <T> Call.Return<?, ?> byValRtn(Support<T, ?, ?> support, Native.Spec spec,
+		Refine.Context context) {
+		var s = Support.with(support, context);
+		if (spec.isArray()) return arrayRtn(s, spec, context, context.nul());
+		return new Call.Return<MemorySegment, T>(s.layout().withName(RETURN),
+			m -> s.get(Segments.reslice(m, s.layout())));
+	}
+
+	private static <T> Call.Return<?, ?> byRefRtn(Support<T, ?, ?> support, Native.Spec spec,
+		Refine.Context context) {
+		var s = Support.with(support, context);
+		if (spec.isArray()) return arrayRtn(s, spec, context, false);
+		return new Call.Return<MemorySegment, T>(POINTER_RETURN,
+			m -> s.get(Segments.reslice(m, s.layout())));
 	}
 
 	private static Call.Return<MemorySegment, Object> arrayRtn(Support<?, ?, ?> support,
-		Refine.Context context, Native.Kind.Spec spec) {
-		var nul = context.nul();
-		var dims = dims(context, spec, nul);
+		Native.Spec spec, Refine.Context context, boolean nul) {
+		var dims = context.dims(spec.dimensions(), nul, 0);
 		var size = support.size(dims.total());
-		return new Call.Return<>(Layouts.POINTER,
+		return new Call.Return<>(POINTER_RETURN,
 			m -> support.deepGet(Segments.reslice(m, 0L, size), dims, nul));
 	}
 
-	private static Call.Return<MemorySegment, Object> stringArrayRtn(StringType support,
-		Refine.Context context, Native.Kind.Spec spec) {
-		var dims = dims(context, spec, false);
-		var count = context.size(NUL_TERM_MAX_DEF);
-		var size = support.size(dims.total() * count);
-		return new Call.Return<>(Layouts.POINTER,
-			m -> support.deepGet(Segments.reslice(m, 0L, size), dims, count, true));
+	private static Call.Return<MemorySegment, Object> stringNulArrayRtn(StringType string,
+		Native.Spec spec, Refine.Context context, int count) {
+		var dims = context.dims(spec.dimensions(), false, 0);
+		var size = string.size(dims.total() * count);
+		return new Call.Return<>(POINTER_RETURN,
+			m -> string.deepGet(Segments.reslice(m, 0L, size), dims, count, true));
 	}
 
-	private static <B extends Buffer> Call.Return<MemorySegment, Object> bufferArrayRtn(
-		BufferType<B, ?, ?, ?> support, Refine.Context context, Native.Kind.Spec spec) {
-		var nul = context.nul();
-		var dims = dims(context, spec, false);
-		var count = context.size(NUL_TERM_MAX_DEF);
-		var size = support.size(dims.total() * count);
-		return new Call.Return<>(Layouts.POINTER,
-			m -> support.deepGet(Segments.reslice(m, 0L, size), dims, count, nul));
-	}
-
-	private static Dimensions dims(Refine.Context context, Native.Kind.Spec spec, boolean nul) {
-		return MultiArray.fix(context.dims(Dimensions.NONE), spec.array().dimensions(), nul,
-			NUL_TERM_MAX_DEF);
+	private static <B extends Buffer> Call.Return<MemorySegment, Object> bufferNulArrayRtn(
+		BufferType<B, ?, ?, ?> buffer, Native.Spec spec, Refine.Context context, int count) {
+		var dims = context.dims(spec.dimensions(), false, 0);
+		var size = buffer.size(dims.total() * count);
+		return new Call.Return<>(POINTER_RETURN,
+			m -> buffer.deepGet(Segments.reslice(m, 0L, size), dims, count, true));
 	}
 
 	private static int paramCount(Method method) {
 		return method.isVarArgs() ? method.getParameterCount() - 1 : method.getParameterCount();
-	}
-
-	private static <T extends Support<?, ?, ?>> T support(T support, Refine.Context context) {
-		return Support.with(support, null, context.align(), context.order());
 	}
 }

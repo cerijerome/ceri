@@ -11,7 +11,6 @@ import ceri.ffm.core.Segments;
  * Support for accessing multi-dimensional arrays. Terminology uses 'twig' for a 1-d array.
  */
 public class MultiArray {
-	private static final int NUL_MAX_DEF = 0x1000;
 
 	private MultiArray() {}
 
@@ -33,9 +32,8 @@ public class MultiArray {
 		if (dims.count() == count) return dims;
 		var ints = new int[count];
 		for (int i = 0; i < count; i++)
-			ints[i] = i < dims.count() ? dims.dims.getInt(i) : 1;
-		if (nulTerm && dims.count() < count)
-			ints[count - 1] = nulTermMax <= 0 ? NUL_MAX_DEF : nulTermMax;
+			ints[i] = dims.dim(i);
+		if (nulTerm && dims.count() < count) ints[count - 1] = nulTermMax;
 		return Dimensions.of(ints);
 	}
 

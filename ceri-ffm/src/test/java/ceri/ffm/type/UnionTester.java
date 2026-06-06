@@ -11,7 +11,7 @@ public class UnionTester {
 	@Fields({ "s", "b" })
 	@Packed
 	public static class S0 extends Struct<S0> {
-		public static final Struct.Support<S0> $ = Struct.support(S0.class);
+		public static final Struct.Supporter<S0> $ = Struct.support(S0.class);
 		public short s;
 		public byte b;
 	}
@@ -19,7 +19,7 @@ public class UnionTester {
 	@Fields({ "l", "s", "s0" })
 	@Packed
 	public static class U0 extends Union<U0> {
-		public static final Union.Support<U0> $ = Union.support(U0.class);
+		public static final Union.Supporter<U0> $ = Union.support(U0.class);
 		public long l;
 		public short s;
 		public S0[] s0 = new S0[2];
@@ -28,7 +28,7 @@ public class UnionTester {
 	@Fields({ "s", "b", "u0" })
 	@Packed
 	public static class S1 extends Struct<S1> {
-		public static final Struct.Support<S1> $ = Struct.support(S1.class);
+		public static final Struct.Supporter<S1> $ = Struct.support(S1.class);
 		public short s;
 		public byte b;
 		public @Align(2) U0 u0;

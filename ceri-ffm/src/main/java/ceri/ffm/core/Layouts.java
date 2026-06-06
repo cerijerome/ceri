@@ -1,6 +1,7 @@
 package ceri.ffm.core;
 
 import java.lang.foreign.AddressLayout;
+import java.lang.foreign.GroupLayout;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
@@ -16,6 +17,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import ceri.common.array.Dimensions;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
@@ -37,8 +39,16 @@ public class Layouts {
 	public static final ValueLayout.OfDouble DOUBLE = canonical(Native.Canonical.DOUBLE);
 	public static final ValueLayout.OfChar CHAR = copy(ValueLayout.JAVA_CHAR, SHORT);
 	public static final AddressLayout POINTER = canonical(Native.Canonical.VOID_P);
+	private static final int MASK_LE = 1;
+	private static final int MASK_BE = 2;
+	private static final int MASK_MAX = MASK_LE | MASK_BE;
 
 	private Layouts() {}
+
+	/**
+	 * A key combining alignment and byte order.
+	 */
+	public record Key(long align, ByteOrder order) {}
 
 	/**
 	 * Provides a fixed layout, and functionality based on the layout.
@@ -88,7 +98,7 @@ public class Layouts {
 		 * Returns element count from the given byte size.
 		 */
 		default long count(long size) {
-			return Math.max(0L, size) / layoutSize();
+			return layoutSize() == 0L ? 0L : Math.max(0L, size) / layoutSize();
 		}
 
 		/**
@@ -198,6 +208,17 @@ public class Layouts {
 		return layout == null ? ByteOrder.nativeOrder() : layout.order();
 	}
 
+	/**
+	 * Determines the byte order for compound layouts. Returns null if both or no orders present.
+	 */
+	public static ByteOrder findOrder(MemoryLayout layout) {
+		return switch (maskOrder(layout)) {
+			case MASK_LE -> ByteOrder.LITTLE_ENDIAN;
+			case MASK_BE -> ByteOrder.BIG_ENDIAN;
+			default -> null;
+		};
+	}
+
 	public static ValueLayout ofInt(int size) {
 		return switch (size) {
 			case Byte.BYTES -> BYTE;
@@ -244,10 +265,10 @@ public class Layouts {
 	 */
 	public static String desc(MemoryLayout layout) {
 		if (layout == null) return Strings.NULL;
-		var name = layout.name().orElse(null);
-		if (name == null)
-			return String.format("0x%x/%d", layout.byteSize(), layout.byteAlignment());
-		return String.format("%s/0x%x/%d", name, layout.byteSize(), layout.byteAlignment());
+		var b = new StringBuilder().append(layout.name().orElse(""));
+		if (!b.isEmpty()) b.append(':');
+		b.append(orderSymbol(layout));
+		return b.append(layout.byteSize()).append('/').append(layout.byteAlignment()).toString();
 	}
 
 	/**
@@ -259,20 +280,53 @@ public class Layouts {
 	}
 
 	/**
-	 * Sets layout name if value is non-null.
+	 * Gets layout name, or empty string if not available.
 	 */
-	public static <L extends MemoryLayout> L name(L layout, String name) {
-		if (layout == null || name == null) return layout;
-		return Reflect
-			.unchecked(Strings.isEmpty(name) ? layout.withoutName() : layout.withName(name));
+	public static String name(MemoryLayout layout) {
+		return layout == null ? "" : layout.name().orElse("");
 	}
 
 	/**
-	 * Sets layout alignment if value is > 0.
+	 * Sets the layout name if not empty, or removes the current name if empty string. Does nothing
+	 * if null string.
+	 */
+	public static <L extends MemoryLayout> L name(L layout, String name) {
+		if (layout == null || name == null) return layout;
+		if (Strings.isEmpty(name))
+			return layout.name().isEmpty() ? layout : Reflect.unchecked(layout.withoutName());
+		if (name.equals(name(layout))) return layout;
+		return Reflect.unchecked(layout.withName(name));
+	}
+
+	/**
+	 * Sets layout alignment if value is > 0 and a power of 2. Does nothing if setting the layout
+	 * alignment would fail.
 	 */
 	public static <L extends MemoryLayout> L align(L layout, long align) {
-		if (layout == null || align <= 0) return layout;
+		if (layout == null || align <= 0 || align == layout.byteAlignment()
+			|| Long.bitCount(align) != 1) return layout;
+		if (layout instanceof SequenceLayout s && align < s.elementLayout().byteAlignment())
+			return layout;
+		if (layout instanceof GroupLayout g) for (var member : g.memberLayouts())
+			if (align < member.byteAlignment()) return layout;
 		return Reflect.unchecked(layout.withByteAlignment(align));
+	}
+
+	/**
+	 * Returns an alignment value limited to the layout size. This value allows the layout to be
+	 * used as an element in a sequence.
+	 */
+	public static <L extends MemoryLayout> long elementAlign(L layout, long align) {
+		return Math.min(align, size(layout));
+	}
+
+	/**
+	 * Sets layout byte order if value is non-null and layout is a value layout.
+	 */
+	public static <L extends MemoryLayout> L order(L layout, ByteOrder order) {
+		if (layout == null || order == null || !(layout instanceof ValueLayout vlayout)
+			|| Objects.equals(vlayout.order(), order)) return layout;
+		return Reflect.unchecked(vlayout.withOrder(order));
 	}
 
 	/**
@@ -289,14 +343,6 @@ public class Layouts {
 	public static long padding(long offset, MemoryLayout layout) {
 		if (layout == null) return 0L;
 		return padding(offset, layout.byteAlignment());
-	}
-
-	/**
-	 * Sets layout byte order if value is non-null and layout is a value layout.
-	 */
-	public static <L extends MemoryLayout> L order(L layout, ByteOrder order) {
-		if (order == null || !(layout instanceof ValueLayout vlayout)) return layout;
-		return Reflect.unchecked(vlayout.withOrder(order));
 	}
 
 	/**
@@ -463,5 +509,39 @@ public class Layouts {
 		var padding = padding(offset, align);
 		if (padding != 0) layouts.add(MemoryLayout.paddingLayout(padding));
 		return padding;
+	}
+
+	private static String orderSymbol(MemoryLayout layout) {
+		return switch (maskOrder(layout)) {
+			case MASK_LE -> "<";
+			case MASK_BE -> ">";
+			default -> "";
+		};
+	}
+
+	private static int maskOrder(MemoryLayout layout) {
+		return switch (layout) {
+			case ValueLayout v -> mask(order(v));
+			case SequenceLayout s -> maskOrder(s.elementLayout());
+			case GroupLayout g -> maskGroupOrder(g);
+			case null, default -> 0;
+		};
+	}
+
+	private static int maskGroupOrder(GroupLayout layout) {
+		int mask = 0;
+		for (var member : layout.memberLayouts()) {
+			mask |= maskOrder(member);
+			if (mask >= MASK_MAX) break;
+		}
+		return mask;
+	}
+
+	private static int mask(ByteOrder order) {
+		return switch (order) {
+			case LITTLE_ENDIAN -> MASK_LE;
+			case BIG_ENDIAN -> MASK_BE;
+			case null -> 0;
+		};
 	}
 }

@@ -1,215 +1,302 @@
 package ceri.ffm.type;
 
-import java.lang.foreign.AddressLayout;
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.nio.ByteOrder;
-import java.util.List;
-import ceri.common.reflect.Generics;
+import java.lang.foreign.SegmentAllocator;
+import java.util.Map;
+import com.google.common.base.Objects;
+import ceri.common.array.Array;
+import ceri.common.collect.Immutable;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Segments;
 import ceri.ffm.core.Native;
+import ceri.ffm.core.Segments;
+import ceri.ffm.reflect.TypeNode;
+import ceri.ffm.test.FfmTesting;
 
-public class Pointer<T> {
-	public static final Pointer<?> NULL = new Pointer<>(Type.VOID, MemorySegment.NULL);
-	private final Type<T> type;
-	private final MemorySegment memory;
+public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
+	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(new Supporter<>(
+		new Supporter.Config<>(Pointer.class, Support.VOID, (m, s, _) -> of(m, s), true)));
 
-	// Functionality:
-	// - arithmetic (layout)
-	// - type instantiation from pointer
-	// - type array instantiation from pointer
-	// - void pointer: no arithmetic or instantiation
-	// 
+	public static void main0(String[] args) {
+		var pv = of(IntType.CLong.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+		var ps = of(IntType.size_t.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+		var pb = ofBytes(true, 1, -1, 2, -2, 3, -3, 4);
+		var pi = ofInts(true, 1, -1, 2, -2, 3, -3, 4);
+		var m = RawPointer.$.allocAll(true, pv, pb, pi);
+		var m0 = Pointer.$.allocAll(true, pv, ps);
+		FfmTesting.bin(pv);
+		FfmTesting.bin(m);
+		var pa = Pointer.$.getArray(m, false);
+		FfmTesting.bin(pa);
+		var cl = pa[0].as(IntType.CLong.$).resize(16).getArray(true);
+		FfmTesting.arg(cl);
+	}
+
+	/**
+	 * A constant void pointer.
+	 */
+	public static class OfVoid extends RawPointer {
+		public static final Supporter<OfVoid> $ = new Supporter<>(
+			new Supporter.Config<>(OfVoid.class, Support.VOID, (m, _, _) -> new OfVoid(m), true));
+
+		OfVoid(MemorySegment memory) {
+			super(memory);
+		}
+
+		/**
+		 * Casts to a typed pointer.
+		 */
+		public Pointer<?> typed() {
+			return as(Support.VOID);
+		}
+
+		@Override
+		public Pointer.OfVoid asVoid() {
+			return this;
+		}
+	}
+
+	public static class OfByte extends RawPointer.Indexable<OfByte, Primitive.OfByte, byte[]> {
+		public static final Supporter<OfByte> $ = support(Primitive.BYTE, false);
+
+		public static Supporter<OfByte> support(Primitive.OfByte type, boolean constant) {
+			return new Supporter<>(new Supporter.Config<>(OfByte.class, type,
+				(m, t, c) -> new OfByte(m, t, c), constant));
+		}
+
+		OfByte(MemorySegment memory, Primitive.OfByte type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfByte> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfByte asByte() {
+			return this;
+		}
+
+		public byte get() {
+			return getAt(0);
+		}
+
+		public byte getAt(int index) {
+			return type().getByte(memory(), size(index));
+		}
+
+		public boolean set(byte value) {
+			return setAt(0, value);
+		}
+
+		public boolean setAt(int index, byte value) {
+			if (isConst()) return false;
+			return type().setByte(memory(), size(index), value);
+		}
+
+		public final int setAll(boolean nul, byte... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		public final int setAll(boolean nul, int... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		public final int setAllAt(int index, boolean nul, byte... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		public final int setAllAt(int index, boolean nul, int... array) {
+			return setArrayAt(index, Array.BYTE.of(array), nul);
+		}
+
+		@Override
+		OfByte instance(MemorySegment memory, Primitive.OfByte type, boolean constant) {
+			return new OfByte(memory, type, constant);
+		}
+	}
+
+	public static class OfInt extends RawPointer.Indexable<OfInt, Primitive.OfInt, int[]> {
+		public static final Supporter<OfInt> $ = support(Primitive.INT, false);
+
+		public static Supporter<OfInt> support(Primitive.OfInt type, boolean constant) {
+			return new Supporter<>(new Supporter.Config<>(OfInt.class, type,
+				(m, t, c) -> new OfInt(m, t, c), constant));
+		}
+
+		OfInt(MemorySegment memory, Primitive.OfInt type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfInt> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfInt asInt() {
+			return this;
+		}
+
+		public int get() {
+			return getAt(0);
+		}
+
+		public int getAt(int index) {
+			return type().getInt(memory(), size(index));
+		}
+
+		public boolean set(int value) {
+			return setAt(0, value);
+		}
+
+		public boolean setAt(int index, int value) {
+			if (isConst()) return false;
+			return type().setInt(memory(), size(index), value);
+		}
+
+		public final int setAll(boolean nul, int... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		public final int setAllAt(int index, boolean nul, int... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		@Override
+		OfInt instance(MemorySegment memory, Primitive.OfInt type, boolean constant) {
+			return new OfInt(memory, type, constant);
+		}
+	}
 
 	public static void main(String[] args) {
-		var t0 = Type.VOID;
-		var t1 =
-			new Type<>(Native.Kind.spec(new Generics.Token<Pointer<Pointer<int[]>>>() {}.typed));
-		var t2 = Type.of(int.class);
-		var p0 = Pointer.alloc(t0, 16);
-		var p1 = Pointer.alloc(t1, 16);
-		var p2 = Pointer.alloc(t2, 16);
-		System.out.println(p0);
-		System.out.println(p1);
-		System.out.println(p2);
-		System.out.println(p1.compact());
-		System.out.println(p0.compact());
-		System.out.println(p2.compact());
-		List<String> l0 = List.of("");
-		List<Integer> l1 = List.of(1);
-		Class<List<String>> c0 = Reflect.unchecked(l0.getClass());
-		Class<List<Integer>> c1 = Reflect.unchecked(l1.getClass());
-		System.out.println(c0);
-		System.out.println(c1);
+		var s = Primitive.INT.asPointer(true).asArray(3, true).asPointer(true).asArray(2, false);
+		System.out.println(s.typeDesc());
 	}
 
-	public static class Type<T> {
-		public static final Type<?> VOID = new Type<>(Native.Kind.Spec.VOID);
-		private final Native.Kind.Spec spec;
-
-		public static boolean isVoid(Type<?> type) {
-			return VOID.equals(type);
-		}
-
-		public static <T> Type<T> of(Class<T> cls) {
-			return of(Generics.Typed.of(cls));
-		}
-
-		public static <T> Type<T> of(Generics.Typed typed) {
-			if (typed == null || typed.isUnbounded() || Generics.Typed.VOID.equals(typed))
-				return Reflect.unchecked(VOID);
-			var spec = Native.Kind.spec(typed);
-			if (spec.kind() != null) return new Type<>(spec);
-			throw new IllegalArgumentException("Unsupported type: " + typed);
-		}
-
-		private Type(Native.Kind.Spec spec) {
-			this.spec = spec;
-		}
-
-		public Class<T> cls() {
-			return spec.typed().cls();
-		}
-
-		public MemoryLayout layout() {
-			return null; // TBD
-		}
-
-		@Override
-		public String toString() {
-			return spec.typed().toString();
-		}
+	public static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type) {
+		return support(type, false);
 	}
 
-	public static class Support<T> extends ceri.ffm.type.Support.Typed<Pointer<T>, AddressLayout> {
-		public static final Support<?> VOID = new Support<>(Type.VOID, Layouts.POINTER);
-
-		private final Type<T> type;
-
-		private Support(Type<T> type, AddressLayout layout) {
-			super(layout);
-			this.type = type;
-		}
-
-		@Override
-		public Class<Pointer<T>> type() {
-			return Reflect.unchecked(Pointer.class);
-		}
-
-		@Override
-		public Pointer<T> val() {
-			return Pointer.ofNull(type);
-		}
-
-		@Override
-		public Support<T> with(String name, long align, ByteOrder order) {
-			return Layouts.with(this, l -> new Support<>(type, l), layout(), name, align, order);
-		}
-
-		public <U> Support<U> as(Type<U> type) {
-			return this.type.equals(type) ? Reflect.unchecked(this) : new Support<>(type, layout());
-		}
-
-		@Override
-		Pointer<T> rawGet(MemorySegment memory, long offset) {
-			return new Pointer<>(type, memory.get(layout(), offset));
-		}
-
-		@Override
-		void rawWrite(MemorySegment memory, long offset, Pointer<T> value) {
-			memory.set(layout(), offset, memory(value));
-		}
+	public static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
+		return new Supporter<>(new Supporter.Config<>(Reflect.unchecked(Pointer.class), type,
+			(m, s, _) -> of(m, s), constant));
 	}
 
-	public static MemorySegment memory(Pointer<?> pointer) {
-		return pointer == null ? MemorySegment.NULL : pointer.memory();
+	static <T> Supporter<Pointer<T>> supportFor(TypeNode node) {
+		Support.Typed<T, ?> type = Reflect.unchecked(Supports.from(node));
+		var constant = node.context().constant();
+		return support(type, constant);
 	}
 
-	public static boolean isNull(Pointer<?> pointer) {
-		return pointer == null || Segments.isNull(pointer.memory());
+	public static OfByte ofByte(MemorySegment memory) {
+		return new OfByte(memory, Primitive.BYTE, false);
 	}
 
-	public static Pointer<?> alloc(long size) {
-		return alloc(Type.VOID, size);
+	public static OfByte ofByte(int value) {
+		return ofByte(Primitive.BYTE.allocByte(Segments.auto(), (byte) value));
 	}
 
-	public static <T> Pointer<T> alloc(Type<T> type, long size) {
-		return of(type, Segments.auto().allocate(size));
+	public static OfByte ofBytes(boolean nul, byte... values) {
+		return ofByte(Primitive.BYTE.allocAll(Segments.auto(), nul, values));
 	}
 
-	public static <T> Pointer<T> ofNull(Type<T> type) {
-		return of(type, MemorySegment.NULL);
+	public static OfByte ofBytes(boolean nul, int... values) {
+		return ofByte(Primitive.BYTE.allocAll(Segments.auto(), nul, values));
+	}
+
+	public static OfInt ofInt(MemorySegment memory) {
+		return new OfInt(memory, Primitive.INT, false);
+	}
+
+	public static OfInt ofInt(int value) {
+		return ofInt(Primitive.INT.allocInt(Segments.auto(), value));
+	}
+
+	public static OfInt ofInts(boolean nul, int... values) {
+		return ofInt(Primitive.INT.allocAll(Segments.auto(), nul, values));
+	}
+
+	public static OfVoid ofVoid(MemorySegment memory) {
+		return new OfVoid(memory);
 	}
 
 	public static Pointer<?> of(MemorySegment memory) {
-		return of(Type.VOID, memory);
+		return of(memory, Support.VOID);
 	}
 
-	public static <T> Pointer<T> of(Type<T> type, MemorySegment memory) {
-		if (memory == null) memory = MemorySegment.NULL;
-		if (Type.isVoid(type)) return new Pointer<>(Reflect.unchecked(Type.VOID), memory);
-		return new Pointer<>(type, memory);
+	public static <P extends RawPointer> Pointer<P> of(P pointer) {
+		return of(Segments.auto(), pointer);
 	}
 
-	private Pointer(Type<T> type, MemorySegment memory) {
-		this.type = type;
-		this.memory = memory;
+	public static <P extends RawPointer> Pointer<P> of(SegmentAllocator alloc, P pointer) {
+		var memory = alloc.allocateFrom(Layouts.POINTER, pointer.memory());
+		var type = switch (pointer) {
+			case RawPointer.Indexable<?, ?, ?> i -> i.support();
+			default -> OfVoid.$;
+		};
+		return Pointer.of(memory, Reflect.unchecked(type), pointer.isConst());
 	}
 
-	public Type<T> type() {
-		return type;
+	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type) {
+		return of(memory, type, true);
 	}
 
-	public MemorySegment memory() {
-		return memory;
+	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type,
+		boolean constant) {
+		return new Pointer<>(memory, type, constant);
 	}
 
-	public Pointer<?> asVoid() {
-		return create(Type.VOID, memory);
-	}
-
-	public <U> Pointer<U> as(Type<U> type) {
-		return create(type, memory);
-	}
-
-	public Pointer<T> share(long offset) {
-		return share(offset, Long.MAX_VALUE);
-	}
-
-	public Pointer<T> share(long offset, long length) {
-		return create(type, Segments.slice(memory, offset, length));
-	}
-
-	public long size() {
-		return memory().byteSize();
-	}
-
-	public int sizeInt() {
-		return Math.toIntExact(size());
-	}
-
-	public String compact() {
-		int levels = 1;
-		var typed = type.spec.typed();
-		while (true) {
-			if (!Pointer.class.equals(typed.cls())) break;
-			levels++;
-			typed = typed.type(0);
-		}
-		return typed + "*".repeat(levels);
+	private Pointer(MemorySegment memory, Support.Typed<T, ?> type, boolean constant) {
+		super(memory, type, constant);
 	}
 
 	@Override
-	public String toString() {
-		return String.format("%s<%s>@0x%x", Reflect.simple(getClass()), type, memory.address());
+	public Supporter<Pointer<T>> support() {
+		return support(type(), isConst());
 	}
 
-	// support
+	@Override
+	public <U> Pointer<U> as(Support.Typed<U, ?> type) {
+		if (Objects.equal(type(), type)) return Reflect.unchecked(this);
+		return super.as(type);
+	}
 
-	private <U> Pointer<U> create(Type<U> type, MemorySegment memory) {
-		if (this.type.equals(type) && this.memory.equals(memory)) return Reflect.unchecked(this);
-		return new Pointer<>(type, memory);
+	public T get() {
+		return get(0);
+	}
+
+	public T get(int index) {
+		return type().get(memory(), size(index));
+	}
+
+	public boolean set(T value) {
+		return setAt(0, value);
+	}
+
+	public boolean setAt(int index, T value) {
+		if (isConst()) return false;
+		return type().write(memory(), size(index), value);
+	}
+
+	@SafeVarargs
+	public final int setAll(boolean nul, T... array) {
+		return setAllAt(0, nul, array);
+	}
+
+	@SafeVarargs
+	public final int setAllAt(int index, boolean nul, T... array) {
+		return setArrayAt(index, array, nul);
+	}
+
+	@Override
+	Pointer<T> instance(MemorySegment memory, Support.Typed<T, ?> type, boolean constant) {
+		return new Pointer<>(memory, type, constant);
+	}
+
+	private static Map<Class<?>, Supporter<?>> map() {
+		return Immutable.convertMapOf(Support::type, t -> t, RawPointer.$, OfVoid.$, OfByte.$,
+			OfInt.$);
 	}
 }

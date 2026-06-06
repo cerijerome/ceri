@@ -7,15 +7,16 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Objects;
 import ceri.common.array.Array;
-import ceri.common.collect.Maps;
+import ceri.common.concurrent.Lazy;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
+import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.reflect.Refine.Unsigned;
@@ -25,8 +26,7 @@ import ceri.ffm.type.Support.Typed;
  * Represents an immutable integer type of desired size and signedness.
  */
 public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
-	private static final Map<Class<?>, Support<?>> cache = Maps.syncWeak();
-	private final Support<T> support;
+	private static final Lazy.ForClass<Spec> cache = Lazy.forClass(IntType::specFor);
 	private final Number nativeValue; // signed
 
 	/**
@@ -34,7 +34,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	@Size(type = "long")
 	public static class CLong extends IntType<CLong> {
-		public static final Support<CLong> $ = support(CLong.class);
+		public static final Supporter<CLong> $ = support(CLong.class);
 
 		public CLong(Number value) {
 			super(value);
@@ -47,7 +47,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	@Unsigned
 	@Size(type = "long")
 	public static class CUlong extends IntType<CUlong> {
-		public static final Support<CUlong> $ = support(CUlong.class);
+		public static final Supporter<CUlong> $ = support(CUlong.class);
 
 		public CUlong(Number value) {
 			super(value);
@@ -60,7 +60,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	@Unsigned
 	@Size(type = "size_t")
 	public static class size_t extends IntType<size_t> {
-		public static final Support<size_t> $ = support(size_t.class);
+		public static final Supporter<size_t> $ = support(size_t.class);
 
 		public size_t(Number value) {
 			super(value);
@@ -72,7 +72,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	@Size(type = "size_t")
 	public static class ssize_t extends IntType<ssize_t> {
-		public static final Support<ssize_t> $ = support(ssize_t.class);
+		public static final Supporter<ssize_t> $ = support(ssize_t.class);
 
 		public ssize_t(Number value) {
 			super(value);
@@ -84,7 +84,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	@Size(type = "wchar_t")
 	public static class wchar_t extends IntType<wchar_t> {
-		public static final Support<wchar_t> $ = support(wchar_t.class);
+		public static final Supporter<wchar_t> $ = support(wchar_t.class);
 		public static final wchar_t TERM = new wchar_t(0);
 		public static final Charset CHARSET = charset($.spec().size());
 
@@ -154,14 +154,14 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	/**
 	 * Support for int type operations.
 	 */
-	public static class Support<T extends IntType<T>> extends Typed<T, ValueLayout> {
+	public static class Supporter<T extends IntType<T>> extends Typed<T, ValueLayout> {
 		private final Config<T> config;
 		private final Typed<? extends Number, ? extends ValueLayout> boxed;
 
 		private record Config<T>(Class<T> type, Spec spec,
 			Functions.Function<Number, T> constructor) {}
 
-		private Support(Config<T> config, Typed<? extends Number, ? extends ValueLayout> boxed) {
+		private Supporter(Config<T> config, Typed<? extends Number, ? extends ValueLayout> boxed) {
 			super(boxed.layout());
 			this.config = config;
 			this.boxed = boxed;
@@ -210,14 +210,36 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
-		public Support<T> with(String name, long align, ByteOrder order) {
-			var boxed = this.boxed.with(name, align, order);
-			return boxed == this.boxed ? this : new Support<>(config, boxed);
+		public Supporter<T> with(long align, ByteOrder order) {
+			var boxed = this.boxed.with(align, order);
+			return boxed == this.boxed ? this : new Supporter<>(config, boxed);
 		}
 
 		@Override
 		public T val() {
 			return of(boxed.val());
+		}
+
+		/**
+		 * Allocates memory and writes the value to the memory.
+		 */
+		public final MemorySegment alloc(Number number) {
+			return alloc(Segments.auto(), number);
+		}
+
+		/**
+		 * Allocates memory and writes the value to the memory.
+		 */
+		public final MemorySegment alloc(SegmentAllocator allocator, Number number) {
+			return alloc(allocator, of(number));
+		}
+
+		/**
+		 * Allocates memory and copies values from the array within bounds.
+		 */
+		@SafeVarargs
+		public final MemorySegment allocAll(boolean nul, Number... array) {
+			return allocAll(Segments.auto(), nul, array);
 		}
 
 		/**
@@ -255,43 +277,38 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset) {
+		T rawGet(MemorySegment memory, long offset, long length) {
 			return of(boxed.get(memory, offset));
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, T value) {
-			boxed.write(memory, Reflect.unchecked(init(value).nativeValue()));
+		void rawWrite(MemorySegment memory, long offset, long length, T value) {
+			boxed.write(memory, offset, Reflect.unchecked(init(value).nativeValue()));
 		}
 	}
 
 	/**
-	 * Returns true if the class is an int type.
+	 * Returns cached operational support for the type.
 	 */
-	public static boolean is(Class<?> cls) {
-		return cls != null && IntType.class.isAssignableFrom(cls);
+	public static <T extends IntType<T>> Supporter<T> support(Class<T> cls) {
+		return Reflect.unchecked(Supports.from(cls));
 	}
 
 	/**
-	 * Casts the given object to an int type.
+	 * Creates a support instance for the type.
 	 */
-	public static <T extends IntType<T>> T cast(Object intType) {
-		return Reflect.unchecked(intType);
-	}
-
-	/**
-	 * Returns operational support for the type.
-	 */
-	public static <T extends IntType<T>> Support<T> support(Class<T> cls) {
-		return Reflect.unchecked(cache.computeIfAbsent(cls, _ -> supportFor(cls)));
+	static <T extends IntType<T>> Supporter<T> supportFor(Class<T> cls) {
+		var spec = spec(cls);
+		var constructor = constructorFor(cls);
+		var boxed = boxed(spec.size());
+		return new Supporter<>(new Supporter.Config<>(cls, spec, constructor), boxed);
 	}
 
 	/**
 	 * Returns cached specification for the type.
 	 */
 	public static <T extends IntType<T>> Spec spec(Class<T> cls) {
-		var support = support(cls);
-		return support == null ? null : support.spec();
+		return cache.get(cls);
 	}
 
 	/**
@@ -311,22 +328,14 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	}
 
 	protected IntType(Number n) {
-		support = support(Reflect.getClass(this));
 		nativeValue = spec().nativeValue(n);
-	}
-
-	/**
-	 * Returns type support.
-	 */
-	public Support<T> support() {
-		return support;
 	}
 
 	/**
 	 * Returns the specification for this type.
 	 */
 	public Spec spec() {
-		return support().spec();
+		return spec(Reflect.getClass(this));
 	}
 
 	/**
@@ -375,7 +384,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 
 	@Override
 	public int compareTo(T t) {
-		return support().spec().compare(nativeValue, t == null ? null : t.nativeValue());
+		return spec().compare(nativeValue, t == null ? null : t.nativeValue());
 	}
 
 	@Override
@@ -394,6 +403,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	public String toString() {
 		var spec = spec();
 		long value = spec.value(nativeValue());
+		if (Maths.within(value, spec.unsigned() ? 0 : -9, 9)) return String.valueOf(value);
 		return (spec.isUlong() ? Long.toUnsignedString(value) : value) + "|"
 			+ Format.hex(value, "0x", 0, spec.size() << 1);
 	}
@@ -403,7 +413,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	private T typedThis() {
 		return Reflect.unchecked(this);
 	}
-	
+
 	private T create(Number n) {
 		if (Objects.equals(nativeValue, n)) return typedThis();
 		return of(Reflect.unchecked(getClass()), n);
@@ -427,26 +437,21 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		};
 	}
 
-	private static <T extends IntType<T>> Support<T> supportFor(Class<T> cls) {
-		var spec = specFor(cls);
-		var constructor = constructorFor(cls);
-		var boxed = boxed(spec.size());
-		return new Support<>(new Support.Config<>(cls, spec, constructor), boxed);
-	}
-
 	private static Spec specFor(Class<?> cls) {
-		int size = Refine.resolveSize(cls, 0);
+		var context = Refine.context(cls);
+		int size = context.size(0);
 		if (size <= 0) throw Exceptions.illegalArg("%s must specify @%s > 0: %d",
 			Reflect.simple(cls), Reflect.simple(Refine.Size.class), size);
-		boolean unsigned = Refine.resolveUnsigned(cls, false);
-		return new Spec(size, unsigned);
+		return new Spec(size, context.unsigned(false));
 	}
 
 	private static <T extends IntType<T>> Functions.Function<Number, T>
 		constructorFor(Class<T> cls) {
-		var constructor = Reflect.constructor(cls, Number.class);
-		if (constructor != null) return n -> Reflect.create(constructor, n);
-		throw Exceptions.illegalArg("Missing constructor %s(Number n)", Reflect.name(cls));
+		return Handles.asFunction(Handles.constructor(cls, Number.class));
+		// var constructor = Reflect.constructor(cls, Number.class);
+		// if (constructor != null) return n -> Reflect.create(constructor, n);
+		// Handles.constructor(cls, Number.class);
+		// throw Exceptions.illegalArg("Missing constructor %s(Number n)", Reflect.name(cls));
 	}
 
 	private static <N extends Number, L extends ValueLayout> Primitive.Box<N, L> boxed(int size) {

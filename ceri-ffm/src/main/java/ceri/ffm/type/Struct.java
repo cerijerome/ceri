@@ -3,39 +3,36 @@ package ceri.ffm.type;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SequenceLayout;
 import java.lang.foreign.StructLayout;
 import java.nio.ByteOrder;
 import java.util.List;
-import java.util.Map;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
-import ceri.common.collect.Maps;
+import ceri.common.concurrent.Lazy;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
 
-public class Struct<T extends Struct<T>> extends Group<T> {
-	private static final Map<Class<?>, Support<?>> cache = Maps.syncWeak();
-	private volatile Support<T> support = null;
+public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
+	private static final Lazy.ForClass<Group.Config<? extends Struct<?>, StructLayout>> cache =
+		Lazy.forClass(c -> new Builder<>(Reflect.unchecked(c)).build(true));
 
 	/**
 	 * Operational support for struct types.
 	 */
-	public static class Support<T extends Struct<T>> extends Group.Support<T, StructLayout> {
+	public static class Supporter<T extends Struct<T>> extends Group.Supporter<T, StructLayout> {
 
-		private Support(Group.Support.Config<T> config, StructLayout layout) {
+		private Supporter(Group.Config<T, StructLayout> config, StructLayout layout) {
 			super(config, layout);
 		}
 
 		@Override
-		public Support<T> with(String name, long align, ByteOrder order) {
-			if (align < layout().byteAlignment()) align = 0L;
-			return Layouts.with(this, l -> new Support<T>(config, l), layout(), name, align, null);
+		public Supporter<T> with(long align, ByteOrder order) {
+			return Layouts.with(this, l -> new Supporter<>(config, l), layout(), null, align, null);
 		}
 
 		/**
-		 * Initializes struct members, with given flexible array size.
+		 * Returns a new instance with initialized struct members, and given flexible array size.
 		 */
 		public T init(int flexSize) {
 			return init(null, flexSize);
@@ -46,7 +43,7 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 		 */
 		public T init(T struct, int flexSize) {
 			if (struct == null) struct = val();
-			for (var member : members())
+			for (var member : config.members())
 				member.init(struct, flexSize);
 			return struct;
 		}
@@ -56,10 +53,10 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 		 */
 		public long size(T struct) {
 			if (struct == null) return 0L;
-			if (!flex()) return layoutSize();
-			var last = Lists.last(members());
-			int flexSize = RawArray.length(last.accessor.get(struct));
-			return Math.max(layoutSize(), flexScale(last, flexSize));
+			if (!config.flex()) return layoutSize();
+			var last = Lists.last(config.members());
+			int flexSize = RawArray.length(last.get(struct));
+			return Math.max(layoutSize(), last.flexScale(flexSize));
 		}
 
 		/**
@@ -67,8 +64,7 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 		 * if present.
 		 */
 		public MemorySegment alloc(SegmentAllocator allocator, int flexSize) {
-			if (allocator == null) return null;
-			return allocator.allocate(flexSize(flexSize));
+			return allocate(allocator, flexSize(flexSize));
 		}
 
 		/**
@@ -78,8 +74,8 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 		@Override
 		public MemorySegment alloc(SegmentAllocator allocator, T value) {
 			if (allocator == null) return null;
-			var memory = allocator.allocate(size(value));
-			rawWrite(memory, 0L, value);
+			var memory = allocate(allocator, size(value));
+			rawWrite(memory, 0L, memory.byteSize(), value);
 			return memory;
 		}
 
@@ -106,9 +102,9 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 			if (indexes.length == 0) return read(memory, offset, length, struct);
 			offset = Maths.limit(offset, 0L, memory.byteSize());
 			length = Maths.limit(length, 0L, memory.byteSize() - offset);
-			if (length < size(1)) return false;
+			if (length < layoutSize()) return false;
 			for (int i : indexes) {
-				var member = member(i);
+				var member = config.member(i);
 				if (member != null) member.read(struct, memory, offset);
 			}
 			return true;
@@ -159,9 +155,9 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 			if (indexes.length == 0) return write(memory, offset, length, struct);
 			offset = Maths.limit(offset, 0L, memory.byteSize());
 			length = Maths.limit(length, 0L, memory.byteSize() - offset);
-			if (length < size(1)) return false;
+			if (length < layoutSize()) return false;
 			for (int i : indexes) {
-				var member = member(i);
+				var member = config.member(i);
 				if (member != null) member.write(struct, memory, offset);
 			}
 			return true;
@@ -190,48 +186,46 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset) {
+		T rawGet(MemorySegment memory, long offset, long length) {
 			var struct = val();
-			rawRead(memory, offset, struct);
+			rawRead(memory, offset, length, struct);
 			return struct;
 		}
 
 		@Override
-		void rawRead(MemorySegment memory, long offset, T struct) {
-			for (var member : members())
+		void rawRead(MemorySegment memory, long offset, long length, T struct) {
+			for (var member : config.members())
 				member.read(struct, memory, offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, T struct) {
-			for (var member : members())
+		void rawWrite(MemorySegment memory, long offset, long length, T struct) {
+			for (var member : config.members())
 				member.write(struct, memory, offset);
 		}
 
-		@Override
-		String typeName() {
-			return "struct";
-		}
-
 		private long flexSize(int flexSize) {
-			if (!flex()) return layoutSize();
-			var last = Lists.last(members());
-			return Math.max(layoutSize(), flexScale(last, flexSize));
+			var last = Lists.last(config.members());
+			if (!last.flex()) return layoutSize();
+			return Math.max(layoutSize(), last.flexScale(flexSize));
+		}
+		
+		private int[] indexes(String... names) {
+			if (names == null) return null;
+			int[] indexes = new int[names.length];
+			for (int i = 0; i < indexes.length; i++)
+				indexes[i] = config.indexOf(names[i]);
+			return indexes;
 		}
 	}
 
-	private static class Builder<T extends Struct<T>> extends Group.Builder<T> {
+	private static class Builder<T extends Struct<T>>
+		extends Group.Config.Builder<T, StructLayout> {
 		private long offset = 0L;
 		private long align = 1L;
 
 		private Builder(Class<T> type) {
 			super(type);
-		}
-
-		@Override
-		Support<T> build() {
-			addMembers(true);
-			return new Support<>(new Group.Support.Config<>(type, constructor, members), layout());
 		}
 
 		@Override
@@ -243,18 +237,30 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 			return member;
 		}
 
-		private StructLayout layout() {
+		@Override
+		StructLayout layout() {
 			if (!Group.flex(members)) addPadding(layouts, offset, align);
 			return Layouts.struct(layouts);
 		}
 	}
 
+	static <T extends Struct<T>> Config<T, StructLayout> config(Class<T> cls) {
+		return Reflect.unchecked(cache.get(cls));
+	}
+
 	/**
 	 * Returns operational support for the type.
 	 */
-	public static <T extends Struct<T>> Support<T> support(Class<T> cls) {
-		if (cls == null) return null;
-		return Reflect.unchecked(cache.computeIfAbsent(cls, _ -> new Builder<>(cls).build()));
+	public static <T extends Struct<T>> Supporter<T> support(Class<T> cls) {
+		return Reflect.unchecked(Supports.from(cls));
+	}
+
+	/**
+	 * Creates a support instance for the type.
+	 */
+	public static <T extends Struct<T>> Supporter<T> supportFor(Class<T> cls) {
+		var config = config(cls);
+		return new Supporter<>(config, config.layout());
 	}
 
 	/**
@@ -284,13 +290,13 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 	// shared
 
 	@Override
-	Support<T> support() {
-		var support = this.support;
-		if (support == null) {
-			support = support(Reflect.getClass(this));
-			this.support = support;
-		}
-		return support;
+	Config<T, StructLayout> configFor(Class<T> cls) {
+		return config(cls);
+	}
+
+	@Override
+	String typeName() {
+		return "struct";
 	}
 
 	// support
@@ -299,9 +305,5 @@ public class Struct<T extends Struct<T>> extends Group<T> {
 		var padding = Layouts.padding(offset, align);
 		if (padding != 0) layouts.add(MemoryLayout.paddingLayout(padding));
 		return padding;
-	}
-
-	private static long flexScale(Member<?> flex, int count) {
-		return ((SequenceLayout) flex.layout).elementLayout().scale(flex.offset, count);
 	}
 }

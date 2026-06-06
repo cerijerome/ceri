@@ -20,3 +20,6 @@ Flexible Array Member
 - must have other member(s) in struct
 - sizeof ignores array, but includes padding
 
+Const
+- const int* ptr => data cannot be modified
+- int* const ptr => pointer cannot be reassigned

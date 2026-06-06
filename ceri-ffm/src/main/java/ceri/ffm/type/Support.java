@@ -3,23 +3,198 @@ package ceri.ffm.type;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SequenceLayout;
+import java.lang.foreign.ValueLayout;
 import java.nio.ByteOrder;
-import ceri.common.array.Array;
-import ceri.common.array.Dimensions;
+import java.util.Objects;
 import ceri.common.array.RawArray;
 import ceri.common.math.Maths;
-import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
-import ceri.common.util.Counter;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Segments.Encoder;
+import ceri.ffm.reflect.Refine;
 
 /**
  * Operational support for types and arrays with fixed-size layouts.
  */
 public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.Provider<L> {
+	public static final OfVoid VOID = new OfVoid(Layouts.BYTE);
 	private final L layout;
+
+	/**
+	 * Adapts an instance for arrays of the support type.
+	 */
+	public static class OfArray<T> extends Typed<T, SequenceLayout> {
+		private final Config<T> config;
+		private final Class<T> type;
+
+		/**
+		 * Support array configuration; size includes the nul-terminator if specified.
+		 */
+		private record Config<T>(Support<?, T, ?> support, int size, boolean nul) {
+			/**
+			 * Returns a new sequence layout for support type arrays.
+			 */
+			public SequenceLayout layout() {
+				return MemoryLayout.sequenceLayout(size(), support().layout());
+			}
+
+			/**
+			 * Modifies alignment and byte order, returning a new config only if changed.
+			 */
+			public Config<T> with(long align, ByteOrder order) {
+				align = Layouts.elementAlign(support().layout(), align);
+				var support = support().with(align, order);
+				if (support == support()) return this;
+				return new Config<>(support, size(), nul());
+			}
+
+			/**
+			 * Returns an initialized array; empty if nul-termination is configured.
+			 */
+			public T val() {
+				return support().initArray(nul() ? 0 : count());
+			}
+
+			/**
+			 * Returns the maximum array element count, not including nul-terminator.
+			 */
+			public int count() {
+				return Math.max(0, size() - (nul() ? 1 : 0));
+			}
+
+			@Override
+			public String toString() {
+				return Native.wrap(support().typeDesc()) + "[" + size() + (nul() ? "\\0" : "")
+					+ "]";
+			}
+		}
+
+		private OfArray(Config<T> config, SequenceLayout layout) {
+			super(layout);
+			this.config = config;
+			type = config.support().arrayType();
+		}
+
+		@Override
+		public boolean immutable() {
+			return false;
+		}
+
+		@Override
+		public boolean partial() {
+			return config.nul(); // or true?
+		}
+
+		@Override
+		public Class<T> type() {
+			return type;
+		}
+
+		@Override
+		public T val() {
+			return config.val();
+		}
+
+		@Override
+		public T init(T value) {
+			return config.support.initArray(value);
+		}
+		
+		@Override
+		public OfArray<T> with(long align, ByteOrder order) {
+			var config = this.config.with(align, order);
+			var layout = config == this.config ? layout() : config.layout();
+			layout = Layouts.align(layout, align);
+			if (config == this.config && layout == layout()) return this;
+			return new OfArray<>(config, layout);
+		}
+
+		@Override
+		public MemorySegment alloc(SegmentAllocator allocator, T value) {
+			return config.support().allocArray(allocator, value, 0, config.count(), config.nul());
+		}
+
+		@Override
+		public String typeDesc() {
+			return config.toString();
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(config, layout().byteAlignment());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this) return true;
+			return (obj instanceof OfArray d) && Objects.equals(config, d.config)
+				&& layout().byteAlignment() == d.layout().byteAlignment();
+		}
+
+		@Override
+		T rawGet(MemorySegment memory, long offset, long length) {
+			return config.support().getArray(memory, offset, length, config.nul());
+		}
+
+		@Override
+		void rawRead(MemorySegment memory, long offset, long length, T value) {
+			config.support().readArray(memory, offset, length, value, 0, config.count(),
+				config.nul());
+		}
+
+		@Override
+		void rawWrite(MemorySegment memory, long offset, long length, T value) {
+			config.support().writeArray(memory, offset, length, value, 0, config.count(),
+				config.nul());
+		}
+
+		@Override
+		void encode(Encoder encoder, T value) {
+			int count = Maths.min(RawArray.length(value), config.count());
+			config.support().encodeArray(encoder, value, 0, count, config.nul());
+		}
+	}
+
+	/**
+	 * A void implementation.
+	 */
+	public static class OfVoid extends Typed<Void, ValueLayout.OfByte> {
+		private OfVoid(ValueLayout.OfByte layout) {
+			super(layout);
+		}
+
+		@Override
+		public Class<Void> type() {
+			return Void.class;
+		}
+
+		@Override
+		public String typeDesc() {
+			return "void";
+		}
+
+		@Override
+		public OfVoid with(long align, ByteOrder order) {
+			return Layouts.with(this, OfVoid::new, layout(), null, align, order);
+		}
+
+		@Override
+		public Void val() {
+			return null;
+		}
+
+		@Override
+		Void rawGet(MemorySegment memory, long offset, long length) {
+			return val();
+		}
+
+		@Override
+		void rawWrite(MemorySegment memory, long offset, long length, Void value) {}
+	}
 
 	/**
 	 * Support for object types.
@@ -34,12 +209,22 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		public abstract Class<T> type();
 
 		@Override
-		public Class<T[]> arrayType() {
-			return Array.arrayType(type());
+		public abstract Typed<T, L> with(long align, ByteOrder order);
+
+		/**
+		 * Provides support for pointers of this type.
+		 */
+		public RawPointer.Supporter<Pointer<T>> asPointer(boolean constant) {
+			return Pointer.support(this, constant);
 		}
 
-		@Override
-		public abstract Typed<T, L> with(String name, long align, ByteOrder order);
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		@SafeVarargs
+		public final MemorySegment allocAll(boolean nul, T... array) {
+			return allocAll(Segments.auto(), nul, array);
+		}
 
 		/**
 		 * Allocates memory and copies the values with optional nul-termination.
@@ -77,22 +262,30 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
-		@Override
-		public T[] arrayInit(int count) {
-			var array = arrayVal(count);
-			for (int i = 0; i < count; i++)
-				array[i] = init();
-			return array;
+		/**
+		 * Encodes the array to allocated memory with optional nul-termination, and no padding.
+		 */
+		@SafeVarargs
+		public final MemorySegment encodeAll(boolean nul, T... array) {
+			return encodeAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Encodes the array to allocated memory with optional nul-termination, and no padding.
+		 */
+		@SafeVarargs
+		public final MemorySegment encodeAll(SegmentAllocator allocator, boolean nul, T... array) {
+			return encodeArray(allocator, array, nul);
 		}
 	}
 
 	/**
-	 * Applies name, alignment and byte order.
+	 * Applies name and alignment, byte order from context.
 	 */
-	public static <T extends Support<?, ?, ?>> T with(T support, String name, long align,
-		ByteOrder order) {
+	public static <T extends Support<?, ?, ?>> T with(T support, Refine.Context context) {
 		if (support == null) return null;
-		return Reflect.unchecked(support.with(name, align, order));
+		return Reflect.unchecked(support.with(context == null ? 0L : context.align(),
+			context == null ? null : context.order()));
 	}
 
 	Support(L layout) {
@@ -107,24 +300,67 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	}
 
 	/**
-	 * Returns the array component class type.
+	 * Returns true if the type can be read from a partial layout.
+	 */
+	public boolean partial() {
+		return false;
+	}
+
+	/**
+	 * Returns the class type.
 	 */
 	public abstract Class<?> type();
 
 	/**
+	 * Returns a simple descriptor for the type.
+	 */
+	public String typeDesc() {
+		return Reflect.simple(type());
+	}
+
+	/**
 	 * Returns the array class type.
 	 */
-	public abstract Class<A> arrayType();
+	public Class<A> arrayType() {
+		return RawArray.arrayType(type());
+	}
 
 	@Override
 	public L layout() {
 		return layout;
 	}
 
+	@Override
+	public long count(long size) {
+		return Layouts.Provider.super.count(partial() ? size + layoutSize() - 1 : size);
+	}
+
+	/**
+	 * Returns true if this is a void placeholder.
+	 */
+	public boolean isVoid() {
+		return VOID.equals(this);
+	}
+
 	/**
 	 * Returns an instance with modified layout.
 	 */
-	public abstract Support<T, A, L> with(String name, long align, ByteOrder order);
+	public abstract Support<T, A, L> with(long align, ByteOrder order);
+
+	/**
+	 * Returns operational support for arrays of this type.
+	 */
+	public OfArray<A> asArray(int size) {
+		return asArray(size, false);
+	}
+
+	/**
+	 * Returns operational support for arrays of this type, with optional nul-termination.
+	 */
+	public OfArray<A> asArray(int size, boolean nul) {
+		var config = new OfArray.Config<>(this, Math.max(0, size), nul);
+		return new OfArray<>(config, config.layout());
+	}
 
 	/**
 	 * Returns a default value for the type. Sub-fields are not initialized.
@@ -148,9 +384,23 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Allocates memory for a value.
 	 */
+	public MemorySegment alloc() {
+		return alloc(Segments.auto());
+	}
+
+	/**
+	 * Allocates memory and writes the value to the memory.
+	 */
+	public MemorySegment alloc(T value) {
+		return alloc(Segments.auto(), value);
+	}
+
+	/**
+	 * Allocates memory for a value.
+	 */
 	public MemorySegment alloc(SegmentAllocator allocator) {
 		if (allocator == null) return null;
-		return allocator.allocate(size(1));
+		return allocator.allocate(layout());
 	}
 
 	/**
@@ -158,7 +408,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public MemorySegment alloc(SegmentAllocator allocator, T value) {
 		var memory = alloc(allocator);
-		if (memory != null && value != null) rawWrite(memory, 0L, value);
+		if (memory != null && value != null) rawWrite(memory, 0L, layoutSize(), value);
 		return memory;
 	}
 
@@ -183,9 +433,10 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * layout.
 	 */
 	public T get(MemorySegment memory, long offset, long length) {
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		length = Maths.limit(length, 0L, memory.byteSize() - offset);
-		return length < size(1) ? init() : rawGet(memory, offset);
+		if (Segments.isNull(memory)) return null;
+		offset = offset(memory, offset);
+		length = length(memory, offset, length);
+		return count(length) < 1 ? init() : rawGet(memory, offset, length);
 	}
 
 	/**
@@ -230,10 +481,10 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public boolean read(MemorySegment memory, long offset, long length, T value) {
 		if (immutable() || memory == null || value == null) return false;
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		length = Maths.limit(length, 0L, memory.byteSize() - offset);
-		if (length < size(1)) return false;
-		rawRead(memory, offset, value);
+		offset = offset(memory, offset);
+		length = length(memory, offset, length);
+		if (count(length) < 1) return false;
+		rawRead(memory, offset, length, value);
 		return true;
 	}
 
@@ -259,33 +510,73 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public boolean write(MemorySegment memory, long offset, long length, T value) {
 		if (value == null || memory == null) return false;
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		length = Maths.limit(length, 0L, memory.byteSize() - offset);
-		if (length < size(1)) return false;
-		rawWrite(memory, offset, value);
+		offset = offset(memory, offset);
+		length = length(memory, offset, length);
+		if (count(length) < 1) return false;
+		rawWrite(memory, offset, length, value);
 		return true;
 	}
 
 	/**
 	 * Creates an empty array instance.
 	 */
-	public A arrayVal(int count) {
+	public A valArray(int count) {
 		return RawArray.ofType(type(), count);
 	}
 
 	/**
 	 * Creates an array instance populated with default values.
 	 */
-	public A arrayInit(int count) {
-		return arrayInit(arrayVal(count));
+	public A initArray(int count) {
+		return initArray(valArray(count));
 	}
 
 	/**
 	 * Initializes array values, and replaces nulls with default values.
 	 */
-	public A arrayInit(A array) {
-		deepInit(array);
+	public A initArray(A array) {
+		if (array == null) return array;
+		int length = RawArray.length(array);
+		for (int i = 0; i < length; i++) {
+			var value = RawArray.get(array, i);
+			if (value == null) RawArray.set(array, i, init());
+		}
 		return array;
+	}
+
+	/**
+	 * Initializes the array if not null, otherwise returns a new initialized array of given size.
+	 */
+	public A initArray(A array, int count) {
+		return array == null ? initArray(count) : initArray(array);
+	}
+
+	/**
+	 * Allocates memory and copies the values with optional nul-termination.
+	 */
+	public MemorySegment allocArray(A array, boolean nul) {
+		return allocArray(array, 0, nul);
+	}
+
+	/**
+	 * Allocates memory and copies the values with optional nul-termination.
+	 */
+	public MemorySegment allocArray(A array, int index, boolean nul) {
+		return allocArray(array, index, Integer.MAX_VALUE, nul);
+	}
+
+	/**
+	 * Allocates memory for an array of given size.
+	 */
+	public MemorySegment allocArray(int count) {
+		return allocArray(Segments.auto(), count);
+	}
+
+	/**
+	 * Allocates memory and copies the values with optional nul-termination.
+	 */
+	public MemorySegment allocArray(A array, int index, int count, boolean nul) {
+		return allocArray(Segments.auto(), array, index, count, nul);
 	}
 
 	/**
@@ -307,7 +598,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public MemorySegment allocArray(SegmentAllocator allocator, int count) {
 		if (allocator == null) return null;
-		return allocator.allocate(size(count));
+		return allocate(allocator, size(count));
 	}
 
 	/**
@@ -318,7 +609,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		if (allocator == null || array == null) return null;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index);
-		var memory = allocator.allocate(size(count + (nul ? 1 : 0)));
+		var memory = allocate(allocator, size(count + (nul ? 1 : 0)));
 		rawWriteArray(memory, 0L, array, 0, count);
 		if (nul) term().set(memory, size(count));
 		return memory;
@@ -345,13 +636,36 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * bounds. Returns null if nul-termination is specified but not found.
 	 */
 	public A getArray(MemorySegment memory, long offset, long length, boolean nul) {
-		if (Segments.isNull(memory)) return null;
+		if (memory == null) return valArray(0);
 		if (nul) return getArray(slice(memory, offset, length, nul), false);
-		offset = Maths.limit(offset, 0L, memory.byteSize());
+		offset = offset(memory, offset);
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		int count = countInt(length);
-		var array = arrayVal(count);
+		var array = valArray(count);
 		rawReadArray(memory, offset, array, 0, count);
+		return array;
+	}
+
+	/**
+	 * Reads array and returns the updated array, or gets a new array if null.
+	 */
+	public A updateArray(MemorySegment memory, A array, boolean nul) {
+		return updateArray(memory, 0L, array, nul);
+	}
+
+	/**
+	 * Reads array and returns the updated array, or gets a new array if null.
+	 */
+	public A updateArray(MemorySegment memory, long offset, A array, boolean nul) {
+		return updateArray(memory, offset, Long.MAX_VALUE, array, nul);
+	}
+
+	/**
+	 * Reads array and returns the updated array, or gets a new array if null.
+	 */
+	public A updateArray(MemorySegment memory, long offset, long length, A array, boolean nul) {
+		if (array == null) return getArray(memory, offset, length, nul);
+		readArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		return array;
 	}
 
@@ -378,12 +692,12 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	public int readArray(MemorySegment memory, long offset, long length, A array, int index,
 		int count, boolean nul) {
 		if (array == null || Segments.isNull(memory)) return 0;
-		if (nul) return readArray(slice(memory, offset, length, nul), 0L, Long.MAX_VALUE, array,
-			index, count, false);
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index);
+		if (nul) return readArray(slice(memory, offset, Math.min(length, size(count, nul)), nul),
+			0L, Long.MAX_VALUE, array, index, count, false);
+		offset = offset(memory, offset);
+		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		count = (int) Math.min(count, count(length));
 		if (count > 0) rawReadArray(memory, offset, array, index, count);
 		return count;
@@ -406,15 +720,16 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	}
 
 	/**
-	 * Copies values from the array to memory with optional nul-termination, and within bounds.
-	 * Returns the number of values copied, including nul-terminator.
+	 * Copies values from the array to memory with optional nul-termination, and within bounds. The
+	 * count does not include the nul-terminator if specified. Returns the number of values copied,
+	 * including nul-terminator.
 	 */
 	public int writeArray(MemorySegment memory, long offset, long length, A array, int index,
 		int count, boolean nul) {
 		if (array == null || Segments.isNull(memory)) return 0;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index) + (nul ? 1 : 0);
-		offset = Maths.limit(offset, 0L, memory.byteSize());
+		offset = offset(memory, offset);
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		count = (int) Math.min(count, count(length));
 		if (!nul && count > 0) rawWriteArray(memory, offset, array, index, count);
@@ -424,174 +739,110 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	}
 
 	/**
-	 * Calculates the memory size to store the multi-dimensional array with optional
-	 * nul-terminators. Returns 0 if the array type is not supported.
+	 * Encodes the array to allocated memory without padding.
 	 */
-	public long deepSize(Object t, boolean nul) {
-		return rawDeepSize(t, dimsOf(t), nul);
+	public MemorySegment encode(T value) {
+		return encode(Segments.auto(), value);
 	}
 
 	/**
-	 * Creates a multi-dimensional array.
+	 * Encodes the array to allocated memory without padding.
 	 */
-	public Object deepVal(Dimensions dims) {
-		return deepVal(dims.array());
+	public MemorySegment encode(SegmentAllocator allocator, T value) {
+		var encoder = Segments.encoder(layout.byteAlignment());
+		encode(encoder, value);
+		return encoder.alloc(allocator);
 	}
 
 	/**
-	 * Creates a multi-dimensional array.
+	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Object deepVal(int... dims) {
-		return RawArray.ofType(type(), dims);
+	public MemorySegment encodeArray(A array, boolean nul) {
+		return encodeArray(array, 0, nul);
 	}
 
 	/**
-	 * Creates a multi-dimensional array and populates it with default values.
+	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Object deepInitOf(Dimensions dims) {
-		return deepInitOf(dims.array());
+	public MemorySegment encodeArray(A array, int index, boolean nul) {
+		return encodeArray(array, index, Integer.MAX_VALUE, nul);
 	}
 
 	/**
-	 * Creates a multi-dimensional array and populates it with default values.
+	 * Encodes the array to allocated memory with optional nul-termination, and no padding. The
+	 * count does not include the nul-terminator if specified.
 	 */
-	public Object deepInitOf(int... dims) {
-		return deepInit(deepVal(dims));
+	public MemorySegment encodeArray(A array, int index, int count, boolean nul) {
+		return encodeArray(Segments.auto(), array, index, count, nul);
 	}
 
 	/**
-	 * Initializes missing multi-dimensional array leaf values with default values.
+	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Object deepInit(Object t) {
-		return RawArray.<T, Object>deepReplace(t, this::init);
+	public MemorySegment encodeArray(SegmentAllocator allocator, A array, boolean nul) {
+		return encodeArray(allocator, array, 0, nul);
 	}
 
 	/**
-	 * Allocates memory for the multi-dimensional array with optional nul-termination. Returns null
-	 * if the array type is not supported.
+	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public MemorySegment deepAllocEmpty(SegmentAllocator allocator, Object t, boolean nul) {
-		int dims = dimsOf(t);
-		if (allocator == null || dims < 0) return null;
-		return allocator.allocate(rawDeepSize(t, dims, nul));
+	public MemorySegment encodeArray(SegmentAllocator allocator, A array, int index, boolean nul) {
+		return encodeArray(allocator, array, index, Integer.MAX_VALUE, nul);
 	}
 
 	/**
-	 * Allocates memory for the multi-dimensional array and copies the values with optional
-	 * nul-termination. Returns null if the array type is not supported.
+	 * Encodes the array to allocated memory with optional nul-termination, and no padding. The
+	 * count does not include the nul-terminator if specified.
 	 */
-	public MemorySegment deepAlloc(SegmentAllocator allocator, Object t, boolean nul) {
-		int dims = dimsOf(t);
-		if (allocator == null || dims < 0) return null;
-		var memory = allocator.allocate(rawDeepSize(t, dims, nul));
-		rawDeepWrite(memory, 0L, Long.MAX_VALUE, t, dims, nul);
-		return memory;
-	}
-
-	/**
-	 * Creates a multi-dimensional array of values copied from memory up to optional
-	 * nul-terminators. A zero-sized array is set if a nul-terminator is specified but not found.
-	 */
-	public <U> U deepGet(MemorySegment memory, Dimensions dims, boolean nul) {
-		return deepGet(memory, 0L, dims, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of values copied from memory up to optional
-	 * nul-terminators. A zero-sized array is set if a nul-terminator is specified but not found.
-	 */
-	public <U> U deepGet(MemorySegment memory, long offset, Dimensions dims, boolean nul) {
-		return deepGet(memory, offset, Long.MAX_VALUE, dims, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of values copied from memory up to optional
-	 * nul-terminators. A zero-sized array is set if a nul-terminator is specified but not found.
-	 */
-	public <U> U deepGet(MemorySegment memory, long offset, long length, Dimensions dims,
+	public MemorySegment encodeArray(SegmentAllocator allocator, A array, int index, int count,
 		boolean nul) {
-		if (Segments.isNull(memory)) return null;
-		if (dims == null) dims = Dimensions.NONE;
-		return Reflect.unchecked(rawDeepGet(memory, offset, length, dims, nul));
+		if (array == null) return null;
+		var encoder = Segments.encoder(layout.byteAlignment());
+		index = index(array, index);
+		count = count(array, index, count);
+		encodeArray(encoder, array, index, count, nul);
+		return encoder.alloc(allocator);
 	}
 
-	/**
-	 * Copies multi-dimensional array values from memory up to optional nul-terminators. Returns the
-	 * number of values copied. Returns 0 if the array type is not supported.
-	 */
-	public int deepRead(MemorySegment memory, Object t, boolean nul) {
-		return deepRead(memory, 0L, t, nul);
+	@Override
+	public int hashCode() {
+		return Objects.hash(type(), layout());
 	}
 
-	/**
-	 * Copies multi-dimensional array values from memory up to optional nul-terminators. Returns the
-	 * number of values copied. Returns 0 if the array type is not supported.
-	 */
-	public int deepRead(MemorySegment memory, long offset, Object t, boolean nul) {
-		return deepRead(memory, offset, Long.MAX_VALUE, t, nul);
-	}
-
-	/**
-	 * Copies multi-dimensional array values from memory up to optional nul-terminators. Returns the
-	 * number of values copied. Returns 0 if the array type is not supported.
-	 */
-	public int deepRead(MemorySegment memory, long offset, long length, Object t, boolean nul) {
-		if (Segments.isNull(memory)) return 0;
-		return rawDeepRead(memory, offset, length, t, dimsOf(t), nul);
-	}
-
-	/**
-	 * Copies values from the multi-dimensional array to memory with optional nul-termination.
-	 * Returns the number of values copied, including nul-terminators. Returns 0 if the array type
-	 * is not supported.
-	 */
-	public int deepWrite(MemorySegment memory, Object t, boolean nul) {
-		return deepWrite(memory, 0L, t, nul);
-	}
-
-	/**
-	 * Copies values from the multi-dimensional array to memory with optional nul-termination.
-	 * Returns the number of values copied, including nul-terminators. Returns 0 if the array type
-	 * is not supported.
-	 */
-	public int deepWrite(MemorySegment memory, long offset, Object t, boolean nul) {
-		return deepWrite(memory, offset, Long.MAX_VALUE, t, nul);
-	}
-
-	/**
-	 * Copies values from the multi-dimensional array to memory with optional nul-termination.
-	 * Returns the number of values copied, including nul-terminators. Returns 0 if the array type
-	 * is not supported.
-	 */
-	public int deepWrite(MemorySegment memory, long offset, long length, Object t, boolean nul) {
-		if (Segments.isNull(memory)) return 0;
-		return rawDeepWrite(memory, offset, length, t, dimsOf(t), nul);
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		return (obj instanceof Support s) && equalTo(s);
 	}
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, Reflect.simple(type()), layout(), term());
+		return ToString.forName("$", typeDesc(), Layouts.desc(layout()));
 	}
 
 	// overrides
 
+	boolean equalTo(Support<?, ?, ?> support) {
+		return type().equals(support.type()) && layout().equals(support.layout());
+	}
+
 	/**
 	 * Creates a new value from memory without performing bound checks.
 	 */
-	abstract T rawGet(MemorySegment memory, long offset);
+	abstract T rawGet(MemorySegment memory, long offset, long length);
 
 	/**
 	 * Copies memory to the value without performing bound checks. Returns false if immutable.
 	 */
 	@SuppressWarnings("unused")
-	void rawRead(MemorySegment memory, long offset, T value) {
+	void rawRead(MemorySegment memory, long offset, long length, T value) {
 		// does nothing by default
 	}
 
 	/**
 	 * Writes the value to memory without performing bound checks.
 	 */
-	abstract void rawWrite(MemorySegment memory, long offset, T value);
+	abstract void rawWrite(MemorySegment memory, long offset, long length, T value);
 
 	/**
 	 * Copies memory to array without performing bound checks.
@@ -600,20 +851,11 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		if (immutable()) rawReadArrayImmutable(memory, offset, array, index, count);
 		else for (int i = 0; i < count; i++) {
 			var value = RawArray.<T>get(array, index);
-			if (value == null) RawArray.set(array, index, rawGet(memory, offset));
-			else rawRead(memory, offset, value);
-			offset += size(1);
+			long length = length(memory, offset);
+			if (value == null) RawArray.set(array, index, rawGet(memory, offset, length));
+			else rawRead(memory, offset, length, value);
+			offset += layoutSize();
 			index++;
-		}
-	}
-
-	/**
-	 * Copies memory to array without performing bound checks.
-	 */
-	void rawReadArrayImmutable(MemorySegment memory, long offset, A array, int index, int count) {
-		for (int i = 0; i < count; i++) {
-			RawArray.set(array, index + i, rawGet(memory, offset));
-			offset += size(1);
 		}
 	}
 
@@ -634,77 +876,70 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
 		for (int i = 0; i < count; i++) {
 			T t = RawArray.get(array, index++);
-			if (t != null) rawWrite(memory, offset, t);
-			offset += size(1);
+			if (t != null) rawWrite(memory, offset, length(memory, offset), t);
+			offset += layoutSize();
 		}
 	}
 
 	/**
-	 * Returns the array dimension count of the object; 0 if not an array, -1 if not the supported
-	 * type.
+	 * Provides sequential encoding for the type without padding.
 	 */
-	int dimsOf(Object t) {
-		var typed = Generics.Typed.from(t).array();
-		return type().equals(typed.cls()) ? typed.dimensions() : -1;
+	void encode(Segments.Encoder encoder, T value) {
+		encoder.accept((m, o, l) -> rawWrite(m, o, l, value), layoutSize());
 	}
 
+	/**
+	 * Provides sequential encoding for the array without padding, after bound checks. The count
+	 * does not include the nul-terminator if specified.
+	 */
+	void encodeArray(Segments.Encoder encoder, A array, int index, int count, boolean nul) {
+		encoder.accept((m, o, _) -> rawWriteArray(m, o, array, index, count, nul),
+			size(count, nul));
+	}
+
+	/**
+	 * Allocates size in bytes with layout alignment.
+	 */
+	MemorySegment allocate(SegmentAllocator allocator, long size) {
+		if (allocator == null) return null;
+		return allocator.allocate(size, layout().byteAlignment());
+	}
+	
 	// support
 
-	private long rawDeepSize(Object t, int dims, boolean nul) {
-		if (dims < 0) return 0;
-		if (dims == 0) return size(nul ? 2 : 1);
-		return MultiArray.iterateTwigs(t, null, 0L, 0L,
-			(a, _, _) -> size(RawArray.length(a) + (nul ? 1 : 0)));
+	private void rawReadArrayImmutable(MemorySegment memory, long offset, A array, int index,
+		int count) {
+		for (int i = 0; i < count; i++) {
+			long length = length(memory, offset);
+			RawArray.set(array, index + i, rawGet(memory, offset, length));
+			offset += layoutSize();
+		}
 	}
 
-	private Object rawDeepGet(MemorySegment memory, long offset, long length, Dimensions dims,
+	private void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count,
 		boolean nul) {
-		if (dims.count() == 0) return get(slice(memory, offset, length, nul), 0L);
-		if (dims.count() == 1) return getArray(memory, offset, length, nul);
-		memory = slice(memory, offset, length, false);
-		return nul ? rawDeepGetNul(memory, dims) : rawDeepGetFixed(memory, dims);
+		if (!nul && count > 0) rawWriteArray(memory, offset, array, index, count);
+		if (nul && count > 1) rawWriteArray(memory, offset, array, index, count - 1);
+		if (nul && count > 0) term().set(memory, offset + size(count - 1));
 	}
 
-	private Object rawDeepGetNul(MemorySegment memory, Dimensions dims) {
-		var t = MultiArray.twigStubs(type(), dims);
-		var maxSize = size(dims.dim(-1));
-		var offset = Counter.of(0L);
-		MultiArray.replaceTwigs(t, _ -> {
-			var slice = slice(memory, offset.get(), maxSize, true);
-			if (slice == null) offset.set(memory.byteSize()); // no more slices
-			else offset.inc(slice.byteSize() + size(1));
-			return getArray(slice, false);
-		});
-		return t;
+	private static long offset(MemorySegment memory, long offset) {
+		return Maths.limit(offset, 0L, memory.byteSize());
 	}
 
-	private Object rawDeepGetFixed(MemorySegment memory, Dimensions dims) {
-		var t = deepVal(dims);
-		MultiArray.iterateTwigs(t, memory,
-			(a, m, o) -> size(rawReadArrayNew(m, o, Reflect.unchecked(a))));
-		return t;
+	private long length(MemorySegment memory, long offset) {
+		return Maths.min(Math.min(memory.byteSize() - offset, layoutSize()));
 	}
 
-	private int rawDeepRead(MemorySegment memory, long offset, long length, Object t, int dims,
-		boolean nul) {
-		if (dims <= 0) return 0; // can only copy to arrays
-		long total = MultiArray.iterateTwigs(t, memory, offset, length,
-			(a, m, o) -> size(readArray(m, o, Reflect.unchecked(a), 0, nul)));
-		return countInt(total);
+	private long length(MemorySegment memory, long offset, long length) {
+		return Maths.limit(length, 0L, length(memory, offset));
 	}
 
-	private int rawDeepWrite(MemorySegment memory, long offset, long length, Object t, int dims,
-		boolean nul) {
-		if (dims < 0) return 0;
-		if (dims == 0) return writeArray(memory, offset, length, singletonArray(t), 0, 1, nul);
-		long total = MultiArray.iterateTwigs(t, memory, offset, length,
-			(a, m, o) -> size(writeArray(m, o, Reflect.unchecked(a), 0, nul)));
-		return countInt(total);
+	private static int index(Object array, int index) {
+		return Maths.limit(index, 0, RawArray.length(array));
 	}
 
-	private A singletonArray(Object value) {
-		var array = RawArray.<A>ofType(type(), 1);
-		RawArray.set(array, 0, value);
-		return array;
+	private static int count(Object array, int index, int count) {
+		return Maths.limit(count, 0, RawArray.length(array) - index);
 	}
 }

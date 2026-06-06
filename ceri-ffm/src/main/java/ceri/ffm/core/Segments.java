@@ -7,9 +7,12 @@ import java.lang.foreign.MemorySegment.Scope;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
+import java.util.List;
+import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.text.Strings;
 
 /**
  * Support for memory segments.
@@ -19,6 +22,34 @@ public class Segments {
 	public static final SegmentAllocator GLOBAL = Arena.global();
 
 	private Segments() {}
+
+	/**
+	 * Consumer for a memory slice.
+	 */
+	public interface Consumer {
+		void accept(MemorySegment memory, long offset, long length);
+	}
+
+	/**
+	 * Gets a new type from memory.
+	 */
+	public interface Get<T> {
+		T apply(MemorySegment memory, long offset);
+	}
+
+	/**
+	 * Updates a type from memory, or returns a new type from memory if immutable.
+	 */
+	public interface Update<T> {
+		T apply(MemorySegment memory, long offset, T t);
+	}
+
+	/**
+	 * Writes type instance to memory.
+	 */
+	public interface Write<T> {
+		void accept(MemorySegment memory, long offset, T t);
+	}
 
 	/**
 	 * Accepts bounded offsets and lengths.
@@ -34,6 +65,38 @@ public class Segments {
 		T apply(long lOffset, long lLength, long rOffset, long rLength) throws E;
 	}
 
+	/**
+	 * Collects encodings, then allocates memory, applying the encodings to the allocated segment.
+	 */
+	public static class Encoder {
+		private final List<Functions.Consumer<MemorySegment>> encodings = Lists.of();
+		private final long alignment;
+		private long offset = 0;
+		
+		private Encoder(long alignment) {
+			this.alignment = alignment;
+		}
+		
+		/**
+		 * Accepts an encoding with known length.
+		 */
+		public void accept(Segments.Consumer encoding, long length) {
+			var offset = this.offset;
+			encodings.add(m -> encoding.accept(m, offset, length));
+			this.offset += length;
+		}
+		
+		/**
+		 * Allocates memory and applies the encodings in sequence.
+		 */
+		public MemorySegment alloc(SegmentAllocator allocator) {
+			var memory = allocator.allocate(offset, alignment);
+			for (var encoding : encodings)
+				encoding.accept(memory);
+			return memory;
+		}
+	}
+	
 	/**
 	 * An arena wrapper that can be closed or garbage collected.
 	 */
@@ -77,6 +140,13 @@ public class Segments {
 		return Arena.ofAuto();
 	}
 
+	/**
+	 * Returns a new encoder to collect encodings and allocate memory.
+	 */
+	public static Encoder encoder(long alignment) {
+		return new Encoder(alignment);
+	}
+	
 	/**
 	 * Returns the address of the segment; 0 if null or a null pointer.
 	 */
@@ -123,7 +193,7 @@ public class Segments {
 	 * Returns the size of the segment; 0 if null or a null pointer.
 	 */
 	public static int sizeInt(MemorySegment memory) {
-		return Math.toIntExact(size(memory));
+		return sizeInt(memory, 0L);
 	}
 
 	/**
@@ -145,6 +215,20 @@ public class Segments {
 	 */
 	public static long count(MemorySegment memory, MemoryLayout layout, long offset) {
 		return Layouts.count(layout, size(memory, offset));
+	}
+
+	/**
+	 * Returns the number of layout units available within bounds, or 0 if null.
+	 */
+	public static int countInt(MemorySegment memory, MemoryLayout layout) {
+		return countInt(memory, layout, 0L);
+	}
+
+	/**
+	 * Returns the number of layout units available within bounds, or 0 if null.
+	 */
+	public static int countInt(MemorySegment memory, MemoryLayout layout, long offset) {
+		return Math.toIntExact(count(memory, layout, offset));
 	}
 
 	/**
@@ -176,6 +260,15 @@ public class Segments {
 	}
 
 	/**
+	 * Provides an alternative string descriptor.
+	 */
+	public static String string(MemorySegment memory) {
+		if (memory == null) return Strings.NULL;
+		return String.format("@%04x+%02x(%c)", address(memory), size(memory),
+			isNative(memory) ? 'N' : 'H');
+	}
+
+	/**
 	 * Returns the offset within bounds.
 	 */
 	public static long offset(MemorySegment memory, long offset) {
@@ -195,8 +288,8 @@ public class Segments {
 	 */
 	public static boolean within(MemorySegment memory, long offset, long length) {
 		if (isNull(memory)) return false;
-		return offset >= 0L && offset < memory.byteSize() && length >= 0L
-			&& length < memory.byteSize() - offset;
+		return offset >= 0L && offset <= memory.byteSize() && length >= 0L
+			&& length <= memory.byteSize() - offset;
 	}
 
 	/**
@@ -205,6 +298,27 @@ public class Segments {
 	public static boolean within(MemorySegment memory, long offset, MemoryLayout layout,
 		long count) {
 		return within(memory, offset, Layouts.size(layout, count));
+	}
+
+	/**
+	 * Resizes the segment unless unchanged, null, or a null pointer.
+	 */
+	public static MemorySegment resize(MemorySegment memory, long length) {
+		return resize(memory, 0L, length);
+	}
+
+	/**
+	 * Resizes the segment unless unchanged, null, or a null pointer.
+	 */
+	public static MemorySegment resize(MemorySegment memory, MemoryLayout layout) {
+		return resize(memory, layout, 1);
+	}
+
+	/**
+	 * Resizes the segment unless unchanged, null, or a null pointer.
+	 */
+	public static MemorySegment resize(MemorySegment memory, MemoryLayout layout, long count) {
+		return resize(memory, 0L, layout, count);
 	}
 
 	/**
@@ -222,6 +336,13 @@ public class Segments {
 	/**
 	 * Resizes the segment unless unchanged, null, or a null pointer.
 	 */
+	public static MemorySegment resize(MemorySegment memory, long offset, MemoryLayout layout) {
+		return resize(memory, offset, layout, 1);
+	}
+
+	/**
+	 * Resizes the segment unless unchanged, null, or a null pointer.
+	 */
 	public static MemorySegment resize(MemorySegment memory, long offset, MemoryLayout layout,
 		long count) {
 		return resize(memory, offset, Layouts.size(layout, count));
@@ -230,7 +351,29 @@ public class Segments {
 	/**
 	 * Returns a view of the memory segment.
 	 */
-	public static MemorySegment slice(MemorySegment memory, long offset) {
+	public static MemorySegment slice(MemorySegment memory, long length) {
+		return slice(memory, 0L, length);
+	}
+
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment slice(MemorySegment memory, MemoryLayout layout) {
+		return slice(memory, layout, 1L);
+	}
+
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment slice(MemorySegment memory, MemoryLayout layout,
+		long count) {
+		return slice(memory, 0L, layout, count);
+	}
+
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment sliceAll(MemorySegment memory, long offset) {
 		return slice(memory, offset, Long.MAX_VALUE);
 	}
 
@@ -238,11 +381,18 @@ public class Segments {
 	 * Returns a view of the memory segment.
 	 */
 	public static MemorySegment slice(MemorySegment memory, long offset, long length) {
-		if (isNull(memory)) return null;
+		if (isNull(memory)) return memory;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		if (offset == 0L && length == memory.byteSize()) return memory;
 		return memory.asSlice(offset, length);
+	}
+
+	/**
+	 * Returns a view of the memory segment.
+	 */
+	public static MemorySegment slice(MemorySegment memory, long offset, MemoryLayout layout) {
+		return slice(memory, offset, layout, 1);
 	}
 
 	/**
@@ -256,16 +406,37 @@ public class Segments {
 	/**
 	 * Returns an index view of a segment array that starts at the given offset.
 	 */
-	public static MemorySegment indexSlice(MemorySegment memory, MemoryLayout layout, long index) {
-		return indexSlice(memory, 0L, layout, index);
+	public static MemorySegment sliceAt(MemorySegment memory, long index, MemoryLayout layout) {
+		return sliceAt(memory, index, layout, 1L);
 	}
 
 	/**
-	 * Returns an index view of a segment array that starts at the given offset.
+	 * Returns a view of a segment array that starts at the given layout index offset.
 	 */
-	public static MemorySegment indexSlice(MemorySegment memory, long offset, MemoryLayout layout,
-		long index) {
-		return slice(memory, layout.scale(offset, index), layout, 1);
+	public static MemorySegment sliceAt(MemorySegment memory, long index, MemoryLayout layout,
+		long count) {
+		return slice(memory, Layouts.size(layout, index), layout, count);
+	}
+
+	/**
+	 * Resizes the segment if a native pointer, otherwise slices the segment within bounds.
+	 */
+	public static MemorySegment reslice(MemorySegment memory, long length) {
+		return reslice(memory, 0L, length);
+	}
+
+	/**
+	 * Resizes the segment if a native pointer, otherwise slices the segment within bounds.
+	 */
+	public static MemorySegment reslice(MemorySegment memory, MemoryLayout layout) {
+		return reslice(memory, layout, 1L);
+	}
+
+	/**
+	 * Resizes the segment if a native pointer, otherwise slices the segment within bounds.
+	 */
+	public static MemorySegment reslice(MemorySegment memory, MemoryLayout layout, long count) {
+		return reslice(memory, 0L, layout, count);
 	}
 
 	/**
@@ -274,6 +445,13 @@ public class Segments {
 	public static MemorySegment reslice(MemorySegment memory, long offset, long length) {
 		return isNativePointer(memory) ? resize(memory, offset, length) :
 			slice(memory, offset, length);
+	}
+
+	/**
+	 * Resizes the segment if a native pointer, otherwise slices the segment within bounds.
+	 */
+	public static MemorySegment reslice(MemorySegment memory, long offset, MemoryLayout layout) {
+		return reslice(memory, offset, layout, 1L);
 	}
 
 	/**
@@ -363,7 +541,7 @@ public class Segments {
 	 */
 	public static MemorySegment copyOf(SegmentAllocator allocator, MemorySegment memory,
 		long offset, long length) {
-		if (allocator == null || isNull(memory)) return MemorySegment.NULL;
+		if (allocator == null || isNull(memory)) return null;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		var copy = allocator.allocate(length);

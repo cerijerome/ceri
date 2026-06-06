@@ -6,23 +6,30 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
-import java.nio.Buffer;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Pattern;
 import ceri.common.collect.Maps;
+import ceri.common.concurrent.Lazy;
 import ceri.common.except.Exceptions;
+import ceri.common.io.Buffers;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Strings;
 import ceri.ffm.type.IntType;
 import ceri.ffm.type.Pointer;
+import ceri.ffm.type.RawPointer;
 import ceri.ffm.type.Struct;
 import ceri.ffm.type.Union;
 
 public class Native {
+	private static final Pattern INNER_REGEX = Pattern.compile("\\(.*\\)");
+	private static final Lazy.ForClass<Kind> KINDS = Lazy.forClass(c -> kind(c));
 	private static final Map<Class<?>, Class<?>> PROMOTIONS = promotions();
 	/** The native linker. */
 	public static final Linker LINKER = Linker.nativeLinker();
 	/** The default symbol lookup. */
-	public static final SymbolLookup LOOKUP = LINKER.defaultLookup();
+	public static final SymbolLookup SYMBOLS = LINKER.defaultLookup();
 
 	/**
 	 * Known canonical layout names.
@@ -111,108 +118,138 @@ public class Native {
 		primitive,
 		boxed,
 		intType,
-		string,
-		buffer,
 		struct,
 		union,
-		pointer, // typed (native types)
+		pointer,
+		primitivePointer,
 		pointerType,
-		funcPointer; // typed (any)
+		functionPointer,
+		string,
+		buffer;
+	}
 
-		private static final Map<Class<?>, Kind> MAP = map();
+	/**
+	 * Type analysis result providing generic type, array breakdown, and native type category.
+	 */
+	public static class Spec {
+		public static final Spec NULL = new Spec(null, Generics.Typed.NULL, null);
+		public static final Spec VOID = new Spec(null, Generics.Typed.VOID, null);
+		private final Kind kind;
+		private final Generics.Typed typed;
+		private final Generics.Array array;
 
 		/**
-		 * Type analysis result including original type and array breakdown.
+		 * Extracts the generic type with native category, throws an exception if not valid.
 		 */
-		public record Spec(Kind kind, Generics.Typed typed, Generics.Array array) {
-			public static final Spec NULL =
-				new Spec(null, Generics.Typed.NULL, Generics.Array.NULL);
-			public static final Spec VOID =
-				new Spec(null, Generics.Typed.VOID, Generics.Array.NULL);
-
-			/**
-			 * Returns true if the type is primitive and not an array.
-			 */
-			public boolean isPrimitive() {
-				return kind() == Kind.primitive && !array().isArray();
-			}
-			
-			/**
-			 * Returns the component class type, or class type if not an array.
-			 */
-			public <T> Class<T> component() {
-				return Reflect.unchecked(array().cls());
-			}
-		}
-
-		public static Spec validSpec(Generics.Typed typed) {
-			var spec = spec(typed);
+		public static Spec valid(Generics.Typed typed) {
+			var spec = of(typed);
 			if (spec.kind() != null) return spec;
 			throw Exceptions.illegalArg("Unsupported type: " + typed);
 		}
 
-		public static Spec validSpec(Class<?> cls) {
-			return validSpec(Generics.Typed.of(cls));
-		}
-
-		public static Spec spec(Generics.Typed typed) {
-			if (typed == null) return Spec.NULL;
+		/**
+		 * Extracts the generic type with native category, returns null if not valid.
+		 */
+		public static Spec of(Generics.Typed typed) {
+			if (Generics.Typed.isNull(typed)) return Spec.NULL;
+			if (Generics.Typed.VOID.equals(typed)) return Spec.VOID;
 			var array = typed.array();
-			var kind = fromComponent(array.component());
+			var kind = kindFromComponent(array.component());
 			return new Spec(kind, typed, array);
 		}
 
-		public static Spec spec(Class<?> cls) {
-			return spec(Generics.Typed.of(cls));
+		private Spec(Kind kind, Generics.Typed typed, Generics.Array array) {
+			this.kind = kind;
+			this.typed = typed;
+			this.array = array != null ? array : typed.array();
 		}
 
-		private static Kind fromComponent(Generics.Typed component) {
-			if (component == null) return null;
-			var cls = component.cls();
-			var kind = MAP.get(cls); // primitive, boxed, string
-			if (kind != null) return kind;
-			if (IntType.class.isAssignableFrom(cls)) return intType;
-			if (Buffer.class.isAssignableFrom(cls)) return buffer;
-			if (Struct.class.isAssignableFrom(cls)) return struct;
-			if (Union.class.isAssignableFrom(cls)) return union;
-			// union TBD
-			if (Pointer.class.isAssignableFrom(cls)) {
-				var t = component.type(0);
-				return t.isNull() || Generics.Typed.VOID.equals(t) || t.isUnbounded()
-					|| fromComponent(t.array().component()) != null ? pointer : null;
-			}
-			// pointer type TBD
-			// func pointer TBD
-			return null;
+		/**
+		 * Returns the native type category.
+		 */
+		public Kind kind() {
+			return kind;
 		}
 
-		private static Map<Class<?>, Kind> map() {
-			var b = Maps.Builder.<Class<?>, Kind>of();
-			b.putKeys(primitive, Reflect.PRIMITIVES);
-			b.putKeys(boxed, Reflect.BOXED);
-			b.putKeys(string, String.class);
-			return b.wrap();
+		/**
+		 * Returns the generic type.
+		 */
+		public Generics.Typed typed() {
+			return typed;
+		}
+
+		/**
+		 * Returns true if kind is valid.
+		 */
+		public boolean isValid() {
+			return kind() != null;
+		}
+
+		/**
+		 * Returns true if the type is a non-array primitive.
+		 */
+		public boolean isPrimitive() {
+			return kind() == Kind.primitive && !isArray();
+		}
+
+		/**
+		 * Returns true if the type is an array.
+		 */
+		public boolean isArray() {
+			return dimensions() > 0;
+		}
+
+		/**
+		 * Returns the type broken down as component and dimensions.
+		 */
+		public Generics.Array array() {
+			return array;
+		}
+
+		/**
+		 * Returns the component class type, or class type if not an array.
+		 */
+		public <T> Class<T> component() {
+			return Reflect.unchecked(array.cls());
+		}
+
+		/**
+		 * Returns the (multi-)array dimension count or zero if not an array.
+		 */
+		public int dimensions() {
+			return array.dimensions();
+		}
+
+		@Override
+		public int hashCode() {
+			return typed().hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			return (obj instanceof Spec s) && Objects.equals(typed(), s.typed());
+		}
+
+		@Override
+		public String toString() {
+			return kind + ":" + typed;
 		}
 	}
 
-	public static final Pointer<?> p0 = null;
-	public static final Pointer<int[]> p1 = null;
-	public static final Pointer<Pointer<?>> p2 = null;
-
-	public static void main(String[] args) {
-		var t0 = Generics.typed(Reflect.publicField(Native.class, "p0"));
-		var t1 = Generics.typed(Reflect.publicField(Native.class, "p1"));
-		var t2 = Generics.typed(Reflect.publicField(Native.class, "p2"));
-		System.out.println(t0 + " => " + Kind.spec(t0));
-		System.out.println(t1 + " => " + Kind.spec(t1));
-		System.out.println(t2 + " => " + Kind.spec(t2));
+	/**
+	 * Returns true if the type can be treated as void.
+	 */
+	public static boolean isVoid(Generics.Typed typed) {
+		if (typed == null) return false;
+		return typed.isNull() || typed.isVoid() || typed.isUnbounded();
 	}
 
 	/**
 	 * Find native call by name from the default lookup.
 	 */
 	public static MemorySegment find(String method) {
-		return LOOKUP.find(method).orElseThrow();
+		return SYMBOLS.find(method).orElseThrow();
 	}
 
 	/**
@@ -237,10 +274,48 @@ public class Native {
 		return Reflect.unchecked(LINKER.canonicalLayouts().get(name));
 	}
 
+	/**
+	 * Wraps the type string if its non-wrapped parts are separated by spaces.
+	 */
+	public static String wrap(String type) {
+		if (Strings.isEmpty(type)) return type;
+		var outer = INNER_REGEX.matcher(type).replaceFirst("");
+		if (outer.contains(" ")) return '(' + type + ')';
+		return type;
+	}
+	
 	// support
 
+	private static Kind kindFromComponent(Generics.Typed component) {
+		if (component == null) return null;
+		Class<?> cls = component.cls();
+		var kind = KINDS.get(cls);
+		if (kind != null) return kind;
+		if (cls == Pointer.class) {
+			var t = component.type(0);
+			if (isVoid(t)) return Kind.pointer;
+			return kindFromComponent(t.components()) != null ? Kind.pointer : null;
+		}
+		// pointer type TBD
+		// function pointer TBD
+		return null;
+	}
+
+	private static Kind kind(Class<?> cls) {
+		if (Reflect.PRIMITIVES.contains(cls)) return Kind.primitive;
+		if (Reflect.BOXED.contains(cls)) return Kind.boxed;
+		if (IntType.class.isAssignableFrom(cls)) return Kind.intType;
+		if (Struct.class.isAssignableFrom(cls)) return Kind.struct;
+		if (Union.class.isAssignableFrom(cls)) return Kind.union;
+		if (cls == Pointer.class) return null; // needs type checks
+		if (RawPointer.class.isAssignableFrom(cls)) return Kind.pointer;
+		if (cls == String.class) return Kind.string;
+		if (Buffers.BASE_TYPES.contains(cls)) return Kind.buffer;
+		return null;
+	}
+
 	private static Map<Class<?>, Class<?>> promotions() {
-		return Maps.Builder.of(Maps.<Class<?>, Class<?>>of())
+		return Maps.Builder.<Class<?>, Class<?>>of()
 			.putKeys(int.class, boolean.class, byte.class, short.class)
 			.putKeys(double.class, float.class)
 			.putKeys(Integer.class, Boolean.class, Byte.class, Short.class)

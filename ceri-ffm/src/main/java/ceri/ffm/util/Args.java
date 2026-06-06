@@ -17,7 +17,6 @@ import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Segments;
 import ceri.ffm.type.Group;
-import ceri.ffm.type.IntType;
 
 /**
  * Utility to create strings from method arguments. Arrays and Iterable types are expanded.
@@ -65,7 +64,7 @@ public class Args {
 	/**
 	 * Structure to compact string.
 	 */
-	public static String compact(Group<?> t) {
+	public static String compact(Group<?, ?> t) {
 		return Reflect.nestedName(t.getClass()) + "{}";
 	}
 
@@ -122,9 +121,9 @@ public class Args {
 		 */
 		public Builder addDefault(boolean compactGroup) {
 			if (compactGroup) add(Group.class, Args::compact);
-			return add(CharSequence.class, Chars::escape) //
+			return add(CharSequence.class, s -> "\"" + Chars.escape(s) + "\"") //
 				.add(matchInt(), n -> stringInt(n)) //
-				.add(IntType.class, n -> stringInt(n.nativeValue())) //
+				// .add(IntType.class, n -> stringInt(n.nativeValue())) //
 				// .add(Pointer.class, Args::string) //
 				.add(MemorySegment.class, Args::string) //
 				// .add(PointerType.class, Args::string) //

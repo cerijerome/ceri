@@ -7,6 +7,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -23,7 +24,7 @@ import ceri.ffm.reflect.Refine;
 public class Call {
 	private static final Typed<Return<?, ?>> VOID =
 		new Typed<>(Generics.Typed.VOID, new Return<>(null, _ -> null));
-	public final String name;
+	public final Method method;
 	private final MethodHandle handle;
 	private final Typed<Return<?, ?>> rtn;
 	private final List<Typed<Arg<?, ?>>> args;
@@ -91,14 +92,14 @@ public class Call {
 	 * Builds a call.
 	 */
 	public static class Builder {
-		private final String name;
+		private final Method method;
 		private Typed<Return<?, ?>> rtn = VOID;
 		private final List<Typed<Arg<?, ?>>> args = Lists.of();
 		private int varArg = -1;
 		private boolean lastError = false;
 
-		private Builder(String name) {
-			this.name = name;
+		private Builder(Method method) {
+			this.method = method;
 		}
 
 		public Builder rtn(Generics.Typed type, Return<?, ?> rtn) {
@@ -122,10 +123,10 @@ public class Call {
 		}
 
 		public Call build(Linker linker, SymbolLookup lookup) {
-			var pointer = lookup.findOrThrow(name);
+			var pointer = lookup.findOrThrow(method.getName());
 			var funcDesc = funcDesc();
 			var handle = linker.downcallHandle(pointer, funcDesc, options());
-			return new Call(name, handle, rtn, Immutable.wrap(args), lastError);
+			return new Call(method, handle, rtn, Immutable.wrap(args), lastError);
 		}
 
 		private Linker.Option[] options() {
@@ -143,21 +144,21 @@ public class Call {
 		}
 	}
 
-	public static Builder builder(String name) {
-		return new Builder(name);
+	public static Builder builder(Method method) {
+		return new Builder(method);
 	}
 
 	public static Builder builder(Call call) {
-		var b = new Builder(call.name);
+		var b = new Builder(call.method);
 		b.rtn = call.rtn;
 		b.args.addAll(call.args);
 		b.lastError = call.lastError;
 		return b;
 	}
 
-	private Call(String name, MethodHandle handle, Typed<Return<?, ?>> rtn,
+	private Call(Method method, MethodHandle handle, Typed<Return<?, ?>> rtn,
 		List<Typed<Arg<?, ?>>> args, boolean lastError) {
-		this.name = name;
+		this.method = method;
 		this.handle = handle;
 		this.rtn = rtn;
 		this.args = args;
@@ -180,7 +181,7 @@ public class Call {
 
 	@Override
 	public String toString() {
-		var t = ToString.ofName(rtn + " " + name);
+		var t = ToString.ofName(rtn + " " + method.getName());
 		for (var arg : args)
 			t.values(arg);
 		return lastError ? t + "!" : t.toString();
