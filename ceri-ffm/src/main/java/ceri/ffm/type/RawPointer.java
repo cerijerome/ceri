@@ -9,6 +9,8 @@ import ceri.common.util.Basics;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support;
+import ceri.ffm.core.Supports;
 
 /**
  * An abstract container for a memory segment.
@@ -16,8 +18,7 @@ import ceri.ffm.core.Segments;
 public abstract class RawPointer {
 	private static final String CONST = "const ";
 	public static final Supporter<RawPointer> $ =
-		new Supporter<>(new Supporter.Config<>(RawPointer.class, Support.VOID,
-			(m, _, _) -> Pointer.ofVoid(m), true));
+		Supporter.of(RawPointer.class, Support.VOID, (m, _, _) -> Pointer.ofVoid(m), true);
 	private final MemorySegment memory;
 
 	// - fixed layout (no flexible multi-dim nul-term)
@@ -32,6 +33,17 @@ public abstract class RawPointer {
 
 		public record Config<P extends RawPointer, S extends Support<?, ?, ?>>(Class<P> type,
 			S support, Create<P, S> create, boolean constant) {
+
+			public Config<P, S> asConst() {
+				return constant() ? this : new Config<>(type(), support(), create(), constant);
+			}
+
+			public Native.Kind kind() {
+				if (support.isVoid() || support.kind() == Native.Kind.primitive)
+					return Native.Kind.primitivePointer;
+				return Native.Kind.pointer;
+			}
+
 			public P create(MemorySegment memory) {
 				return create().apply(memory, support(), constant());
 			}
@@ -42,6 +54,17 @@ public abstract class RawPointer {
 			}
 		}
 
+		static <P extends RawPointer, S extends Support<?, ?, ?>> Supporter<P> of(Class<P> type,
+			S support, Create<P, S> create) {
+			return of(type, support, create, false);
+		}
+
+		static <P extends RawPointer, S extends Support<?, ?, ?>> Supporter<P> of(Class<P> type,
+			S support, Create<P, S> create, boolean constant) {
+			var config = new Config<>(type, support, create, constant);
+			return new Supporter<>(config, Layouts.POINTER);
+		}
+
 		Supporter(Config<P, ?> config) {
 			this(config, Layouts.POINTER);
 		}
@@ -49,6 +72,27 @@ public abstract class RawPointer {
 		Supporter(Config<P, ?> config, AddressLayout layout) {
 			super(layout);
 			this.config = config;
+		}
+
+		/**
+		 * Creates an instance for the memory segment.
+		 */
+		public P of(MemorySegment memory) {
+			if (memory == null) return null;
+			return config.create(memory);
+		}
+		
+		/**
+		 * Returns support for constant pointer data. No change if already constant.
+		 */
+		public Supporter<P> asConst() {
+			var config = this.config.asConst();
+			return config == this.config ? this : new Supporter<>(config, layout());
+		}
+
+		@Override
+		public Native.Kind kind() {
+			return config.kind();
 		}
 
 		@Override
@@ -67,18 +111,24 @@ public abstract class RawPointer {
 		}
 
 		@Override
-		public Supporter<P> with(long align, ByteOrder order) {
-			return Layouts.with(this, l -> new Supporter<>(config, l), layout(), null, align,
-				order);
+		public Supporter<P> align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new Supporter<>(config, layout);
 		}
 
 		@Override
-		P rawGet(MemorySegment memory, long offset, long length) {
+		public Supporter<P> order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new Supporter<>(config, layout);
+		}
+
+		@Override
+		protected P rawGet(MemorySegment memory, long offset, long length) {
 			return config.create(memory.get(layout(), offset));
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, P value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, P value) {
 			memory.set(layout(), offset, value.memory());
 		}
 	}
@@ -110,10 +160,17 @@ public abstract class RawPointer {
 		}
 
 		/**
-		 * Applies the alignment and byte order to the type.
+		 * Applies the alignment to the type.
 		 */
-		public P typeWith(long align, ByteOrder order) {
-			return copy(null, Reflect.unchecked(type().with(align, order)), isConst());
+		public P typeAlign(long align) {
+			return copy(null, Reflect.unchecked(type().align(align)), isConst());
+		}
+
+		/**
+		 * Applies the byte order to the type.
+		 */
+		public P typeOrder(ByteOrder order) {
+			return copy(null, Reflect.unchecked(type().order(order)), isConst());
 		}
 
 		/**
@@ -339,9 +396,7 @@ public abstract class RawPointer {
 	/**
 	 * Returns true if this pointer has no associated type.
 	 */
-	public boolean isVoid() {
-		return true;
-	}
+	public abstract boolean isVoid();
 
 	/**
 	 * Returns the memory segment size in bytes.
@@ -396,7 +451,7 @@ public abstract class RawPointer {
 	 * Casts this pointer to another type.
 	 */
 	public <U> Pointer<U> as(Class<U> cls) {
-		return as(Supports.typedFrom(cls));
+		return as(Supports.DEF.typedFrom(cls));
 	}
 
 	public static void main(String[] args) {

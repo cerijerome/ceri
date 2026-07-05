@@ -32,7 +32,7 @@ struct, union:
   - read = read from mem at offset
   - write = write to mem at offset
 
-pointer, pointer-type: [typed]
+pointer (typed), primitive-pointer, pointer-type:
 - call:arg (by value)
   - layout = address
   - in = allocate mem, write address to mem, pass mem
@@ -109,6 +109,40 @@ array n-dim (any type): [dims] // array decay to pointer
   - new = create default array
   - read = read array from mem at offset, reassign immutable elements
   - write = write array to mem at offset
+
+
+Fixed layout
+------------
+- for structs, unions, pointers
+- alloc/get/read(mutable)/update/write
+
+
+Dynamic layout
+--------------
+- for call argument and return values
+- encode/decode
+- size depends on array sizes and nul-terminators
+- array size with nul-term indicates maximum size
+- symbols: F = fixed size, N = variable (max) nul-term, t = type instance, n = terminator
+- 2d array combinations: (rhs is inner)
+  - FF: |ttt|ttt| <=> {ttt,ttt} - fixed layout, iterate arrays
+  - FN: |tttn|n|ttn| <=> {ttt,,tt} - iterate fixed number of nul-term arrays, empty is ok
+  - NF: |ttt|ttt|nnn| <=> {ttt,ttt} - nul-term same size as inner fixed array
+  - NN: |tttn|tn|n| <=> {ttt,t} - outer breaks at empty inner array, look for ..n|n| or |n|
+- 3d array combinations: (rhs is inner)
+  - FFF: |ttt|ttt||ttt|ttt||ttt|ttt| <=> {{ttt,ttt},{ttt,ttt},{ttt,ttt}}
+  - FFN: |tttn|tn||n|ttn||ttn|tttn| <=> {{ttt,t},{,tt},{tt,ttt}}
+  - FNF: |ttt|ttt|nnn||ttt|nnn||nnn| <=> {{ttt,ttt},{ttt},{}} - nul-term nnn 
+  - NFF: |ttt|ttt||ttt|ttt||nnnnnn| <=> {{ttt,ttt},{ttt,ttt}} - nul-term nnnnnn
+  - FNN: |tttn|tn|n||ttn|n||tn|n| <=> {{ttt,t},{tt},{t}} - empty inner marks end ..n|n| or |n|
+  - NNF: |ttt|ttt|nnn||ttt|nnn||nnn| <=> {{ttt,ttt},{ttt}} - empty inner marks end |nnn|
+  - NFN: |tttn|tn|n||ttn|n|tn||n|n|n| <=> {{ttt,t,},{tt,,t}} - outer end |n|n|n|
+  - NNN: |tttn|tn|n||tn|n||ttn|n||n| <=> {{ttt,t},{t},{tt}} - each empty inner marks end |n||n|
+- logic:
+  - F multiplies the size of n for an outer array
+  - N empty array marks end for outer N array
+
+
 
 
 

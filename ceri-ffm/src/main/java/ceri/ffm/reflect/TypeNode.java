@@ -16,7 +16,6 @@ public class TypeNode {
 	public static final TypeNode VOID = new TypeNode(Annotations.node(Generics.Typed.VOID), null);
 	private final Annotations.Node node;
 	private final Refine.Context context;
-	private volatile Native.Spec spec = null; // cached
 
 	public static TypeNode of(Generics.Token<?> token) {
 		return token == null ? NULL : of(token.node());
@@ -55,13 +54,6 @@ public class TypeNode {
 	public TypeNode with(Refine.Context context) {
 		if (context == null || context().equals(context)) return this;
 		return new TypeNode(node, context);
-	}
-
-	/**
-	 * Returns true if this type is supported.
-	 */
-	public boolean isValid() {
-		return spec().isValid();
 	}
 
 	/**
@@ -117,7 +109,7 @@ public class TypeNode {
 	 * Add a class to the path.
 	 */
 	public TypeNode sub(Class<?> cls) {
-		return create(node.sub(cls));
+		return create(node.sub(Generics.typed(cls)));
 	}
 
 	/**
@@ -125,18 +117,6 @@ public class TypeNode {
 	 */
 	public Refine.Context context() {
 		return context;
-	}
-
-	/**
-	 * Returns the type breakdown for the current type.
-	 */
-	public Native.Spec spec() {
-		var spec = this.spec;
-		if (spec == null) {
-			spec = Native.Spec.of(typed());
-			this.spec = spec;
-		}
-		return spec;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -16,24 +17,31 @@ import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.ToString;
-import ceri.ffm.reflect.Refine;
 
 /**
  * Encapsulates a native call.
  */
 public class Call {
-	private static final Typed<Return<?, ?>> VOID =
-		new Typed<>(Generics.Typed.VOID, new Return<>(null, _ -> null));
+	private static final Return<?, ?> VOID = new Return<>(Generics.Typed.VOID, null, _ -> null);
 	public final Method method;
 	private final MethodHandle handle;
-	private final Typed<Return<?, ?>> rtn;
-	private final List<Typed<Arg<?, ?>>> args;
+	private final Return<?, ?> rtn;
+	private final List<Arg<?, ?>> args;
 	private final boolean lastError;
 
 	/**
-	 * Applies a type to the reference.
+	 * Provides a memory layout and type adapter for a call argument.
 	 */
-	private record Typed<T>(Generics.Typed type, T ref) {
+	private record Arg<T, R>(Generics.Typed type, MemoryLayout layout,
+		Functions.BiFunction<SegmentAllocator, T, Native.Adapted<R>> adapter) {
+
+		/**
+		 * Applies the adapter to the value, with allocator if needed.
+		 */
+		Native.Adapted<R> apply(SegmentAllocator allocator, T value) {
+			return adapter().apply(allocator, value);
+		}
+
 		@Override
 		public final String toString() {
 			return type.toString();
@@ -41,50 +49,20 @@ public class Call {
 	}
 
 	/**
-	 * Represents method argument actions.
+	 * Provides a memory layout and type adapter for a call response.
 	 */
-	public record Arg<T, R>(MemoryLayout layout,
-		Functions.BiFunction<SegmentAllocator, T, R> adapter, Functions.BiConsumer<T, R> resolver) {
-		/**
-		 * Provides an argument handler based on context, type, and array dimensions (zero for
-		 * non-array).
-		 */
-		public interface Handler {
-			Arg<?, ?> arg(Refine.Context context, Generics.Array array);
-		}
-
-		/**
-		 * Adapts the argument with allocator.
-		 */
-		public R adapt(SegmentAllocator allocator, T from) {
-			return adapter().apply(allocator, from);
-		}
-
-		/**
-		 * Updates the argument after the call, if a resolver is specified.
-		 */
-		public void resolve(T from, R to) {
-			if (resolver() != null) resolver().accept(from, to);
-		}
-	}
-
-	/**
-	 * Represents method return actions.
-	 */
-	public record Return<T, R>(MemoryLayout layout, Functions.Function<T, R> adapter) {
-		/**
-		 * Provides a return value handler based on context, type, and array dimensions (zero for
-		 * non-array).
-		 */
-		public interface Handler {
-			Return<?, ?> rtn(Refine.Context context, Generics.Array array);
-		}
-
+	private record Return<T, R>(Generics.Typed type, MemoryLayout layout,
+		Functions.Function<T, R> adapter) {
 		/**
 		 * Adapts the return value with allocator.
 		 */
-		public R adapt(T from) {
+		R apply(T from) {
 			return adapter().apply(from);
+		}
+
+		@Override
+		public final String toString() {
+			return type.toString();
 		}
 	}
 
@@ -93,8 +71,8 @@ public class Call {
 	 */
 	public static class Builder {
 		private final Method method;
-		private Typed<Return<?, ?>> rtn = VOID;
-		private final List<Typed<Arg<?, ?>>> args = Lists.of();
+		private Return<?, ?> rtn = VOID;
+		private final List<Arg<?, ?>> args = Lists.of();
 		private int varArg = -1;
 		private boolean lastError = false;
 
@@ -102,13 +80,15 @@ public class Call {
 			this.method = method;
 		}
 
-		public Builder rtn(Generics.Typed type, Return<?, ?> rtn) {
-			this.rtn = new Typed<>(type, rtn);
+		public <T, R> Builder rtn(Generics.Typed type, MemoryLayout layout,
+			Functions.Function<T, R> adapter) {
+			this.rtn = new Return<>(type, layout, adapter);
 			return this;
 		}
 
-		public Builder arg(Generics.Typed type, Arg<?, ?> arg) {
-			args.add(new Typed<>(type, arg));
+		public <T, R> Builder arg(Generics.Typed type, MemoryLayout layout,
+			Functions.BiFunction<SegmentAllocator, T, Native.Adapted<R>> adapter) {
+			args.add(new Arg<>(type, layout, adapter));
 			return this;
 		}
 
@@ -137,10 +117,9 @@ public class Call {
 		}
 
 		private FunctionDescriptor funcDesc() {
-			var argLayouts =
-				Streams.from(args).map(a -> a.ref().layout()).toArray(MemoryLayout.class);
-			if (rtn.ref().layout() == null) return FunctionDescriptor.ofVoid(argLayouts);
-			return FunctionDescriptor.of(rtn.ref().layout(), argLayouts);
+			var argLayouts = Streams.from(args).map(a -> a.layout()).toArray(MemoryLayout.class);
+			if (rtn.layout() == null) return FunctionDescriptor.ofVoid(argLayouts);
+			return FunctionDescriptor.of(rtn.layout(), argLayouts);
 		}
 	}
 
@@ -156,8 +135,8 @@ public class Call {
 		return b;
 	}
 
-	private Call(Method method, MethodHandle handle, Typed<Return<?, ?>> rtn,
-		List<Typed<Arg<?, ?>>> args, boolean lastError) {
+	private Call(Method method, MethodHandle handle, Return<?, ?> rtn, List<Arg<?, ?>> args,
+		boolean lastError) {
 		this.method = method;
 		this.handle = handle;
 		this.rtn = rtn;
@@ -170,12 +149,11 @@ public class Call {
 	}
 
 	public Object invoke(SegmentAllocator allocator, Object[] args) throws Throwable {
-		int index = lastError ? 1 : 0;
-		var nativeArgs = nativeArgs(allocator, args, index);
+		var adaptedArgs = adaptArgs(allocator, args);
+		var nativeArgs = nativeArgs(allocator, adaptedArgs);
 		var rtn = handle.invokeWithArguments(nativeArgs); // invokeExact(Object[]) fails
-		var result = this.rtn.ref().adapt(Reflect.unchecked(rtn));
-		if (lastError) LastError.save((MemorySegment) nativeArgs[0]);
-		resolveArgs(args, nativeArgs, index);
+		var result = this.rtn.apply(Reflect.unchecked(rtn));
+		resolveArgs(adaptedArgs, nativeArgs);
 		return result;
 	}
 
@@ -189,20 +167,25 @@ public class Call {
 
 	// support
 
-	private Object[] nativeArgs(SegmentAllocator allocator, Object[] args, int index) {
-		var nativeArgs = new Object[index + args.length];
-		if (index > 0) nativeArgs[0] = LastError.capture(allocator);
-		for (int i = 0; i < argCount(); i++)
-			nativeArgs[index + i] = arg(i).adapt(allocator, Reflect.unchecked(args[i]));
+	private List<Native.Adapted<?>> adaptArgs(SegmentAllocator allocator, Object[] args) {
+		var adaptedArgs = new ArrayList<Native.Adapted<?>>(args.length);
+		for (int i = 0; i < args.length; i++)
+			adaptedArgs.add(this.args.get(i).apply(allocator, Reflect.unchecked(args[i])));
+		return adaptedArgs;
+	}
+
+	private Object[] nativeArgs(SegmentAllocator allocator, List<Native.Adapted<?>> adaptedArgs) {
+		var nativeArgs = new Object[adaptedArgs.size() + (lastError ? 1 : 0)];
+		int index = 0;
+		if (lastError) nativeArgs[index++] = LastError.capture(allocator);
+		for (var adaptedArg : adaptedArgs)
+			nativeArgs[index++] = adaptedArg.value();
 		return nativeArgs;
 	}
 
-	private void resolveArgs(Object[] args, Object[] nativeArgs, int index) {
-		for (int i = 0; i < argCount(); i++)
-			arg(i).resolve(Reflect.unchecked(args[i]), Reflect.unchecked(nativeArgs[index + i]));
-	}
-
-	private Arg<?, ?> arg(int i) {
-		return Lists.at(args, i).ref();
+	private void resolveArgs(List<Native.Adapted<?>> adaptedArgs, Object[] nativeArgs) {
+		if (lastError) LastError.save((MemorySegment) nativeArgs[0]);
+		for (var adaptedArg : adaptedArgs)
+			adaptedArg.resolve();
 	}
 }

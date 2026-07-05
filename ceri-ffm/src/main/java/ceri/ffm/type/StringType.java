@@ -10,25 +10,22 @@ import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import ceri.common.array.Dimensions;
-import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
-import ceri.common.collect.Lists;
 import ceri.common.io.Buffers;
+import ceri.common.io.Direction;
 import ceri.common.math.Maths;
-import ceri.common.reflect.Generics;
-import ceri.common.stream.Streams;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
-import ceri.common.util.Basics;
-import ceri.common.util.Counter;
+import ceri.ffm.core.Decoder;
+import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.reflect.Refine;
+import ceri.ffm.core.Support;
+import ceri.ffm.core.Terminator;
 import ceri.ffm.test.FfmTesting;
 
 /**
@@ -45,44 +42,46 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	private static final Map<Charset, StringType> MAP = map();
 	private final Config config;
 
-	// Wait until use cases:
-	// - deep alloc/write min/max/exact (!)nul
-	// - deep get/read min/max/exact (!)nul
-
 	public static void main(String[] args) {
 		String[] ss = { "abcdef", "g", "", "hijk", null, "lmnop", "" };
-		var s = UTF8.support(5, true);
-		var m = s.encodeAll(true, ss);
-		FfmTesting.bin(m);
-		m = s.asArray(5, true).encode(ss);
-		FfmTesting.bin(m);
+		var s = UTF16.support(10, true);
+		var r = s.encodeAll(Direction.duplex, true, ss);
+		var m = r.value();
+		FfmTesting.bin(r.value());
+		FfmTesting.arg(ss);
+		Primitive.CHAR.writeAll(m, 4, false, 'C', 'D', 'E');
+		r.resolve();
+		FfmTesting.arg(ss);
+		// FfmTesting.arg(s.decodeArray(m, 10, false));
 	}
 
-	public static void main0(String[] args) {
-		var s = UTF32;
-		System.out.println(s);
-		System.out.println(s.with(ByteOrder.BIG_ENDIAN));
-		System.out.println(s.support(10, false));
-		System.out.println(s.support(10, false).with(2, ByteOrder.BIG_ENDIAN));
-		System.out.println(s.with(ByteOrder.BIG_ENDIAN).support(6, true));
-		System.out.println(
-			s.with(ByteOrder.BIG_ENDIAN).support(6, true).with(8, ByteOrder.LITTLE_ENDIAN));
-		var m = s.support(8, true).alloc(Segments.auto(), "hello12345");
-		FfmTesting.bin(m);
-	}
-
+	/**
+	 * Charset and layout configuration.
+	 */
 	private static record Config(Charset charset, Chars.Info info, Terminator term,
 		ValueLayout layout) {
-		public static Config of(Charset charset) {
+		private static Config of(Charset charset) {
 			var info = Chars.Info.of(charset);
 			var term = Terminator.of(info.term().length());
 			var layout = Layouts.order(Layouts.ofInt(term.size()), info.order().order);
 			return new Config(charset, info, term, layout);
 		}
+
+		private Config align(long align) {
+			align = Layouts.elementAlign(layout(), align);
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new Config(charset(), info(), term(), layout());
+		}
+
+		private Config order(ByteOrder order) {
+			var charset = Chars.apply(charset(), order);
+			if (charset().equals(charset)) return this;
+			return of(charset).align(layout().byteAlignment());
+		}
 	}
 
 	/**
-	 * Operational support with fixed-size layout.
+	 * Operational string support with bounded size and optional nul-termination.
 	 */
 	public static class Supporter extends Support.Typed<String, SequenceLayout> {
 		private final StringType string;
@@ -94,11 +93,23 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 			this.nul = nul;
 		}
 
+		@Override
+		public Native.Kind kind() {
+			return Native.Kind.string;
+		}
+
 		/**
 		 * Returns the maximum char count, including nul-terminator if specified.
 		 */
-		public int count() {
+		public int length() {
 			return (int) string.count(layoutSize());
+		}
+
+		/**
+		 * Returns the maximum char count, without nul-terminator.
+		 */
+		public int count() {
+			return Math.max(0, length() - (nul ? 1 : 0));
 		}
 
 		/**
@@ -114,6 +125,11 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		@Override
+		public String typeDesc() {
+			return arrayDesc(string.charset().name(), length(), nul());
+		}
+
+		@Override
 		public boolean partial() {
 			return true;
 		}
@@ -124,12 +140,13 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		@Override
-		public Supporter with(long align, ByteOrder order) {
-			var string = this.string.with(order);
-			var layout = string == this.string ? layout() : string.layout(count());
-			layout = Layouts.align(layout, align);
-			if (string == this.string && layout == layout()) return this;
-			return new Supporter(string, nul, layout);
+		public Supporter align(long align) {
+			return create(string.align(align), align);
+		}
+
+		@Override
+		public Supporter order(ByteOrder order) {
+			return create(string.order(order), layout().byteAlignment());
 		}
 
 		@Override
@@ -144,45 +161,64 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 				&& equalTo(s);
 		}
 
-		@Override
-		public String toString() {
-			return ToString.forClass(this, string.charset(), count(), nul, Layouts.desc(layout()));
-		}
+		// shared
 
 		@Override
-		String rawGet(MemorySegment memory, long offset, long length) {
+		protected String rawGet(MemorySegment memory, long offset, long length) {
 			return string.get(memory, offset, length, nul);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, String value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, String value) {
 			string.write(memory, offset, length, value, 0, Integer.MAX_VALUE, nul);
 		}
 
 		@Override
-		void encode(Segments.Encoder encoder, String value) {
+		protected void encode(Encoder encoder, String value) {
 			var buffer = buffer(value);
-			encoder.accept((m, o, _) -> write(m, o, buffer), length(buffer));
+			encoder.accept(encoder.in() ? (m, o, _) -> write(m, o, buffer) : null, null,
+				length(buffer));
 		}
 
 		@Override
-		void encodeArray(Segments.Encoder encoder, String[] array, int index, int count,
+		protected String decode(Decoder decoder, long length) {
+			length = Math.min(length, layoutSize());
+			var memory = string.slice(decoder.memory(), decoder.offset(), length, nul);
+			if (Segments.isNull(memory)) return decodeNoVal(decoder, length);
+			var buffer = memory.asByteBuffer();
+			var value = string.decode(buffer);
+			decoder.inc(buffer.position() + string.termSize(nul));
+			return value;
+		}
+
+		@Override
+		protected void encodeArray(Encoder encoder, String[] array, int index, int count,
 			boolean nul) {
-			var buffers = buffers(array, index, count);
-			long size = Streams.of(buffers).mapToLong(this::length).sum();
-			encoder.accept((m, o, _) -> write(m, o, buffers, nul), size + string.termSize(nul));
+			encodeDynamicArray(encoder, array, index, count, nul);
+		}
+
+		@Override
+		protected String[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+			return decodeDynamicArray(decoder, length, count, nul);
+		}
+
+		@Override
+		protected int encodeTermSize() {
+			return string.layoutSize() * (nul() ? 1 : length());
+		}
+
+		// support
+
+		private Supporter create(StringType string, long align) {
+			var layout = string == this.string ? layout() : string.layout(length());
+			layout = Layouts.align(layout, align);
+			if (string == this.string && layout == layout()) return this;
+			return new Supporter(string, nul, layout);
 		}
 
 		private ByteBuffer buffer(CharSequence value) {
-			int count = Math.min(Strings.length(value), count() - (nul ? 1 : 0));
-			return string.buffer(value, 0, count);
-		}
-
-		private ByteBuffer[] buffers(CharSequence[] array, int index, int count) {
-			var buffers = new ByteBuffer[count];
-			for (int i = 0; i < count; i++)
-				buffers[i] = buffer(array[index + i]);
-			return buffers;
+			int count = Math.min(Strings.length(value), count());
+			return string.encode(value, 0, count);
 		}
 
 		private long length(ByteBuffer buffer) {
@@ -192,34 +228,6 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		private long write(MemorySegment memory, long offset, ByteBuffer buffer) {
 			return string.write(memory, offset, buffer, nul());
 		}
-
-		private long write(MemorySegment memory, long offset, ByteBuffer[] buffers, boolean nul) {
-			for (var buffer : buffers)
-				offset = write(memory, offset, buffer);
-			if (nul) offset += string.term().set(memory, offset);
-			return offset;
-		}
-	}
-
-	private long length(ByteBuffer buffer, boolean nul) {
-		return Buffers.limit(buffer) + termSize(nul);
-	}
-
-	private long write(MemorySegment memory, long offset, ByteBuffer buffer, boolean nul) {
-		int n = BufferType.BYTE.write(memory, offset, buffer, false);
-		if (nul) term().set(memory, offset + n);
-		return offset + length(buffer, nul);
-	}
-
-	private ByteBuffer buffer(CharSequence value, int index, int count) {
-		return Chars.encode(charset(), Buffers.CHAR.of(value, index, count));
-	}
-
-	/**
-	 * Returns fixed-layout operational support.
-	 */
-	public static Supporter support(Refine.Context context) {
-		return support(context.chars(), context.size(), context.nul());
 	}
 
 	/**
@@ -251,19 +259,26 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	}
 
 	/**
-	 * Returns fixed-layout operational support.
+	 * Returns fixed-layout operational support. Count includes the nul-terminator if specified.
 	 */
 	public Supporter support(int count, boolean nul) {
 		return new Supporter(this, nul, layout(count));
 	}
 
 	/**
+	 * Returns an instance with specified layout alignment.
+	 */
+	public StringType align(long align) {
+		var config = this.config.align(align); // config aligns as an element
+		return config == this.config ? this : new StringType(config);
+	}
+
+	/**
 	 * Returns an instance with specified charset byte order, if applicable.
 	 */
-	public StringType with(ByteOrder order) {
-		var charset = Chars.apply(charset(), order);
-		if (charset().equals(charset)) return this;
-		return of(charset);
+	public StringType order(ByteOrder order) {
+		var config = this.config.order(order);
+		return config == this.config ? this : new StringType(config);
 	}
 
 	/**
@@ -280,6 +295,76 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	@Override
 	public Terminator term() {
 		return config.term();
+	}
+
+	/**
+	 * Encodes the string to a new buffer.
+	 */
+	public ByteBuffer encode(CharSequence s) {
+		return encode(s, 0);
+	}
+
+	/**
+	 * Encodes the string to a new buffer.
+	 */
+	public ByteBuffer encode(CharSequence value, int index) {
+		return encode(value, index, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Encodes the string to a new buffer.
+	 */
+	public ByteBuffer encode(CharSequence value, int index, int count) {
+		return Chars.encode(charset(), Buffers.CHAR.of(value, index, count));
+	}
+
+	/**
+	 * Encodes the string to the buffer, and returns the number of bytes written.
+	 */
+	public int encode(CharSequence s, ByteBuffer buffer) {
+		return encode(s, 0, buffer);
+	}
+
+	/**
+	 * Encodes the string to the buffer within bounds, and returns the number of bytes written.
+	 */
+	public int encode(CharSequence s, int index, ByteBuffer buffer) {
+		return encode(s, index, Integer.MAX_VALUE, buffer);
+	}
+
+	/**
+	 * Encodes the string to the buffer within bounds, and returns the number of bytes written.
+	 */
+	public int encode(CharSequence s, int index, int count, ByteBuffer buffer) {
+		return Chars.encode(config.charset(), s, index, count, buffer);
+	}
+
+	/**
+	 * Decodes the buffer to a string.
+	 */
+	public String decode(ByteBuffer buffer) {
+		return Chars.decode(config.charset(), buffer);
+	}
+
+	/**
+	 * Allocates memory with the encoded chars and optional nul-termination.
+	 */
+	public MemorySegment alloc(CharSequence s, boolean nul) {
+		return alloc(s, 0, nul);
+	}
+
+	/**
+	 * Allocates memory with the encoded chars and optional nul-termination.
+	 */
+	public MemorySegment alloc(CharSequence s, int index, boolean nul) {
+		return alloc(s, index, Integer.MAX_VALUE, nul);
+	}
+
+	/**
+	 * Allocates memory with the encoded chars and optional nul-termination.
+	 */
+	public MemorySegment alloc(CharSequence s, int index, int count, boolean nul) {
+		return alloc(Segments.auto(), s, index, count, nul);
 	}
 
 	/**
@@ -302,8 +387,8 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	public MemorySegment alloc(SegmentAllocator allocator, CharSequence s, int index, int count,
 		boolean nul) {
 		if (allocator == null || s == null) return null;
-		var buffer = Chars.encode(config.charset(), Buffers.CHAR.of(s, index, count));
-		var memory = allocator.allocate(buffer.limit() + termSize(nul));
+		var buffer = encode(Buffers.CHAR.of(s, index, count));
+		var memory = allocate(allocator, buffer.limit() + termSize(nul));
 		int n = BufferType.BYTE.write(memory, buffer, false);
 		if (nul) term().set(memory, n);
 		return memory;
@@ -332,7 +417,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	public String get(MemorySegment memory, long offset, long length, boolean nul) {
 		memory = slice(memory, offset, length, nul);
 		if (Segments.isNull(memory)) return null;
-		return Chars.decode(config.charset(), memory.asByteBuffer());
+		return decode(memory.asByteBuffer());
 	}
 
 	/**
@@ -364,110 +449,6 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		return rawEncode(memory, offset, length, chars, nul);
 	}
 
-	/**
-	 * Allocates memory and encodes leaves of a multi-dimensional string array, with optional
-	 * nul-termination. Returns null if the array type is not supported.
-	 */
-	public MemorySegment deepAlloc(SegmentAllocator allocator, Object t, boolean nul) {
-		int dims = dimsOf(t);
-		if (allocator == null || dims < 0) return null;
-		var buffers = Lists.<ByteBuffer>of();
-		RawArray.<CharSequence>deepForEach(t, s -> buffers.add(Chars.encode(config.charset(), s)));
-		return rawDeepAlloc(allocator, buffers, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional string array by decoding memory into strings up to optional
-	 * nul-terminators. Dimensions specify the array dimensions, count specifies the fixed or max
-	 * size to decode, based on nul-termination.
-	 */
-	public <U> U deepGet(MemorySegment memory, Dimensions dims, int count, boolean nul) {
-		return deepGet(memory, 0L, dims, count, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional string array by decoding memory into strings up to optional
-	 * nul-terminators. Dimensions specify the array dimensions, count specifies the fixed or max
-	 * size to decode, based on nul-termination.
-	 */
-	public <U> U deepGet(MemorySegment memory, long offset, Dimensions dims, int count,
-		boolean nul) {
-		return deepGet(memory, offset, Long.MAX_VALUE, dims, count, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional string array by decoding memory into strings up to optional
-	 * nul-terminators. Dimensions specify the array dimensions, count specifies the fixed or max
-	 * size to decode, based on nul-termination.
-	 */
-	public <U> U deepGet(MemorySegment memory, long offset, long length, Dimensions dims, int count,
-		boolean nul) {
-		memory = slice(memory, offset, length, false);
-		if (memory == null) return null;
-		U array = newArray(dims);
-		rawDeepRead(memory, array, sizeInt(count), nul);
-		return array;
-	}
-
-	/**
-	 * Replaces leaves of a multi-dimensional string array by decoding memory up to optional
-	 * nul-terminators. Returns the number of bytes processed. Returns 0 if the array type is not
-	 * supported, or the object is not an array.
-	 */
-	public int deepRead(MemorySegment memory, Object t, int count, boolean nul) {
-		return deepRead(memory, 0L, t, count, nul);
-	}
-
-	/**
-	 * Replaces leaves of a multi-dimensional string array by decoding memory up to optional
-	 * nul-terminators. Returns the number of bytes processed. Returns 0 if the array type is not
-	 * supported, or the object is not an array.
-	 */
-	public int deepRead(MemorySegment memory, long offset, Object t, int count, boolean nul) {
-		return deepRead(memory, offset, Long.MAX_VALUE, t, count, nul);
-	}
-
-	/**
-	 * Replaces leaves of a multi-dimensional string array by decoding memory up to optional
-	 * nul-terminators. Returns the number of bytes processed. Returns 0 if the array type is not
-	 * supported, or the object is not an array.
-	 */
-	public int deepRead(MemorySegment memory, long offset, long length, Object t, int count,
-		boolean nul) {
-		memory = slice(memory, offset, length, false);
-		if (memory == null || dimsOf(t) < 0) return 0;
-		return rawDeepRead(memory, t, sizeInt(count), nul);
-	}
-
-	/**
-	 * Encodes leaves of a multi-dimensional string array to memory with optional nul-terminators.
-	 * Returns the number of bytes processed. Returns 0 if the array type is not supported, or the
-	 * object is not an array.
-	 */
-	public int deepWrite(MemorySegment memory, Object t, boolean nul) {
-		return deepWrite(memory, 0L, t, nul);
-	}
-
-	/**
-	 * Encodes leaves of a multi-dimensional string array to memory with optional nul-terminators.
-	 * Returns the number of bytes processed. Returns 0 if the array type is not supported, or the
-	 * object is not an array.
-	 */
-	public int deepWrite(MemorySegment memory, long offset, Object t, boolean nul) {
-		return deepWrite(memory, offset, Long.MAX_VALUE, t, nul);
-	}
-
-	/**
-	 * Encodes leaves of a multi-dimensional string array to memory with optional nul-terminators.
-	 * Returns the number of bytes processed. Returns 0 if the array type is not supported, or the
-	 * object is not an array.
-	 */
-	public int deepWrite(MemorySegment memory, long offset, long length, Object t, boolean nul) {
-		memory = slice(memory, offset, length, false);
-		if (memory == null || dimsOf(t) < 0) return 0;
-		return rawDeepWrite(memory, t, nul);
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(charset());
@@ -486,66 +467,28 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 
 	// support
 
-	private MemorySegment rawDeepAlloc(SegmentAllocator allocator, List<ByteBuffer> buffers,
-		boolean nul) {
-		long length = Streams.from(buffers).mapToLong(b -> Buffers.limit(b) + termSize(nul)).sum();
-		var memory = allocator.allocate(length);
-		var offset = 0L;
-		for (var buffer : buffers)
-			offset += rawWrite(memory, offset, buffer, nul);
-		return memory;
-	}
-
 	private int rawEncode(MemorySegment memory, long offset, long length, CharBuffer chars,
 		boolean nul) {
 		var bytes = BufferType.BYTE.asBuffer(memory, offset, length - termSize(nul), false);
-		int n = Chars.encode(config.charset(), chars, bytes);
+		int n = encode(chars, bytes);
 		if (nul) n += config.term().set(memory, offset + n);
 		return n;
-	}
-
-	private int rawWrite(MemorySegment memory, long offset, ByteBuffer buffer, boolean nul) {
-		int n = BufferType.BYTE.write(memory, offset, buffer, false);
-		if (nul) n += config.term().set(memory, offset + n);
-		return n;
-	}
-
-	private int rawDeepRead(MemorySegment memory, Object t, int size, boolean nul) {
-		var offset = Counter.of(0L);
-		RawArray.<CharSequence, Object>deepReplace(t, _ -> {
-			if (offset.get() >= memory.byteSize()) return "";
-			var buffer = BufferType.asByte(slice(memory, offset.get(), size, nul));
-			if (buffer == null) offset.set(memory.byteSize());
-			else offset.inc(buffer.limit() + termSize(nul));
-			return Basics.def(Chars.decode(config.charset(), buffer), "");
-		});
-		return Math.toIntExact(offset.get());
-	}
-
-	private int rawDeepWrite(MemorySegment memory, Object t, boolean nul) {
-		var offset = Counter.of(0L);
-		RawArray.<CharSequence>deepForEach(t, s -> {
-			long length = memory.byteSize() - offset.get();
-			if (length <= 0L) return;
-			int n = rawEncode(memory, offset.get(), length, Buffers.CHAR.of(s), nul);
-			offset.inc(n);
-		});
-		return Math.toIntExact(offset.get());
-	}
-
-	private int dimsOf(Object t) {
-		var typed = Generics.typedClass(t).array();
-		return CharSequence.class.isAssignableFrom(typed.cls()) ? typed.dimensions() : -1;
-	}
-
-	private <U> U newArray(Dimensions dims) {
-		return Dimensions.create(dims, String.class);
 	}
 
 	private SequenceLayout layout(int count) {
 		var layout = MemoryLayout.sequenceLayout(count * layoutSize(),
 			Layouts.order(Layouts.BYTE, config.info().order().order));
-		return Layouts.align(layout, layoutSize());
+		return Layouts.align(layout, layout().byteAlignment());
+	}
+
+	private long length(ByteBuffer buffer, boolean nul) {
+		return Buffers.limit(buffer) + termSize(nul);
+	}
+
+	private long write(MemorySegment memory, long offset, ByteBuffer buffer, boolean nul) {
+		int n = BufferType.BYTE.write(memory, offset, buffer, false);
+		if (nul) term().set(memory, offset + n);
+		return offset + length(buffer, nul);
 	}
 
 	private static StringType init(Charset charset) {

@@ -16,6 +16,7 @@ import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Segments;
+import ceri.ffm.type.BufferType;
 import ceri.ffm.type.Group;
 
 /**
@@ -103,8 +104,10 @@ public class Args {
 	 * Byte buffer to compact string.
 	 */
 	public static String string(Buffer b) {
-		return String.format("%s(%d-%d/%d)", Buffers.baseType(b).getSimpleName(), b.position(),
-			b.limit(), b.capacity());
+		var s = BufferType.from(b);
+		var a = Buffers.apply(b, _ -> s.buffers().get(b));
+		return String.format("%s(%d-%d/%d)%s", Buffers.baseType(b).getSimpleName(), b.position(),
+			b.limit(), b.capacity(), RawArray.toString(a));
 	}
 
 	/**

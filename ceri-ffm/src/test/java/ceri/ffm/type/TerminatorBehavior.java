@@ -4,6 +4,7 @@ import java.lang.foreign.MemorySegment;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Terminator;
 
 public class TerminatorBehavior {
 	private final Terminator TERM = Terminator.of(4);

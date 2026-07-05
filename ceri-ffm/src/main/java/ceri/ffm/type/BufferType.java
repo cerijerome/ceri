@@ -16,18 +16,19 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.Map;
 import java.util.Objects;
-import ceri.common.array.Dimensions;
-import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.io.Buffers;
+import ceri.common.io.Direction;
 import ceri.common.math.Maths;
-import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
-import ceri.common.util.Counter;
 import ceri.common.util.Truth;
+import ceri.ffm.core.Decoder;
+import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.test.FfmTesting;
 
@@ -37,55 +38,62 @@ import ceri.ffm.test.FfmTesting;
 public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	implements Layouts.Provider<L> {
 	public static final BufferType<CharBuffer, Character, char[], ValueLayout.OfChar> CHAR =
-		new BufferType<>(Buffers.CHAR, Primitive.CHAR);
+		of(Buffers.CHAR, Primitive.CHAR);
 	public static final BufferType<ByteBuffer, Byte, byte[], ValueLayout.OfByte> BYTE =
-		new BufferType<>(Buffers.BYTE, Primitive.BYTE);
+		of(Buffers.BYTE, Primitive.BYTE);
 	public static final BufferType<ShortBuffer, Short, short[], ValueLayout.OfShort> SHORT =
-		new BufferType<>(Buffers.SHORT, Primitive.SHORT);
+		of(Buffers.SHORT, Primitive.SHORT);
 	public static final BufferType<IntBuffer, Integer, int[], ValueLayout.OfInt> INT =
-		new BufferType<>(Buffers.INT, Primitive.INT);
+		of(Buffers.INT, Primitive.INT);
 	public static final BufferType<LongBuffer, Long, long[], ValueLayout.OfLong> LONG =
-		new BufferType<>(Buffers.LONG, Primitive.LONG);
+		of(Buffers.LONG, Primitive.LONG);
 	public static final BufferType<FloatBuffer, Float, float[], ValueLayout.OfFloat> FLOAT =
-		new BufferType<>(Buffers.FLOAT, Primitive.FLOAT);
+		of(Buffers.FLOAT, Primitive.FLOAT);
 	public static final BufferType<DoubleBuffer, Double, double[], ValueLayout.OfDouble> DOUBLE =
-		new BufferType<>(Buffers.DOUBLE, Primitive.DOUBLE);
-	private static final Map<Class<?>, BufferType<?, ?, ?, ? extends ValueLayout>> MAP = map();
-	private final Buffers<B, A> buffers;
+		of(Buffers.DOUBLE, Primitive.DOUBLE);
+	private static final Map<Class<?>, BufferType<?, ?, ?, ?>> MAP = map();
+	private final Config<B, A> config;
 	private final Primitive<T, A, L> primitive;
 
 	public static void main(String[] args) {
-		var s = INT;
-		long a = 1;
-		System.out.println(s);
-		System.out.println(s.with(a, ByteOrder.BIG_ENDIAN));
-		System.out.println(s.support(10, false));
-		System.out.println(s.support(10, false).with(a, ByteOrder.BIG_ENDIAN));
-		System.out.println(s.with(a, ByteOrder.BIG_ENDIAN).support(6, true));
-		System.out.println(
-			s.with(a, ByteOrder.BIG_ENDIAN).support(6, true).with(a, ByteOrder.LITTLE_ENDIAN));
-		var m = s.support(8, true).alloc(Segments.auto(), Buffers.INT.of(1, 2, 3, 4, 5));
-		FfmTesting.bin(m);
+		var s = INT.support(5, true);
+		FfmTesting.bin(s.alloc(Buffers.INT.of(1, 2, 3)));
+		var r = s.encodeAll(Direction.duplex, true, Buffers.INT.of(1, 2, 3), Buffers.INT.of(4, 5));
+		FfmTesting.bin(r.value());
+		var a = s.asArray(4, true).decode(r.value());
+		FfmTesting.arg(a);
 	}
 
-	public static void main0(String[] args) {
-		var sp = support(IntBuffer.class, 8, false);
-		var m = Primitive.INT.allocAll(Segments.auto(), false, 1, 2, 3, 4, 5, 0, 6, 7, 8, 9, 0, 10,
-			11, 12, 13, 14, 15, 16);
-		// var m = sp.alloc(Segments.auto(), Buffers.INT.of(1, 2, 3, 4, 5, 6, 7, 8, 9));
-		FfmTesting.bin(m);
-		var bb = sp.getArray(m, false);
-		for (var b : bb)
-			FfmTesting.arg(Buffers.INT.get(b));
-		Buffers.INT.putAt(bb[1], 3, -1, -2, -3);
-		FfmTesting.bin(m);
+	private static class Config<B extends Buffer, A> {
+		private final Buffers<B, A> buffers;
+		private final B emptyL;
+		private final B emptyB;
+
+		Config(Buffers<B, A> buffers) {
+			this.buffers = buffers;
+			emptyL = buffers.from(emptyByte(ByteOrder.LITTLE_ENDIAN));
+			emptyB = buffers.from(emptyByte(ByteOrder.BIG_ENDIAN));
+		}
+
+		public Buffers<B, A> buffers() {
+			return buffers;
+		}
+
+		public B empty(ByteOrder order) {
+			return order == ByteOrder.BIG_ENDIAN ? emptyB : emptyL;
+		}
+
+		@Override
+		public String toString() {
+			return buffers.toString();
+		}
 	}
 
 	/**
 	 * Operational support with fixed-size layout.
 	 */
 	public static class Supporter<B extends Buffer> extends Support.Typed<B, SequenceLayout> {
-		private final BufferType<B, ?, ?, ? extends ValueLayout> buffer;
+		private final BufferType<B, ?, ?, ?> buffer;
 		private final boolean nul;
 
 		private Supporter(BufferType<B, ?, ?, ?> buffer, boolean nul, SequenceLayout layout) {
@@ -94,11 +102,23 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 			this.nul = nul;
 		}
 
+		@Override
+		public Native.Kind kind() {
+			return Native.Kind.buffer;
+		}
+
 		/**
-		 * Returns the maximum buffer length, including nul-terminator if specified.
+		 * Returns the maximum char count, including nul-terminator if specified.
+		 */
+		public int length() {
+			return (int) buffer.count(layoutSize());
+		}
+
+		/**
+		 * Returns the maximum char count, without nul-terminator.
 		 */
 		public int count() {
-			return (int) layout().elementCount();
+			return Math.max(0, length() - (nul ? 1 : 0));
 		}
 
 		/**
@@ -111,6 +131,11 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		@Override
 		public Class<B> type() {
 			return buffer.bufferType();
+		}
+
+		@Override
+		public String typeDesc() {
+			return arrayDesc(Reflect.simple(type()), length(), nul());
 		}
 
 		@Override
@@ -129,12 +154,20 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		public Supporter<B> with(long align, ByteOrder order) {
-			var buffer = this.buffer.with(align, order);
-			var layout = buffer == this.buffer ? layout() : buffer.layout(count());
-			layout = Layouts.align(layout, align);
-			if (buffer == this.buffer && layout == layout()) return this;
-			return new Supporter<>(buffer, nul, layout);
+		public Supporter<B> align(long align) {
+			return create(buffer.align(align), align);
+		}
+
+		@Override
+		public Supporter<B> order(ByteOrder order) {
+			return create(buffer.order(order), layout().byteAlignment());
+		}
+
+		@Override
+		public Native.Adapted<MemorySegment> encode(Direction direction, SegmentAllocator allocator,
+			B value) {
+			if (nul() || !Buffers.isDirect(value)) return super.encode(direction, allocator, value);
+			return Native.Adapted.of(ofBuffer(value, count()));
 		}
 
 		@Override
@@ -148,43 +181,85 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 			return (obj instanceof Supporter<?> s) && nul == s.nul && equalTo(s);
 		}
 
-		@Override
-		public String toString() {
-			return ToString.forClass(this, Reflect.simple(type()), count(), nul,
-				Layouts.desc(layout()));
-		}
+		// shared
 
 		@Override
-		B rawGet(MemorySegment memory, long offset, long length) {
+		protected B rawGet(MemorySegment memory, long offset, long length) {
 			return buffer.asBuffer(memory, offset, length, nul);
 		}
 
 		@Override
-		void rawRead(MemorySegment memory, long offset, long length, B value) {
-			buffer.readAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul);
+		protected void rawRead(MemorySegment memory, long offset, long length, B value) {
+			buffer.readAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul());
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, B value) {
-			buffer.writeAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul);
+		protected void rawWrite(MemorySegment memory, long offset, long length, B value) {
+			buffer.writeAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul());
 		}
-	}
 
-	/**
-	 * Interface to provide a buffer from a memory segment, such as wrapping or copying.
-	 */
-	private interface Instantiator<B extends Buffer> {
-		/** Provide a buffer from the memory segment with optional nul-termination. */
-		B apply(MemorySegment memory, long offset, long length, boolean nul);
+		@Override
+		protected void encode(Encoder encoder, B value) {
+			int position = value.position();
+			long length = Math.min(layoutSize(), buffer.size(value.remaining(), nul()));
+			encoder.accept(encoder.in() ? (m, o, l) -> encodeIn(m, o, l, value, position) : null,
+				encoder.out() ? (m, o, l) -> encodeOut(m, o, l, value, position) : null, length);
+		}
+
+		@Override
+		protected B decode(Decoder decoder, long length) {
+			length = Math.min(length, layoutSize());
+			var value = buffer.asBuffer(decoder.memory(), decoder.offset(), length, nul());
+			if (value == null) return decodeNoVal(decoder, length);
+			decoder.inc(buffer.size(value.remaining(), nul()));
+			return value;
+		}
+
+		@Override
+		protected void encodeArray(Encoder encoder, B[] array, int index, int count, boolean nul) {
+			encodeDynamicArray(encoder, array, index, count, nul);
+		}
+
+		@Override
+		protected B[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+			return decodeDynamicArray(decoder, length, count, nul);
+		}
+
+		@Override
+		protected int encodeTermSize() {
+			return buffer.layoutSize() * (nul() ? 1 : length());
+		}
+
+		// support
+
+		private void encodeIn(MemorySegment memory, long offset, long length, B value,
+			int position) {
+			write(memory, offset, length, value);
+			value.position(position);
+		}
+
+		private void encodeOut(MemorySegment memory, long offset, long length, B value,
+			int position) {
+			read(memory, offset, length, value);
+			value.position(position);
+		}
+
+		private Supporter<B> create(BufferType<B, ?, ?, ?> buffer, long align) {
+			var layout = buffer == this.buffer ? layout() : buffer.layout(length());
+			layout = Layouts.align(layout, align);
+			if (buffer == this.buffer && layout == layout()) return this;
+			return new Supporter<>(buffer, nul, layout);
+		}
 	}
 
 	/**
 	 * Returns fixed-layout operational support.
 	 */
-	public static <B extends Buffer> Supporter<B> support(Class<? extends B> cls, Refine.Context context) {
+	public static <B extends Buffer> Supporter<B> support(Class<? extends B> cls,
+		Refine.Context context) {
 		return support(cls, context.size(), context.nul());
 	}
-	
+
 	/**
 	 * Returns fixed-layout operational support.
 	 */
@@ -238,15 +313,61 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	/**
-	 * Wraps the segment as a byte buffer with natural byte order.
+	 * Wraps the segment as a byte buffer with native byte order.
 	 */
 	public static ByteBuffer asByte(MemorySegment memory) {
-		if (Segments.isNull(memory)) return BYTE.nullVal();
-		return memory.asByteBuffer().order(ByteOrder.nativeOrder());
+		return asByte(ByteOrder.nativeOrder(), memory);
 	}
 
-	private BufferType(Buffers<B, A> buffers, Primitive<T, A, L> primitive) {
-		this.buffers = buffers;
+	/**
+	 * Wraps the segment as a byte buffer with given byte order.
+	 */
+	public static ByteBuffer asByte(ByteOrder order, MemorySegment memory) {
+		if (Segments.isNull(memory)) return BYTE.nullVal().order(order);
+		return memory.asByteBuffer().order(order);
+	}
+
+	/**
+	 * Wraps the buffer as a memory segment from the current position; buffer must be direct or
+	 * backed by an array. The buffer bounds are unchanged.
+	 */
+	public static <B extends Buffer> MemorySegment ofBuffer(B buffer) {
+		return ofBuffer(buffer, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Wraps the buffer as a memory segment from the current position; buffer must be direct or
+	 * backed by an array. The buffer bounds are unchanged.
+	 */
+	public static <B extends Buffer> MemorySegment ofBuffer(B buffer, int count) {
+		// byte order is handled correctly for direct and array-based buffers
+		return Buffers.apply(buffer, count, MemorySegment::ofBuffer);
+	}
+
+	/**
+	 * Wraps the buffer as a memory segment from the given position; buffer must be direct or backed
+	 * by an array. The buffer bounds are unchanged.
+	 */
+	public static <B extends Buffer> MemorySegment ofBufferAt(B buffer, int position) {
+		return ofBufferAt(buffer, position, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Wraps the buffer as a memory segment from the given position; buffer must be direct or backed
+	 * by an array. The buffer bounds are unchanged.
+	 */
+	public static <B extends Buffer> MemorySegment ofBufferAt(B buffer, int position, int count) {
+		// byte order is handled correctly for direct and array-based buffers
+		return Buffers.applyAt(buffer, position, count, MemorySegment::ofBuffer);
+	}
+
+	private static <B extends Buffer, T, A, L extends ValueLayout> BufferType<B, T, A, L>
+		of(Buffers<B, A> buffers, Primitive<T, A, L> primitive) {
+		return new BufferType<>(new Config<>(buffers), primitive);
+	}
+
+	private BufferType(Config<B, A> config, Primitive<T, A, L> primitive) {
+		this.config = config;
 		this.primitive = primitive;
 	}
 
@@ -265,40 +386,55 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	/**
-	 * Returns an instance with primitive layout modifications.
+	 * Returns an instance with given layout alignment.
 	 */
-	public BufferType<B, T, A, L> with(long align, ByteOrder order) {
+	public BufferType<B, T, A, L> align(long align) {
 		align = Layouts.elementAlign(layout(), align);
-		var primitive = primitive().with(align, order);
-		return primitive == primitive() ? this : new BufferType<>(buffers, primitive);
+		var primitive = primitive().align(align);
+		return primitive == primitive() ? this : new BufferType<>(config, primitive);
+	}
+
+	/**
+	 * Returns an instance with given byte order. Order is used for creation of buffers.
+	 */
+	public BufferType<B, T, A, L> order(ByteOrder order) {
+		var primitive = primitive().order(order);
+		return primitive == primitive() ? this : new BufferType<>(config, primitive);
+	}
+
+	/**
+	 * Returns the byte order to be used for buffer creation.
+	 */
+	public ByteOrder order() {
+		return primitive.layout().order();
 	}
 
 	/**
 	 * Returns the matching buffer support.
 	 */
 	public Buffers<B, A> buffers() {
-		return buffers;
+		return config.buffers();
 	}
 
 	/**
 	 * Returns the buffer element class type.
 	 */
 	public Class<?> type() {
-		return buffers.type();
+		return buffers().type();
 	}
 
 	/**
 	 * Returns the buffer class type.
 	 */
 	public Class<B> bufferType() {
-		return buffers.bufferType();
+		return buffers().bufferType();
 	}
 
 	/**
-	 * Returns an empty buffer to use as a null value.
+	 * Returns an empty buffer to use as a null value, with current byte order.
 	 */
 	public B nullVal() {
-		return buffers.empty();
+		return config.empty(order());
 	}
 
 	@Override
@@ -307,60 +443,43 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	/**
-	 * Wraps the buffer as a memory segment from the current position; buffer must be direct or
-	 * backed by an array. The buffer bounds are unchanged.
-	 */
-	public MemorySegment ofBuffer(B buffer) {
-		return ofBuffer(buffer, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Wraps the buffer as a memory segment from the current position; buffer must be direct or
-	 * backed by an array. The buffer bounds are unchanged.
-	 */
-	public MemorySegment ofBuffer(B buffer, int count) {
-		return buffers.apply(buffer, count, MemorySegment::ofBuffer);
-	}
-
-	/**
-	 * Wraps the buffer as a memory segment from the given position; buffer must be direct or backed
-	 * by an array. The buffer bounds are unchanged.
-	 */
-	public MemorySegment ofBufferAt(B buffer, int position) {
-		return ofBufferAt(buffer, position, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Wraps the buffer as a memory segment from the given position; buffer must be direct or backed
-	 * by an array. The buffer bounds are unchanged.
-	 */
-	public MemorySegment ofBufferAt(B buffer, int position, int count) {
-		return buffers.applyAt(buffer, position, count, MemorySegment::ofBuffer);
-	}
-
-	/**
-	 * Wraps the memory segment with optional nul-termination as a buffer; the segment must be
-	 * native or backed by a byte array. Byte order is native.
+	 * Wraps the bound memory segment with optional nul-termination as a buffer with current byte
+	 * order. The segment must be native or backed by a byte array.
 	 */
 	public B asBuffer(MemorySegment memory, boolean nul) {
 		return asBuffer(memory, 0L, nul);
 	}
 
 	/**
-	 * Wraps the bound memory segment with optional nul-termination as a buffer; the segment must be
-	 * native or backed by a byte array. Byte order is native.
+	 * Wraps the bound memory segment with optional nul-termination as a buffer with current byte
+	 * order. The segment must be native or backed by a byte array.
 	 */
 	public B asBuffer(MemorySegment memory, long offset, boolean nul) {
 		return asBuffer(memory, offset, Long.MAX_VALUE, nul);
 	}
 
 	/**
-	 * Wraps the bound memory segment with optional nul-termination as a buffer; the segment must be
-	 * native or backed by a byte array. Byte order is native.
+	 * Wraps the bound memory segment with optional nul-termination as a buffer with current byte
+	 * order. The segment must be native or backed by a byte array.
 	 */
 	public B asBuffer(MemorySegment memory, long offset, long length, boolean nul) {
-		var byteBuffer = asByte(slice(memory, offset, length, nul));
-		return buffers.from(byteBuffer);
+		return asBuffer(order(), memory, offset, length, nul);
+	}
+
+	/**
+	 * Allocates memory with a copy of the buffer from the current position, with optional
+	 * nul-termination. The buffer position is updated after copying.
+	 */
+	public MemorySegment alloc(B buffer, boolean nul) {
+		return alloc(buffer, Integer.MAX_VALUE, nul);
+	}
+
+	/**
+	 * Allocates memory with a copy of the buffer from the current position, with optional
+	 * nul-termination. The buffer position is updated after copying.
+	 */
+	public MemorySegment alloc(B buffer, int count, boolean nul) {
+		return alloc(Segments.auto(), buffer, count, nul);
 	}
 
 	/**
@@ -382,6 +501,30 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		rawWrite(memory, 0L, buffer, count);
 		if (nul) term().set(memory, size(count));
 		return memory;
+	}
+
+	/**
+	 * Allocates memory with a copy of the buffer from the given position, with optional
+	 * nul-termination. The buffer position is updated after copying.
+	 */
+	public MemorySegment allocAt(B buffer, boolean nul) {
+		return allocAt(buffer, 0, nul);
+	}
+
+	/**
+	 * Allocates memory with a copy of the buffer from the given position, with optional
+	 * nul-termination. The buffer position is updated after copying.
+	 */
+	public MemorySegment allocAt(B buffer, int position, boolean nul) {
+		return allocAt(buffer, position, Integer.MAX_VALUE, nul);
+	}
+
+	/**
+	 * Allocates memory with a copy of the buffer from the given position, with optional
+	 * nul-termination. The buffer position is updated after copying.
+	 */
+	public MemorySegment allocAt(B buffer, int position, int count, boolean nul) {
+		return allocAt(Segments.auto(), buffer, position, count, nul);
 	}
 
 	/**
@@ -411,29 +554,29 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	/**
-	 * Creates a new buffer from an array copy of the bound memory segment with optional
-	 * nul-termination. Fails if the length is larger than int.
+	 * Creates a new buffer from a byte array copy of the bound memory segment, with current byte
+	 * order and optional nul-termination. Fails if the length is larger than int.
 	 */
 	public B get(MemorySegment memory, boolean nul) {
 		return get(memory, 0L, nul);
 	}
 
 	/**
-	 * Creates a new buffer from an array copy of the bound memory segment with optional
-	 * nul-termination. Fails if the length is larger than int.
+	 * Creates a new buffer from a byte array copy of the bound memory segment, with current byte
+	 * order and optional nul-termination. Fails if the length is larger than int.
 	 */
 	public B get(MemorySegment memory, long offset, boolean nul) {
 		return get(memory, offset, Long.MAX_VALUE, nul);
 	}
 
 	/**
-	 * Creates a new buffer from an array copy of the bound memory segment with optional
-	 * nul-termination. Fails if the length is larger than int.
+	 * Creates a new buffer from a byte array copy of the bound memory segment, with current byte
+	 * order and optional nul-termination. Fails if the length is larger than int.
 	 */
 	public B get(MemorySegment memory, long offset, long length, boolean nul) {
 		if (memory == null) return nullVal();
-		var array = primitive.getArray(memory, offset, length, nul);
-		return buffers.of(array, 0);
+		var array = Primitive.BYTE.getArray(memory, offset, length, nul);
+		return buffers().from(Buffers.BYTE.of(array).order(order()));
 	}
 
 	/**
@@ -566,158 +709,6 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		return write(memory, offset, length, buffer, count, nul);
 	}
 
-	/**
-	 * Calculates the memory size to store the remaining values of a multi-dimensional array of
-	 * buffers with optional nul-terminators. Returns 0 if the array type is not supported.
-	 */
-	public long deepSize(Object t, boolean nul) {
-		return rawDeepSize(t, dimsOf(t), nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of memory segments that match and wrap the leaves of a
-	 * multi-dimensional buffer array.
-	 */
-	public <U> U deepOfBuffers(Object array) {
-		if (dimsOf(array) < 0) return null;
-		return RawArray.<B, MemorySegment, U>deepAdapt(array, MemorySegment.class, this::ofBuffer,
-			false);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of buffers that wrap memory up to optional nul-terminators.
-	 * Dimensions specify the array dimensions, count specifies the fixed or max buffer sizes,
-	 * depending on nul-termination.
-	 */
-	public <U> U deepAsBuffers(MemorySegment memory, Dimensions dims, int count, boolean nul) {
-		return deepAsBuffers(memory, 0L, dims, count, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of buffers that wrap memory up to optional nul-terminators.
-	 * Dimensions specify the array dimensions, count specifies the fixed or max buffer sizes,
-	 * depending on nul-termination.
-	 */
-	public <U> U deepAsBuffers(MemorySegment memory, long offset, Dimensions dims, int count,
-		boolean nul) {
-		return deepAsBuffers(memory, offset, Long.MAX_VALUE, dims, count, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of buffers that wrap memory up to optional nul-terminators.
-	 * Dimensions specify the array dimensions, count specifies the fixed or max buffer sizes,
-	 * depending on nul-termination.
-	 */
-	public <U> U deepAsBuffers(MemorySegment memory, long offset, long length, Dimensions dims,
-		int count, boolean nul) {
-		return deepInstantiate(this::asBuffer, memory, offset, length, dims, count, nul);
-	}
-
-	/**
-	 * Allocates memory for the remaining values of a multi-dimensional array of buffers with
-	 * optional nul-termination. Returns null if the array type is not supported.
-	 */
-	public MemorySegment deepAllocEmpty(SegmentAllocator allocator, Object t, boolean nul) {
-		int dims = dimsOf(t);
-		if (allocator == null || dims < 0) return null;
-		return allocator.allocate(rawDeepSize(t, dims, nul));
-	}
-
-	/**
-	 * Allocates memory for the remaining values of a multi-dimensional array of buffers and copies
-	 * the values with optional nul-termination. Returns null if the array type is not supported.
-	 */
-	public MemorySegment deepAlloc(SegmentAllocator allocator, Object t, boolean nul) {
-		int dims = dimsOf(t);
-		if (allocator == null || dims < 0) return null;
-		var memory = allocator.allocate(rawDeepSize(t, dims, nul));
-		rawDeepWrite(memory, 0L, Long.MAX_VALUE, t, nul);
-		return memory;
-	}
-
-	/**
-	 * Creates a multi-dimensional array of buffers with values copied from memory up to optional
-	 * nul-terminators. Dimensions specify the array dimensions, count specifies the fixed or max
-	 * buffer sizes, depending on nul-termination.
-	 */
-	public <U> U deepGet(MemorySegment memory, Dimensions dims, int count, boolean nul) {
-		return deepGet(memory, 0L, dims, count, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of buffers with values copied from memory up to optional
-	 * nul-terminators. Dimensions specify the array dimensions, count specifies the fixed or max
-	 * buffer sizes, depending on nul-termination.
-	 */
-	public <U> U deepGet(MemorySegment memory, long offset, Dimensions dims, int count,
-		boolean nul) {
-		return deepGet(memory, offset, Long.MAX_VALUE, dims, count, nul);
-	}
-
-	/**
-	 * Creates a multi-dimensional array of buffers with values copied from memory up to optional
-	 * nul-terminators. Dimensions specify the array dimensions, count specifies the fixed or max
-	 * buffer sizes, depending on nul-termination.
-	 */
-	public <U> U deepGet(MemorySegment memory, long offset, long length, Dimensions dims, int count,
-		boolean nul) {
-		return deepInstantiate(this::get, memory, offset, length, dims, count, nul);
-	}
-
-	/**
-	 * Copies memory to a multi-dimensional array of buffers up to optional nul-terminators. Returns
-	 * the number of values copied. Returns 0 if the array type is not supported.
-	 */
-	public int deepRead(MemorySegment memory, Object t, int count, boolean nul) {
-		return deepRead(memory, 0L, t, count, nul);
-	}
-
-	/**
-	 * Copies memory to a multi-dimensional array of buffers up to optional nul-terminators. Returns
-	 * the number of values copied. Returns 0 if the array type is not supported.
-	 */
-	public int deepRead(MemorySegment memory, long offset, Object t, int count, boolean nul) {
-		return deepRead(memory, offset, Long.MAX_VALUE, t, count, nul);
-	}
-
-	/**
-	 * Copies memory to a multi-dimensional array of buffers up to optional nul-terminators. Returns
-	 * the number of values copied. Returns 0 if the array type is not supported.
-	 */
-	public int deepRead(MemorySegment memory, long offset, long length, Object t, int count,
-		boolean nul) {
-		if (Segments.isNull(memory) || dimsOf(t) < 0) return 0;
-		return rawDeepRead(memory, offset, length, t, count, nul);
-	}
-
-	/**
-	 * Copies remaining values of a multi-dimensional array of buffers to memory with optional
-	 * nul-terminators. Returns the number of values copied, including nul-terminators. Returns 0 if
-	 * the array type is not supported.
-	 */
-	public int deepWrite(MemorySegment memory, Object t, boolean nul) {
-		return deepWrite(memory, 0L, t, nul);
-	}
-
-	/**
-	 * Copies remaining values of a multi-dimensional array of buffers to memory with optional
-	 * nul-terminators. Returns the number of values copied, including nul-terminators. Returns 0 if
-	 * the array type is not supported.
-	 */
-	public int deepWrite(MemorySegment memory, long offset, Object t, boolean nul) {
-		return deepWrite(memory, offset, Long.MAX_VALUE, t, nul);
-	}
-
-	/**
-	 * Copies remaining values of a multi-dimensional array of buffers to memory with optional
-	 * nul-terminators. Returns the number of values copied, including nul-terminators. Returns 0 if
-	 * the array type is not supported.
-	 */
-	public int deepWrite(MemorySegment memory, long offset, long length, Object t, boolean nul) {
-		if (Segments.isNull(memory) || dimsOf(t) < 0) return 0;
-		return rawDeepWrite(memory, offset, length, t, nul);
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(primitive);
@@ -731,75 +722,36 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, buffers, Layouts.desc(layout()));
+		return ToString.forClass(this, config, Layouts.desc(layout()));
 	}
 
 	// support
 
-	private <U> U deepInstantiate(Instantiator<B> instantiator, MemorySegment memory, long offset,
-		long length, Dimensions dims, int count, boolean nul) {
-		memory = slice(memory, offset, length, false);
-		if (memory == null) return null;
-		count = Math.max(count, 0);
-		return rawDeepInstantiate(instantiator, memory, dims, count, nul);
-	}
-
 	private void rawRead(MemorySegment memory, long offset, B buffer, int count) {
-		var wrapped = asBuffer(memory, offset, size(count), false);
-		buffers.copy(wrapped, buffer);
+		var wrapped = asBuffer(Buffers.order(buffer), memory, offset, size(count), false);
+		buffers().copy(wrapped, buffer);
 	}
 
 	private void rawWrite(MemorySegment memory, long offset, B buffer, int count) {
-		var wrapped = asBuffer(memory, offset, size(count), false);
-		buffers.copy(buffer, wrapped);
+		var wrapped = asBuffer(Buffers.order(buffer), memory, offset, size(count), false);
+		buffers().copy(buffer, wrapped);
 	}
 
-	private long rawDeepSize(Object t, int dims, boolean nul) {
-		if (dims < 0) return 0;
-		return MultiArray.<Buffer>iterate(t, null, 0L, 0L,
-			(b, _, _) -> size(Buffers.remaining(b) + (nul ? 1 : 0)));
-	}
-
-	private <U> U rawDeepInstantiate(Instantiator<B> instantiator, MemorySegment memory,
-		Dimensions dims, int count, boolean nul) {
-		var length = size(count);
-		var offset = Counter.of(0L);
-		return RawArray.<B, U>deepReplace(newArray(dims), _ -> {
-			var b = instantiator.apply(memory, offset.get(), length, nul);
-			if (b == null) offset.set(memory.byteSize()); // no more buffers
-			else offset.inc(size(b.remaining() + (nul ? 1 : 0)));
-			return b == null ? nullVal() : b;
-		});
-	}
-
-	private int rawDeepRead(MemorySegment memory, long offset, long length, Object t, int count,
+	private B asBuffer(ByteOrder order, MemorySegment memory, long offset, long length,
 		boolean nul) {
-		long total = MultiArray.<B>iterate(t, memory, offset, length,
-			(b, m, o) -> size(read(m, o, m.byteSize() - o, b, count, nul)));
-		return countInt(total);
-	}
-
-	private int rawDeepWrite(MemorySegment memory, long offset, long length, Object t,
-		boolean nul) {
-		long total = MultiArray.<B>iterate(t, memory, offset, length,
-			(b, m, o) -> size(write(m, o, b, nul)));
-		return countInt(total);
-	}
-
-	private int dimsOf(Object t) {
-		var typed = Generics.typedClass(t).array();
-		return Reflect.assignable(bufferType(), typed.cls()) ? typed.dimensions() : -1;
-	}
-
-	private <U> U newArray(Dimensions dims) {
-		return Dimensions.create(dims, bufferType());
+		var byteBuffer = asByte(order, slice(memory, offset, length, nul));
+		return buffers().from(byteBuffer);
 	}
 
 	private SequenceLayout layout(int count) {
 		return MemoryLayout.sequenceLayout(count, layout());
 	}
 
-	private static Map<Class<?>, BufferType<?, ?, ?, ? extends ValueLayout>> map() {
+	private static ByteBuffer emptyByte(ByteOrder order) {
+		return Buffers.BYTE.of().order(order).asReadOnlyBuffer();
+	}
+
+	private static Map<Class<?>, BufferType<?, ?, ?, ?>> map() {
 		return Immutable.convertMapOf(BufferType::bufferType, t -> t, CHAR, BYTE, SHORT, INT, LONG,
 			FLOAT, DOUBLE);
 	}

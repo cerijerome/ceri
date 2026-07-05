@@ -9,7 +9,9 @@ import ceri.common.concurrent.Lazy;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Hasher;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Supports;
 import ceri.ffm.util.Args;
 
 public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
@@ -28,26 +30,37 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 		}
 
 		@Override
-		public Supporter<T> with(long align, ByteOrder order) {
-			return Layouts.with(this, l -> new Supporter<>(config, l), layout(), null, align, null);
+		public Native.Kind kind() {
+			return Native.Kind.union;
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset, long length) {
+		public Supporter<T> align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new Supporter<>(config, layout);
+		}
+
+		@Override
+		public Supporter<T> order(ByteOrder order) {
+			return this;
+		}
+
+		@Override
+		protected T rawGet(MemorySegment memory, long offset, long length) {
 			var union = val();
 			rawRead(memory, offset, length, union);
 			return union;
 		}
 
 		@Override
-		void rawRead(MemorySegment memory, long offset, long length, T union) {
+		protected void rawRead(MemorySegment memory, long offset, long length, T union) {
 			var member = union.activeMember(config);
 			if (member != null) member.read(union, memory, offset);
 			memory(union, memory, offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, T union) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, T union) {
 			var member = union.autoActiveMember(config);
 			if (member != null) member.write(union, memory, offset);
 			memory(union, memory, offset);
@@ -81,12 +94,12 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	static <T extends Union<T>> Config<T, UnionLayout> config(Class<T> cls) {
 		return Reflect.unchecked(cache.get(cls));
 	}
-	
+
 	/**
 	 * Returns operational support for the type.
 	 */
 	public static <T extends Union<T>> Supporter<T> support(Class<T> cls) {
-		return Reflect.unchecked(Supports.from(cls));
+		return Reflect.unchecked(Supports.DEF.from(cls));
 	}
 
 	/**

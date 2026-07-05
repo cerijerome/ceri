@@ -1,4 +1,4 @@
-package ceri.ffm.type;
+package ceri.ffm.core;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
@@ -7,8 +7,6 @@ import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.math.Maths;
-import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Segments;
 
 /**
  * A nul-terminator of specified size in bytes.
@@ -63,7 +61,7 @@ public record Terminator(int size) {
 		if (Segments.isNull(memory)) return -1;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
-		return pos(memory, offset, length);
+		return pos(memory, offset, length, size());
 	}
 
 	/**
@@ -87,7 +85,7 @@ public record Terminator(int size) {
 		if (Segments.isNull(memory)) return memory;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
-		long pos = pos(memory, offset, length);
+		long pos = pos(memory, offset, length, size());
 		if (pos < 0) return null;
 		return memory.asSlice(offset, pos - offset);
 	}
@@ -117,7 +115,7 @@ public record Terminator(int size) {
 		long end = offset + length;
 		var list = Lists.<MemorySegment>of();
 		while (offset < end && list.size() < count) {
-			long pos = pos(memory, offset, Math.min(length - offset, max));
+			long pos = pos(memory, offset, Math.min(length - offset, max), size());
 			if (pos < 0) break;
 			list.add(memory.asSlice(offset, pos - offset));
 			offset = pos + size();
@@ -157,6 +155,31 @@ public record Terminator(int size) {
 		return size;
 	}
 
+	/**
+	 * Returns true if the memory segment contains only zero bytes.
+	 */
+	public static boolean is(MemorySegment memory) {
+		return is(memory, Segments.size(memory));
+	}
+	
+	/**
+	 * Returns true if the memory segment slice contains only zero bytes.
+	 */
+	public static boolean is(MemorySegment memory, long size) {
+		return is(memory, 0L, size);
+	}
+	
+	/**
+	 * Returns true if the memory segment slice contains only zero bytes.
+	 */
+	public static boolean is(MemorySegment memory, long offset, long size) {
+		if (Segments.isNull(memory)) return false;
+		offset = Maths.limit(offset, 0L, memory.byteSize());
+		if (size < 0 || size > memory.byteSize() - offset) return false;
+		if (size > BLOCK_SIZE) return matchLarge(memory, offset, size);
+		return matchSmall(memory, offset, size);
+	}
+
 	@Override
 	public String toString() {
 		return "nul[" + size() + "]";
@@ -164,22 +187,23 @@ public record Terminator(int size) {
 
 	// support
 
-	private long pos(MemorySegment memory, long offset, long length) {
-		boolean large = size() > BLOCK_SIZE;
-		long end = offset + length - size();
+	private static long pos(MemorySegment memory, long offset, long length, long size) {
+		boolean large = size > BLOCK_SIZE;
+		long end = offset + length - size;
 		while (offset <= end) {
-			if (large ? matchLarge(memory, offset) : matchSmall(memory, offset)) return offset;
-			offset += size();
+			if (large ? matchLarge(memory, offset, size) : matchSmall(memory, offset, size))
+				return offset;
+			offset += size;
 		}
 		return -1L;
 	}
 
-	private boolean matchSmall(MemorySegment memory, long offset) {
-		return MemorySegment.mismatch(memory, offset, offset + size(), BLOCK, 0, size()) == -1L;
+	private static boolean matchSmall(MemorySegment memory, long offset, long length) {
+		return MemorySegment.mismatch(memory, offset, offset + length, BLOCK, 0, length) == -1L;
 	}
 
-	private boolean matchLarge(MemorySegment memory, long offset) {
-		long end = offset + size();
+	private static boolean matchLarge(MemorySegment memory, long offset, long length) {
+		long end = offset + length;
 		while (offset < end) {
 			long size = Math.min(BLOCK_SIZE, end - offset);
 			if (MemorySegment.mismatch(memory, offset, offset + size, BLOCK, 0, size) >= 0)

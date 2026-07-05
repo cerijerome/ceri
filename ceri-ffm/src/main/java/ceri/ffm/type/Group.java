@@ -31,6 +31,8 @@ import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support;
+import ceri.ffm.core.Supports;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.util.Args;
 
@@ -113,7 +115,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			Member<?> build(long offset) {
 				return new Member<>(name, offset, layout, accessor, support, actions, flex);
 			}
-			
+
 			private Builder flex(boolean flex) {
 				this.flex = flex;
 				return this;
@@ -410,7 +412,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	// support
 
 	private static Member.Builder setMember(Member.Builder member) {
-		return setMember(Supports.from(member.node), member);
+		return setMember(Supports.DEF.from(member.node), member);
 	}
 
 	private static <U> Member.Builder setMember(Support<U, ?, ?> support, Member.Builder member) {
@@ -421,13 +423,12 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	private static Member.Builder setArrayMember(Member.Builder member, Object array) {
 		if (array == null) return setMember(member);
 		var dims = Dimensions.from(array);
-		var nul = member.node.context().nul();
-		var support = Supports.fromArray(member.node.component(), dims, nul);
+		var support = Supports.DEF.arrayFrom(member.node, dims);
 		return setMember(support, member);
 	}
 
 	private static <A> Member.Builder setFlexMember(Member.Builder member, int size) {
-		Support<?, A, ?> support = Reflect.unchecked(Supports.from(member.node.component()));
+		Support<?, A, ?> support = Reflect.unchecked(Supports.DEF.from(member.node.component()));
 		var layout = MemoryLayout.sequenceLayout(size, support.layout());
 		var nul = member.node.context().nul();
 		return member.flex(true).layout(layout).support(support).<A>actions(

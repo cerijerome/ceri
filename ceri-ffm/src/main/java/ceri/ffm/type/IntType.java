@@ -16,11 +16,13 @@ import ceri.common.math.Maths;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support.Typed;
+import ceri.ffm.core.Supports;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.reflect.Refine.Unsigned;
-import ceri.ffm.type.Support.Typed;
 
 /**
  * Represents an immutable integer type of desired size and signedness.
@@ -168,6 +170,11 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
+		public Native.Kind kind() {
+			return Native.Kind.intType;
+		}
+
+		@Override
 		public Class<T> type() {
 			return config.type();
 		}
@@ -210,8 +217,14 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
-		public Supporter<T> with(long align, ByteOrder order) {
-			var boxed = this.boxed.with(align, order);
+		public Supporter<T> align(long align) {
+			var boxed = this.boxed.align(align);
+			return boxed == this.boxed ? this : new Supporter<>(config, boxed);
+		}
+
+		@Override
+		public Supporter<T> order(ByteOrder order) {
+			var boxed = this.boxed.order(order);
 			return boxed == this.boxed ? this : new Supporter<>(config, boxed);
 		}
 
@@ -277,12 +290,12 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset, long length) {
+		protected T rawGet(MemorySegment memory, long offset, long length) {
 			return of(boxed.get(memory, offset));
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, T value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, T value) {
 			boxed.write(memory, offset, Reflect.unchecked(init(value).nativeValue()));
 		}
 	}
@@ -291,13 +304,13 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 * Returns cached operational support for the type.
 	 */
 	public static <T extends IntType<T>> Supporter<T> support(Class<T> cls) {
-		return Reflect.unchecked(Supports.from(cls));
+		return Reflect.unchecked(Supports.DEF.from(cls));
 	}
 
 	/**
 	 * Creates a support instance for the type.
 	 */
-	static <T extends IntType<T>> Supporter<T> supportFor(Class<T> cls) {
+	public static <T extends IntType<T>> Supporter<T> supportFor(Class<T> cls) {
 		var spec = spec(cls);
 		var constructor = constructorFor(cls);
 		var boxed = boxed(spec.size());

@@ -2,22 +2,20 @@ package ceri.ffm.type;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
-import java.util.Map;
 import com.google.common.base.Objects;
 import ceri.common.array.Array;
-import ceri.common.collect.Immutable;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support;
+import ceri.ffm.core.Supports;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.test.FfmTesting;
 
 public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
-	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(new Supporter<>(
-		new Supporter.Config<>(Pointer.class, Support.VOID, (m, s, _) -> of(m, s), true)));
+	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(support(Support.VOID, true));
 
-	public static void main0(String[] args) {
+	public static void main(String[] args) {
 		var pv = of(IntType.CLong.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 		var ps = of(IntType.size_t.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 		var pb = ofBytes(true, 1, -1, 2, -2, 3, -3, 4);
@@ -26,6 +24,7 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		var m0 = Pointer.$.allocAll(true, pv, ps);
 		FfmTesting.bin(pv);
 		FfmTesting.bin(m);
+		FfmTesting.bin(m0);
 		var pa = Pointer.$.getArray(m, false);
 		FfmTesting.bin(pa);
 		var cl = pa[0].as(IntType.CLong.$).resize(16).getArray(true);
@@ -36,8 +35,8 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	 * A constant void pointer.
 	 */
 	public static class OfVoid extends RawPointer {
-		public static final Supporter<OfVoid> $ = new Supporter<>(
-			new Supporter.Config<>(OfVoid.class, Support.VOID, (m, _, _) -> new OfVoid(m), true));
+		public static final Supporter<OfVoid> $ =
+			Supporter.of(OfVoid.class, Support.VOID, (m, _, _) -> new OfVoid(m), true);
 
 		OfVoid(MemorySegment memory) {
 			super(memory);
@@ -51,6 +50,11 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		}
 
 		@Override
+		public boolean isVoid() {
+			return true;
+		}
+
+		@Override
 		public Pointer.OfVoid asVoid() {
 			return this;
 		}
@@ -60,8 +64,7 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		public static final Supporter<OfByte> $ = support(Primitive.BYTE, false);
 
 		public static Supporter<OfByte> support(Primitive.OfByte type, boolean constant) {
-			return new Supporter<>(new Supporter.Config<>(OfByte.class, type,
-				(m, t, c) -> new OfByte(m, t, c), constant));
+			return Supporter.of(OfByte.class, type, (m, t, c) -> new OfByte(m, t, c), constant);
 		}
 
 		OfByte(MemorySegment memory, Primitive.OfByte type, boolean constant) {
@@ -121,8 +124,7 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		public static final Supporter<OfInt> $ = support(Primitive.INT, false);
 
 		public static Supporter<OfInt> support(Primitive.OfInt type, boolean constant) {
-			return new Supporter<>(new Supporter.Config<>(OfInt.class, type,
-				(m, t, c) -> new OfInt(m, t, c), constant));
+			return Supporter.of(OfInt.class, type, (m, t, c) -> new OfInt(m, t, c), constant);
 		}
 
 		OfInt(MemorySegment memory, Primitive.OfInt type, boolean constant) {
@@ -170,23 +172,17 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		}
 	}
 
-	public static void main(String[] args) {
-		var s = Primitive.INT.asPointer(true).asArray(3, true).asPointer(true).asArray(2, false);
-		System.out.println(s.typeDesc());
-	}
-
 	public static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type) {
 		return support(type, false);
 	}
 
 	public static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
-		return new Supporter<>(new Supporter.Config<>(Reflect.unchecked(Pointer.class), type,
-			(m, s, _) -> of(m, s), constant));
+		return Supporter.of(Reflect.unchecked(Pointer.class), type, (m, s, _) -> of(m, s),
+			constant);
 	}
 
-	static <T> Supporter<Pointer<T>> supportFor(TypeNode node) {
-		Support.Typed<T, ?> type = Reflect.unchecked(Supports.from(node));
-		var constant = node.context().constant();
+	public static <T> Supporter<Pointer<T>> supportFor(TypeNode node, boolean constant) {
+		Support.Typed<T, ?> type = Reflect.unchecked(Supports.DEF.from(node));
 		return support(type, constant);
 	}
 
@@ -293,10 +289,5 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	@Override
 	Pointer<T> instance(MemorySegment memory, Support.Typed<T, ?> type, boolean constant) {
 		return new Pointer<>(memory, type, constant);
-	}
-
-	private static Map<Class<?>, Supporter<?>> map() {
-		return Immutable.convertMapOf(Support::type, t -> t, RawPointer.$, OfVoid.$, OfByte.$,
-			OfInt.$);
 	}
 }

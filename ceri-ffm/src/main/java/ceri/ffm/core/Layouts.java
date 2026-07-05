@@ -27,7 +27,6 @@ import ceri.common.function.Functions;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
-import ceri.ffm.type.Terminator;
 
 public class Layouts {
 	public static final ValueLayout.OfBoolean BOOL = canonical(Native.Canonical.BOOL);
@@ -154,6 +153,14 @@ public class Layouts {
 		 */
 		default int termSize(boolean nul) {
 			return nul ? layoutSize() : 0;
+		}
+
+		/**
+		 * Allocates memory with alignment matching the layout.
+		 */
+		default MemorySegment allocate(SegmentAllocator allocator, long size) {
+			if (allocator == null) return null;
+			return allocator.allocate(size, layout().byteAlignment());
 		}
 	}
 
@@ -299,6 +306,13 @@ public class Layouts {
 	}
 
 	/**
+	 * Gets layout alignment, or 0 if not available.
+	 */
+	public static long align(MemoryLayout layout) {
+		return layout == null ? 0L : layout.byteAlignment();
+	}
+
+	/**
 	 * Sets layout alignment if value is > 0 and a power of 2. Does nothing if setting the layout
 	 * alignment would fail.
 	 */
@@ -310,6 +324,13 @@ public class Layouts {
 		if (layout instanceof GroupLayout g) for (var member : g.memberLayouts())
 			if (align < member.byteAlignment()) return layout;
 		return Reflect.unchecked(layout.withByteAlignment(align));
+	}
+
+	/**
+	 * Sets layout alignment as an element of an sequence.
+	 */
+	public static <L extends MemoryLayout> L alignAsElement(L layout, long align) {
+		return align(layout, elementAlign(layout, align));
 	}
 
 	/**

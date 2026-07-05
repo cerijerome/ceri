@@ -17,9 +17,9 @@ import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.RawPointer;
-import ceri.ffm.type.Support;
 import ceri.ffm.util.Args;
 
 public class FfmTesting {
@@ -93,18 +93,29 @@ public class FfmTesting {
 	 * Allocates a contiguous memory block of sliced into multiple sizes, with alignment padding.
 	 */
 	public static class Alloc {
+		private final SegmentAllocator allocator;
+		private long alignment = 1L;
 		private long offset = 0L;
 		private int filler = 0xff;
 		private final List<long[]> slices = Lists.<long[]>of();
 
 		/**
-		 * Returns a new block allocator instance.
+		 * Returns a new block allocator instance with auto allocator.
 		 */
 		public static Alloc of() {
-			return new Alloc();
+			return of(Segments.auto());
+		}
+		
+		/**
+		 * Returns a new block allocator instance with given allocator.
+		 */
+		public static Alloc of(SegmentAllocator allocator) {
+			return new Alloc(allocator);
 		}
 
-		private Alloc() {}
+		private Alloc(SegmentAllocator allocator) {
+			this.allocator = allocator;
+		}
 
 		/**
 		 * Set the alignment padding fill value.
@@ -134,6 +145,7 @@ public class FfmTesting {
 		 * Add a memory sub-block.
 		 */
 		public Alloc add(long size, long align) {
+			alignment = Math.max(alignment, align);
 			offset += Layouts.padding(offset, align);
 			slices.add(new long[] { offset, size });
 			offset += size;
@@ -145,7 +157,7 @@ public class FfmTesting {
 		 */
 		public MemorySegment[] alloc() {
 			var mems = new MemorySegment[slices.size() + 1];
-			mems[0] = fill(A.allocate(offset), filler);
+			mems[0] = fill(allocator.allocate(offset, alignment), filler);
 			int index = 1;
 			for (var slice : slices)
 				mems[index++] = fill(Segments.slice(mems[0], slice[0], slice[1]), 0);

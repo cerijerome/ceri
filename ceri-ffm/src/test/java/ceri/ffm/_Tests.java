@@ -9,6 +9,8 @@ import ceri.common.test.Testing;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// core
+	ceri.ffm.core.DecoderBehavior.class, //
 	// type
 	ceri.ffm.type.IntTypeBehavior.class, //
 	ceri.ffm.type.TerminatorBehavior.class, //

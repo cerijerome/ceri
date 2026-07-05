@@ -22,7 +22,6 @@ import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.type.MultiArray;
 
 /**
  * Support for refining the default behavior of types, methods, parameters and fields.
@@ -163,7 +162,7 @@ public class Refine {
 		/**
 		 * Gets byte alignment, returning default if unspecified.
 		 */
-		default long align(long def) {
+		default Long align(Long def) {
 			return def;
 		}
 
@@ -191,7 +190,7 @@ public class Refine {
 		/**
 		 * Gets nul-termination directive, returning default if unspecified.
 		 */
-		default boolean nul(boolean def) {
+		default Boolean nul(Boolean def) {
 			return def;
 		}
 
@@ -205,7 +204,7 @@ public class Refine {
 		/**
 		 * Gets constant directive, returning default if unspecified.
 		 */
-		default boolean constant(boolean def) {
+		default Boolean constant(Boolean def) {
 			return def;
 		}
 
@@ -219,7 +218,7 @@ public class Refine {
 		/**
 		 * Gets unsigned directive, returning false if unspecified.
 		 */
-		default boolean unsigned(boolean def) {
+		default Boolean unsigned(Boolean def) {
 			return def;
 		}
 
@@ -233,7 +232,7 @@ public class Refine {
 		/**
 		 * Gets size, returning default if unspecified.
 		 */
-		default int size(int def) {
+		default Integer size(Integer def) {
 			return def;
 		}
 
@@ -256,7 +255,7 @@ public class Refine {
 		 */
 		default Dimensions dims(int count, boolean nul, int nulMax) {
 			if (nulMax <= 0) nulMax = NUL_MAX_DEF;
-			return MultiArray.fix(dims(), count, nul, nulMax);
+			return fix(dims(), count, nul, nulMax);
 		}
 
 		/**
@@ -296,8 +295,8 @@ public class Refine {
 		 * Gets byte alignment from the element or its parents.
 		 */
 		@Override
-		public long align(long def) {
-			return Annotations.resolve(element(), Refine::align, def);
+		public Long align(Long def) {
+			return Annotations.resolve(element(), (e, t) -> Refine.align(e, t), def);
 		}
 
 		/**
@@ -305,39 +304,39 @@ public class Refine {
 		 */
 		@Override
 		public ByteOrder order(ByteOrder def) {
-			return Annotations.resolve(element(), Refine::order, def);
+			return Annotations.resolve(element(), (e, t) -> Refine.order(e, t), def);
 		}
 
 		/**
 		 * Gets nul-termination directive from the element or its parents.
 		 */
 		@Override
-		public boolean nul(boolean def) {
-			return Annotations.resolve(element(), Refine::nul, def);
+		public Boolean nul(Boolean def) {
+			return Refine.nul(element(), def); // Don't resolve to parent
 		}
 
 		/**
 		 * Gets nul-termination directive from the element or its parents.
 		 */
 		@Override
-		public boolean constant(boolean def) {
-			return Annotations.resolve(element(), Refine::constant, def);
+		public Boolean constant(Boolean def) {
+			return Annotations.resolve(element(), (e, t) -> Refine.constant(e, t), def);
 		}
 
 		/**
 		 * Gets unsigned directive from the element or its parents.
 		 */
 		@Override
-		public boolean unsigned(boolean def) {
-			return Annotations.resolve(element(), Refine::unsigned, def);
+		public Boolean unsigned(Boolean def) {
+			return Annotations.resolve(element(), (e, t) -> Refine.unsigned(e, t), def);
 		}
 
 		/**
 		 * Gets size from the element or its parents.
 		 */
 		@Override
-		public int size(int def) {
-			return Annotations.resolve(element(), Refine::size, def);
+		public Integer size(Integer def) {
+			return Annotations.resolve(element(), (e, t) -> Refine.size(e, t), def);
 		}
 
 		/**
@@ -353,7 +352,7 @@ public class Refine {
 		 */
 		@Override
 		public Charset chars(Charset def) {
-			return Annotations.resolve(element(), Refine::chars, def);
+			return Annotations.resolve(element(), (e, t) -> Refine.chars(e, t), def);
 		}
 
 		/**
@@ -362,6 +361,11 @@ public class Refine {
 		@Override
 		public Direction direction(Direction def) {
 			return Refine.direction(element(), def); // Don't resolve to parent
+		}
+
+		@Override
+		public final String toString() {
+			return element().toString() + custom(this).values;
 		}
 	}
 
@@ -391,7 +395,7 @@ public class Refine {
 		}
 
 		@Override
-		public long align(long def) {
+		public Long align(Long def) {
 			return get(Value.align, def);
 		}
 
@@ -401,22 +405,22 @@ public class Refine {
 		}
 
 		@Override
-		public boolean nul(boolean def) {
+		public Boolean nul(Boolean def) {
 			return get(Value.nul, def);
 		}
 
 		@Override
-		public boolean constant(boolean def) {
+		public Boolean constant(Boolean def) {
 			return get(Value.constant, def);
 		}
 
 		@Override
-		public boolean unsigned(boolean def) {
+		public Boolean unsigned(Boolean def) {
 			return get(Value.unsigned, def);
 		}
 
 		@Override
-		public int size(int def) {
+		public Integer size(Integer def) {
 			return get(Value.size, def);
 		}
 
@@ -538,7 +542,7 @@ public class Refine {
 		/**
 		 * Override dimensions.
 		 */
-		public Customizer dims(int...dims) {
+		public Customizer dims(int... dims) {
 			return dims(Dimensions.of(dims));
 		}
 
@@ -610,9 +614,10 @@ public class Refine {
 	 */
 	public static Customizer custom(Context context) {
 		if (context == null) return custom();
-		return custom().align(context.align()).order(context.order()).nul(context.nul())
-			.unsigned(context.unsigned()).size(context.size()).dims(context.dims())
-			.chars(context.chars()).direction(context.direction());
+		return custom().align(context.align(null)).order(context.order(null)).nul(context.nul(null))
+			.constant(context.constant(null)).unsigned(context.unsigned(null))
+			.size(context.size(null)).dims(context.dims(null)).chars(context.chars(null))
+			.direction(context.direction(null));
 	}
 
 	/**
@@ -626,10 +631,10 @@ public class Refine {
 	 * Apply context alignment and byte order to the layout.
 	 */
 	public static <L extends MemoryLayout> L apply(Context context, L layout) {
-		if (context == null || layout == null) return layout; 
+		if (context == null || layout == null) return layout;
 		return Layouts.set(layout, null, context.align(), context.order());
 	}
-	
+
 	/**
 	 * Extract last error capture directive from annotated type.
 	 */
@@ -639,7 +644,7 @@ public class Refine {
 
 	// support
 
-	static Long align(AnnotatedElement element, Long def) {
+	private static Long align(AnnotatedElement element, Long def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		boolean packed = Annotations.has(element, Packed.class);
@@ -652,32 +657,32 @@ public class Refine {
 		return def;
 	}
 
-	static ByteOrder order(AnnotatedElement element, ByteOrder def) {
+	private static ByteOrder order(AnnotatedElement element, ByteOrder def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		var value = Annotations.value(element, Order.class, Order::value, null);
 		return value != null ? value.order : def;
 	}
 
-	static Boolean nul(AnnotatedElement element, Boolean def) {
+	private static Boolean nul(AnnotatedElement element, Boolean def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		return Annotations.value(element, Nul.class, Nul::value, def);
 	}
 
-	static Boolean constant(AnnotatedElement element, Boolean def) {
+	private static Boolean constant(AnnotatedElement element, Boolean def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		return Annotations.value(element, Const.class, Const::value, def);
 	}
 
-	static Boolean unsigned(AnnotatedElement element, Boolean def) {
+	private static Boolean unsigned(AnnotatedElement element, Boolean def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		return Annotations.value(element, Unsigned.class, Unsigned::value, def);
 	}
 
-	static Integer size(AnnotatedElement element, Integer def) {
+	private static Integer size(AnnotatedElement element, Integer def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		var anno = Annotations.annotation(element, Size.class);
@@ -688,7 +693,7 @@ public class Refine {
 		return def;
 	}
 
-	static Dimensions dims(AnnotatedElement element, Dimensions def) {
+	private static Dimensions dims(AnnotatedElement element, Dimensions def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		var anno = Annotations.annotation(element, Dims.class);
@@ -697,7 +702,7 @@ public class Refine {
 		return dims.length == 0 ? def : Dimensions.of(dims);
 	}
 
-	static Charset chars(AnnotatedElement element, Charset def) {
+	private static Charset chars(AnnotatedElement element, Charset def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		var anno = Annotations.annotation(element, Chars.class);
@@ -705,7 +710,7 @@ public class Refine {
 		return Charset.forName(anno.value());
 	}
 
-	static Direction direction(AnnotatedElement element, Direction def) {
+	private static Direction direction(AnnotatedElement element, Direction def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		boolean in = Annotations.has(element, In.class);
@@ -714,5 +719,15 @@ public class Refine {
 		if (in) return Direction.in;
 		if (out) return Direction.out;
 		return def;
+	}
+
+	private static Dimensions fix(Dimensions dims, int count, boolean nulTerm, int nulTermMax) {
+		if (count <= 0) return Dimensions.NONE;
+		if (dims.count() == count) return dims;
+		var ints = new int[count];
+		for (int i = 0; i < count; i++)
+			ints[i] = dims.dim(i);
+		if (nulTerm && dims.count() < count) ints[count - 1] = nulTermMax;
+		return Dimensions.of(ints);
 	}
 }

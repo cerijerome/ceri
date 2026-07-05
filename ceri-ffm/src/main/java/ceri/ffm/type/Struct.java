@@ -12,6 +12,8 @@ import ceri.common.concurrent.Lazy;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
+import ceri.ffm.core.Supports;
 
 public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	private static final Lazy.ForClass<Group.Config<? extends Struct<?>, StructLayout>> cache =
@@ -27,8 +29,19 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		}
 
 		@Override
-		public Supporter<T> with(long align, ByteOrder order) {
-			return Layouts.with(this, l -> new Supporter<>(config, l), layout(), null, align, null);
+		public Native.Kind kind() {
+			return Native.Kind.struct;
+		}
+
+		@Override
+		public Supporter<T> align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new Supporter<>(config, layout);
+		}
+
+		@Override
+		public Supporter<T> order(ByteOrder order) {
+			return this;
 		}
 
 		/**
@@ -186,20 +199,20 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset, long length) {
+		protected T rawGet(MemorySegment memory, long offset, long length) {
 			var struct = val();
 			rawRead(memory, offset, length, struct);
 			return struct;
 		}
 
 		@Override
-		void rawRead(MemorySegment memory, long offset, long length, T struct) {
+		protected void rawRead(MemorySegment memory, long offset, long length, T struct) {
 			for (var member : config.members())
 				member.read(struct, memory, offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, T struct) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, T struct) {
 			for (var member : config.members())
 				member.write(struct, memory, offset);
 		}
@@ -209,7 +222,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 			if (!last.flex()) return layoutSize();
 			return Math.max(layoutSize(), last.flexScale(flexSize));
 		}
-		
+
 		private int[] indexes(String... names) {
 			if (names == null) return null;
 			int[] indexes = new int[names.length];
@@ -252,7 +265,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	 * Returns operational support for the type.
 	 */
 	public static <T extends Struct<T>> Supporter<T> support(Class<T> cls) {
-		return Reflect.unchecked(Supports.from(cls));
+		return Reflect.unchecked(Supports.DEF.from(cls));
 	}
 
 	/**

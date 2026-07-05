@@ -8,7 +8,9 @@ import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.math.Maths;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
+import ceri.ffm.core.Support;
 
 /**
  * Operational support for primitives.
@@ -43,13 +45,24 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
+		public Native.Kind kind() {
+			return Native.Kind.boxed;
+		}
+
+		@Override
 		public Class<T> type() {
 			return primitive.boxType();
 		}
 
 		@Override
-		public Box<T, L> with(long align, ByteOrder order) {
-			var primitive = this.primitive.with(align, order);
+		public Box<T, L> align(long align) {
+			var primitive = this.primitive.align(align);
+			return primitive == this.primitive ? this : new Box<>(primitive);
+		}
+
+		@Override
+		public Box<T, L> order(ByteOrder order) {
+			var primitive = this.primitive.order(order);
 			return primitive == this.primitive ? this : new Box<>(primitive);
 		}
 
@@ -59,12 +72,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		T rawGet(MemorySegment memory, long offset, long length) {
+		protected T rawGet(MemorySegment memory, long offset, long length) {
 			return primitive.rawGet(memory, offset, length);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, T value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, T value) {
 			primitive.rawWrite(memory, offset, length, value);
 		}
 	}
@@ -94,8 +107,15 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfBool with(long align, ByteOrder order) {
-			return Layouts.with(this, OfBool::new, layout(), null, align, order);
+		public OfBool align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfBool(layout);
+		}
+
+		@Override
+		public OfBool order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfBool(layout);
 		}
 
 		@Override
@@ -178,17 +198,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		Boolean rawGet(MemorySegment memory, long offset, long length) {
+		protected Boolean rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Boolean value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Boolean value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		void rawReadArray(MemorySegment memory, long offset, boolean[] array, int index,
+		protected void rawReadArray(MemorySegment memory, long offset, boolean[] array, int index,
 			int count) {
 			for (int i = 0; i < count; i++) {
 				array[index++] = memory.get(layout(), offset);
@@ -197,7 +217,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		void rawWriteArray(MemorySegment memory, long offset, boolean[] array, int index,
+		protected void rawWriteArray(MemorySegment memory, long offset, boolean[] array, int index,
 			int count) {
 			for (int i = 0; i < count; i++) {
 				memory.set(layout(), offset, array[i++]);
@@ -206,7 +226,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		MemorySegment rawWrapArray(boolean[] array) {
+		protected MemorySegment rawWrapArray(boolean[] array) {
 			// Converts to bytes, then wraps
 			return MemorySegment.ofArray(bytes(array));
 		}
@@ -238,8 +258,15 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfChar with(long align, ByteOrder order) {
-			return Layouts.with(this, OfChar::new, layout(), null, align, order);
+		public OfChar align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfChar(layout);
+		}
+
+		@Override
+		public OfChar order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfChar(layout);
 		}
 
 		@Override
@@ -336,17 +363,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Character rawGet(MemorySegment memory, long offset, long length) {
+		protected Character rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Character value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Character value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(char[] array) {
+		protected MemorySegment rawWrapArray(char[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -377,8 +404,22 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfByte with(long align, ByteOrder order) {
-			return Layouts.with(this, OfByte::new, layout(), null, align, order);
+		public OfByte align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfByte(layout);
+		}
+
+		@Override
+		public OfByte order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfByte(layout);
+		}
+
+		/**
+		 * Provides support for pointers of this type.
+		 */
+		public RawPointer.Supporter<Pointer.OfByte> asPointer() {
+			return asPointer(false);
 		}
 
 		/**
@@ -520,17 +561,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Byte rawGet(MemorySegment memory, long offset, long length) {
+		protected Byte rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Byte value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Byte value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(byte[] array) {
+		protected MemorySegment rawWrapArray(byte[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -561,8 +602,15 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfShort with(long align, ByteOrder order) {
-			return Layouts.with(this, OfShort::new, layout(), null, align, order);
+		public OfShort align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfShort(layout);
+		}
+
+		@Override
+		public OfShort order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfShort(layout);
 		}
 
 		@Override
@@ -697,17 +745,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Short rawGet(MemorySegment memory, long offset, long length) {
+		protected Short rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Short value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Short value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(short[] array) {
+		protected MemorySegment rawWrapArray(short[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -738,8 +786,22 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfInt with(long align, ByteOrder order) {
-			return Layouts.with(this, OfInt::new, layout(), null, align, order);
+		public OfInt align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfInt(layout);
+		}
+
+		@Override
+		public OfInt order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfInt(layout);
+		}
+
+		/**
+		 * Provides support for pointers of this type.
+		 */
+		public RawPointer.Supporter<Pointer.OfInt> asPointer() {
+			return asPointer(false);
 		}
 
 		/**
@@ -835,17 +897,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Integer rawGet(MemorySegment memory, long offset, long length) {
+		protected Integer rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Integer value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Integer value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(int[] array) {
+		protected MemorySegment rawWrapArray(int[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -876,8 +938,15 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfLong with(long align, ByteOrder order) {
-			return Layouts.with(this, OfLong::new, layout(), null, align, order);
+		public OfLong align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfLong(layout);
+		}
+
+		@Override
+		public OfLong order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfLong(layout);
 		}
 
 		@Override
@@ -966,17 +1035,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Long rawGet(MemorySegment memory, long offset, long length) {
+		protected Long rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Long value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Long value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(long[] array) {
+		protected MemorySegment rawWrapArray(long[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -1007,8 +1076,15 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfFloat with(long align, ByteOrder order) {
-			return Layouts.with(this, OfFloat::new, layout(), null, align, order);
+		public OfFloat align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfFloat(layout);
+		}
+
+		@Override
+		public OfFloat order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfFloat(layout);
 		}
 
 		@Override
@@ -1097,17 +1173,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Float rawGet(MemorySegment memory, long offset, long length) {
+		protected Float rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Float value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Float value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(float[] array) {
+		protected MemorySegment rawWrapArray(float[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -1138,8 +1214,15 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
-		public OfDouble with(long align, ByteOrder order) {
-			return Layouts.with(this, OfDouble::new, layout(), null, align, order);
+		public OfDouble align(long align) {
+			var layout = Layouts.align(layout(), align);
+			return layout == layout() ? this : new OfDouble(layout);
+		}
+
+		@Override
+		public OfDouble order(ByteOrder order) {
+			var layout = Layouts.order(layout(), order);
+			return layout == layout() ? this : new OfDouble(layout);
 		}
 
 		@Override
@@ -1228,17 +1311,17 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
-		Double rawGet(MemorySegment memory, long offset, long length) {
+		protected Double rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
 
 		@Override
-		void rawWrite(MemorySegment memory, long offset, long length, Double value) {
+		protected void rawWrite(MemorySegment memory, long offset, long length, Double value) {
 			memory.set(layout(), offset, value);
 		}
 
 		@Override
-		MemorySegment rawWrapArray(double[] array) {
+		protected MemorySegment rawWrapArray(double[] array) {
 			return MemorySegment.ofArray(array);
 		}
 	}
@@ -1247,13 +1330,21 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		super(layout);
 	}
 
+	@Override
+	public Native.Kind kind() {
+		return Native.Kind.primitive;
+	}
+
 	/**
 	 * Returns the boxed class.
 	 */
 	public abstract Class<T> boxType();
 
 	@Override
-	public abstract Primitive<T, A, L> with(long align, ByteOrder order);
+	public abstract Primitive<T, A, L> align(long align);
+
+	@Override
+	public abstract Primitive<T, A, L> order(ByteOrder order);
 
 	/**
 	 * Wraps the bounded array as a memory segment.
@@ -1282,21 +1373,27 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	// overrides
 
 	@Override
-	void rawReadArray(MemorySegment memory, long offset, A array, int index, int count) {
+	protected abstract T rawGet(MemorySegment memory, long offset, long length);
+
+	@Override
+	protected abstract void rawWrite(MemorySegment memory, long offset, long length, T value);
+
+	@Override
+	protected void rawReadArray(MemorySegment memory, long offset, A array, int index, int count) {
 		MemorySegment.copy(memory, layout(), offset, array, index, count);
 	}
 
 	@Override
-	int rawReadArrayNew(MemorySegment memory, long offset, A array) {
+	protected int rawReadArrayNew(MemorySegment memory, long offset, A array) {
 		return readArray(memory, offset, array, 0, false);
 	}
 
 	@Override
-	void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
+	protected void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
 		MemorySegment.copy(array, index, memory, layout(), offset, count);
 	}
 
-	abstract MemorySegment rawWrapArray(A array);
+	protected abstract MemorySegment rawWrapArray(A array);
 
 	// support
 

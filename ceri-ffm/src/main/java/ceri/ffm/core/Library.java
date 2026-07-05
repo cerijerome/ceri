@@ -1,7 +1,6 @@
 package ceri.ffm.core;
 
-import java.lang.foreign.Linker;
-import java.lang.foreign.SymbolLookup;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -17,6 +16,7 @@ import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
+import ceri.common.test.FileTestHelper;
 import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.ffm.clib.ffm.CException;
@@ -62,17 +62,21 @@ public class Library<T> {
 		System.out.println("pagesize = " + CUnistd.getpagesize());
 	}
 
-	public static void runOpenVarArg() throws CException {
-		int fd1 = CFcntl.open(FILE, CFcntl.Open.O_RDONLY.value);
-		System.out.println("fd1 = " + fd1);
-		int fd2 = CFcntl.open(FILE, CFcntl.Open.O_RDONLY.value, 0777);
-		System.out.println("fd2 = " + fd2);
-		System.out.println("fd2 tty = " + CUnistd.isatty(fd2));
-		BinaryPrinter.STD.print(CUnistd.readAllBytes(fd1, 100));
-		CUnistd.position(fd2, 3);
-		BinaryPrinter.STD.print(CUnistd.readAllBytes(fd2, 100));
-		CUnistd.close(fd2);
-		CUnistd.close(fd1);
+	public static void runOpenVarArg() throws IOException {
+		try (var files = FileTestHelper.builder().file(FILE, "abc/nde/nf").build()) {
+			var file = files.path(FILE).toString();
+			System.out.println("file = " + file);
+			int fd1 = CFcntl.open(file, CFcntl.Open.O_RDONLY.value);
+			System.out.println("fd1 = " + fd1);
+			int fd2 = CFcntl.open(file, CFcntl.Open.O_RDONLY.value, 0777);
+			System.out.println("fd2 = " + fd2);
+			System.out.println("fd2 tty = " + CUnistd.isatty(fd2));
+			BinaryPrinter.STD.print(CUnistd.readAllBytes(fd1, 100));
+			CUnistd.position(fd2, 3);
+			BinaryPrinter.STD.print(CUnistd.readAllBytes(fd2, 100));
+			CUnistd.close(fd2);
+			CUnistd.close(fd1);
+		}
 	}
 
 	public static void runPipe() throws CException {
@@ -95,7 +99,7 @@ public class Library<T> {
 		try {
 			CStdLib.setenv(key, "hello4", true);
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Expected: " + e.getMessage());
 		}
 	}
 
@@ -142,14 +146,16 @@ public class Library<T> {
 	}
 
 	public static <T> Library<T> of(Class<T> cls) {
-		var linker = Linker.nativeLinker();
-		var lookup = linker.defaultLookup();
-		return new Library<>(linker, lookup, cls);
+		return new Library<>(Calls.DEF, cls);
 	}
 
-	private Library(Linker linker, SymbolLookup lookup, Class<T> cls) {
+	public static <T> Library<T> of(Calls calls, Class<T> cls) {
+		return new Library<>(calls, cls);
+	}
+
+	private Library(Calls calls, Class<T> cls) {
+		this.calls = calls;
 		this.cls = cls;
-		calls = Calls.of(linker, lookup);
 	}
 
 	/**
@@ -175,14 +181,19 @@ public class Library<T> {
 		return new Ref<>(this, constructor);
 	}
 
+	@Override
+	public String toString() {
+		return Reflect.name(cls) + (override == null ? "" : "*");
+	}
+
+	// support
+
 	/**
 	 * Overrides the library; use null to clear. Useful for testing.
 	 */
 	private void set(T override) {
 		this.override = override;
 	}
-
-	// support
 
 	private Object invokeMethod(Method method, Object[] args) throws Throwable {
 		if (method.isDefault()) return InvocationHandler.invokeDefault(proxy, method, args);
