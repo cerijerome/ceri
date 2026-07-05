@@ -20,6 +20,7 @@ public class JvmTest {
 		Assert.find(t.report(), "used=\\d+ free=\\d+");
 		System.gc();
 		t.update();
+		// failed with + and - once; why?
 		Assert.find(t.report(), "used=\\d+\\-\\d+ free=\\d+\\+\\d+");
 	}
 

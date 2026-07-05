@@ -487,6 +487,149 @@ public abstract class Buffers<B extends Buffer, A> {
 		return support.getBytes(Reflect.unchecked(buffer));
 	}
 
+	/**
+	 * Returns a new bounded buffer view at the current position. The passed-in buffer is unchanged.
+	 */
+	public static <B extends Buffer> B slice(B buffer) {
+		return slice(buffer, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the current position. The passed-in buffer is unchanged.
+	 */
+	public static <B extends Buffer> B slice(B buffer, int length) {
+		if (buffer == null) return null;
+		length = Maths.limit(length, 0, buffer.remaining());
+		return Reflect.unchecked(buffer.slice(buffer.position(), length));
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the given position. The passed-in buffer is unchanged.
+	 */
+	public static <B extends Buffer> B sliceAt(B buffer, int position) {
+		return sliceAt(buffer, position, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a new bounded buffer view at the given position. The passed-in buffer is unchanged.
+	 */
+	public static <B extends Buffer> B sliceAt(B buffer, int position, int length) {
+		if (buffer == null) return null;
+		position = Maths.limit(position, 0, buffer.limit());
+		length = Maths.limit(length, 0, buffer.limit() - position);
+		return Reflect.unchecked(buffer.slice(position, length));
+	}
+
+	/**
+	 * Returns the buffer with limit set within bounds.
+	 */
+	public static <B extends Buffer> B bound(B buffer, int length) {
+		if (buffer == null) return null;
+		length = Maths.limit(length, 0, buffer.remaining());
+		buffer.limit(buffer.position() + length);
+		return buffer;
+	}
+
+	/**
+	 * Returns the buffer with position and limit set within bounds.
+	 */
+	public static <B extends Buffer> B boundAt(B buffer, int position) {
+		return boundAt(buffer, position, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns the buffer with position and limit set within bounds.
+	 */
+	public static <B extends Buffer> B boundAt(B buffer, int position, int length) {
+		if (buffer == null) return null;
+		position = Maths.limit(position, 0, buffer.limit());
+		length = Maths.limit(length, 0, buffer.limit() - position);
+		buffer.limit(position + length).position(position);
+		return buffer;
+	}
+
+	/**
+	 * Executes the consumer, then resets the buffer bounds.
+	 */
+	public static <E extends Exception, B extends Buffer> B accept(B buffer,
+		Excepts.Consumer<E, B> consumer) throws E {
+		return accept(buffer, Integer.MAX_VALUE, consumer);
+	}
+
+	/**
+	 * Sets the buffer bounds at current position, executes the consumer, then resets the buffer
+	 * bounds.
+	 */
+	public static <E extends Exception, B extends Buffer> B accept(B buffer, int length,
+		Excepts.Consumer<E, B> consumer) throws E {
+		if (buffer == null) return null;
+		return acceptAt(buffer, buffer.position(), length, consumer);
+	}
+
+	/**
+	 * Sets the buffer bounds at given position, executes the consumer, then resets the buffer
+	 * bounds.
+	 */
+	public static <E extends Exception, B extends Buffer> B acceptAt(B buffer, int position,
+		Excepts.Consumer<E, B> consumer) throws E {
+		return acceptAt(buffer, position, Integer.MAX_VALUE, consumer);
+	}
+	
+	/**
+	 * Sets the buffer bounds at given position, executes the consumer, then resets the buffer
+	 * bounds.
+	 */
+	public static <E extends Exception, B extends Buffer> B acceptAt(B buffer, int position,
+		int length, Excepts.Consumer<E, B> consumer) throws E {
+		if (buffer == null || consumer == null) return buffer;
+		int pos = buffer.position();
+		int len = buffer.remaining();
+		consumer.accept(boundAt(buffer, position, length));
+		buffer.limit(pos + len).position(pos); // cannot use bound() to reset limits
+		return buffer;
+	}
+
+	/**
+	 * Executes the function, then resets the buffer bounds.
+	 */
+	public static <E extends Exception, B extends Buffer, R> R apply(B buffer,
+		Excepts.Function<E, B, R> function) throws E {
+		return apply(buffer, Integer.MAX_VALUE, function);
+	}
+
+	/**
+	 * Sets the buffer bounds at current position, executes the function, then resets the buffer
+	 * bounds.
+	 */
+	public static <E extends Exception, B extends Buffer, R> R apply(B buffer, int length,
+		Excepts.Function<E, B, R> function) throws E {
+		if (buffer == null || function == null) return null;
+		return applyAt(buffer, buffer.position(), length, function);
+	}
+
+	/**
+	 * Sets the buffer bounds at given position, executes the function, then resets the buffer
+	 * bounds.
+	 */
+	public static <E extends Exception, B extends Buffer, R> R applyAt(B buffer, int position,
+		Excepts.Function<E, B, R> function) throws E {
+		return applyAt(buffer, position, Integer.MAX_VALUE, function);
+	}
+
+	/**
+	 * Sets the buffer bounds at given position, executes the function, then resets the buffer
+	 * bounds.
+	 */
+	public static <E extends Exception, B extends Buffer, R> R applyAt(B buffer, int position,
+		int length, Excepts.Function<E, B, R> function) throws E {
+		if (buffer == null || function == null) return null;
+		int pos = buffer.position();
+		int len = buffer.remaining();
+		var result = function.apply(boundAt(buffer, position, length));
+		buffer.limit(pos + len).position(pos); // cannot use bound() to reset limits
+		return result;
+	}
+
 	Buffers(Class<B> bufferType, PrimitiveArray<A, ?> array, int typeSize, Wrapper<B, A> wrap,
 		Getter<B, A> get, Functions.BiOperator<B> put, Functions.Operator<B> readOnly,
 		Functions.ToIntBiFunction<B, B> mismatch, Functions.Function<ByteBuffer, B> adapt) {
@@ -535,107 +678,6 @@ public abstract class Buffers<B extends Buffer, A> {
 	 */
 	public B empty() {
 		return empty;
-	}
-
-	/**
-	 * Returns a new bounded buffer view at the current position. The passed-in buffer is unchanged.
-	 */
-	public B slice(B buffer) {
-		return slice(buffer, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Returns a new bounded buffer view at the current position. The passed-in buffer is unchanged.
-	 */
-	public B slice(B buffer, int length) {
-		if (buffer == null) return null;
-		length = Maths.limit(length, 0, buffer.remaining());
-		return Reflect.unchecked(buffer.slice(buffer.position(), length));
-	}
-
-	/**
-	 * Returns a new bounded buffer view at the given position. The passed-in buffer is unchanged.
-	 */
-	public B sliceAt(B buffer, int position) {
-		return sliceAt(buffer, position, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Returns a new bounded buffer view at the given position. The passed-in buffer is unchanged.
-	 */
-	public B sliceAt(B buffer, int position, int length) {
-		if (buffer == null) return null;
-		position = Maths.limit(position, 0, buffer.limit());
-		length = Maths.limit(length, 0, buffer.limit() - position);
-		return Reflect.unchecked(buffer.slice(position, length));
-	}
-
-	/**
-	 * Returns the buffer with limit set within bounds.
-	 */
-	public B bound(B buffer, int length) {
-		if (buffer == null) return null;
-		length = Maths.limit(length, 0, buffer.remaining());
-		buffer.limit(buffer.position() + length);
-		return buffer;
-	}
-
-	/**
-	 * Returns the buffer with position and limit set within bounds.
-	 */
-	public B boundAt(B buffer, int position) {
-		return boundAt(buffer, position, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Returns the buffer with position and limit set within bounds.
-	 */
-	public B boundAt(B buffer, int position, int length) {
-		if (buffer == null) return null;
-		position = Maths.limit(position, 0, buffer.limit());
-		length = Maths.limit(length, 0, buffer.limit() - position);
-		buffer.limit(position + length).position(position);
-		return buffer;
-	}
-
-	/**
-	 * Executes the function, then resets the buffer bounds.
-	 */
-	public <E extends Exception, R> R apply(B buffer, Excepts.Function<E, B, R> function) throws E {
-		return apply(buffer, Integer.MAX_VALUE, function);
-	}
-
-	/**
-	 * Sets the buffer bounds at current position, executes the function, then resets the buffer
-	 * bounds.
-	 */
-	public <E extends Exception, R> R apply(B buffer, int length,
-		Excepts.Function<E, B, R> function) throws E {
-		if (buffer == null || function == null) return null;
-		return applyAt(buffer, buffer.position(), length, function);
-	}
-
-	/**
-	 * Sets the buffer bounds at given position, executes the function, then resets the buffer
-	 * bounds.
-	 */
-	public <E extends Exception, R> R applyAt(B buffer, int position,
-		Excepts.Function<E, B, R> supplier) throws E {
-		return applyAt(buffer, position, Integer.MAX_VALUE, supplier);
-	}
-
-	/**
-	 * Sets the buffer bounds at given position, executes the function, then resets the buffer
-	 * bounds.
-	 */
-	public <E extends Exception, R> R applyAt(B buffer, int position, int length,
-		Excepts.Function<E, B, R> function) throws E {
-		if (buffer == null || function == null) return null;
-		int pos = buffer.position();
-		int len = buffer.remaining();
-		var result = function.apply(boundAt(buffer, position, length));
-		buffer.limit(pos + len).position(pos); // cannot use bound() to reset limits
-		return result;
 	}
 
 	/**

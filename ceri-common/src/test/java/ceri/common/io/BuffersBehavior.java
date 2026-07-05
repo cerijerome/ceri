@@ -188,11 +188,11 @@ public class BuffersBehavior {
 	@Test
 	public void shouldSliceBuffer() {
 		var c = c("abc\n\0");
-		Assert.equal(Buffers.CHAR.slice(null), null);
-		Assert.buffer(Buffers.CHAR.slice(c), "abc\n\0");
-		Assert.buffer(Buffers.CHAR.slice(c, 2), "ab");
-		Assert.equal(Buffers.CHAR.sliceAt(null, 0), null);
-		Assert.buffer(Buffers.CHAR.sliceAt(c, 2), "c\n\0");
+		Assert.equal(Buffers.slice(null), null);
+		Assert.buffer(Buffers.slice(c), "abc\n\0");
+		Assert.buffer(Buffers.slice(c, 2), "ab");
+		Assert.equal(Buffers.sliceAt(null, 0), null);
+		Assert.buffer(Buffers.sliceAt(c, 2), "c\n\0");
 		Assert.buffer(c, "abc\n\0");
 	}
 
@@ -200,25 +200,36 @@ public class BuffersBehavior {
 	public void shouldBoundBuffer() {
 		var c = c("abc\n\0");
 		assertBounds(c, 0, 5);
-		Assert.equal(Buffers.CHAR.bound(null, 0), null);
-		assertBounds(Buffers.CHAR.bound(c, 3), 0, 3);
-		assertBounds(Buffers.CHAR.bound(c.position(1), 4), 1, 3);
+		Assert.equal(Buffers.bound(null, 0), null);
+		assertBounds(Buffers.bound(c, 3), 0, 3);
+		assertBounds(Buffers.bound(c.position(1), 4), 1, 3);
 		c.position(0).limit(5);
-		Assert.equal(Buffers.CHAR.boundAt(null, 0), null);
-		Assert.equal(Buffers.CHAR.boundAt(null, 0, 1), null);
-		assertBounds(Buffers.CHAR.boundAt(c, 1), 1, 5);
-		assertBounds(Buffers.CHAR.boundAt(c, 2, 2), 2, 4);
+		Assert.equal(Buffers.boundAt(null, 0), null);
+		Assert.equal(Buffers.boundAt(null, 0, 1), null);
+		assertBounds(Buffers.boundAt(c, 1), 1, 5);
+		assertBounds(Buffers.boundAt(c, 2, 2), 2, 4);
+	}
+
+	@Test
+	public void shouldAcceptConsumerForBuffer() {
+		var c = c("abc\n\0");
+		Assert.equal(Buffers.accept(null, _ -> Assert.fail()), null);
+		Assert.equal(Buffers.accept(c, null), assertBounds(c, 0, 5));
+		Assert.equal(Buffers.accept(c, b -> b.position(1).limit(3)), assertBounds(c, 0, 5));
+		Assert.equal(Buffers.acceptAt(null, 0, _ -> Assert.fail()), null);
+		Assert.equal(Buffers.acceptAt(c, 0, null), assertBounds(c, 0, 5));
+		Assert.equal(Buffers.acceptAt(c, 1, 3, b -> assertBounds(b, 1, 4)), assertBounds(c, 0, 5));
 	}
 
 	@Test
 	public void shouldApplyFunctionToBuffer() {
 		var c = c("abc\n\0");
-		Assert.equal(Buffers.CHAR.apply(null, 0, x -> x), null);
-		Assert.equal(Buffers.CHAR.apply(c, null), null);
-		Buffers.CHAR.apply(c, 3, _ -> Assert.equal(Buffers.CHAR.getString(c), "abc"));
-		Assert.equal(Buffers.CHAR.applyAt(null, 0, x -> x), null);
-		Assert.equal(Buffers.CHAR.applyAt(c, 0, 1, null), null);
-		Buffers.CHAR.applyAt(c, 1, 3, _ -> Assert.equal(Buffers.CHAR.getString(c), "bc\n"));
+		Assert.equal(Buffers.apply(null, 0, x -> x), null);
+		Assert.equal(Buffers.apply(c, null), null);
+		Buffers.apply(c, 3, _ -> Assert.equal(Buffers.CHAR.getString(c), "abc"));
+		Assert.equal(Buffers.applyAt(null, 0, x -> x), null);
+		Assert.equal(Buffers.applyAt(c, 0, 1, null), null);
+		Buffers.applyAt(c, 1, 3, _ -> Assert.equal(Buffers.CHAR.getString(c), "bc\n"));
 		assertBounds(c, 0, 5);
 	}
 
@@ -294,9 +305,10 @@ public class BuffersBehavior {
 		Assert.array(array, 1, 1, 0, -1, 0);
 	}
 
-	private static void assertBounds(Buffer buffer, int position, int limit) {
+	private static <B extends Buffer> B assertBounds(B buffer, int position, int limit) {
 		Assert.equal(buffer.position(), position);
 		Assert.equal(buffer.limit(), limit);
+		return buffer;
 	}
 
 	private static byte[] fbytes(float... fs) {

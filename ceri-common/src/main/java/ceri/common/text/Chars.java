@@ -2,6 +2,7 @@ package ceri.common.text;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -299,7 +300,7 @@ public class Chars {
 	 * char, or the char sequence is malformed.
 	 */
 	public static int encode(Charset charset, CharSequence s, byte[] bytes) {
-		return encode(charset, s, bytes, 0);
+		return encode(charset, s, 0, bytes, 0);
 	}
 
 	/**
@@ -307,8 +308,8 @@ public class Chars {
 	 * stops if there are no more chars to encode, the array slice has no space for the next full
 	 * char, or the char sequence is malformed.
 	 */
-	public static int encode(Charset charset, CharSequence s, byte[] bytes, int index) {
-		return encode(charset, s, bytes, index, Integer.MAX_VALUE);
+	public static int encode(Charset charset, CharSequence s, int start, byte[] bytes, int index) {
+		return encode(charset, s, start, Integer.MAX_VALUE, bytes, index, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -316,8 +317,9 @@ public class Chars {
 	 * stops if there are no more chars to encode, the array slice has no space for the next full
 	 * char, or the char sequence is malformed.
 	 */
-	public static int encode(Charset charset, CharSequence s, byte[] bytes, int index, int len) {
-		return encode(charset, s, Buffers.BYTE.of(bytes, index, len));
+	public static int encode(Charset charset, CharSequence s, int start, int count, byte[] bytes,
+		int index, int len) {
+		return encode(charset, s, start, count, Buffers.BYTE.of(bytes, index, len));
 	}
 
 	/**
@@ -326,9 +328,38 @@ public class Chars {
 	 * or the char sequence is malformed.
 	 */
 	public static int encode(Charset charset, CharSequence s, ByteBuffer buffer) {
-		if (s == null || buffer == null || buffer.remaining() == 0) return 0;
+		return encode(charset, s, 0, buffer);
+	}
+
+	/**
+	 * Encodes the string to the buffer within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the buffer has no space for the next full char,
+	 * or the char sequence is malformed.
+	 */
+	public static int encode(Charset charset, CharSequence s, int start, ByteBuffer buffer) {
+		return encode(charset, s, start, Integer.MAX_VALUE, buffer);
+	}
+
+	/**
+	 * Encodes the string to the buffer within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the buffer has no space for the next full char,
+	 * or the char sequence is malformed.
+	 */
+	public static int encode(Charset charset, CharSequence s, int start, int count,
+		ByteBuffer buffer) {
+		if (s == null || s.isEmpty()) return 0;
+		return encode(charset, Buffers.CHAR.of(s, start, count), buffer);
+	}
+
+	/**
+	 * Encodes the string to the buffer within bounds. Returns the number of bytes written. Encoding
+	 * stops if there are no more chars to encode, the buffer has no space for the next full char,
+	 * or the char sequence is malformed.
+	 */
+	public static int encode(Charset charset, CharBuffer chars, ByteBuffer buffer) {
+		if (chars == null || buffer == null || chars.isEmpty() || buffer.remaining() == 0) return 0;
 		int i = buffer.position();
-		safe(charset).newEncoder().encode(Buffers.CHAR.of(s), buffer, true);
+		safe(charset).newEncoder().encode(chars, buffer, true);
 		return buffer.position() - i;
 	}
 
@@ -336,9 +367,32 @@ public class Chars {
 	 * Encodes the string to a new buffer, replacing unmappable and malformed characters.
 	 */
 	public static ByteBuffer encode(Charset charset, CharSequence s) {
+		return encode(charset, s, 0);
+	}
+
+	/**
+	 * Encodes the string to a new buffer, replacing unmappable and malformed characters.
+	 */
+	public static ByteBuffer encode(Charset charset, CharSequence s, int start) {
+		return encode(charset, s, start, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Encodes the string to a new buffer, replacing unmappable and malformed characters.
+	 */
+	public static ByteBuffer encode(Charset charset, CharSequence s, int start, int count) {
 		if (s == null) return null;
 		if (s.isEmpty()) return Buffers.BYTE.empty();
-		return safe(charset).encode(Buffers.CHAR.of(s));
+		return encode(charset, Buffers.CHAR.of(s, start, count));
+	}
+
+	/**
+	 * Encodes the char buffer to a new byte buffer, replacing unmappable and malformed characters.
+	 */
+	public static ByteBuffer encode(Charset charset, CharBuffer chars) {
+		if (chars == null) return null;
+		if (chars.isEmpty()) return Buffers.BYTE.empty();
+		return safe(charset).encode(chars);
 	}
 
 	/**

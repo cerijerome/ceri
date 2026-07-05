@@ -233,24 +233,30 @@ public class CharsTest {
 	@Test
 	public void testEncodeCharset() {
 		var s = "\0A\u00a9\u2103\ud835\udc00";
-		Assert.equal(Chars.encode(UTF8, null), null);
-		Assert.buffer(Chars.encode(UTF8, ""));
-		Assert.equals(Chars.encode(UTF8, s, null, 3), 0);
+		Assert.equals(Chars.encode(UTF8, (CharBuffer) null, (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(UTF8, Buffers.CHAR.empty(), (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(UTF8, Buffers.CHAR.empty(), Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(UTF8, null, 0, 0, Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(UTF8, "", 0, 0, Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(UTF8, s, 0, null, 3), 0);
+		Assert.equals(Chars.encode(UTF8, s, (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(UTF8, s, Buffers.BYTE.empty()), 0);
 		var bytes = new byte[12];
-		Assert.equals(Chars.encode(UTF8, s, bytes, 12, 5), 0);
+		Assert.equals(Chars.encode(UTF8, s, 0, 100, bytes, 12, 5), 0);
 		Assert.equals(Chars.encode(UTF8, s, bytes), 11);
 		Assert.array(bytes, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
 		Array.BYTE.fill(bytes, 0);
-		Assert.equals(Chars.encode(UTF8, s, bytes, 2), 7);
+		Assert.equals(Chars.encode(UTF8, s, 0, bytes, 2), 7);
 		Assert.array(bytes, 0, 0, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0, 0, 0);
 	}
 
 	@Test
 	public void testEncodeCharsetToBuffer() {
 		var s = "\0A\u00a9\u2103\ud835\udc00";
-		Assert.equals(Chars.encode(UTF8, s, (ByteBuffer) null), 0);
-		Assert.equals(Chars.encode(UTF8, s, ByteBuffer.wrap(new byte[0])), 0);
-		Assert.equal(Chars.encode(UTF8, null), null);
+		Assert.equal(Chars.encode(UTF8, (String) null), null);
+		Assert.equal(Chars.encode(UTF8, (CharBuffer) null), null);
+		Assert.buffer(Chars.encode(UTF8, Buffers.CHAR.empty()));
+		Assert.buffer(Chars.encode(UTF8, ""));
 		Assert.buffer(Chars.encode(UTF8, s), "\0A\u00a9\u2103\ud835\udc00".getBytes(UTF8));
 	}
 
