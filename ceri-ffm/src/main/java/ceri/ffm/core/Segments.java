@@ -7,11 +7,8 @@ import java.lang.foreign.MemorySegment.Scope;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
-import java.util.List;
-import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.io.Direction;
 import ceri.common.math.Maths;
 import ceri.common.text.Strings;
 
@@ -73,119 +70,27 @@ public class Segments {
 		T apply(long lOffset, long lLength, long rOffset, long rLength) throws E;
 	}
 
-	/**
-	 * Dynamically encodes types to memory.
-	 */
-	public static class Encoder {
-		private final List<Functions.Consumer<MemorySegment>> encodings = Lists.of();
-		private final List<Functions.Consumer<MemorySegment>> updates = Lists.of();
-		private final Direction direction;
-		private final long alignment;
-		private long offset = 0;
-
+	public interface Provider {
 		/**
-		 * An encoding result with option to update sources after processing the allocated memory.
+		 * Returns the contained memory segment.
 		 */
-		public class Result {
-			private final MemorySegment memory;
-
-			private Result(MemorySegment memory) {
-				this.memory = memory;
-			}
-
-			/**
-			 * Provides the encoded memory.
-			 */
-			public MemorySegment memory() {
-				return memory;
-			}
-
-			/**
-			 * Updates sources after processing the encoded memory.
-			 */
-			public void update() {
-				for (var update : updates)
-					update.accept(memory);
-			}
-		}
-
-		public class Builder {
-			
-		}
-		
-		private Encoder(Direction direction, long alignment) {
-			this.direction = direction;
-			this.alignment = alignment;
-		}
-
-		/**
-		 * Returns true if the encoder is expecting type encoding.
-		 */
-		public boolean in() {
-			return Direction.in(direction);
-		}
+		MemorySegment memory();
 		
 		/**
-		 * Returns true if the encoder is expecting type update.
+		 * Returns the memory segment address.
 		 */
-		public boolean out() {
-			return Direction.in(direction);
-		}
-		
-		/**
-		 * Accepts an encoding with known length, and an update to read back from the memory after
-		 * processing.
-		 */
-		public void accept(Segments.Consumer encoding, Segments.Consumer update, long length) {
-			var offset = this.offset;
-			if (encoding != null && in()) encodings.add(m -> encoding.accept(m, offset, length));
-			if (update != null && out()) updates.add(m -> update.accept(m, offset, length));
-			this.offset += length;
+		default long address() {
+			return Segments.address(memory());
 		}
 
 		/**
-		 * Allocates memory and applies the encodings in sequence. The result also provides a method
-		 * to update the source
+		 * Returns true if the contained memory segment has native address 0.
 		 */
-		public Result alloc(SegmentAllocator allocator) {
-			var memory = allocator.allocate(offset, alignment);
-			for (var encoding : encodings)
-				encoding.accept(memory);
-			return new Result(memory);
+		default boolean isNull() {
+			return Segments.isNull(memory());
 		}
 	}
-
-	/**
-	 * Utility that tracks the offset and length of a memory segment for sequential operations.
-	 */
-	public static class Decoder {
-		private final MemorySegment memory;
-		private final long end;
-		private long offset;
-
-		private Decoder(MemorySegment memory, long offset, long length) {
-			this.memory = memory;
-			this.offset = offset;
-			this.end = offset + length;
-		}
-
-		public MemorySegment memory() {
-			return memory;
-		}
-
-		public long offset() {
-			return offset;
-		}
-
-		public long length() {
-			return end - offset;
-		}
-
-		public void inc(long length) {
-			offset += Maths.limit(length, 0, length());
-		}
-	}
-
+	
 	/**
 	 * An arena wrapper that can be closed or garbage collected.
 	 */
@@ -227,16 +132,6 @@ public class Segments {
 	 */
 	public static SegmentAllocator auto() {
 		return Arena.ofAuto();
-	}
-
-	/**
-	 * Returns a new decoder to provide a memory slice with moving offset.
-	 */
-	public static Decoder decoder(MemorySegment memory, long offset, long length) {
-		if (memory == null) return null;
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		length = Maths.limit(length, 0L, memory.byteSize() - offset);
-		return new Decoder(memory, offset, length);
 	}
 
 	/**
@@ -356,7 +251,7 @@ public class Segments {
 	 */
 	public static String string(MemorySegment memory) {
 		if (memory == null) return Strings.NULL;
-		return String.format("@%04x+%02x(%c)", address(memory), size(memory),
+		return String.format("@%04x+%02x%c", address(memory), size(memory),
 			isNative(memory) ? 'N' : 'H');
 	}
 

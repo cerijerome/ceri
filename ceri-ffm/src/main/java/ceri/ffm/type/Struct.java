@@ -13,7 +13,6 @@ import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Supports;
 
 public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	private static final Lazy.ForClass<Group.Config<? extends Struct<?>, StructLayout>> cache =
@@ -271,7 +270,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	/**
 	 * Creates a support instance for the type.
 	 */
-	public static <T extends Struct<T>> Supporter<T> supportFor(Class<T> cls) {
+	static <T extends Struct<T>> Supporter<T> supportFor(Class<T> cls) {
 		var config = config(cls);
 		return new Supporter<>(config, config.layout());
 	}

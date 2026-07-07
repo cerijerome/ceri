@@ -1,4 +1,4 @@
-package ceri.ffm.core;
+package ceri.ffm.type;
 
 import java.nio.Buffer;
 import java.util.Map;
@@ -9,26 +9,20 @@ import ceri.common.concurrent.Lazy;
 import ceri.common.io.Buffers;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
-import ceri.ffm.core.Support.Typed;
+import ceri.ffm.core.Native;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.Refine.Const;
 import ceri.ffm.reflect.Refine.Dims;
 import ceri.ffm.reflect.Refine.Nul;
 import ceri.ffm.reflect.Refine.Packed;
 import ceri.ffm.reflect.TypeNode;
-import ceri.ffm.type.BufferType;
-import ceri.ffm.type.IntType;
-import ceri.ffm.type.Pointer;
-import ceri.ffm.type.Primitive;
-import ceri.ffm.type.RawPointer;
-import ceri.ffm.type.StringType;
-import ceri.ffm.type.Struct;
-import ceri.ffm.type.Union;
+import ceri.ffm.type.Support.Typed;
 
 /**
  * Lookup for operational support of types and arrays.
  */
 public class Supports {
+	private static final Map<Class<?>, Support<?, ?, ?>> MAP = map();
 	private static final Lazy.ForClass<Support<?, ?, ?>> cache = Lazy.forClass(c -> fromClass(c));
 	public static final Supports DEF = new Supports(Defaults.DEF);
 	private final Defaults defaults;
@@ -115,18 +109,30 @@ public class Supports {
 			this.values = values;
 		}
 
+		/**
+		 * Provides the array type configuration. Defaults to none.
+		 */
 		public Value string() {
 			return values.getOrDefault(Category.string, NONE);
 		}
 
+		/**
+		 * Provides the array type configuration. Defaults to none.
+		 */
 		public Value buffer() {
 			return values.getOrDefault(Category.buffer, NONE);
 		}
 
+		/**
+		 * Provides the array type configuration. Defaults to none.
+		 */
 		public Value array1d() {
 			return values.getOrDefault(Category.array1d, NONE);
 		}
 
+		/**
+		 * Provides the array type configuration. Defaults to none.
+		 */
 		public Value arrayNd() {
 			return values.getOrDefault(Category.arrayNd, NONE);
 		}
@@ -141,7 +147,7 @@ public class Supports {
 				default -> array1d();
 			};
 		}
-		
+
 		@Override
 		public String toString() {
 			return values.toString();
@@ -240,6 +246,8 @@ public class Supports {
 		return array(node, dims);
 	}
 
+	// support
+
 	private Support<?, ?, ?> array(TypeNode node, Dimensions dims) {
 		var context = node.context();
 		if (dims == null) dims = context.dims(null);
@@ -271,7 +279,7 @@ public class Supports {
 		if (node.isVoid()) return refine(Support.VOID, context);
 		throw new IllegalArgumentException("Type not supported: " + node);
 	}
-	
+
 	private Support<?, ?, ?> pointer(TypeNode node) {
 		var context = node.context();
 		var support = Pointer.supportFor(node, context.constant());
@@ -282,13 +290,13 @@ public class Supports {
 		var chars = context.chars();
 		var size = context.size(defaults.string().count());
 		var nul = context.nul(defaults.string().nul());
-		return refine(StringType.support(chars, size, nul), context);
+		return refine(StringType.supportFor(chars, size, nul), context);
 	}
 
 	private <B extends Buffer> Support<?, ?, ?> buffer(Class<B> cls, Refine.Context context) {
 		var size = context.size(defaults.buffer().count());
 		var nul = context.nul(defaults.buffer().nul());
-		return refine(BufferType.support(cls, size, nul), context);
+		return refine(BufferType.supportFor(cls, size, nul), context);
 	}
 
 	private Support<?, ?, ?> refine(Support<?, ?, ?> support, Refine.Context context) {
@@ -300,40 +308,30 @@ public class Supports {
 
 	private static Support<?, ?, ?> fromClass(Class<?> cls) {
 		// Populates the cache
-		if (cls == void.class || cls == Void.class) return Support.VOID;
-		if (cls == boolean.class) return Primitive.BOOL;
-		if (cls == char.class) return Primitive.CHAR;
-		if (cls == byte.class) return Primitive.BYTE;
-		if (cls == short.class) return Primitive.SHORT;
-		if (cls == int.class) return Primitive.INT;
-		if (cls == long.class) return Primitive.LONG;
-		if (cls == float.class) return Primitive.FLOAT;
-		if (cls == double.class) return Primitive.DOUBLE;
-		if (cls == Boolean.class) return Primitive.Box.BOOL;
-		if (cls == Character.class) return Primitive.Box.CHAR;
-		if (cls == Byte.class) return Primitive.Box.BYTE;
-		if (cls == Short.class) return Primitive.Box.SHORT;
-		if (cls == Integer.class) return Primitive.Box.INT;
-		if (cls == Long.class) return Primitive.Box.LONG;
-		if (cls == Float.class) return Primitive.Box.FLOAT;
-		if (cls == Double.class) return Primitive.Box.DOUBLE;
+		var support = MAP.get(cls);
+		if (support != null) return support;
+		if (cls == void.class) return Support.VOID;
 		if (IntType.class.isAssignableFrom(cls)) return IntType.supportFor(Reflect.unchecked(cls));
 		if (Struct.class.isAssignableFrom(cls)) return Struct.supportFor(Reflect.unchecked(cls));
 		if (Union.class.isAssignableFrom(cls)) return Union.supportFor(Reflect.unchecked(cls));
-		if (cls == Pointer.OfVoid.class) return Pointer.OfVoid.$;
-		// if (cls == Pointer.OfBool.class) return Pointer.OfBool.$;
-		// if (cls == Pointer.OfChar.class) return Pointer.OfChar.$;
-		if (cls == Pointer.OfByte.class) return Pointer.OfByte.$;
-		// if (cls == Pointer.OfShort.class) return Pointer.OfShort.$;
-		if (cls == Pointer.OfInt.class) return Pointer.OfInt.$;
-		// if (cls == Pointer.OfLong.class) return Pointer.OfLong.$;
-		// if (cls == Pointer.OfFloat.class) return Pointer.OfFloat.$;
-		// if (cls == Pointer.OfDouble.class) return Pointer.OfDouble.$;
 		if (cls == Pointer.class) return null; // needs more info
-		// TODO: pointer type
+		if (PointerType.class.isAssignableFrom(cls))
+			return PointerType.supportFor(Reflect.unchecked(cls));
 		// TODO: function pointer
 		if (cls == String.class) return null; // needs more info
 		if (Buffers.BASE_TYPES.contains(cls)) return null; // needs more info
 		throw new IllegalArgumentException("Type not supported: " + Reflect.simple(cls));
+	}
+
+	private static Map<Class<?>, Support<?, ?, ?>> map() {
+		return Immutable.convertMapOf(t -> t.type(), t -> t, Support.VOID, Primitive.BOOL,
+			Primitive.CHAR, Primitive.BYTE, Primitive.SHORT, Primitive.INT, Primitive.LONG,
+			Primitive.FLOAT, Primitive.DOUBLE, Primitive.Box.BOOL, Primitive.Box.CHAR,
+			Primitive.Box.BYTE, Primitive.Box.SHORT, Primitive.Box.INT, Primitive.Box.LONG,
+			Primitive.Box.FLOAT, Primitive.Box.DOUBLE, RawPointer.$, Pointer.OfVoid.$,
+			// Pointer.OfBool.$, Pointer.OfChar.$,
+			Pointer.OfByte.$, // Pointer.OfShort.$,
+			Pointer.OfInt.$ // Pointer.OfLong.$, Pointer.OfFloat.$, Pointer.OfDouble.$
+		);
 	}
 }

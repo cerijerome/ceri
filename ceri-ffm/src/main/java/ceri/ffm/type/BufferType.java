@@ -28,8 +28,6 @@ import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support;
-import ceri.ffm.reflect.Refine;
 import ceri.ffm.test.FfmTesting;
 
 /**
@@ -75,10 +73,16 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 			emptyB = buffers.from(emptyByte(ByteOrder.BIG_ENDIAN));
 		}
 
+		/**
+		 * Returns basic buffer support.
+		 */
 		public Buffers<B, A> buffers() {
 			return buffers;
 		}
 
+		/**
+		 * Provides an empty buffer with given byte order.
+		 */
 		public B empty(ByteOrder order) {
 			return order == ByteOrder.BIG_ENDIAN ? emptyB : emptyL;
 		}
@@ -253,17 +257,9 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	/**
-	 * Returns fixed-layout operational support.
+	 * Creates fixed-layout operational support.
 	 */
-	public static <B extends Buffer> Supporter<B> support(Class<? extends B> cls,
-		Refine.Context context) {
-		return support(cls, context.size(), context.nul());
-	}
-
-	/**
-	 * Returns fixed-layout operational support.
-	 */
-	public static <B extends Buffer> Supporter<B> support(Class<? extends B> cls, int count,
+	static <B extends Buffer> Supporter<B> supportFor(Class<? extends B> cls, int count,
 		boolean nul) {
 		var buffer = BufferType.<B>of(cls);
 		return buffer == null ? null : buffer.support(count, nul);

@@ -6,9 +6,8 @@ import com.google.common.base.Objects;
 import ceri.common.array.Array;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support;
-import ceri.ffm.core.Supports;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.test.FfmTesting;
 
@@ -32,13 +31,13 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	}
 
 	/**
-	 * A constant void pointer.
+	 * Constant void pointer.
 	 */
 	public static class OfVoid extends RawPointer {
-		public static final Supporter<OfVoid> $ =
-			Supporter.of(OfVoid.class, Support.VOID, (m, _, _) -> new OfVoid(m), true);
+		public static final Supporter<OfVoid> $ = Supporter.of(OfVoid.class,
+			Native.Kind.primitivePointer, Support.VOID, (m, _, _) -> new OfVoid(m), true);
 
-		OfVoid(MemorySegment memory) {
+		private OfVoid(MemorySegment memory) {
 			super(memory);
 		}
 
@@ -58,13 +57,22 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		public Pointer.OfVoid asVoid() {
 			return this;
 		}
+
+		@Override
+		Supporter<OfVoid> support() {
+			return $;
+		}
 	}
 
+	/**
+	 * Primitive byte pointer.
+	 */
 	public static class OfByte extends RawPointer.Indexable<OfByte, Primitive.OfByte, byte[]> {
 		public static final Supporter<OfByte> $ = support(Primitive.BYTE, false);
 
-		public static Supporter<OfByte> support(Primitive.OfByte type, boolean constant) {
-			return Supporter.of(OfByte.class, type, (m, t, c) -> new OfByte(m, t, c), constant);
+		static Supporter<OfByte> support(Primitive.OfByte type, boolean constant) {
+			return Supporter.of(OfByte.class, Native.Kind.primitivePointer, type,
+				(m, t, c) -> new OfByte(m, t, c), constant);
 		}
 
 		OfByte(MemorySegment memory, Primitive.OfByte type, boolean constant) {
@@ -81,35 +89,64 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 			return this;
 		}
 
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
 		public byte get() {
 			return getAt(0);
 		}
 
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
 		public byte getAt(int index) {
 			return type().getByte(memory(), size(index));
 		}
 
-		public boolean set(byte value) {
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(int value) {
 			return setAt(0, value);
 		}
 
-		public boolean setAt(int index, byte value) {
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, int value) {
 			if (isConst()) return false;
 			return type().setByte(memory(), size(index), value);
 		}
 
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
 		public final int setAll(boolean nul, byte... array) {
 			return setAllAt(0, nul, array);
 		}
 
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
 		public final int setAll(boolean nul, int... array) {
 			return setAllAt(0, nul, array);
 		}
 
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
 		public final int setAllAt(int index, boolean nul, byte... array) {
 			return setArrayAt(index, array, nul);
 		}
 
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
 		public final int setAllAt(int index, boolean nul, int... array) {
 			return setArrayAt(index, Array.BYTE.of(array), nul);
 		}
@@ -120,11 +157,15 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		}
 	}
 
+	/**
+	 * Primitive int pointer.
+	 */
 	public static class OfInt extends RawPointer.Indexable<OfInt, Primitive.OfInt, int[]> {
 		public static final Supporter<OfInt> $ = support(Primitive.INT, false);
 
-		public static Supporter<OfInt> support(Primitive.OfInt type, boolean constant) {
-			return Supporter.of(OfInt.class, type, (m, t, c) -> new OfInt(m, t, c), constant);
+		static Supporter<OfInt> support(Primitive.OfInt type, boolean constant) {
+			return Supporter.of(OfInt.class, Native.Kind.primitivePointer, type,
+				(m, t, c) -> new OfInt(m, t, c), constant);
 		}
 
 		OfInt(MemorySegment memory, Primitive.OfInt type, boolean constant) {
@@ -141,27 +182,48 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 			return this;
 		}
 
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
 		public int get() {
 			return getAt(0);
 		}
 
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
 		public int getAt(int index) {
 			return type().getInt(memory(), size(index));
 		}
 
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
 		public boolean set(int value) {
 			return setAt(0, value);
 		}
 
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
 		public boolean setAt(int index, int value) {
 			if (isConst()) return false;
 			return type().setInt(memory(), size(index), value);
 		}
 
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
 		public final int setAll(boolean nul, int... array) {
 			return setAllAt(0, nul, array);
 		}
 
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
 		public final int setAllAt(int index, boolean nul, int... array) {
 			return setArrayAt(index, array, nul);
 		}
@@ -172,73 +234,141 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		}
 	}
 
-	public static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type) {
-		return support(type, false);
+	static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
+		return Supporter.of(Reflect.unchecked(Pointer.class), Native.Kind.pointer, type,
+			(m, s, _) -> of(m, s), constant);
 	}
 
-	public static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
-		return Supporter.of(Reflect.unchecked(Pointer.class), type, (m, s, _) -> of(m, s),
-			constant);
-	}
-
-	public static <T> Supporter<Pointer<T>> supportFor(TypeNode node, boolean constant) {
+	static <T> Supporter<Pointer<T>> supportFor(TypeNode node, boolean constant) {
 		Support.Typed<T, ?> type = Reflect.unchecked(Supports.DEF.from(node));
 		return support(type, constant);
 	}
 
+	/**
+	 * Returns a primitive byte pointer for the memory segment.
+	 */
 	public static OfByte ofByte(MemorySegment memory) {
 		return new OfByte(memory, Primitive.BYTE, false);
 	}
 
+	/**
+	 * Returns a primitive byte pointer for the allocated value.
+	 */
 	public static OfByte ofByte(int value) {
-		return ofByte(Primitive.BYTE.allocByte(Segments.auto(), (byte) value));
+		return ofByte(Segments.auto(), value);
 	}
 
+	/**
+	 * Returns a primitive byte pointer for the allocated value.
+	 */
+	public static OfByte ofByte(SegmentAllocator allocator, int value) {
+		return ofByte(Primitive.BYTE.allocByte(allocator, value));
+	}
+
+	/**
+	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
+	 */
 	public static OfByte ofBytes(boolean nul, byte... values) {
-		return ofByte(Primitive.BYTE.allocAll(Segments.auto(), nul, values));
+		return ofBytes(Segments.auto(), nul, values);
 	}
 
+	/**
+	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfByte ofBytes(SegmentAllocator allocator, boolean nul, byte... values) {
+		return ofByte(Primitive.BYTE.allocAll(allocator, nul, values));
+	}
+
+	/**
+	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
+	 */
 	public static OfByte ofBytes(boolean nul, int... values) {
-		return ofByte(Primitive.BYTE.allocAll(Segments.auto(), nul, values));
+		return ofBytes(Segments.auto(), nul, values);
 	}
 
+	/**
+	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfByte ofBytes(SegmentAllocator allocator, boolean nul, int... values) {
+		return ofByte(Primitive.BYTE.allocAll(allocator, nul, values));
+	}
+
+	/**
+	 * Returns a primitive int pointer for the memory segment.
+	 */
 	public static OfInt ofInt(MemorySegment memory) {
 		return new OfInt(memory, Primitive.INT, false);
 	}
 
+	/**
+	 * Returns a primitive int pointer for the allocated value.
+	 */
 	public static OfInt ofInt(int value) {
-		return ofInt(Primitive.INT.allocInt(Segments.auto(), value));
+		return ofInt(Segments.auto(), value);
 	}
 
+	/**
+	 * Returns a primitive int pointer for the allocated value.
+	 */
+	public static OfInt ofInt(SegmentAllocator allocator, int value) {
+		return ofInt(Primitive.INT.allocInt(allocator, value));
+	}
+
+	/**
+	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
+	 */
 	public static OfInt ofInts(boolean nul, int... values) {
-		return ofInt(Primitive.INT.allocAll(Segments.auto(), nul, values));
+		return ofInts(Segments.auto(), nul, values);
 	}
 
+	/**
+	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfInt ofInts(SegmentAllocator allocator, boolean nul, int... values) {
+		return ofInt(Primitive.INT.allocAll(allocator, nul, values));
+	}
+
+	/**
+	 * Returns a void pointer for the memory segment.
+	 */
 	public static OfVoid ofVoid(MemorySegment memory) {
 		return new OfVoid(memory);
 	}
 
+	/**
+	 * Returns an untyped pointer for the memory segment.
+	 */
 	public static Pointer<?> of(MemorySegment memory) {
 		return of(memory, Support.VOID);
 	}
 
+	/**
+	 * Returns an allocated typed pointer to the pointer.
+	 */
 	public static <P extends RawPointer> Pointer<P> of(P pointer) {
 		return of(Segments.auto(), pointer);
 	}
 
-	public static <P extends RawPointer> Pointer<P> of(SegmentAllocator alloc, P pointer) {
-		var memory = alloc.allocateFrom(Layouts.POINTER, pointer.memory());
-		var type = switch (pointer) {
-			case RawPointer.Indexable<?, ?, ?> i -> i.support();
-			default -> OfVoid.$;
-		};
+	/**
+	 * Returns an allocated typed pointer to the pointer.
+	 */
+	public static <P extends RawPointer> Pointer<P> of(SegmentAllocator allocator, P pointer) {
+		if (allocator == null || pointer == null) return null;
+		var memory = allocator.allocateFrom(Layouts.POINTER, pointer.memory());
+		var type = pointer.support();
 		return Pointer.of(memory, Reflect.unchecked(type), pointer.isConst());
 	}
 
+	/**
+	 * Returns a read-only typed pointer for the memory segment.
+	 */
 	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type) {
 		return of(memory, type, true);
 	}
 
+	/**
+	 * Returns a typed pointer for the memory segment.
+	 */
 	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type,
 		boolean constant) {
 		return new Pointer<>(memory, type, constant);
@@ -259,28 +389,48 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		return super.as(type);
 	}
 
+	/**
+	 * Returns the type value at the pointer.
+	 */
 	public T get() {
 		return get(0);
 	}
 
+	/**
+	 * Returns the type value at the pointer type index.
+	 */
 	public T get(int index) {
 		return type().get(memory(), size(index));
 	}
 
+	/**
+	 * Writes the type value at the pointer, if not constant.
+	 */
 	public boolean set(T value) {
 		return setAt(0, value);
 	}
 
+	/**
+	 * Writes the type value at the pointer type index, if not constant.
+	 */
 	public boolean setAt(int index, T value) {
 		if (isConst()) return false;
 		return type().write(memory(), size(index), value);
 	}
 
+	/**
+	 * Writes the type values at the pointer type index with optional nul-termination, if not
+	 * constant.
+	 */
 	@SafeVarargs
 	public final int setAll(boolean nul, T... array) {
 		return setAllAt(0, nul, array);
 	}
 
+	/**
+	 * Writes the type values at the pointer type index with optional nul-termination, if not
+	 * constant.
+	 */
 	@SafeVarargs
 	public final int setAllAt(int index, boolean nul, T... array) {
 		return setArrayAt(index, array, nul);

@@ -24,7 +24,6 @@ import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support;
 import ceri.ffm.core.Terminator;
 import ceri.ffm.test.FfmTesting;
 
@@ -233,7 +232,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	/**
 	 * Returns fixed-layout operational support.
 	 */
-	public static Supporter support(Charset charset, int count, boolean nul) {
+	static Supporter supportFor(Charset charset, int count, boolean nul) {
 		var string = StringType.of(charset);
 		return string == null ? null : string.support(count, nul);
 	}

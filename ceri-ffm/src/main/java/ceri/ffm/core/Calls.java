@@ -16,6 +16,8 @@ import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.type.IntType;
 import ceri.ffm.type.RawPointer;
+import ceri.ffm.type.Support;
+import ceri.ffm.type.Supports;
 
 /**
  * Builds native calls from interface methods and annotated configuration.

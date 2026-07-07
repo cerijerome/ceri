@@ -5,9 +5,10 @@ import org.junit.Test;
 import ceri.common.array.RawArray;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
-import ceri.ffm.core.Support.OfArray;
 import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.Primitive;
+import ceri.ffm.type.Support;
+import ceri.ffm.type.Support.OfArray;
 
 public class DecoderBehavior {
 	private static final short[] t = { 0x11 };

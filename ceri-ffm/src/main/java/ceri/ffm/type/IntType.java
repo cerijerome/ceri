@@ -18,11 +18,10 @@ import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support.Typed;
-import ceri.ffm.core.Supports;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.reflect.Refine.Unsigned;
+import ceri.ffm.type.Support.Typed;
 
 /**
  * Represents an immutable integer type of desired size and signedness.
@@ -310,7 +309,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	/**
 	 * Creates a support instance for the type.
 	 */
-	public static <T extends IntType<T>> Supporter<T> supportFor(Class<T> cls) {
+	static <T extends IntType<T>> Supporter<T> supportFor(Class<T> cls) {
 		var spec = spec(cls);
 		var constructor = constructorFor(cls);
 		var boxed = boxed(spec.size());

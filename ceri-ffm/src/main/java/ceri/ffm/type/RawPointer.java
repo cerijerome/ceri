@@ -1,137 +1,21 @@
 package ceri.ffm.type;
 
-import java.lang.foreign.AddressLayout;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.nio.ByteOrder;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.Basics;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support;
-import ceri.ffm.core.Supports;
 
 /**
- * An abstract container for a memory segment.
+ * A base container for a memory segment.
  */
-public abstract class RawPointer {
-	private static final String CONST = "const ";
-	public static final Supporter<RawPointer> $ =
-		Supporter.of(RawPointer.class, Support.VOID, (m, _, _) -> Pointer.ofVoid(m), true);
-	private final MemorySegment memory;
-
-	// - fixed layout (no flexible multi-dim nul-term)
-	// - cache by type + dims + nul + ... (not node type)
-
-	public interface Create<P extends RawPointer, S extends Support<?, ?, ?>> {
-		P apply(MemorySegment memory, S support, boolean constant);
-	}
-
-	public static class Supporter<P extends RawPointer> extends Support.Typed<P, AddressLayout> {
-		private final Config<P, ?> config;
-
-		public record Config<P extends RawPointer, S extends Support<?, ?, ?>>(Class<P> type,
-			S support, Create<P, S> create, boolean constant) {
-
-			public Config<P, S> asConst() {
-				return constant() ? this : new Config<>(type(), support(), create(), constant);
-			}
-
-			public Native.Kind kind() {
-				if (support.isVoid() || support.kind() == Native.Kind.primitive)
-					return Native.Kind.primitivePointer;
-				return Native.Kind.pointer;
-			}
-
-			public P create(MemorySegment memory) {
-				return create().apply(memory, support(), constant());
-			}
-
-			public String desc() {
-				return (constant() && !support.isVoid() ? CONST : "")
-					+ Native.wrap(support().typeDesc()) + '*';
-			}
-		}
-
-		static <P extends RawPointer, S extends Support<?, ?, ?>> Supporter<P> of(Class<P> type,
-			S support, Create<P, S> create) {
-			return of(type, support, create, false);
-		}
-
-		static <P extends RawPointer, S extends Support<?, ?, ?>> Supporter<P> of(Class<P> type,
-			S support, Create<P, S> create, boolean constant) {
-			var config = new Config<>(type, support, create, constant);
-			return new Supporter<>(config, Layouts.POINTER);
-		}
-
-		Supporter(Config<P, ?> config) {
-			this(config, Layouts.POINTER);
-		}
-
-		Supporter(Config<P, ?> config, AddressLayout layout) {
-			super(layout);
-			this.config = config;
-		}
-
-		/**
-		 * Creates an instance for the memory segment.
-		 */
-		public P of(MemorySegment memory) {
-			if (memory == null) return null;
-			return config.create(memory);
-		}
-		
-		/**
-		 * Returns support for constant pointer data. No change if already constant.
-		 */
-		public Supporter<P> asConst() {
-			var config = this.config.asConst();
-			return config == this.config ? this : new Supporter<>(config, layout());
-		}
-
-		@Override
-		public Native.Kind kind() {
-			return config.kind();
-		}
-
-		@Override
-		public Class<P> type() {
-			return config.type();
-		}
-
-		@Override
-		public String typeDesc() {
-			return config.desc();
-		}
-
-		@Override
-		public P val() {
-			return config.create(MemorySegment.NULL);
-		}
-
-		@Override
-		public Supporter<P> align(long align) {
-			var layout = Layouts.align(layout(), align);
-			return layout == layout() ? this : new Supporter<>(config, layout);
-		}
-
-		@Override
-		public Supporter<P> order(ByteOrder order) {
-			var layout = Layouts.order(layout(), order);
-			return layout == layout() ? this : new Supporter<>(config, layout);
-		}
-
-		@Override
-		protected P rawGet(MemorySegment memory, long offset, long length) {
-			return config.create(memory.get(layout(), offset));
-		}
-
-		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, P value) {
-			memory.set(layout(), offset, value.memory());
-		}
-	}
+public abstract class RawPointer extends PointerType {
+	/** Raw pointer operational support. */
+	public static final PointerType.Supporter<RawPointer> $ =
+		PointerType.Supporter.of(RawPointer.class, Native.Kind.primitivePointer, Support.VOID,
+			(m, _, _) -> Pointer.ofVoid(m), true);
 
 	/**
 	 * Adds arithmetic, type array access, and const memory functionality.
@@ -176,6 +60,7 @@ public abstract class RawPointer {
 		/**
 		 * Returns operational support for the pointer type.
 		 */
+		@Override
 		public abstract Supporter<P> support();
 
 		/**
@@ -353,12 +238,21 @@ public abstract class RawPointer {
 			return type.typeDesc();
 		}
 
+		/**
+		 * Returns the byte size for the given the pointer type count.
+		 */
 		long size(int count) {
 			return type().size(count);
 		}
 
+		/**
+		 * Creates a new pointer instance.
+		 */
 		abstract P instance(MemorySegment memory, T type, boolean constant);
 
+		/**
+		 * Creates a new pointer instance, or returns the current instance if unchanged.
+		 */
 		P copy(MemorySegment memory, T type, boolean constant) {
 			if (memory == null) memory = memory();
 			if (type == null) type = type();
@@ -369,28 +263,17 @@ public abstract class RawPointer {
 	}
 
 	RawPointer(MemorySegment memory) {
-		this.memory = Basics.def(memory, MemorySegment.NULL);
+		super(memory);
 	}
 
-	/**
-	 * Returns the contained memory segment.
-	 */
+	@Override
 	public MemorySegment memory() {
-		return memory;
+		return super.memory();
 	}
 
-	/**
-	 * Returns the memory segment address.
-	 */
+	@Override
 	public long address() {
-		return Segments.address(memory);
-	}
-
-	/**
-	 * Returns true if the contained memory segment has native address 0.
-	 */
-	public boolean isNull() {
-		return Segments.isNull(memory);
+		return super.address();
 	}
 
 	/**
@@ -402,7 +285,7 @@ public abstract class RawPointer {
 	 * Returns the memory segment size in bytes.
 	 */
 	public long size() {
-		return memory.byteSize();
+		return memory().byteSize();
 	}
 
 	/**
@@ -454,13 +337,6 @@ public abstract class RawPointer {
 		return as(Supports.DEF.typedFrom(cls));
 	}
 
-	public static void main(String[] args) {
-		var p = Pointer.of(Segments.auto().allocate(13));
-		System.out.println(p);
-		var pi = p.as(int.class);
-		System.out.println(pi);
-	}
-
 	/**
 	 * Casts this pointer to another type.
 	 */
@@ -469,23 +345,32 @@ public abstract class RawPointer {
 		return Pointer.of(memory(), type, isConst());
 	}
 
-	/**
-	 * Provides a simple descriptor for the pointer type.
-	 */
+	@Override
 	public String desc() {
-		return (isConst() ? "const " : "") + typeString() + "*";
+		return (isConst() ? "const " : "") + super.desc();
 	}
 
 	@Override
 	public String toString() {
-		return desc() + " " + Segments.string(memory);
+		return String.format("%s(%s)", desc(), Segments.string(memory()));
 	}
+
+	@Override
+	// shared
 
 	String typeString() {
 		return "void";
 	}
 
+	/**
+	 * Returns true if the pointer is read-only.
+	 */
 	boolean isConst() {
 		return true;
 	}
+
+	/**
+	 * Returns operational support for the pointer type.
+	 */
+	abstract Supporter<?> support();
 }

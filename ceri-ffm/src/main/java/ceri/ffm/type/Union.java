@@ -11,7 +11,6 @@ import ceri.common.util.Hasher;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Supports;
 import ceri.ffm.util.Args;
 
 public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
@@ -105,7 +104,7 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	/**
 	 * Creates a support instance for the type.
 	 */
-	public static <T extends Union<T>> Supporter<T> supportFor(Class<T> cls) {
+	static <T extends Union<T>> Supporter<T> supportFor(Class<T> cls) {
 		var config = config(cls);
 		return new Supporter<>(config, config.layout());
 	}

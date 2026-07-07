@@ -10,7 +10,6 @@ import ceri.common.math.Maths;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support;
 
 /**
  * Operational support for primitives.
@@ -124,7 +123,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public boolean getBool(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
@@ -132,7 +131,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setBool(MemorySegment memory, long offset, boolean value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
@@ -275,7 +274,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public char getChar(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.charValue();
@@ -283,7 +282,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setChar(MemorySegment memory, long offset, char value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
@@ -435,7 +434,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public byte getByte(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.byteValue();
@@ -443,27 +442,27 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
-		public boolean setByte(MemorySegment memory, long offset, byte value) {
+		public boolean setByte(MemorySegment memory, long offset, int value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
-			memory.set(layout(), offset, value);
+			memory.set(layout(), offset, (byte) value);
 			return true;
 		}
 
 		/**
 		 * Allocates memory with the value.
 		 */
-		public MemorySegment allocByte(byte value) {
+		public MemorySegment allocByte(int value) {
 			return allocByte(Segments.auto(), value);
 		}
 
 		/**
 		 * Allocates memory with the value.
 		 */
-		public MemorySegment allocByte(SegmentAllocator allocator, byte value) {
+		public MemorySegment allocByte(SegmentAllocator allocator, int value) {
 			if (allocator == null) return null;
-			return allocator.allocateFrom(layout(), value);
+			return allocator.allocateFrom(layout(), (byte) value);
 		}
 
 		/**
@@ -619,7 +618,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public short getShort(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.shortValue();
@@ -627,27 +626,27 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
-		public boolean setShort(MemorySegment memory, long offset, short value) {
+		public boolean setShort(MemorySegment memory, long offset, int value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
-			memory.set(layout(), offset, value);
+			memory.set(layout(), offset, (short) value);
 			return true;
 		}
 
 		/**
 		 * Allocates memory with the value.
 		 */
-		public MemorySegment allocShort(short value) {
+		public MemorySegment allocShort(int value) {
 			return allocShort(Segments.auto(), value);
 		}
 
 		/**
 		 * Allocates memory with the value.
 		 */
-		public MemorySegment allocShort(SegmentAllocator allocator, short value) {
+		public MemorySegment allocShort(SegmentAllocator allocator, int value) {
 			if (allocator == null) return null;
-			return allocator.allocateFrom(layout(), value);
+			return allocator.allocateFrom(layout(), (short) value);
 		}
 
 		/**
@@ -817,7 +816,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public int getInt(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.intValue();
@@ -825,7 +824,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setInt(MemorySegment memory, long offset, int value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
@@ -955,7 +954,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public long getLong(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.longValue();
@@ -963,7 +962,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setLong(MemorySegment memory, long offset, long value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
@@ -1093,7 +1092,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public float getFloat(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.floatValue();
@@ -1101,7 +1100,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setFloat(MemorySegment memory, long offset, float value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;
@@ -1231,7 +1230,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Gets the value at the offset.
+		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public double getDouble(MemorySegment memory, long offset) {
 			if (!Segments.within(memory, offset, layoutSize())) return VAL.doubleValue();
@@ -1239,7 +1238,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Sets the value at the offset.
+		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setDouble(MemorySegment memory, long offset, double value) {
 			if (!Segments.within(memory, offset, layoutSize())) return false;

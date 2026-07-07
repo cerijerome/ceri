@@ -1,4 +1,4 @@
-package ceri.ffm.core;
+package ceri.ffm.type;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
@@ -13,10 +13,12 @@ import ceri.common.io.Direction;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
+import ceri.ffm.core.Decoder;
+import ceri.ffm.core.Encoder;
+import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Native;
+import ceri.ffm.core.Segments;
 import ceri.ffm.test.FfmTesting;
-import ceri.ffm.type.Pointer;
-import ceri.ffm.type.RawPointer;
-import ceri.ffm.type.StringType;
 
 /**
  * Operational support for types and arrays with fixed-size layouts.

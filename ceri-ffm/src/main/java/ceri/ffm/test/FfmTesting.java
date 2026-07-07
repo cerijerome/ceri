@@ -17,9 +17,9 @@ import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
-import ceri.ffm.core.Support;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.RawPointer;
+import ceri.ffm.type.Support;
 import ceri.ffm.util.Args;
 
 public class FfmTesting {
