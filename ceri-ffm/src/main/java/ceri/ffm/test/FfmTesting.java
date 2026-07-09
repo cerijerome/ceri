@@ -17,8 +17,8 @@ import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
+import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Primitive;
-import ceri.ffm.type.RawPointer;
 import ceri.ffm.type.Support;
 import ceri.ffm.util.Args;
 
@@ -268,7 +268,7 @@ public class FfmTesting {
 	/**
 	 * Prints the binary contents of the pointer.
 	 */
-	public static void bin(RawPointer... ps) {
+	public static void bin(PointerType.Raw... ps) {
 		for (var p : ps) {
 			P.message(p);
 			print(p.memory());

@@ -7,6 +7,7 @@ import java.lang.foreign.MemorySegment.Scope;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
+import java.util.Objects;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
@@ -75,7 +76,7 @@ public class Segments {
 		 * Returns the contained memory segment.
 		 */
 		MemorySegment memory();
-		
+
 		/**
 		 * Returns the memory segment address.
 		 */
@@ -90,7 +91,7 @@ public class Segments {
 			return Segments.isNull(memory());
 		}
 	}
-	
+
 	/**
 	 * An arena wrapper that can be closed or garbage collected.
 	 */
@@ -134,6 +135,22 @@ public class Segments {
 		return Arena.ofAuto();
 	}
 
+	/**
+	 * Returns a hash for the segment and its size.
+	 */
+	public static int hash(MemorySegment memory) {
+		if (memory == null) return Objects.hash(memory);
+		return Objects.hash(memory, memory.byteSize());
+	}
+	
+	/**
+	 * Returns true if segments are the same location and size.
+	 */
+	public static boolean equals(MemorySegment m1, MemorySegment m2) {
+		if (m1 == m2) return true;
+		return Objects.equals(m1, m2) && m1.byteSize() == m2.byteSize();
+	}
+	
 	/**
 	 * Returns the address of the segment; 0 if null or a null pointer.
 	 */
@@ -251,8 +268,17 @@ public class Segments {
 	 */
 	public static String string(MemorySegment memory) {
 		if (memory == null) return Strings.NULL;
-		return String.format("@%04x+%02x%c", address(memory), size(memory),
-			isNative(memory) ? 'N' : 'H');
+		return String.format("%s+%02x", addressString(memory), size(memory));
+	}
+
+	/**
+	 * Provides an alternative string descriptor for the address.
+	 */
+	public static String addressString(MemorySegment memory) {
+		if (memory == null) return Strings.NULL;
+		var heapBase = memory.heapBase().orElse(null);
+		if (heapBase == null) return "@" + Long.toHexString(memory.address());
+		return String.format("@%02x:%02x", System.identityHashCode(heapBase), memory.address());
 	}
 
 	/**

@@ -15,7 +15,7 @@ import ceri.ffm.clib.ffm.CStdLib;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.type.IntType;
-import ceri.ffm.type.RawPointer;
+import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Support;
 import ceri.ffm.type.Supports;
 
@@ -135,10 +135,10 @@ public class Calls {
 		var support = argSupports.from(node);
 		if (support.isArray()) return byRefArg(b, support, node);
 		return switch (support.kind()) {
-			case primitive, boxed -> primitiveArg(b, support, node);
-			case intType -> intTypeArg(b, Reflect.unchecked(support), node);
-			case pointer, primitivePointer -> pointerArg(b, Reflect.unchecked(support), node);
-			case string, buffer -> byRefArg(b, support, node);
+			case PRIMITIVE, BOXED -> primitiveArg(b, support, node);
+			case INT_TYPE -> intTypeArg(b, Reflect.unchecked(support), node);
+			case POINTER, PRIMITIVE_POINTER -> pointerArg(b, Reflect.unchecked(support), node);
+			case STRING, BUFFER -> byRefArg(b, support, node);
 			case null -> null;
 			default -> byValArg(b, support, node);
 		};
@@ -155,10 +155,10 @@ public class Calls {
 		var support = rtnSupports.from(node);
 		if (support.isArray()) return byRefRtn(b, support, node);
 		return switch (support.kind()) {
-			case primitive, boxed -> primitiveRtn(b, support, node);
-			case intType -> intTypeRtn(b, Reflect.unchecked(support), node);
-			case pointer, primitivePointer -> pointerRtn(b, Reflect.unchecked(support), node);
-			case string, buffer -> byRefRtn(b, support, node);
+			case PRIMITIVE, BOXED -> primitiveRtn(b, support, node);
+			case INT_TYPE -> intTypeRtn(b, Reflect.unchecked(support), node);
+			case POINTER, PRIMITIVE_POINTER -> pointerRtn(b, Reflect.unchecked(support), node);
+			case STRING, BUFFER -> byRefRtn(b, support, node);
 			case null -> null;
 			default -> byValRtn(b, support, node);
 		};
@@ -175,8 +175,8 @@ public class Calls {
 			(_, t) -> Native.Adapted.of(t.nativeValue()));
 	}
 
-	private static <P extends RawPointer> Call.Builder pointerArg(Call.Builder b,
-		RawPointer.Supporter<P> support, TypeNode node) {
+	private static <P extends PointerType.Raw> Call.Builder pointerArg(Call.Builder b,
+		PointerType.Supporter<P> support, TypeNode node) {
 		return b.<P, MemorySegment>arg(node.typed(), support.layout(),
 			(_, t) -> Native.Adapted.of(t.memory()));
 	}
@@ -204,8 +204,8 @@ public class Calls {
 		return b.<Number, T>rtn(node.typed(), support.layout(), n -> support.of(n));
 	}
 
-	private static <P extends RawPointer> Call.Builder pointerRtn(Call.Builder b,
-		RawPointer.Supporter<P> support, TypeNode node) {
+	private static <P extends PointerType.Raw> Call.Builder pointerRtn(Call.Builder b,
+		PointerType.Supporter<P> support, TypeNode node) {
 		return b.<MemorySegment, P>rtn(node.typed(), support.layout(), m -> support.of(m));
 	}
 

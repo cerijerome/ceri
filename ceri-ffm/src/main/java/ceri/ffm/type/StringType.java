@@ -94,7 +94,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 
 		@Override
 		public Native.Kind kind() {
-			return Native.Kind.string;
+			return Native.Kind.STRING;
 		}
 
 		/**
@@ -150,37 +150,37 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(super.hashCode(), string, nul);
+			return Objects.hash(super.hashCode(), nul, string);
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (obj == this) return true;
-			return (obj instanceof Supporter s) && nul == s.nul && Objects.equals(string, s.string)
-				&& equalTo(s);
+			return (obj instanceof Supporter s) && equalTo(s) && nul == s.nul
+				&& Objects.equals(string, s.string);
 		}
 
 		// shared
 
 		@Override
-		protected String rawGet(MemorySegment memory, long offset, long length) {
+		String rawGet(MemorySegment memory, long offset, long length) {
 			return string.get(memory, offset, length, nul);
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, String value) {
+		void rawWrite(MemorySegment memory, long offset, long length, String value) {
 			string.write(memory, offset, length, value, 0, Integer.MAX_VALUE, nul);
 		}
 
 		@Override
-		protected void encode(Encoder encoder, String value) {
+		void encode(Encoder encoder, String value) {
 			var buffer = buffer(value);
 			encoder.accept(encoder.in() ? (m, o, _) -> write(m, o, buffer) : null, null,
 				length(buffer));
 		}
 
 		@Override
-		protected String decode(Decoder decoder, long length) {
+		String decode(Decoder decoder, long length) {
 			length = Math.min(length, layoutSize());
 			var memory = string.slice(decoder.memory(), decoder.offset(), length, nul);
 			if (Segments.isNull(memory)) return decodeNoVal(decoder, length);
@@ -191,18 +191,17 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		@Override
-		protected void encodeArray(Encoder encoder, String[] array, int index, int count,
-			boolean nul) {
+		void encodeArray(Encoder encoder, String[] array, int index, int count, boolean nul) {
 			encodeDynamicArray(encoder, array, index, count, nul);
 		}
 
 		@Override
-		protected String[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+		String[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
 			return decodeDynamicArray(decoder, length, count, nul);
 		}
 
 		@Override
-		protected int encodeTermSize() {
+		int encodeTermSize() {
 			return string.layoutSize() * (nul() ? 1 : length());
 		}
 

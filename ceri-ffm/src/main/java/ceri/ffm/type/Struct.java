@@ -29,7 +29,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 
 		@Override
 		public Native.Kind kind() {
-			return Native.Kind.struct;
+			return Native.Kind.STRUCT;
 		}
 
 		@Override
@@ -198,20 +198,20 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		}
 
 		@Override
-		protected T rawGet(MemorySegment memory, long offset, long length) {
+		T rawGet(MemorySegment memory, long offset, long length) {
 			var struct = val();
 			rawRead(memory, offset, length, struct);
 			return struct;
 		}
 
 		@Override
-		protected void rawRead(MemorySegment memory, long offset, long length, T struct) {
+		void rawRead(MemorySegment memory, long offset, long length, T struct) {
 			for (var member : config.members())
 				member.read(struct, memory, offset);
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, T struct) {
+		void rawWrite(MemorySegment memory, long offset, long length, T struct) {
 			for (var member : config.members())
 				member.write(struct, memory, offset);
 		}

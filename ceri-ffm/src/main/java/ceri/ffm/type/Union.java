@@ -30,7 +30,7 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 
 		@Override
 		public Native.Kind kind() {
-			return Native.Kind.union;
+			return Native.Kind.UNION;
 		}
 
 		@Override
@@ -45,21 +45,21 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 		}
 
 		@Override
-		protected T rawGet(MemorySegment memory, long offset, long length) {
+		T rawGet(MemorySegment memory, long offset, long length) {
 			var union = val();
 			rawRead(memory, offset, length, union);
 			return union;
 		}
 
 		@Override
-		protected void rawRead(MemorySegment memory, long offset, long length, T union) {
+		void rawRead(MemorySegment memory, long offset, long length, T union) {
 			var member = union.activeMember(config);
 			if (member != null) member.read(union, memory, offset);
 			memory(union, memory, offset);
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, T union) {
+		void rawWrite(MemorySegment memory, long offset, long length, T union) {
 			var member = union.autoActiveMember(config);
 			if (member != null) member.write(union, memory, offset);
 			memory(union, memory, offset);

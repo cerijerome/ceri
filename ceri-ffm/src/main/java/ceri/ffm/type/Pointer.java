@@ -5,13 +5,12 @@ import java.lang.foreign.SegmentAllocator;
 import com.google.common.base.Objects;
 import ceri.common.array.Array;
 import ceri.common.reflect.Reflect;
-import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.test.FfmTesting;
 
-public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
+public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
 	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(support(Support.VOID, true));
 
 	public static void main(String[] args) {
@@ -19,7 +18,7 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 		var ps = of(IntType.size_t.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 		var pb = ofBytes(true, 1, -1, 2, -2, 3, -3, 4);
 		var pi = ofInts(true, 1, -1, 2, -2, 3, -3, 4);
-		var m = RawPointer.$.allocAll(true, pv, pb, pi);
+		var m = PointerType.Raw.$.allocAll(true, pv, pb, pi);
 		var m0 = Pointer.$.allocAll(true, pv, ps);
 		FfmTesting.bin(pv);
 		FfmTesting.bin(m);
@@ -33,9 +32,9 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	/**
 	 * Constant void pointer.
 	 */
-	public static class OfVoid extends RawPointer {
+	public static class OfVoid extends PointerType.Raw {
 		public static final Supporter<OfVoid> $ = Supporter.of(OfVoid.class,
-			Native.Kind.primitivePointer, Support.VOID, (m, _, _) -> new OfVoid(m), true);
+			Native.Kind.PRIMITIVE_POINTER, Support.VOID, (m, _, _) -> new OfVoid(m), true);
 
 		private OfVoid(MemorySegment memory) {
 			super(memory);
@@ -67,11 +66,11 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	/**
 	 * Primitive byte pointer.
 	 */
-	public static class OfByte extends RawPointer.Indexable<OfByte, Primitive.OfByte, byte[]> {
+	public static class OfByte extends PointerType.Indexable<OfByte, Primitive.OfByte, byte[]> {
 		public static final Supporter<OfByte> $ = support(Primitive.BYTE, false);
 
 		static Supporter<OfByte> support(Primitive.OfByte type, boolean constant) {
-			return Supporter.of(OfByte.class, Native.Kind.primitivePointer, type,
+			return Supporter.of(OfByte.class, Native.Kind.PRIMITIVE_POINTER, type,
 				(m, t, c) -> new OfByte(m, t, c), constant);
 		}
 
@@ -160,11 +159,11 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	/**
 	 * Primitive int pointer.
 	 */
-	public static class OfInt extends RawPointer.Indexable<OfInt, Primitive.OfInt, int[]> {
+	public static class OfInt extends PointerType.Indexable<OfInt, Primitive.OfInt, int[]> {
 		public static final Supporter<OfInt> $ = support(Primitive.INT, false);
 
 		static Supporter<OfInt> support(Primitive.OfInt type, boolean constant) {
-			return Supporter.of(OfInt.class, Native.Kind.primitivePointer, type,
+			return Supporter.of(OfInt.class, Native.Kind.PRIMITIVE_POINTER, type,
 				(m, t, c) -> new OfInt(m, t, c), constant);
 		}
 
@@ -235,7 +234,7 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	}
 
 	static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
-		return Supporter.of(Reflect.unchecked(Pointer.class), Native.Kind.pointer, type,
+		return Supporter.of(Reflect.unchecked(Pointer.class), Native.Kind.POINTER, type,
 			(m, s, _) -> of(m, s), constant);
 	}
 
@@ -345,25 +344,40 @@ public class Pointer<T> extends RawPointer.Indexable<Pointer<T>, Support.Typed<T
 	/**
 	 * Returns an allocated typed pointer to the pointer.
 	 */
-	public static <P extends RawPointer> Pointer<P> of(P pointer) {
-		return of(Segments.auto(), pointer);
+	public static <P extends PointerType> Pointer<P> of(P pointer) {
+		return of(pointer, false);
 	}
 
 	/**
 	 * Returns an allocated typed pointer to the pointer.
 	 */
-	public static <P extends RawPointer> Pointer<P> of(SegmentAllocator allocator, P pointer) {
-		if (allocator == null || pointer == null) return null;
-		var memory = allocator.allocateFrom(Layouts.POINTER, pointer.memory());
-		var type = pointer.support();
-		return Pointer.of(memory, Reflect.unchecked(type), pointer.isConst());
+	public static <P extends PointerType> Pointer<P> of(P pointer, boolean constant) {
+		return of(Segments.auto(), pointer, constant);
 	}
 
 	/**
-	 * Returns a read-only typed pointer for the memory segment.
+	 * Returns an allocated typed pointer to the pointer.
+	 */
+	public static <P extends PointerType> Pointer<P> of(SegmentAllocator allocator, P pointer) {
+		return of(allocator, pointer, false);
+	}
+
+	/**
+	 * Returns an allocated typed pointer to the pointer.
+	 */
+	public static <P extends PointerType> Pointer<P> of(SegmentAllocator allocator, P pointer,
+		boolean constant) {
+		if (allocator == null || pointer == null) return null;
+		var type = Reflect.<Supporter<P>>unchecked(pointer.support());
+		var memory = type.alloc(allocator, pointer);
+		return of(memory, type, constant);
+	}
+
+	/**
+	 * Returns a typed pointer for the memory segment.
 	 */
 	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type) {
-		return of(memory, type, true);
+		return of(memory, type, false);
 	}
 
 	/**

@@ -96,8 +96,9 @@ Design considerations
 Memory
 ------
 - MemorySegment used for pointers (0-length) and contiguous memory blocks
-- on-heap from MemorySegment.ofArray (wraps array); can have address = 0
-- off-heap (native) from SegmentAllocator.allocate(From)
+- equals() does not check length
+- on-heap from MemorySegment.ofArray (wraps array); address is offset in array
+- off-heap (native) from SegmentAllocator.allocate(...)
 - off-heap (non-gc) memory required for native sharing
 - Arena used to allocate segments with lifecycle/access limits
 - reinterpret to access memory from pointer (0-length) returned by function

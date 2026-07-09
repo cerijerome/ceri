@@ -143,7 +143,7 @@ public class Supports {
 		public Defaults.Value array(Support<?, ?, ?> support) {
 			if (support.isArray()) return arrayNd();
 			return switch (support.kind()) {
-				case string, buffer -> arrayNd();
+				case STRING, BUFFER -> arrayNd();
 				default -> array1d();
 			};
 		}
@@ -301,8 +301,8 @@ public class Supports {
 
 	private Support<?, ?, ?> refine(Support<?, ?, ?> support, Refine.Context context) {
 		if (support == null) return null;
-		if (support.kind() == Native.Kind.primitivePointer && context.constant())
-			support = ((RawPointer.Supporter<?>) support).asConst();
+		if (support.kind() == Native.Kind.PRIMITIVE_POINTER && context.constant())
+			support = ((PointerType.Supporter<?>) support).asConst();
 		return support.align(context.align()).order(context.order());
 	}
 
@@ -328,7 +328,7 @@ public class Supports {
 			Primitive.CHAR, Primitive.BYTE, Primitive.SHORT, Primitive.INT, Primitive.LONG,
 			Primitive.FLOAT, Primitive.DOUBLE, Primitive.Box.BOOL, Primitive.Box.CHAR,
 			Primitive.Box.BYTE, Primitive.Box.SHORT, Primitive.Box.INT, Primitive.Box.LONG,
-			Primitive.Box.FLOAT, Primitive.Box.DOUBLE, RawPointer.$, Pointer.OfVoid.$,
+			Primitive.Box.FLOAT, Primitive.Box.DOUBLE, PointerType.Raw.$, Pointer.OfVoid.$,
 			// Pointer.OfBool.$, Pointer.OfChar.$,
 			Pointer.OfByte.$, // Pointer.OfShort.$,
 			Pointer.OfInt.$ // Pointer.OfLong.$, Pointer.OfFloat.$, Pointer.OfDouble.$

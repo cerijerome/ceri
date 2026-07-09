@@ -170,7 +170,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 
 		@Override
 		public Native.Kind kind() {
-			return Native.Kind.intType;
+			return Native.Kind.INT_TYPE;
 		}
 
 		@Override
@@ -289,12 +289,12 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		@Override
-		protected T rawGet(MemorySegment memory, long offset, long length) {
+		T rawGet(MemorySegment memory, long offset, long length) {
 			return of(boxed.get(memory, offset));
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, T value) {
+		void rawWrite(MemorySegment memory, long offset, long length, T value) {
 			boxed.write(memory, offset, Reflect.unchecked(init(value).nativeValue()));
 		}
 	}

@@ -108,7 +108,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 
 		@Override
 		public Native.Kind kind() {
-			return Native.Kind.buffer;
+			return Native.Kind.BUFFER;
 		}
 
 		/**
@@ -182,28 +182,28 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		@Override
 		public boolean equals(Object obj) {
 			if (obj == this) return true;
-			return (obj instanceof Supporter<?> s) && nul == s.nul && equalTo(s);
+			return (obj instanceof Supporter<?> s) && equalTo(s) && nul == s.nul;
 		}
 
 		// shared
 
 		@Override
-		protected B rawGet(MemorySegment memory, long offset, long length) {
+		B rawGet(MemorySegment memory, long offset, long length) {
 			return buffer.asBuffer(memory, offset, length, nul);
 		}
 
 		@Override
-		protected void rawRead(MemorySegment memory, long offset, long length, B value) {
+		void rawRead(MemorySegment memory, long offset, long length, B value) {
 			buffer.readAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul());
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, B value) {
+		void rawWrite(MemorySegment memory, long offset, long length, B value) {
 			buffer.writeAt(memory, offset, length, value, 0, Integer.MAX_VALUE, nul());
 		}
 
 		@Override
-		protected void encode(Encoder encoder, B value) {
+		void encode(Encoder encoder, B value) {
 			int position = value.position();
 			long length = Math.min(layoutSize(), buffer.size(value.remaining(), nul()));
 			encoder.accept(encoder.in() ? (m, o, l) -> encodeIn(m, o, l, value, position) : null,
@@ -211,7 +211,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		protected B decode(Decoder decoder, long length) {
+		B decode(Decoder decoder, long length) {
 			length = Math.min(length, layoutSize());
 			var value = buffer.asBuffer(decoder.memory(), decoder.offset(), length, nul());
 			if (value == null) return decodeNoVal(decoder, length);
@@ -220,17 +220,17 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		protected void encodeArray(Encoder encoder, B[] array, int index, int count, boolean nul) {
+		void encodeArray(Encoder encoder, B[] array, int index, int count, boolean nul) {
 			encodeDynamicArray(encoder, array, index, count, nul);
 		}
 
 		@Override
-		protected B[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+		B[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
 			return decodeDynamicArray(decoder, length, count, nul);
 		}
 
 		@Override
-		protected int encodeTermSize() {
+		int encodeTermSize() {
 			return buffer.layoutSize() * (nul() ? 1 : length());
 		}
 
@@ -493,7 +493,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	public MemorySegment alloc(SegmentAllocator allocator, B buffer, int count, boolean nul) {
 		if (allocator == null || buffer == null) return MemorySegment.NULL;
 		count = Maths.limit(count, 0, buffer.remaining());
-		var memory = allocator.allocate(size(count + (nul ? 1 : 0)));
+		var memory = allocate(allocator, size(count + (nul ? 1 : 0)));
 		rawWrite(memory, 0L, buffer, count);
 		if (nul) term().set(memory, size(count));
 		return memory;

@@ -118,7 +118,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 
 			@Override
 			public String toString() {
-				return arrayDesc(Native.wrap(support().typeDesc()), count(), nul());
+				return arrayDesc(wrapDesc(support().typeDesc()), count(), nul());
 			}
 		}
 
@@ -217,43 +217,43 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		}
 
 		@Override
-		protected T rawGet(MemorySegment memory, long offset, long length) {
+		T rawGet(MemorySegment memory, long offset, long length) {
 			return elementSupport().getArray(memory, offset, length, nul());
 		}
 
 		@Override
-		protected void rawRead(MemorySegment memory, long offset, long length, T value) {
+		void rawRead(MemorySegment memory, long offset, long length, T value) {
 			elementSupport().readArray(memory, offset, length, value, 0, count(), nul());
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, T value) {
+		void rawWrite(MemorySegment memory, long offset, long length, T value) {
 			elementSupport().writeArray(memory, offset, length, value, 0, count(), nul());
 		}
 
 		@Override
-		protected void encode(Encoder encoder, T value) {
+		void encode(Encoder encoder, T value) {
 			int count = Maths.min(RawArray.length(value), elements());
 			elementSupport().encodeArray(encoder, value, 0, count, nul());
 		}
 
 		@Override
-		protected T decode(Decoder decoder, long length) {
+		T decode(Decoder decoder, long length) {
 			return elementSupport().decodeArray(decoder, length, count(), nul());
 		}
 
 		@Override
-		protected void encodeArray(Encoder encoder, T[] array, int index, int count, boolean nul) {
+		void encodeArray(Encoder encoder, T[] array, int index, int count, boolean nul) {
 			encodeDynamicArray(encoder, array, index, count, nul);
 		}
 
 		@Override
-		protected T[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+		T[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
 			return decodeDynamicArray(decoder, length, count, nul);
 		}
 
 		@Override
-		protected int encodeTermSize() {
+		int encodeTermSize() {
 			return elementSupport().encodeTermSize() * (nul() ? 1 : count());
 		}
 
@@ -279,7 +279,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 
 		@Override
 		public Native.Kind kind() {
-			return Native.Kind.none;
+			return Native.Kind.NONE;
 		}
 
 		@Override
@@ -310,12 +310,12 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		}
 
 		@Override
-		protected Void rawGet(MemorySegment memory, long offset, long length) {
+		Void rawGet(MemorySegment memory, long offset, long length) {
 			return val();
 		}
 
 		@Override
-		protected void rawWrite(MemorySegment memory, long offset, long length, Void value) {}
+		void rawWrite(MemorySegment memory, long offset, long length, Void value) {}
 	}
 
 	/**
@@ -323,7 +323,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 */
 	public static abstract class Typed<T, L extends MemoryLayout> extends Support<T, T[], L> {
 
-		protected Typed(L layout) {
+		Typed(L layout) {
 			super(layout);
 		}
 
@@ -339,14 +339,14 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		/**
 		 * Provides support for pointers of this type.
 		 */
-		public RawPointer.Supporter<Pointer<T>> asPointer() {
+		public PointerType.Supporter<Pointer<T>> asPointer() {
 			return asPointer(false);
 		}
 
 		/**
 		 * Provides support for pointers of this type.
 		 */
-		public RawPointer.Supporter<Pointer<T>> asPointer(boolean constant) {
+		public PointerType.Supporter<Pointer<T>> asPointer(boolean constant) {
 			return Pointer.support(this, constant);
 		}
 
@@ -415,7 +415,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		/**
 		 * Encodes an array with non-fixed element sizes. Count does not include terminator.
 		 */
-		protected void encodeDynamicArray(Encoder encoder, T[] array, int index, int count,
+		void encodeDynamicArray(Encoder encoder, T[] array, int index, int count,
 			boolean nul) {
 			for (int i = 0; i < count; i++)
 				encode(encoder, array[index + i]);
@@ -425,7 +425,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		/**
 		 * Decodes an array with non-fixed element sizes. Count includes terminator if specified.
 		 */
-		protected T[] decodeDynamicArray(Decoder decoder, long length, int count, boolean nul) {
+		T[] decodeDynamicArray(Decoder decoder, long length, int count, boolean nul) {
 			if (nul) count--;
 			var termSize = nul ? encodeTermSize() : 0;
 			long end = decoder.offset() + length - termSize;
@@ -442,7 +442,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		}
 	}
 
-	protected Support(L layout) {
+	Support(L layout) {
 		this.layout = layout;
 	}
 
@@ -455,7 +455,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Returns true if this is a void placeholder.
 	 */
 	public boolean isVoid() {
-		return kind() == Native.Kind.none;
+		return kind() == Native.Kind.NONE;
 	}
 
 	/**
@@ -1047,32 +1047,32 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 
 	// overrides
 
-	protected boolean equalTo(Support<?, ?, ?> support) {
+	boolean equalTo(Support<?, ?, ?> support) {
 		return type().equals(support.type()) && layout().equals(support.layout());
 	}
 
 	/**
 	 * Creates a new value from memory without performing bound checks.
 	 */
-	protected abstract T rawGet(MemorySegment memory, long offset, long length);
+	abstract T rawGet(MemorySegment memory, long offset, long length);
 
 	/**
 	 * Copies memory to the value without performing bound checks. Returns false if immutable.
 	 */
 	@SuppressWarnings("unused")
-	protected void rawRead(MemorySegment memory, long offset, long length, T value) {
+	void rawRead(MemorySegment memory, long offset, long length, T value) {
 		// does nothing by default
 	}
 
 	/**
 	 * Writes the value to memory without performing bound checks.
 	 */
-	protected abstract void rawWrite(MemorySegment memory, long offset, long length, T value);
+	abstract void rawWrite(MemorySegment memory, long offset, long length, T value);
 
 	/**
 	 * Copies memory to array without performing bound checks.
 	 */
-	protected void rawReadArray(MemorySegment memory, long offset, A array, int index, int count) {
+	void rawReadArray(MemorySegment memory, long offset, A array, int index, int count) {
 		if (immutable()) rawReadArrayImmutable(memory, offset, array, index, count);
 		else for (int i = 0; i < count; i++) {
 			var value = RawArray.<T>get(array, index);
@@ -1087,7 +1087,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Copies memory to a new array, filling remainder with null-values.
 	 */
-	protected int rawReadArrayNew(MemorySegment memory, long offset, A array) {
+	int rawReadArrayNew(MemorySegment memory, long offset, A array) {
 		int n = readArray(memory, offset, array, 0, false);
 		int count = RawArray.length(array);
 		for (int i = n; i < count; i++)
@@ -1098,7 +1098,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Copies array to memory without performing bounds checks.
 	 */
-	protected void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
+	void rawWriteArray(MemorySegment memory, long offset, A array, int index, int count) {
 		for (int i = 0; i < count; i++) {
 			T t = RawArray.get(array, index++);
 			if (t != null) rawWrite(memory, offset, length(memory, offset), t);
@@ -1109,7 +1109,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Provides sequential encoding for the type without padding.
 	 */
-	protected void encode(Encoder encoder, T value) {
+	void encode(Encoder encoder, T value) {
 		encoder.accept(encoder.in() ? (m, o, l) -> write(m, o, l, value) : null,
 			encoder.out() && !immutable() ? (m, o, l) -> read(m, o, l, value) : null, layoutSize());
 	}
@@ -1117,7 +1117,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Provides sequential decoding for the type without padding.
 	 */
-	protected T decode(Decoder decoder, long length) {
+	T decode(Decoder decoder, long length) {
 		var value = get(decoder.memory(), decoder.offset(), length);
 		decoder.inc(layoutSize());
 		return value;
@@ -1127,7 +1127,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Provides sequential encoding for the array without padding, after bound checks. The count
 	 * does not include the nul-terminator if specified.
 	 */
-	protected void encodeArray(Encoder encoder, A array, int index, int count, boolean nul) {
+	void encodeArray(Encoder encoder, A array, int index, int count, boolean nul) {
 		encoder.accept(
 			encoder.in() ? (m, o, l) -> writeArray(m, o, l, array, index, count, nul) : null,
 			encoder.out() ? (m, o, l) -> readArray(m, o, l, array, index, count, nul) : null,
@@ -1138,7 +1138,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	 * Provides sequential decoding for an array from memory with max count and optional
 	 * nul-termination, after bound checks. Count includes nul-terminator if specified.
 	 */
-	protected A decodeArray(Decoder decoder, long length, int count, boolean nul) {
+	A decodeArray(Decoder decoder, long length, int count, boolean nul) {
 		length = Math.min(length, size(count));
 		var array = getArray(decoder.memory(), decoder.offset(), length, nul);
 		if (array == null) return decodeNoVals(decoder, length);
@@ -1149,7 +1149,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Failed to find value; position the decoder and return an empty value.
 	 */
-	protected T decodeNoVal(Decoder decoder, long length) {
+	T decodeNoVal(Decoder decoder, long length) {
 		decoder.inc(length);
 		return val();
 	}
@@ -1157,7 +1157,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Failed to find values; position the decoder and return an empty array.
 	 */
-	protected A decodeNoVals(Decoder decoder, long length) {
+	A decodeNoVals(Decoder decoder, long length) {
 		decoder.inc(length);
 		return valArray(0);
 	}
@@ -1165,17 +1165,38 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Returns the nul-terminator size for encoding and decoding.
 	 */
-	protected int encodeTermSize() {
+	int encodeTermSize() {
 		return layoutSize();
 	}
 
-	protected static String arrayDesc(String type, int length, boolean nul) {
-		int i = type.indexOf('[');
-		if (i == -1) i = type.length();
-		return String.format("%s[%d%s]%s", type.substring(0, i), length, nul ? "!" : "",
-			type.substring(i));
+	/**
+	 * Wraps a type descriptor if a space is found before any parentheses.
+	 */
+	static String wrapDesc(String typeDesc) {
+		for (int i = 0; i < typeDesc.length(); i++) {
+			var c = typeDesc.charAt(i);
+			if (c == ' ') return '(' + typeDesc + ')';
+			if (c == '(') break;
+		}
+		return typeDesc;
 	}
-
+	
+	/**
+	 * Inserts an array dimension into a type descriptor.
+	 */
+	static String arrayDesc(String typeDesc, int length, boolean nul) {
+		boolean bracket = false;
+		int i = typeDesc.length();
+		while (i > 0) {
+			var c = typeDesc.charAt(i - 1);
+			if (!bracket && c != ']') break;
+			bracket = c != '[';
+			i--;
+		}
+		return String.format("%s[%d%s]%s", typeDesc.substring(0, i), length, nul ? "!" : "",
+			typeDesc.substring(i));
+	}
+	
 	// support
 
 	private void rawReadArrayImmutable(MemorySegment memory, long offset, A array, int index,

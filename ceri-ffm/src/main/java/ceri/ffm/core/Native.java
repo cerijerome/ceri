@@ -7,15 +7,12 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.util.Map;
-import java.util.regex.Pattern;
 import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.Strings;
 
 public class Native {
-	private static final Pattern INNER_REGEX = Pattern.compile("\\(.*\\)");
 	private static final Map<Class<?>, Class<?>> PROMOTIONS = promotions();
 	/** The native linker. */
 	public static final Linker LINKER = Linker.nativeLinker();
@@ -26,18 +23,18 @@ public class Native {
 	 * Supported types.
 	 */
 	public enum Kind {
-		none,
-		primitive,
-		boxed,
-		intType,
-		struct,
-		union,
-		pointer,
-		primitivePointer,
-		pointerType,
-		functionPointer,
-		string,
-		buffer;
+		NONE,
+		PRIMITIVE,
+		BOXED,
+		INT_TYPE,
+		STRUCT,
+		UNION,
+		POINTER,
+		PRIMITIVE_POINTER,
+		POINTER_TYPE,
+		FUNCTION_POINTER,
+		STRING,
+		BUFFER;
 	}
 
 	/**
@@ -45,7 +42,7 @@ public class Native {
 	 */
 	public interface Adapted<R> {
 		/**
-		 * Provides the adapted result value.
+		 * Provides the adapted value.
 		 */
 		R value();
 
@@ -195,16 +192,6 @@ public class Native {
 	 */
 	public static <L extends MemoryLayout> L layout(String name) {
 		return Reflect.unchecked(LINKER.canonicalLayouts().get(name));
-	}
-
-	/**
-	 * Wraps the type string if its non-wrapped parts are separated by spaces.
-	 */
-	public static String wrap(String type) {
-		if (Strings.isEmpty(type)) return type;
-		var outer = INNER_REGEX.matcher(type).replaceFirst("");
-		if (outer.contains(" ")) return '(' + type + ')';
-		return type;
 	}
 
 	// support
