@@ -2,226 +2,152 @@ package ceri.ffm.util;
 
 import java.lang.foreign.MemorySegment;
 import java.nio.Buffer;
-import java.util.List;
-import java.util.Set;
-import ceri.common.array.RawArray;
-import ceri.common.collect.Immutable;
-import ceri.common.collect.Iterators;
-import ceri.common.collect.Sets;
+import java.util.Map;
+import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
 import ceri.common.io.Buffers;
-import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
-import ceri.common.text.Strings;
+import ceri.common.text.Transformer;
 import ceri.ffm.core.Segments;
+import ceri.ffm.reflect.Refine.Nul;
+import ceri.ffm.reflect.Refine.Size;
+import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.BufferType;
 import ceri.ffm.type.Group;
+import ceri.ffm.type.Group.Fields;
+import ceri.ffm.type.IntType.ssize_t;
+import ceri.ffm.type.Pointer;
+import ceri.ffm.type.PointerType;
+import ceri.ffm.type.Primitive;
+import ceri.ffm.type.Struct;
+import ceri.ffm.type.Union;
 
 /**
  * Utility to create strings from method arguments. Arrays and Iterable types are expanded.
  */
 public class Args {
-	public static Args DEFAULT = builder().addDefault(true).build();
-	public static Args FULL = builder().addDefault(false).build();
-	private static final int DEC_LIMIT = 9;
-	private final List<Functions.Function<Object, String>> transforms;
-	private final Joiner arrayJoiner;
+	/** Compact transforms for a single line. */
+	public static Transformer COMPACT = compact(16, 5);
+	/** Longer transforms with multiple lines. */
+	public static Transformer FULL = full();
 
-	/**
-	 * Predicate to match an instance of any given of the classes.
-	 */
-	public static Functions.Predicate<Object> matchClass(Class<?>... classes) {
-		return obj -> Reflect.instanceOfAny(obj, classes);
+	@Fields({ "i", "s" })
+	public static class union extends Union<union> {
+		public static final Union.Supporter<union> $ = Union.support(union.class);
+		public int i = -1;
+		public @Size(3) String s = "abc";
+	}
+
+	@Fields({ "i", "s" })
+	public static class struct extends Struct<struct> {
+		public static final Struct.Supporter<struct> $ = Struct.support(struct.class);
+		public @Nul int[][] i = { { -1, 1, -2, 2, 0 }, {} };
+		public @Size(3) String s = "ABC";
+	}
+
+	public static void main(String[] args) {
+		Functions.Consumer<String> con = s -> System.out.println(s);
+		System.out.println(con);
+
+		Object[] values = { //
+			"abc\nde\0", new int[] { 1, -1, 0, 2, -2 }, //
+			Map.of("a", 1, "b", 2), ssize_t.$.ofAll(1, -1, 0, 2, -2), //
+			new union(), new struct(), //
+			Buffers.SHORT.of(-1, 1, 0), //
+			Primitive.BOOL.allocAll(true, false, true), //
+			Pointer.of(Pointer.ofByte(-1)), //
+		};
+		print(FULL, values);
+		print(COMPACT, values);
+	}
+
+	private static void print(Transformer transformer, Object[] values) {
+		FfmTesting.title(transformer.toString());
+		System.out.println(Joiner.ARRAY.joinAll(transformer, values));
 	}
 
 	/**
-	 * Predicate to match byte/short/int/long primitive or primitive wrapper, and cast to Number.
+	 * Wrapper to prevent string transformation.
 	 */
-	public static Functions.Function<Object, Number> matchInt() {
-		return arg -> Reflect.INTS.contains(arg.getClass()) ? (Number) arg : null;
-	}
-
-	/**
-	 * Int Number type to string. Decimal and hex if within limits. Will throw exception if Number
-	 * type is incompatible with %d and %x format conversions.
-	 */
-	public static String stringInt(Number n) {
-		return stringInt(n, -1, DEC_LIMIT);
-	}
-
-	/**
-	 * Int Number type to string. Decimal and hex if within limits. Will throw exception if Number
-	 * type is incompatible with %d and %x format conversions.
-	 */
-	public static String stringInt(Number n, int hexMin, int hexMax) {
-		long l = n.longValue();
-		if (l >= hexMin && l <= hexMax) return String.valueOf(n);
-		// if (n instanceof IntegerType) n = l;
-		return String.format("%1$d|0x%1$x", n);
-	}
-
-	/**
-	 * Structure to compact string.
-	 */
-	public static String compact(Group<?, ?> t) {
-		return Reflect.nestedName(t.getClass()) + "{}";
-	}
-
-	/**
-	 * Pointer to compact string.
-	 */
-	// public static String string(Pointer p) {
-	// if (p instanceof Memory m) return string(m);
-	// return String.format("@%x", Pointer.nativeValue(p));
-	// }
-
-	/**
-	 * Memory to compact string.
-	 */
-	public static String string(MemorySegment m) {
-		return String.format("@%x+%x", Segments.address(m), Segments.size(m));
-	}
-
-	/**
-	 * Memory to compact string.
-	 */
-	// public static String string(PointerType p) {
-	// return String.format("%s(%s)", Reflect.nestedName(p.getClass()),
-	// string(p.getPointer()));
-	// }
-
-	/**
-	 * Callback to compact string.
-	 */
-	// public static String string(Callback cb) {
-	// String s = String.valueOf(cb);
-	// return s.substring(s.lastIndexOf(".") + 1);
-	// }
-
-	/**
-	 * Byte buffer to compact string.
-	 */
-	public static String string(Buffer b) {
-		var s = BufferType.from(b);
-		var a = Buffers.apply(b, _ -> s.buffers().get(b));
-		return String.format("%s(%d-%d/%d)%s", Buffers.baseType(b).getSimpleName(), b.position(),
-			b.limit(), b.capacity(), RawArray.toString(a));
-	}
-
-	/**
-	 * Builder with convenience methods to add transforms.
-	 */
-	public static class Builder {
-		final Set<Functions.Function<Object, String>> transforms = Sets.link();
-		int arrayMax = 8;
-
-		Builder() {}
-
-		/**
-		 * Adds default transforms.
-		 */
-		public Builder addDefault(boolean compactGroup) {
-			if (compactGroup) add(Group.class, Args::compact);
-			return add(CharSequence.class, s -> "\"" + Chars.escape(s) + "\"") //
-				.add(matchInt(), n -> stringInt(n)) //
-				// .add(IntType.class, n -> stringInt(n.nativeValue())) //
-				// .add(Pointer.class, Args::string) //
-				.add(MemorySegment.class, Args::string) //
-				// .add(PointerType.class, Args::string) //
-				// .add(Callback.class, Args::string) //
-				.add(Buffer.class, Args::string);
-		}
-
-		/**
-		 * Adds an argument string transform for matching type.
-		 */
-		public <T> Builder add(Functions.Function<Object, T> match,
-			Functions.Function<T, String> fn) {
-			return add(arg -> {
-				T t = match.apply(arg);
-				return t == null ? null : fn.apply(t);
-			});
-		}
-
-		/**
-		 * Adds an argument string formatter for matching predicate.
-		 */
-		public Builder add(Functions.Predicate<Object> match, String format) {
-			return add(arg -> match.test(arg) ? String.format(format, arg) : null);
-		}
-
-		/**
-		 * Adds an argument string formatter for matching class.
-		 */
-		public Builder add(Class<?> cls, String format) {
-			return add(cls, arg -> String.format(format, arg));
-		}
-
-		/**
-		 * Adds an argument string transform for matching class.
-		 */
-		public <T> Builder add(Class<T> cls, Functions.Function<T, String> fn) {
-			return add(arg -> Reflect.castOrNull(cls, arg), fn);
-		}
-
-		/**
-		 * Adds an argument string transform. Transform should return null if no match.
-		 */
-		public Builder add(Functions.Function<Object, String> transform) {
-			transforms.add(transform);
-			return this;
-		}
-
-		public Builder arrayMax(int arrayMax) {
-			this.arrayMax = arrayMax;
-			return this;
-		}
-
-		public Args build() {
-			return new Args(this);
+	public record Raw(Object name) {
+		@Override
+		public String toString() {
+			return String.valueOf(name());
 		}
 	}
 
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	Args(Builder builder) {
-		transforms = Immutable.list(builder.transforms);
-		arrayJoiner = Joiner.builder().prefix("[").separator(",").suffix("]").max(builder.arrayMax)
-			.remainder("..").build();
+	/**
+	 * Shows escaped and quoted char sequences.
+	 */
+	public static String chars(CharSequence chars, int limit) {
+		if (limit < 0 || chars.length() <= limit) return "\"" + Chars.escape(chars) + "\"";
+		return "\"" + Chars.escape(chars.subSequence(0, limit)) + "..\"";
 	}
 
 	/**
-	 * Creates a comma-separated string from given arguments.
+	 * Shows struct and union member values as a map.
 	 */
-	public String args(Object... args) {
-		return Joiner.COMMA_COMPACT.joinAll(this::arg, args);
+	public static String group(Transformer.Context context, Group<?, ?> group) {
+		var map = Maps.<Raw, Object>link();
+		Group.forEachMember(group, (m, t) -> map.put(new Raw(m.name()), t));
+		return context.apply(map);
 	}
 
 	/**
-	 * Creates a string from given argument.
+	 * Shows typed pointer memory location and type instance.
 	 */
-	public String arg(Object arg) {
-		if (arg == null) return Strings.NULL;
-		for (var transform : transforms) {
-			var result = transform.apply(arg);
-			if (result != null) return result;
-		}
-		if (arg.getClass().isArray()) return arrayString(arg);
-		if (arg instanceof Iterable<?> i) return iterableString(i);
-		return String.valueOf(arg);
+	public static String typedPointer(Transformer.Context context,
+		PointerType.Indexable<?, ?, ?> pointer) {
+		var array = pointer.getArray(1, false);
+		return context.apply(pointer.memory()) + context.apply(array);
 	}
 
-	private String iterableString(Iterable<?> iterable) {
-		return arrayString(Streams.from(iterable).toArray());
+	/**
+	 * Shows untyped pointer memory location.
+	 */
+	public static String pointer(Transformer.Context context, PointerType pointer) {
+		return context.apply(pointer.memory());
 	}
 
-	private String arrayString(Object array) {
-		int len = RawArray.length(array);
-		var iter = Iterators.indexed(len, i -> RawArray.get(array, i));
-		return arrayJoiner.join(this::arg, iter, len);
+	/**
+	 * Shows buffer content array.
+	 */
+	public static String buffer(Transformer.Context context, Buffer buffer) {
+		var buffers = BufferType.from(buffer).buffers();
+		var array = Buffers.apply(buffer, buffers::get);
+		return context.apply(array);
+	}
+
+	public static String applyAll(Transformer transformer, Object... args) {
+		var b = new StringBuilder();
+		for (var arg : args)
+			b.append(b.isEmpty() ? "" : ", ").append(transformer.apply(arg));
+		return b.toString();
+	}
+
+	// support
+
+	private static Transformer full() {
+		return Transformer.builder() //
+			.add(CharSequence.class, (_, c) -> chars(c, -1)) //
+			.add(Buffer.class, Args::buffer) //
+			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
+			.add(PointerType.Indexable.class, Args::typedPointer) //
+			.add(PointerType.class, Args::pointer) //
+			.build();
+	}
+
+	private static Transformer compact(int stringSize, int sequenceSize) {
+		return Transformer.builder() //
+			.iterables(Transformer.joiner(Joiner.ARRAY, sequenceSize)) //
+			.maps(Transformer.joiner(Joiner.LIST, sequenceSize), "=") //
+			.add(CharSequence.class, (_, c) -> chars(c, stringSize)) //
+			.add(Buffer.class, Args::buffer) //
+			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
+			.add(PointerType.Indexable.class, Args::typedPointer) //
+			.add(PointerType.class, Args::pointer) //
+			.add(Group.class, (c, g) -> group(c, g)) //
+			.build();
 	}
 }

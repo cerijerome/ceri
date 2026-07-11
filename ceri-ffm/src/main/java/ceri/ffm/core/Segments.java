@@ -278,7 +278,7 @@ public class Segments {
 		if (memory == null) return Strings.NULL;
 		var heapBase = memory.heapBase().orElse(null);
 		if (heapBase == null) return "@" + Long.toHexString(memory.address());
-		return String.format("@%02x:%02x", System.identityHashCode(heapBase), memory.address());
+		return String.format("#%x:%02x", System.identityHashCode(heapBase), memory.address());
 	}
 
 	/**

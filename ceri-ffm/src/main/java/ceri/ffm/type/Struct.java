@@ -306,11 +306,6 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		return config(cls);
 	}
 
-	@Override
-	String typeName() {
-		return "struct";
-	}
-
 	// support
 
 	private static long addPadding(List<MemoryLayout> layouts, long offset, long align) {

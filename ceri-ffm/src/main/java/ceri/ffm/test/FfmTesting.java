@@ -105,7 +105,7 @@ public class FfmTesting {
 		public static Alloc of() {
 			return of(Segments.auto());
 		}
-		
+
 		/**
 		 * Returns a new block allocator instance with given allocator.
 		 */
@@ -229,7 +229,7 @@ public class FfmTesting {
 	 * Prints the object as an argument.
 	 */
 	public static void arg(Object arg) {
-		P.message(Args.DEFAULT.arg(arg));
+		P.message(Args.COMPACT.apply(arg));
 	}
 
 	/**

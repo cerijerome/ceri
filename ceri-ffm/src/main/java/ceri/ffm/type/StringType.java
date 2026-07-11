@@ -125,7 +125,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 
 		@Override
 		public String typeDesc() {
-			return arrayDesc(string.charset().name(), length(), nul());
+			return "String:" + arrayDesc(string.charset().name(), length(), nul());
 		}
 
 		@Override

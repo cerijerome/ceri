@@ -28,6 +28,7 @@ import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.common.text.Text;
 import ceri.common.text.ToString;
+import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
@@ -86,7 +87,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	/**
 	 * Member configuration.
 	 */
-	static class Member<T> {
+	public static class Member<T> {
 		private final String name;
 		private final long offset;
 		private final MemoryLayout layout;
@@ -148,13 +149,27 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			this.flex = flex;
 		}
 
+		/**
+		 * Returns the member name.
+		 */
+		public String name() {
+			return name;
+		}
+
+		/**
+		 * Returns the byte offset without the group layout.
+		 */
+		public long offset() {
+			return offset;
+		}
+
 		@Override
 		public String toString() {
-			return String.format("0x%02x %s %s", offset, desc(), Layouts.desc(layout));
+			return String.format("0x%02x %s %s", offset(), desc(), Layouts.desc(layout));
 		}
 
 		String desc() {
-			return support.typeDesc() + (flex ? "[]" : "") + ' ' + name;
+			return support.typeDesc() + (flex ? "[]" : "") + ' ' + name();
 		}
 
 		T get(Group<?, ?> group) {
@@ -181,13 +196,13 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 		void read(Group<?, ?> group, MemorySegment memory, long offset) {
 			var current = get(group);
-			var updated = actions.update(memory, offset + this.offset, current);
+			var updated = actions.update(memory, offset + offset(), current);
 			if (updated != null && updated != current) set(group, updated);
 		}
 
 		void write(Group<?, ?> group, MemorySegment memory, long offset) {
 			var current = get(group);
-			actions.write(memory, offset + this.offset, current);
+			actions.write(memory, offset + offset(), current);
 		}
 
 		boolean flex() {
@@ -195,14 +210,14 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		}
 
 		long flexScale(int count) {
-			return ((SequenceLayout) layout).elementLayout().scale(offset, count);
+			return ((SequenceLayout) layout).elementLayout().scale(offset(), count);
 		}
 	}
 
 	/**
 	 * Group configuration.
 	 */
-	static class Config<T extends Group<T, L>, L extends GroupLayout> {
+	public static class Config<T extends Group<T, L>, L extends GroupLayout> {
 		private final Class<T> type;
 		private final Functions.Supplier<T> constructor;
 		private final Map<String, Integer> nameIndex;
@@ -268,16 +283,19 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			nameIndex = nameIndex(members);
 		}
 
+		/**
+		 * Returns the list of members.
+		 */
+		public List<Member<?>> members() {
+			return members;
+		}
+
 		Class<T> type() {
 			return type;
 		}
 
 		L layout() {
 			return layout;
-		}
-
-		List<Member<?>> members() {
-			return members;
 		}
 
 		boolean flex() {
@@ -335,6 +353,19 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		}
 	}
 
+	/**
+	 * Iterates over each group member. Returns the number of members consumed.
+	 */
+	public static int forEachMember(Group<?, ?> group,
+		Functions.BiConsumer<Member<?>, Object> consumer) {
+		if (group == null || consumer == null) return 0;
+		var members = group.config().members();
+		members.forEach(m -> consumer.accept(m, m.get(group)));
+		return members.size();
+	}
+
+	protected Group() {}
+
 	@Override
 	public int hashCode() {
 		return Hasher.deep(values());
@@ -343,7 +374,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		return (obj instanceof Group<?, ?> g) && Objects.deepEquals(values(), g.values());
+		return (obj instanceof Group<?, ?> g) && equals(config(), g);
 	}
 
 	@Override
@@ -353,12 +384,12 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	// shared
 
-	String toString(Args args) {
+	String toString(Transformer transformer) {
 		var config = config();
-		var b = new StringBuilder(typeName()).append(' ').append(config.type().getSimpleName())
-			.append(" {");
+		var b = new StringBuilder(config.type().getSimpleName()).append(" {");
 		for (var member : config.members())
-			b.append(Strings.EOL).append(Text.prefixLines(INDENT, memberString(args, member)));
+			b.append(Strings.EOL)
+				.append(Text.prefixLines(INDENT, memberString(transformer, member)));
 		if (!config.members().isEmpty()) b.append(Strings.EOL);
 		return b.append('}').toString();
 	}
@@ -374,10 +405,8 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	abstract Config<T, L> configFor(Class<T> cls);
 
-	abstract String typeName();
-
-	String memberString(Args args, Group.Member<?> member) {
-		return member.desc() + " = " + args.arg(member.get(this)) + ';';
+	String memberString(Transformer transformer, Group.Member<?> member) {
+		return member.desc() + " = " + transformer.apply(member.get(this)) + ';';
 	}
 
 	T typedThis() {
@@ -449,7 +478,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	private static Map<String, Integer> nameIndex(List<Member<?>> members) {
 		var map = Maps.<String, Integer>of();
 		for (int i = 0; i < members.size(); i++)
-			map.put(members.get(i).name, i);
+			map.put(members.get(i).name(), i);
 		return Immutable.wrap(map);
 	}
 

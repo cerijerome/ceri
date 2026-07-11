@@ -4,6 +4,8 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.text.Joiner;
+import ceri.common.text.Transformer;
 import ceri.ffm.core.LastError;
 import ceri.ffm.core.Library;
 
@@ -12,31 +14,50 @@ import ceri.ffm.core.Library;
  */
 public class Caller<E extends Exception, T> {
 	private final Library<T> lib;
-	private final Args args;
+	private final Transformer transformer;
 	private final int generalCode;
 	private final ToException<E> exceptionFn;
 
+	/**
+	 * Converts an error code and message to an exception.
+	 */
 	public interface ToException<E extends Exception> {
+		/**
+		 * Returns an exception instance from the error code and message.
+		 */
 		E apply(int code, String message);
 	}
 
+	/**
+	 * Provides a message from call name and arguments.
+	 */
 	public interface CallDescriptor {
+		/**
+		 * Returns a message from call name and arguments.
+		 */
 		String accept(String name, Object... args);
 	}
 
+	/**
+	 * Creates an instance for the native library, with exception adapter.
+	 */
 	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib,
 		ToException<E> exceptionFn) {
-		return of(lib, Args.DEFAULT, -1, exceptionFn);
+		return of(lib, Args.COMPACT, -1, exceptionFn);
 	}
 
-	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib, Args args,
+	/**
+	 * Creates an instance for the native library, with argument formatter and exception adapter.
+	 */
+	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib, Transformer transformer,
 		int generalCode, ToException<E> exceptionFn) {
-		return new Caller<>(lib, args, generalCode, exceptionFn);
+		return new Caller<>(lib, transformer, generalCode, exceptionFn);
 	}
 
-	private Caller(Library<T> lib, Args args, int generalCode, ToException<E> exceptionFn) {
+	private Caller(Library<T> lib, Transformer transformer, int generalCode,
+		ToException<E> exceptionFn) {
 		this.lib = lib;
-		this.args = args;
+		this.transformer = transformer;
 		this.generalCode = generalCode;
 		this.exceptionFn = exceptionFn;
 	}
@@ -192,6 +213,6 @@ public class Caller<E extends Exception, T> {
 	}
 
 	private String failMessage(String name, Object... args) {
-		return name + "(" + this.args.args(args) + ") failed";
+		return name + Joiner.PARAM.joinAll(transformer, args) + " failed";
 	}
 }

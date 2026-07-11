@@ -156,7 +156,7 @@ public class Refine {
 		 * Gets byte alignment, returning natural if unspecified.
 		 */
 		default long align() {
-			return align(Native.Align.NATURAL);
+			return align(Layouts.Align.NATURAL);
 		}
 
 		/**

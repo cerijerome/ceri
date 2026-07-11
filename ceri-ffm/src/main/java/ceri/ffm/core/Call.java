@@ -16,7 +16,7 @@ import ceri.common.function.Functions;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
-import ceri.common.text.ToString;
+import ceri.common.text.Joiner;
 
 /**
  * Encapsulates a native call.
@@ -159,10 +159,7 @@ public class Call {
 
 	@Override
 	public String toString() {
-		var t = ToString.ofName(rtn + " " + method.getName());
-		for (var arg : args)
-			t.values(arg);
-		return lastError ? t + "!" : t.toString();
+		return rtn + " " + method.getName() + Joiner.PARAM.join(args) + (lastError ? "!" : "");
 	}
 
 	// support

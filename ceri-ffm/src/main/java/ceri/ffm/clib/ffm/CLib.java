@@ -4,10 +4,10 @@ import ceri.common.util.Os;
 import ceri.ffm.core.Library;
 import ceri.ffm.reflect.Refine.LastError;
 import ceri.ffm.reflect.Refine.Out;
-import ceri.ffm.type.Pointer;
 import ceri.ffm.type.IntType.CUlong;
 import ceri.ffm.type.IntType.size_t;
 import ceri.ffm.type.IntType.ssize_t;
+import ceri.ffm.type.Pointer;
 import ceri.ffm.util.Caller;
 
 /**
@@ -16,8 +16,6 @@ import ceri.ffm.util.Caller;
  * Linux and MacOSX are supported.
  */
 public class CLib {
-	// public static final JnaLibrary<CLib.Native> library =
-	// JnaLibrary.of(Platform.C_LIBRARY_NAME, CLib.Native.class);
 	public static final Library<CLib.Native> library = Library.of(CLib.Native.class);
 	public static final Caller<CException, CLib.Native> caller =
 		Caller.of(library, CException::full);

@@ -922,7 +922,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	public Native.Adapted<MemorySegment> encode(Direction direction, SegmentAllocator allocator,
 		T value) {
 		var encoder = Encoder.of(direction, layout().byteAlignment());
-		encode(encoder, value);
+		if (value != null) encode(encoder, value);
 		return encoder.alloc(allocator);
 	}
 

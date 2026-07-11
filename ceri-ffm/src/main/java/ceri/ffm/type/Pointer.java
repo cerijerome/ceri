@@ -48,11 +48,6 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		@Override
-		public boolean isVoid() {
-			return true;
-		}
-
-		@Override
 		public Pointer.OfVoid asVoid() {
 			return this;
 		}

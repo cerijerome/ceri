@@ -7,11 +7,11 @@ import java.util.Objects;
 import ceri.common.collect.Lists;
 import ceri.common.concurrent.Lazy;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.util.Args;
 
 public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	private static final Lazy.ForClass<Group.Config<? extends Union<?>, UnionLayout>> cache =
@@ -190,8 +190,8 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	// shared
 
 	@Override
-	String memberString(Args args, Group.Member<?> member) {
-		var s = super.memberString(args, member);
+	String memberString(Transformer transformer, Group.Member<?> member) {
+		var s = super.memberString(transformer, member);
 		if (config().member(activeIndex()) == member) s += " *";
 		return s;
 	}
@@ -199,11 +199,6 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	@Override
 	Config<T, UnionLayout> configFor(Class<T> cls) {
 		return config(cls);
-	}
-
-	@Override
-	String typeName() {
-		return "union";
 	}
 
 	void memory(MemorySegment memory) {

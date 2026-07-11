@@ -20,6 +20,8 @@ public abstract class PointerType {
 	private final MemorySegment memory;
 
 	public static class myptr extends PointerType {
+		public static final Supporter<myptr> $ = PointerType.support(myptr.class);
+
 		public myptr(MemorySegment memory) {
 			super(memory);
 		}
@@ -176,20 +178,12 @@ public abstract class PointerType {
 			super(memory);
 		}
 
-		@Override
-		public MemorySegment memory() {
-			return super.memory();
-		}
-
-		@Override
-		public long address() {
-			return super.address();
-		}
-
 		/**
 		 * Returns true if this pointer has no associated type.
 		 */
-		public abstract boolean isVoid();
+		public boolean isVoid() {
+			return true;
+		}
 
 		/**
 		 * Returns the memory segment size in bytes.
@@ -269,8 +263,8 @@ public abstract class PointerType {
 	/**
 	 * Adds arithmetic, type array access, and const memory functionality.
 	 */
-	static abstract class Indexable<P extends Indexable<P, T, A>, T extends Support<?, A, ?>, A>
-		extends Raw {
+	public static abstract class Indexable<P extends Indexable<P, T, A>, //
+		T extends Support<?, A, ?>, A> extends Raw {
 		private final T type;
 		private final boolean constant;
 
@@ -532,7 +526,14 @@ public abstract class PointerType {
 	 * Returns true if the contained memory segment has native address 0.
 	 */
 	public boolean isNull() {
-		return Segments.isNull(memory);
+		return Segments.isNull(memory());
+	}
+
+	/**
+	 * Returns the memory segment of the pointer.
+	 */
+	public MemorySegment memory() {
+		return memory;
 	}
 
 	/**
@@ -574,13 +575,6 @@ public abstract class PointerType {
 	}
 
 	// shared
-
-	/**
-	 * Returns the memory segment of the pointer.
-	 */
-	MemorySegment memory() {
-		return memory;
-	}
 
 	/**
 	 * Returns operational support for the pointer type.

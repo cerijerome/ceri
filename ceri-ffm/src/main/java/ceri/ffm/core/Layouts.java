@@ -45,9 +45,18 @@ public class Layouts {
 	private Layouts() {}
 
 	/**
-	 * A key combining alignment and byte order.
+	 * Alignment support.
 	 */
-	public record Key(long align, ByteOrder order) {}
+	public static class Align {
+		/** Indicates byte alignment is unspecified. */
+		public static final long UNSPECIFIED = -1;
+		/** Indicates natural byte alignment. */
+		public static final long NATURAL = 0;
+		/** Indicates no byte alignment. */
+		public static final long NONE = 1;
+
+		private Align() {}
+	}
 
 	/**
 	 * Provides a fixed layout, and functionality based on the layout.

@@ -9,9 +9,11 @@ import java.lang.invoke.MethodHandle;
 import java.util.Map;
 import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
-import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 
+/**
+ * Native basics.
+ */
 public class Native {
 	private static final Map<Class<?>, Class<?>> PROMOTIONS = promotions();
 	/** The native linker. */
@@ -101,20 +103,6 @@ public class Native {
 	}
 
 	/**
-	 * Alignment support.
-	 */
-	public static class Align {
-		/** Indicates byte alignment is unspecified. */
-		public static final long UNSPECIFIED = -1;
-		/** Indicates natural byte alignment. */
-		public static final long NATURAL = 0;
-		/** Indicates no byte alignment. */
-		public static final long NONE = 1;
-
-		private Align() {}
-	}
-
-	/**
 	 * Registry for native type sizes in bytes.
 	 */
 	public static class Size {
@@ -155,14 +143,6 @@ public class Native {
 			Maps.put(Maps.Put.unique, sizes, name, size);
 			return size;
 		}
-	}
-
-	/**
-	 * Returns true if the type can be treated as void.
-	 */
-	public static boolean isVoid(Generics.Typed typed) {
-		if (typed == null) return false;
-		return typed.isNull() || typed.isVoid() || typed.isUnbounded();
 	}
 
 	/**

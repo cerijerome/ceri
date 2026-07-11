@@ -6,7 +6,6 @@ import java.lang.reflect.Parameter;
 import java.util.Objects;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Generics;
-import ceri.ffm.core.Native;
 
 /**
  * A generic type node to facilitate traversal and refinement resolution.
@@ -16,6 +15,14 @@ public class TypeNode {
 	public static final TypeNode VOID = new TypeNode(Annotations.node(Generics.Typed.VOID), null);
 	private final Annotations.Node node;
 	private final Refine.Context context;
+
+	/**
+	 * Returns true if the type can be treated as void.
+	 */
+	public static boolean isVoid(Generics.Typed typed) {
+		if (typed == null) return false;
+		return typed.isNull() || typed.isVoid() || typed.isUnbounded();
+	}
 
 	public static TypeNode of(Generics.Token<?> token) {
 		return token == null ? NULL : of(token.node());
@@ -60,7 +67,7 @@ public class TypeNode {
 	 * Returns true if the generic type can be treated as void.
 	 */
 	public boolean isVoid() {
-		return Native.isVoid(typed());
+		return isVoid(typed());
 	}
 
 	/**
