@@ -42,7 +42,7 @@ public class Transformer implements Functions.Function<Object, String> {
 	 */
 	public interface Transform<T, R> extends Functions.BiFunction<Context, T, R> {
 		/** Simple string transformer. */
-		public static final Transform<Object, String> STRING = (_, t) -> String.valueOf(t);
+		Transform<Object, String> STRING = (_, t) -> String.valueOf(t);
 
 		/**
 		 * A typed no-op transform.
@@ -261,6 +261,13 @@ public class Transformer implements Functions.Function<Object, String> {
 	}
 
 	/**
+	 * Modifies a joiner with maximum count.
+	 */
+	public static Joiner joiner(Joiner joiner, int max) {
+		return joiner.edit().max(max).showCount(Truth.no).remainder(REMAINDER).build();
+	}
+
+	/**
 	 * Returns a new builder.
 	 */
 	public static Builder builder() {
@@ -281,6 +288,11 @@ public class Transformer implements Functions.Function<Object, String> {
 	@Override
 	public String apply(Object arg) {
 		return context().apply(arg);
+	}
+
+	@Override
+	public String toString() {
+		return ToString.forClass(this, "rules=" + transforms.size(), "levels=" + levels);
 	}
 
 	// support
@@ -339,9 +351,5 @@ public class Transformer implements Functions.Function<Object, String> {
 	private static String iterable(Context context, Joiner joiner, Iterable<?> t) {
 		if (context.overflow()) return joiner.joinAll(context, OVERFLOW);
 		return joiner.join(context, t);
-	}
-
-	private static Joiner joiner(Joiner joiner, int max) {
-		return joiner.edit().max(max).showCount(Truth.no).remainder(REMAINDER).build();
 	}
 }

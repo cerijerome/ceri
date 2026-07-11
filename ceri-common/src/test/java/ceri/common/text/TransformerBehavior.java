@@ -106,6 +106,12 @@ public class TransformerBehavior {
 			"[[0, 2], null, [], [1]]");
 	}
 
+	@Test
+	public void shouldProvideStringRepresentation() {
+		Assert.find(Transformer.DEFAULT, "rules=\\d+");
+		Assert.find(Transformer.DEFAULT, "levels=\\d+");
+	}
+
 	private static Transformer.Builder b() {
 		return Transformer.builder();
 	}
