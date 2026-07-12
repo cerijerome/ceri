@@ -8,26 +8,10 @@ import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.TypeNode;
-import ceri.ffm.test.FfmTesting;
 
 public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
+	/** Wildcard pointer support. */
 	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(support(Support.VOID, true));
-
-	public static void main(String[] args) {
-		var pv = of(IntType.CLong.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
-		var ps = of(IntType.size_t.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
-		var pb = ofBytes(true, 1, -1, 2, -2, 3, -3, 4);
-		var pi = ofInts(true, 1, -1, 2, -2, 3, -3, 4);
-		var m = PointerType.Raw.$.allocAll(true, pv, pb, pi);
-		var m0 = Pointer.$.allocAll(true, pv, ps);
-		FfmTesting.bin(pv);
-		FfmTesting.bin(m);
-		FfmTesting.bin(m0);
-		var pa = Pointer.$.getArray(m, false);
-		FfmTesting.bin(pa);
-		var cl = pa[0].as(IntType.CLong.$).resize(16).getArray(true);
-		FfmTesting.arg(cl);
-	}
 
 	/**
 	 * Constant void pointer.
@@ -444,6 +428,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	public final int setAllAt(int index, boolean nul, T... array) {
 		return setArrayAt(index, array, nul);
 	}
+
+	// shared
 
 	@Override
 	Pointer<T> instance(MemorySegment memory, Support.Typed<T, ?> type, boolean constant) {

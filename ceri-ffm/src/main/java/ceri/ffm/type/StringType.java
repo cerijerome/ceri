@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import ceri.common.collect.Immutable;
 import ceri.common.io.Buffers;
-import ceri.common.io.Direction;
 import ceri.common.math.Maths;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
@@ -25,7 +24,6 @@ import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
 import ceri.ffm.core.Terminator;
-import ceri.ffm.test.FfmTesting;
 
 /**
  * Handler for nul-terminated strings with any encoding. Can be used for byte and wchar arrays by
@@ -40,19 +38,6 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	public static final StringType UTF32 = init(Chars.UTF32);
 	private static final Map<Charset, StringType> MAP = map();
 	private final Config config;
-
-	public static void main(String[] args) {
-		String[] ss = { "abcdef", "g", "", "hijk", null, "lmnop", "" };
-		var s = UTF16.support(10, true);
-		var r = s.encodeAll(Direction.duplex, true, ss);
-		var m = r.value();
-		FfmTesting.bin(r.value());
-		FfmTesting.arg(ss);
-		Primitive.CHAR.writeAll(m, 4, false, 'C', 'D', 'E');
-		r.resolve();
-		FfmTesting.arg(ss);
-		// FfmTesting.arg(s.decodeArray(m, 10, false));
-	}
 
 	/**
 	 * Charset and layout configuration.

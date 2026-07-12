@@ -1,6 +1,7 @@
 package ceri.ffm.clib.ffm;
 
 import ceri.common.util.Os;
+import ceri.ffm.core.Caller;
 import ceri.ffm.core.Library;
 import ceri.ffm.reflect.Refine.LastError;
 import ceri.ffm.reflect.Refine.Out;
@@ -8,7 +9,6 @@ import ceri.ffm.type.IntType.CUlong;
 import ceri.ffm.type.IntType.size_t;
 import ceri.ffm.type.IntType.ssize_t;
 import ceri.ffm.type.Pointer;
-import ceri.ffm.util.Caller;
 
 /**
  * Provides FFM access to native c-library functions, grouped by include header file. Separate
@@ -151,7 +151,8 @@ public class CLib {
 
 		// <string.h>
 
-		// String strerror(int errNo);
+		@LastError(false) // don't capture errno
+		String strerror(int errnum);
 	}
 
 	/**

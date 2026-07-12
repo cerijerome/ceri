@@ -1,13 +1,19 @@
-package ceri.ffm.util;
+package ceri.ffm.core;
 
+import java.lang.foreign.MemorySegment;
+import java.nio.Buffer;
+import ceri.common.collect.Maps;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.io.Buffers;
+import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Transformer;
-import ceri.ffm.core.LastError;
-import ceri.ffm.core.Library;
+import ceri.ffm.type.BufferType;
+import ceri.ffm.type.Group;
+import ceri.ffm.type.PointerType;
 
 /**
  * Utility to call C functions and check status codes.
@@ -39,11 +45,75 @@ public class Caller<E extends Exception, T> {
 	}
 
 	/**
+	 * Transformation of arguments to strings.
+	 */
+	public static class Transform {
+		/** Compact transforms for a single line. */
+		public static Transformer COMPACT = compactTransformer(16, 5);
+		/** Longer transforms with multiple lines. */
+		public static Transformer FULL = fullTransformer();
+
+		private Transform() {}
+
+		/**
+		 * Wrapper to prevent application of transforms.
+		 */
+		public record Raw(Object name) {
+			@Override
+			public String toString() {
+				return String.valueOf(name());
+			}
+		}
+
+		/**
+		 * Shows escaped and quoted char sequences.
+		 */
+		public static String chars(CharSequence chars, int limit) {
+			if (limit < 0 || chars.length() <= limit) return "\"" + Chars.escape(chars) + "\"";
+			return "\"" + Chars.escape(chars.subSequence(0, Math.max(0, limit - 1))) + "..\"";
+		}
+
+		/**
+		 * Shows struct and union member values as a map.
+		 */
+		public static String group(Transformer.Context context, Group<?, ?> group) {
+			var map = Maps.<Raw, Object>link();
+			Group.forEachMember(group, (m, t) -> map.put(new Raw(m.name()), t));
+			return context.apply(map);
+		}
+
+		/**
+		 * Shows typed pointer memory location and type instance.
+		 */
+		public static String typedPointer(Transformer.Context context,
+			PointerType.Indexable<?, ?, ?> pointer) {
+			var array = pointer.getArray(1, false);
+			return context.apply(pointer.memory()) + context.apply(array);
+		}
+
+		/**
+		 * Shows untyped pointer memory location.
+		 */
+		public static String pointer(Transformer.Context context, PointerType pointer) {
+			return context.apply(pointer.memory());
+		}
+
+		/**
+		 * Shows buffer content array.
+		 */
+		public static String buffer(Transformer.Context context, Buffer buffer) {
+			var buffers = BufferType.from(buffer).buffers();
+			var array = Buffers.apply(buffer, buffers::get);
+			return context.apply(array);
+		}
+	}
+
+	/**
 	 * Creates an instance for the native library, with exception adapter.
 	 */
 	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib,
 		ToException<E> exceptionFn) {
-		return of(lib, Args.COMPACT, -1, exceptionFn);
+		return of(lib, Transform.COMPACT, -1, exceptionFn);
 	}
 
 	/**
@@ -214,5 +284,28 @@ public class Caller<E extends Exception, T> {
 
 	private String failMessage(String name, Object... args) {
 		return name + Joiner.PARAM.joinAll(transformer, args) + " failed";
+	}
+
+	private static Transformer fullTransformer() {
+		return Transformer.builder() //
+			.add(CharSequence.class, (_, c) -> Transform.chars(c, -1)) //
+			.add(Buffer.class, Transform::buffer) //
+			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
+			.add(PointerType.Indexable.class, Transform::typedPointer) //
+			.add(PointerType.class, Transform::pointer) //
+			.build();
+	}
+
+	private static Transformer compactTransformer(int stringSize, int sequenceSize) {
+		return Transformer.builder() //
+			.iterables(Transformer.joiner(Joiner.ARRAY, sequenceSize)) //
+			.maps(Transformer.joiner(Joiner.LIST, sequenceSize), "=") //
+			.add(CharSequence.class, (_, c) -> Transform.chars(c, stringSize)) //
+			.add(Buffer.class, Transform::buffer) //
+			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
+			.add(PointerType.Indexable.class, Transform::typedPointer) //
+			.add(PointerType.class, Transform::pointer) //
+			.add(Group.class, (c, g) -> Transform.group(c, g)) //
+			.build();
 	}
 }

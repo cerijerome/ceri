@@ -80,28 +80,43 @@ public class Call {
 			this.method = method;
 		}
 
+		/**
+		 * Specifies the return type. 
+		 */
 		public <T, R> Builder rtn(Generics.Typed type, MemoryLayout layout,
 			Functions.Function<T, R> adapter) {
 			this.rtn = new Return<>(type, layout, adapter);
 			return this;
 		}
 
+		/**
+		 * Specifies the next argument type.
+		 */
 		public <T, R> Builder arg(Generics.Typed type, MemoryLayout layout,
 			Functions.BiFunction<SegmentAllocator, T, Native.Adapted<R>> adapter) {
 			args.add(new Arg<>(type, layout, adapter));
 			return this;
 		}
 
+		/**
+		 * Mark the call as var-arg.
+		 */
 		public Builder varArg() {
 			varArg = args.size();
 			return this;
 		}
 
+		/**
+		 * Specifies the call to capture the last error code.
+		 */
 		public Builder lastError() {
 			lastError = true;
 			return this;
 		}
 
+		/**
+		 * Builds the call with given linker and symbol lookup.
+		 */
 		public Call build(Linker linker, SymbolLookup lookup) {
 			var pointer = lookup.findOrThrow(method.getName());
 			var funcDesc = funcDesc();
@@ -123,10 +138,16 @@ public class Call {
 		}
 	}
 
+	/**
+	 * Start building the call for the native method.
+	 */
 	public static Builder builder(Method method) {
 		return new Builder(method);
 	}
 
+	/**
+	 * Start building an extension to the given call.
+	 */
 	public static Builder builder(Call call) {
 		var b = new Builder(call.method);
 		b.rtn = call.rtn;
@@ -144,10 +165,16 @@ public class Call {
 		this.lastError = lastError;
 	}
 
+	/**
+	 * Returns the number of call arguments.
+	 */
 	public int argCount() {
 		return args.size();
 	}
 
+	/**
+	 * Invokes the call with given allocator and java arguments.
+	 */
 	public Object invoke(SegmentAllocator allocator, Object[] args) throws Throwable {
 		var adaptedArgs = adaptArgs(allocator, args);
 		var nativeArgs = nativeArgs(allocator, adaptedArgs);

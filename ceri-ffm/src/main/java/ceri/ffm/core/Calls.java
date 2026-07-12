@@ -1,6 +1,5 @@
 package ceri.ffm.core;
 
-import java.io.IOException;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
@@ -11,7 +10,6 @@ import ceri.common.array.Array;
 import ceri.common.collect.Lists;
 import ceri.common.except.Exceptions;
 import ceri.common.reflect.Reflect;
-import ceri.ffm.clib.ffm.CStdLib;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.type.IntType;
@@ -31,55 +29,65 @@ public class Calls {
 	private static final Supports.Defaults RTN_DEFS =
 		Supports.defaults().string(RTN_ARRAY_LEN, true).buffer(RTN_ARRAY_LEN, true)
 			.array1d(RTN_ARRAY_LEN, true).arrayNd(0, false).build();
+	/** Default call builder instance. */
 	public static final Calls DEF = builder().build();
 	private final Linker linker;
 	private final SymbolLookup lookup;
 	private final Supports argSupports;
 	private final Supports rtnSupports;
 
-	public static void main(String[] args) throws IOException {
-		System.out.println(CStdLib.getenv("USER"));
-		System.out.println(CStdLib.getenv("TESTXXX"));
-		CStdLib.setenv("TESTXXX", "xxx", false);
-		System.out.println(CStdLib.getenv("TESTXXX"));
-		CStdLib.setenv("TESTXXX", "yyy", false);
-		System.out.println(CStdLib.getenv("TESTXXX"));
-		CStdLib.setenv("TESTXXX", "yyy", true);
-		System.out.println(CStdLib.getenv("TESTXXX"));
-		System.out.println("Expecting: <user>, null, xxx, xxx, yyy");
-	}
-
+	/**
+	 * Builder to specify linker, symbol lookup, and type defaults.
+	 */
 	public static class Builder {
 		private Linker linker = Linker.nativeLinker();
 		private SymbolLookup lookup = null;
 		private Supports.Defaults argDefs = ARG_DEFS;
 		private Supports.Defaults rtnDefs = RTN_DEFS;
 
+		/**
+		 * Specify the native call linker.
+		 */
 		public Builder linker(Linker linker) {
 			this.linker = linker;
 			return this;
 		}
 
+		/**
+		 * Specify foreign symbol lookup.
+		 */
 		public Builder lookup(SymbolLookup lookup) {
 			this.lookup = lookup;
 			return this;
 		}
 
+		/**
+		 * Specify call argument type defaults.
+		 */
 		public Builder argDefs(Supports.Defaults argDefs) {
 			this.argDefs = argDefs;
 			return this;
 		}
 
+		/**
+		 * Specify call return type defaults.
+		 */
 		public Builder rtnDefs(Supports.Defaults rtnDefs) {
 			this.rtnDefs = rtnDefs;
 			return this;
 		}
 
+		/**
+		 * Creates the call builder instance.
+		 */
 		public Calls build() {
 			return new Calls(this);
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public static Builder builder() {
 		return new Builder();
 	}

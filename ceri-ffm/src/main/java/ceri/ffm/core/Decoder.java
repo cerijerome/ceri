@@ -3,12 +3,18 @@ package ceri.ffm.core;
 import java.lang.foreign.MemorySegment;
 import ceri.common.math.Maths;
 
+/**
+ * Dynamically decodes types from memory.
+ */
 public class Decoder {
 	private final MemorySegment memory;
 	private final long end;
 	private final long alignment;
 	private long offset;
 
+	/**
+	 * Create an instance for bounded memory with given alignment.
+	 */
 	public static Decoder of(MemorySegment memory, long offset, long length, long alignment) {
 		if (Segments.isNull(memory)) return null;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
@@ -23,18 +29,30 @@ public class Decoder {
 		this.end = offset + length;
 	}
 
+	/**
+	 * Provides the memory segment to decode.
+	 */
 	public MemorySegment memory() {
 		return memory;
 	}
 
+	/**
+	 * Provides the current offset within the memory segment.
+	 */
 	public long offset() {
 		return offset;
 	}
 
+	/**
+	 * Returns the remaining length.
+	 */
 	public long length() {
 		return end - offset;
 	}
 
+	/**
+	 * Checks if the current offset has nul-termination of given size, and increment the offset.
+	 */
 	public boolean nul(long size) {
 		boolean nul = Terminator.is(memory, offset(), size);
 		if (nul) inc(size);

@@ -30,10 +30,10 @@ import ceri.common.text.Text;
 import ceri.common.text.ToString;
 import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
+import ceri.ffm.core.Caller;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.TypeNode;
-import ceri.ffm.util.Args;
 
 /**
  * Provides core functionality for structs and unions.
@@ -379,7 +379,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	@Override
 	public String toString() {
-		return toString(Args.FULL);
+		return toString(Caller.Transform.FULL);
 	}
 
 	// shared

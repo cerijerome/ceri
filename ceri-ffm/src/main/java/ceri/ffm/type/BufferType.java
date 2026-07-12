@@ -28,7 +28,6 @@ import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.test.FfmTesting;
 
 /**
  * Operational support for Buffers.
@@ -52,15 +51,6 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	private static final Map<Class<?>, BufferType<?, ?, ?, ?>> MAP = map();
 	private final Config<B, A> config;
 	private final Primitive<T, A, L> primitive;
-
-	public static void main(String[] args) {
-		var s = INT.support(5, true);
-		FfmTesting.bin(s.alloc(Buffers.INT.of(1, 2, 3)));
-		var r = s.encodeAll(Direction.duplex, true, Buffers.INT.of(1, 2, 3), Buffers.INT.of(4, 5));
-		FfmTesting.bin(r.value());
-		var a = s.asArray(4, true).decode(r.value());
-		FfmTesting.arg(a);
-	}
 
 	private static class Config<B extends Buffer, A> {
 		private final Buffers<B, A> buffers;

@@ -17,10 +17,6 @@ public class Encoder {
 	private final long alignment;
 	private long offset = 0;
 
-	// TODO:
-	// - add padding for alignment?
-	// - track max alignment rather than constructor?
-
 	/**
 	 * Returns a new encoder.
 	 */
