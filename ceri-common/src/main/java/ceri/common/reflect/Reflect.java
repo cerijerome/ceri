@@ -2,6 +2,7 @@ package ceri.common.reflect;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodType;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -590,6 +591,24 @@ public class Reflect {
 		}
 		throw InvocationException.of(t, "%s(%s) failed with args (%s) on %s", simple(method),
 			types(method.getParameterTypes()), args(args), subject);
+	}
+
+	/**
+	 * Returns a method type for the method.
+	 */
+	public static MethodType type(Method method) {
+		if (method == null) return null;
+		return MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+	}
+
+	/**
+	 * Returns a simplified descriptor of a method.
+	 */
+	public static String descriptor(Method method) {
+		if (method == null) return Strings.NULL;
+		var b =
+			new StringBuilder(name(method.getReturnType())).append(' ').append(method.getName());
+		return Joiner.PARAM.appendAll(b, p -> name(p.getType()), method.getParameters()).toString();
 	}
 
 	/**

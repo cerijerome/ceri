@@ -55,7 +55,7 @@ public class Lambdas {
 	 * otherwise toString.
 	 */
 	public static String nameOrSymbol(Object obj) {
-		return lambda(obj, LAMBDA_SYMBOL);
+		return name(obj, LAMBDA_SYMBOL);
 	}
 
 	/**
@@ -63,13 +63,13 @@ public class Lambdas {
 	 * otherwise toString.
 	 */
 	public static String name(Object obj) {
-		return lambda(obj, LAMBDA_NAME_DEF);
+		return name(obj, LAMBDA_NAME_DEF);
 	}
 
-	private static String lambda(Object obj, String anonNameDef) {
+	private static String name(Object obj, String anonNameDef) {
 		var registered = registered(obj);
 		if (registered != null) return registered;
-		String s = String.valueOf(obj);
+		var s = String.valueOf(obj);
 		return s.contains(ANON_LAMBDA_LABEL) ? anonNameDef : s;
 	}
 }

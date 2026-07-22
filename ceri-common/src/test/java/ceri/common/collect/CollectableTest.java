@@ -143,4 +143,14 @@ public class CollectableTest {
 		Assert.ordered(Collectable.removeAll(Lists.ofAll(1, -1), nullArray), 1, -1);
 		Assert.ordered(Collectable.removeAll(Lists.ofAll(1, null), -1, null), 1);
 	}
+
+	@Test
+	public void testAdaptToArray() {
+		Assert.equal(Collectable.adaptToArray(null, String[]::new, String::valueOf), null);
+		Assert.equal(Collectable.adaptToArray(list, null, String::valueOf), null);
+		Assert.equal(Collectable.adaptToArray(list, String[]::new, null), null);
+		Assert.array(Collectable.adaptToArray(list, String[]::new, String::valueOf), "-1", "null",
+			"1");
+	}
+
 }

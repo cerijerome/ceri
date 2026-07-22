@@ -183,6 +183,13 @@ public class Collect {
 	}
 
 	/**
+	 * Collects elements into a class array.
+	 */
+	public static Collector<Class<?>, ?, Class<?>[]> classArray() {
+		return array(Reflect.unchecked(Class.class));
+	}
+
+	/**
 	 * Collects elements into a sorted array.
 	 */
 	public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, R[]>

@@ -33,6 +33,12 @@ public class CollectTest {
 	}
 
 	@Test
+	public void testClassArray() {
+		Assert.array(Streams.of(String.class, int.class).collect(Collect.classArray()),
+			String.class, int.class);
+	}
+
+	@Test
 	public void testSortedArray() {
 		Assert.array(stream(1, -1, 0).collect(Collect.sortedArray(Integer.class)), -1, 0, 1);
 	}

@@ -1,6 +1,7 @@
 package ceri.common.reflect;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodType;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -29,6 +30,8 @@ public class ReflectTest {
 	}
 
 	private static class Error {
+		public static Method M_error = Reflect.publicMethod(Error.class, "error");
+
 		@SuppressWarnings("unused")
 		public Error() {
 			throw new RuntimeException();
@@ -396,8 +399,8 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testInvokeMethodError() throws NoSuchMethodException {
-		Method m = Error.class.getMethod("error", int.class);
+	public void testInvokeMethodError() {
+		var m = Error.M_error;
 		var err = new Error(null);
 		Assert.thrown(Reflect.InvocationException.class, () -> Reflect.invoke(m, err));
 		Assert.thrown(Reflect.InvocationException.class, () -> Reflect.invoke(m, err, 0));
@@ -435,6 +438,18 @@ public class ReflectTest {
 		Assert.no(Reflect.assignableFromAny(Number.class, Long.class));
 		Assert.yes(Reflect.assignableFromAny(Number.class, Long.class, Serializable.class));
 		Assert.no(Reflect.assignableFromAny(Serializable.class, Number.class, Long.class));
+	}
+
+	@Test
+	public void testMethodType() {
+		Assert.equal(Reflect.type(null), null);
+		Assert.equal(Reflect.type(Error.M_error), MethodType.methodType(String.class, int.class));
+	}
+
+	@Test
+	public void testMethodDescriptor() {
+		Assert.string(Reflect.descriptor(null), "null");
+		Assert.string(Reflect.descriptor(Error.M_error), "String error(int)");
 	}
 
 	@Test

@@ -3,8 +3,10 @@ package ceri.common.reflect;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.lang.reflect.Method;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Throws;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
 
@@ -14,6 +16,7 @@ public class HandlesTest {
 	private static final Class<?>[] NULL_CS = null;
 
 	public static class C {
+		public static Method M_A = Reflect.publicMethod(C.class, "a");
 		public static VarHandle VI = Handles.handle(C.class, "i");
 		public static VarHandle VL = Handles.handle(C.class, "l");
 		public static MethodHandle MVI = Handles.getter(VI);
@@ -114,6 +117,13 @@ public class HandlesTest {
 	}
 
 	@Test
+	public void testHandleFromMethod() {
+		Assert.equal(Handles.method(null), null);
+		Assert.equal(Handles.invoke(Handles.method(C.M_A), new C(-1, -1L), 1, 2), -4L);
+
+	}
+
+	@Test
 	public void testMethod() {
 		Assert.equal(Handles.method(null, "a", long.class, int[].class), null);
 		Assert.equal(Handles.method(C.class, null, long.class, int[].class), null);
@@ -130,4 +140,21 @@ public class HandlesTest {
 		Assert.equal(Handles.staticMethod(C.class, "a", int.class, NULL_CS), null);
 		Assert.equal(Handles.invoke(C.MS, -3), 2);
 	}
+
+	@Test
+	public void testHandleAsType() {
+		Assert.equal(Handles.asType(null, long.class, C.class, Object.class), null);
+		Assert.equal(Handles.asType(C.MA, null, C.class, Object.class), null);
+		Assert.equal(Handles.asType(C.MA, long.class, (Class<?>[]) null), null);
+		var handle = Handles.asType(C.MA, long.class, C.class, Object.class);
+		Assert.equal(Handles.invoke(handle, new C(-1, -1), 1), -2L);
+	}
+
+	@Test
+	public void testProxy() throws Throwable {
+		Assert.equal(Handles.proxy(null, C.MS), null);
+		Assert.equal(Handles.proxy(Throws.IntOperator.class, null), null);
+		Assert.equal(Handles.proxy(Throws.IntOperator.class, C.MS).applyAsInt(3), -4);
+	}
+
 }

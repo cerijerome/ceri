@@ -274,4 +274,19 @@ public class Collectable {
 		if (!isEmpty(collection) && !Array.isEmpty(ts)) collection.removeAll(Arrays.asList(ts));
 		return collection;
 	}
+
+	// adapt
+
+	/**
+	 * Adapts the collection to an array.
+	 */
+	public static <T, C extends Collection<T>, R> R[] adaptToArray(C collection,
+		Functions.IntFunction<R[]> generator, Functions.Function<? super T, ? extends R> adapter) {
+		if (collection == null || generator == null || adapter == null) return null;
+		var array = generator.apply(collection.size());
+		int i = 0;
+		for (var t : collection)
+			array[i++] = adapter.apply(t);
+		return array;
+	}
 }

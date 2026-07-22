@@ -1,10 +1,12 @@
 package ceri.common.reflect;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -166,6 +168,14 @@ public class Handles {
 	}
 
 	/**
+	 * Gets a method handle for the method.
+	 */
+	public static MethodHandle method(Method method) {
+		if (method == null) return null;
+		return get(() -> LOOKUP.unreflect(method));
+	}
+
+	/**
 	 * Looks up a non-static method.
 	 */
 	public static MethodHandle method(Class<?> cls, String name, Class<?> rtn, Class<?>... args) {
@@ -180,6 +190,22 @@ public class Handles {
 		Class<?>... args) {
 		if (cls == null || name == null || rtn == null || args == null) return null;
 		return get(() -> LOOKUP.findStatic(cls, name, MethodType.methodType(rtn, args)));
+	}
+
+	/**
+	 * Changes method handle type.
+	 */
+	public static MethodHandle asType(MethodHandle handle, Class<?> rtn, Class<?>... args) {
+		if (handle == null || rtn == null || args == null) return null;
+		return handle.asType(MethodType.methodType(rtn, args));
+	}
+
+	/**
+	 * Returns a proxy instance of the single-method interface for the handle.
+	 */
+	public static <T> T proxy(Class<T> cls, MethodHandle handle) {
+		if (cls == null || handle == null) return null;
+		return MethodHandleProxies.asInterfaceInstance(cls, handle);
 	}
 
 	// support
