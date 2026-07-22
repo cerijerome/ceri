@@ -436,10 +436,14 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		return !members.isEmpty() && Lists.last(members).flex;
 	}
 
+	static Supports supports() {
+		return Supports.fixed();
+	}
+
 	// support
 
 	private static Member.Builder setMember(Member.Builder member) {
-		return setMember(Supports.DEF.from(member.node), member);
+		return setMember(supports().from(member.node), member);
 	}
 
 	private static <U> Member.Builder setMember(Support<U, ?, ?> support, Member.Builder member) {
@@ -450,12 +454,12 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	private static Member.Builder setArrayMember(Member.Builder member, Object array) {
 		if (array == null) return setMember(member);
 		var dims = Dimensions.from(array);
-		var support = Supports.DEF.arrayFrom(member.node, dims);
+		var support = supports().arrayFrom(member.node, dims);
 		return setMember(support, member);
 	}
 
 	private static <A> Member.Builder setFlexMember(Member.Builder member, int size) {
-		Support<?, A, ?> support = Reflect.unchecked(Supports.DEF.from(member.node.component()));
+		Support<?, A, ?> support = Reflect.unchecked(supports().from(member.node.component()));
 		var layout = MemoryLayout.sequenceLayout(size, support.layout());
 		var nul = member.node.context().nul();
 		return member.flex(true).layout(layout).support(support).<A>actions(

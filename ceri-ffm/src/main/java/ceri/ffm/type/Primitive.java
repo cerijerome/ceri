@@ -810,6 +810,20 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 			return Pointer.OfInt.support(this, constant);
 		}
 
+		/**
+		 * Creates a pointer for this type from memory.
+		 */
+		public Pointer.OfInt pointer(MemorySegment memory) {
+			return pointer(memory, false);
+		}
+		
+		/**
+		 * Creates a pointer for this type from memory.
+		 */
+		public Pointer.OfInt pointer(MemorySegment memory, boolean constant) {
+			return Pointer.OfInt.of(memory, this, constant);
+		}
+		
 		@Override
 		public Integer val() {
 			return VAL;

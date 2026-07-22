@@ -4,11 +4,13 @@ import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.util.Map;
 import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
+import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 
 /**
@@ -19,7 +21,7 @@ public class Native {
 	/** The native linker. */
 	public static final Linker LINKER = Linker.nativeLinker();
 	/** The default symbol lookup. */
-	public static final SymbolLookup SYMBOLS = LINKER.defaultLookup();
+	public static final SymbolLookup LOOKUP = LINKER.defaultLookup();
 
 	/**
 	 * Supported types.
@@ -34,7 +36,7 @@ public class Native {
 		POINTER,
 		PRIMITIVE_POINTER,
 		POINTER_TYPE,
-		FUNCTION_POINTER,
+		CALLBACK,
 		STRING,
 		BUFFER;
 	}
@@ -42,11 +44,11 @@ public class Native {
 	/**
 	 * Represents an adapted value, with option to resolve the original value after changes.
 	 */
-	public interface Adapted<R> {
+	public interface Adapted<T> {
 		/**
 		 * Provides the adapted value.
 		 */
-		R value();
+		T value();
 
 		/**
 		 * Updates the original value from the adapted value, if changed.
@@ -56,18 +58,18 @@ public class Native {
 		/**
 		 * Returns an instance for an immutable value.
 		 */
-		static <R> Native.Adapted<R> of(R value) {
+		static <T> Adapted<T> of(T value) {
 			return () -> value;
 		}
 
 		/**
 		 * Returns an instance for a value and resolving consumer.
 		 */
-		static <R> Native.Adapted<R> of(R value, Functions.Consumer<R> resolver) {
+		static <T> Adapted<T> of(T value, Functions.Consumer<T> resolver) {
 			if (resolver == null) return of(value);
 			return new Native.Adapted<>() {
 				@Override
-				public R value() {
+				public T value() {
 					return value;
 				}
 
@@ -76,6 +78,43 @@ public class Native {
 					resolver.accept(value());
 				}
 			};
+		}
+	}
+
+	/**
+	 * Encapsulates an adapter between a local type (T) and a native type (R).
+	 */
+	public record Adapter<T, R>(Generics.Typed localType, Class<? extends R> nativeCls, R nativeDef,
+		MemoryLayout layout, Functions.BiFunction<SegmentAllocator, T, Native.Adapted<R>> toNative,
+		Functions.Function<R, T> toLocal) {
+		public static final Adapter<?, ?> VOID = new Adapter<>(Generics.Typed.VOID, void.class,
+			null, Layouts.EMPTY, (_, _) -> null, _ -> null);
+
+		/**
+		 * Returns the local class type.
+		 */
+		public Class<T> localCls() {
+			return localType().cls();
+		}
+
+		/**
+		 * Adapts the local value to its native value, with option to resolve the original value
+		 * after changes.
+		 */
+		public Native.Adapted<R> toNative(SegmentAllocator allocator, T localValue) {
+			return toNative().apply(allocator, localValue);
+		}
+
+		/**
+		 * Adapts the native value to its local value.
+		 */
+		public T toLocal(R nativeValue) {
+			return toLocal().apply(nativeValue);
+		}
+
+		@Override
+		public final String toString() {
+			return localType().toString();
 		}
 	}
 
@@ -149,7 +188,7 @@ public class Native {
 	 * Find native call by name from the default lookup.
 	 */
 	public static MemorySegment find(String method) {
-		return SYMBOLS.find(method).orElseThrow();
+		return LOOKUP.find(method).orElseThrow();
 	}
 
 	/**

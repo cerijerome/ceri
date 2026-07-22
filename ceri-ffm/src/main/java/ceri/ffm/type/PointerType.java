@@ -39,7 +39,7 @@ public abstract class PointerType {
 			Native.Kind kind, S support, Create<P, S> create, boolean constant) {
 
 			private Config<P, S> asConst() {
-				return new Config<>(type(), kind(), support(), create(), constant);
+				return new Config<>(type(), kind(), support(), create(), true);
 			}
 
 			private P create(MemorySegment memory) {
@@ -211,7 +211,7 @@ public abstract class PointerType {
 		 * Casts this pointer to another type.
 		 */
 		public <U> Pointer<U> as(Class<U> cls) {
-			return as(Supports.DEF.typedFrom(cls));
+			return as(supports().typedFrom(cls));
 		}
 
 		/**
@@ -478,7 +478,7 @@ public abstract class PointerType {
 	 * Creates a support instance for the custom type.
 	 */
 	static <P extends PointerType> Supporter<P> support(Class<P> cls) {
-		return Reflect.unchecked(Supports.DEF.from(cls));
+		return Reflect.unchecked(supports().from(cls));
 	}
 
 	/**
@@ -572,5 +572,9 @@ public abstract class PointerType {
 	private static <P extends PointerType> Functions.Function<MemorySegment, P>
 		constructorFor(Class<P> cls) {
 		return Handles.asFunction(Handles.constructor(cls, MemorySegment.class));
+	}
+	
+	private static Supports supports() {
+		return Supports.fixed();
 	}
 }

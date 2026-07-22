@@ -98,7 +98,7 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	 * Returns operational support for the type.
 	 */
 	public static <T extends Union<T>> Supporter<T> support(Class<T> cls) {
-		return Reflect.unchecked(Supports.DEF.from(cls));
+		return Reflect.unchecked(supports().from(cls));
 	}
 
 	/**

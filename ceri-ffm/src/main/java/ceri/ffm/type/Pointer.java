@@ -7,7 +7,6 @@ import ceri.common.array.Array;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Segments;
-import ceri.ffm.reflect.TypeNode;
 
 public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
 	/** Wildcard pointer support. */
@@ -146,6 +145,11 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 				(m, t, c) -> new OfInt(m, t, c), constant);
 		}
 
+		public static OfInt of(MemorySegment memory, Primitive.OfInt type, boolean constant) {
+			if (memory == null || type == null) return null;
+			return new OfInt(memory, type, constant);
+		}
+
 		OfInt(MemorySegment memory, Primitive.OfInt type, boolean constant) {
 			super(memory, type, constant);
 		}
@@ -215,11 +219,6 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
 		return Supporter.of(Reflect.unchecked(Pointer.class), Native.Kind.POINTER, type,
 			(m, s, _) -> of(m, s), constant);
-	}
-
-	static <T> Supporter<Pointer<T>> supportFor(TypeNode node, boolean constant) {
-		Support.Typed<T, ?> type = Reflect.unchecked(Supports.DEF.from(node));
-		return support(type, constant);
 	}
 
 	/**

@@ -17,7 +17,7 @@ public class SupportsTester {
 	// $(void*[3!]*,<8/8)
 
 	public static void main(String[] args) {
-		var ss = Supports.DEF;
+		var ss = Supports.of();
 		var s0 = ss.from(int[][][].class, Refine.custom().align(1).dims(5, 4, 3).nul().context());
 		var s1 = Primitive.INT.align(1).asArray(5, true).asArray(4).asArray(3);
 		var s2 = ss.from(new Generics.Token<@Packed @Dims({ 5, 4, 3 }) @Nul int[][][]>() {});

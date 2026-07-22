@@ -264,7 +264,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	 * Returns operational support for the type.
 	 */
 	public static <T extends Struct<T>> Supporter<T> support(Class<T> cls) {
-		return Reflect.unchecked(Supports.DEF.from(cls));
+		return Reflect.unchecked(supports().from(cls));
 	}
 
 	/**

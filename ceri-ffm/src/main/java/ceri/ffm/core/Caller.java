@@ -16,13 +16,41 @@ import ceri.ffm.type.Group;
 import ceri.ffm.type.PointerType;
 
 /**
- * Utility to call C functions and check status codes.
+ * Utility to call native methods and check status codes.
  */
 public class Caller<E extends Exception, T> {
-	private final Library<T> lib;
-	private final Transformer transformer;
-	private final int generalCode;
-	private final ToException<E> exceptionFn;
+	private final Config<E> config;
+	private final Functions.Supplier<T> lib;
+
+	/**
+	 * Caller configuration for generating formatted exceptions.
+	 */
+	public record Config<E extends Exception>(Transformer transformer, int generalCode,
+		ToException<E> exceptionFn) {
+		/**
+		 * Creates a caller instance for the given library supplier.
+		 */
+		public <T> Caller<E, T> caller(Functions.Supplier<T> lib) {
+			return new Caller<>(this, lib);
+		}
+
+		/**
+		 * Creates a caller instance for the given library.
+		 */
+		public <T> Caller<E, T> callerOf(T lib) {
+			return caller(() -> lib);
+		}
+
+		private E exception(int code, Functions.Function<CallDescriptor, String> callDesc,
+			Throwable cause) {
+			var message = callDesc.apply(this::failMessage);
+			return Exceptions.initCause(exceptionFn().apply(code, message), cause);
+		}
+
+		private String failMessage(String name, Object... args) {
+			return name + Joiner.PARAM.joinAll(transformer(), args) + " failed";
+		}
+	}
 
 	/**
 	 * Converts an error code and message to an exception.
@@ -109,27 +137,23 @@ public class Caller<E extends Exception, T> {
 	}
 
 	/**
-	 * Creates an instance for the native library, with exception adapter.
+	 * Creates caller configuration with exception adapter.
 	 */
-	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib,
-		ToException<E> exceptionFn) {
-		return of(lib, Transform.COMPACT, -1, exceptionFn);
+	public static <E extends Exception> Config<E> config(ToException<E> exceptionFn) {
+		return config(Transform.COMPACT, -1, exceptionFn);
 	}
 
 	/**
-	 * Creates an instance for the native library, with argument formatter and exception adapter.
+	 * Creates caller configuration with argument formatter and exception adapter.
 	 */
-	public static <E extends Exception, T> Caller<E, T> of(Library<T> lib, Transformer transformer,
-		int generalCode, ToException<E> exceptionFn) {
-		return new Caller<>(lib, transformer, generalCode, exceptionFn);
+	public static <E extends Exception> Config<E> config(Transformer transformer, int generalCode,
+		ToException<E> exceptionFn) {
+		return new Config<>(transformer, generalCode, exceptionFn);
 	}
 
-	private Caller(Library<T> lib, Transformer transformer, int generalCode,
-		ToException<E> exceptionFn) {
+	private Caller(Config<E> config, Functions.Supplier<T> lib) {
+		this.config = config;
 		this.lib = lib;
-		this.transformer = transformer;
-		this.generalCode = generalCode;
-		this.exceptionFn = exceptionFn;
 	}
 
 	/**
@@ -245,9 +269,7 @@ public class Caller<E extends Exception, T> {
 
 	private void verify(Context context, Functions.Function<CallDescriptor, String> callDesc)
 		throws E {
-		if (context.code == 0) return;
-		var message = callDesc.apply(this::failMessage);
-		throw Exceptions.initCause(exceptionFn.apply(context.code, message), context.cause);
+		if (context.code != 0) throw config.exception(context.code, callDesc, context.cause);
 	}
 
 	private void exec(Context context, Excepts.Consumer<?, Context> call) {
@@ -256,7 +278,7 @@ public class Caller<E extends Exception, T> {
 		} catch (RuntimeInterruptedException e) {
 			throw e;
 		} catch (Exception e) {
-			context.fail(generalCode, e);
+			context.fail(config.generalCode(), e);
 		}
 	}
 
@@ -266,7 +288,7 @@ public class Caller<E extends Exception, T> {
 		} catch (RuntimeInterruptedException e) {
 			throw e;
 		} catch (Exception e) {
-			context.fail(generalCode, e);
+			context.fail(config.generalCode(), e);
 			return 0;
 		}
 	}
@@ -277,13 +299,9 @@ public class Caller<E extends Exception, T> {
 		} catch (RuntimeInterruptedException e) {
 			throw e;
 		} catch (Exception e) {
-			context.fail(generalCode, e);
+			context.fail(config.generalCode(), e);
 			return null;
 		}
-	}
-
-	private String failMessage(String name, Object... args) {
-		return name + Joiner.PARAM.joinAll(transformer, args) + " failed";
 	}
 
 	private static Transformer fullTransformer() {

@@ -18,7 +18,7 @@ import ceri.common.text.Strings;
  */
 public class Segments {
 	private static final Cleaner CLEANER = Cleaner.create();
-	public static final SegmentAllocator GLOBAL = Arena.global();
+	public static final Arena GLOBAL = Arena.global();
 
 	private Segments() {}
 
@@ -121,6 +121,46 @@ public class Segments {
 	}
 
 	/**
+	 * A wrapper for an auto arena that only creates the arena when needed.
+	 */
+	public static class Lazy implements Arena {
+		private volatile Arena arena = null;
+
+		/**
+		 * Creates a new instance.
+		 */
+		public static Lazy of() {
+			return new Lazy();
+		}
+		
+		private Lazy() {}
+		
+		@SuppressWarnings("resource")
+		@Override
+		public MemorySegment allocate(long byteSize, long byteAlignment) {
+			return arena().allocate(byteSize, byteAlignment);
+		}
+
+		@SuppressWarnings("resource")
+		@Override
+		public Scope scope() {
+			return arena().scope();
+		}
+
+		@Override
+		public void close() {}
+
+		private Arena arena() {
+			var arena = this.arena;
+			if (arena == null) {
+				arena = Arena.ofAuto();
+				this.arena = arena;
+			}
+			return arena;
+		}
+	}
+
+	/**
 	 * Returns a new shared arena that can be closed or garbage collected.
 	 */
 	@SuppressWarnings("resource")
@@ -136,13 +176,20 @@ public class Segments {
 	}
 
 	/**
+	 * Returns an allocator that creates a new auto arena only if required.
+	 */
+	public static SegmentAllocator lazyAuto() {
+		return new Lazy();
+	}
+
+	/**
 	 * Returns a hash for the segment and its size.
 	 */
 	public static int hash(MemorySegment memory) {
 		if (memory == null) return Objects.hash(memory);
 		return Objects.hash(memory, memory.byteSize());
 	}
-	
+
 	/**
 	 * Returns true if segments are the same location and size.
 	 */
@@ -150,7 +197,7 @@ public class Segments {
 		if (m1 == m2) return true;
 		return Objects.equals(m1, m2) && m1.byteSize() == m2.byteSize();
 	}
-	
+
 	/**
 	 * Returns the address of the segment; 0 if null or a null pointer.
 	 */

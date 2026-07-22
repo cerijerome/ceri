@@ -20,6 +20,49 @@ public record Terminator(int size) {
 	public static final Terminator LONG = new Terminator(Long.BYTES);
 
 	/**
+	 * Sets the terminator at given offset, within bounds. Returns the number of bytes set.
+	 */
+	public static int set(MemorySegment memory, long offset, int size) {
+		if (Segments.isNull(memory)) return 0;
+		offset = Maths.limit(offset, 0L, memory.byteSize());
+		size = (int) Maths.limit(size, 0L, memory.byteSize() - offset);
+		switch (size) {
+			case 0 -> {}
+			case Byte.BYTES -> memory.set(Layouts.BYTE, offset, (byte) 0);
+			case Short.BYTES -> memory.set(ValueLayout.JAVA_SHORT_UNALIGNED, offset, (short) 0);
+			case Integer.BYTES -> memory.set(ValueLayout.JAVA_INT_UNALIGNED, offset, 0);
+			case Long.BYTES -> memory.set(ValueLayout.JAVA_LONG_UNALIGNED, offset, 0L);
+			default -> memory.asSlice(offset, size).fill((byte) 0);
+		}
+		return size;
+	}
+
+	/**
+	 * Returns true if the memory segment contains only zero bytes.
+	 */
+	public static boolean is(MemorySegment memory) {
+		return is(memory, Segments.size(memory));
+	}
+	
+	/**
+	 * Returns true if the memory segment slice contains only zero bytes.
+	 */
+	public static boolean is(MemorySegment memory, long size) {
+		return is(memory, 0L, size);
+	}
+	
+	/**
+	 * Returns true if the memory segment slice contains only zero bytes.
+	 */
+	public static boolean is(MemorySegment memory, long offset, long size) {
+		if (Segments.isNull(memory)) return false;
+		offset = Maths.limit(offset, 0L, memory.byteSize());
+		if (size < 0 || size > memory.byteSize() - offset) return false;
+		if (size > BLOCK_SIZE) return matchLarge(memory, offset, size);
+		return matchSmall(memory, offset, size);
+	}
+
+	/**
 	 * Returns an instance for given layout size in bytes.
 	 */
 	public static Terminator from(MemoryLayout layout) {
@@ -135,49 +178,6 @@ public record Terminator(int size) {
 	 */
 	public int setAt(MemorySegment memory, long index) {
 		return set(memory, size() * index);
-	}
-
-	/**
-	 * Sets the terminator at given offset, within bounds. Returns the number of bytes set.
-	 */
-	public static int set(MemorySegment memory, long offset, int size) {
-		if (Segments.isNull(memory)) return 0;
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		size = (int) Maths.limit(size, 0L, memory.byteSize() - offset);
-		switch (size) {
-			case 0 -> {}
-			case Byte.BYTES -> memory.set(Layouts.BYTE, offset, (byte) 0);
-			case Short.BYTES -> memory.set(ValueLayout.JAVA_SHORT_UNALIGNED, offset, (short) 0);
-			case Integer.BYTES -> memory.set(ValueLayout.JAVA_INT_UNALIGNED, offset, 0);
-			case Long.BYTES -> memory.set(ValueLayout.JAVA_LONG_UNALIGNED, offset, 0L);
-			default -> memory.asSlice(offset, size).fill((byte) 0);
-		}
-		return size;
-	}
-
-	/**
-	 * Returns true if the memory segment contains only zero bytes.
-	 */
-	public static boolean is(MemorySegment memory) {
-		return is(memory, Segments.size(memory));
-	}
-	
-	/**
-	 * Returns true if the memory segment slice contains only zero bytes.
-	 */
-	public static boolean is(MemorySegment memory, long size) {
-		return is(memory, 0L, size);
-	}
-	
-	/**
-	 * Returns true if the memory segment slice contains only zero bytes.
-	 */
-	public static boolean is(MemorySegment memory, long offset, long size) {
-		if (Segments.isNull(memory)) return false;
-		offset = Maths.limit(offset, 0L, memory.byteSize());
-		if (size < 0 || size > memory.byteSize() - offset) return false;
-		if (size > BLOCK_SIZE) return matchLarge(memory, offset, size);
-		return matchSmall(memory, offset, size);
 	}
 
 	@Override

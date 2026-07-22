@@ -2,171 +2,54 @@ package ceri.ffm.type;
 
 import java.nio.Buffer;
 import java.util.Map;
+import java.util.Set;
 import ceri.common.array.Dimensions;
 import ceri.common.collect.Immutable;
-import ceri.common.collect.Maps;
 import ceri.common.concurrent.Lazy;
+import ceri.common.except.Exceptions;
 import ceri.common.io.Buffers;
 import ceri.common.reflect.Generics;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Native;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.TypeNode;
-import ceri.ffm.type.Support.Typed;
 
 /**
  * Lookup for operational support of types and arrays.
  */
 public class Supports {
+	private static final String DIMS_ANNO = "@" + Refine.Dims.class.getSimpleName();
+	private static final String SIZE_ANNO = "@" + Refine.Size.class.getSimpleName();
+	private static final int SIZE_MAX_DEF = 1024 * 1024;
 	private static final Map<Class<?>, Support<?, ?, ?>> MAP = map();
 	private static final Lazy.ForClass<Support<?, ?, ?>> cache = Lazy.forClass(c -> fromClass(c));
-	public static final Supports DEF = new Supports(Defaults.DEF);
-	private final Defaults defaults;
+	private static final Supports DEFAULT = new Supports(Set.of());
+	private static final Supports FIXED = new Supports(Set.of(Option.sizeRequired));
+	private Set<Option> options;
 
 	/**
-	 * Provides default configuration for array types.
+	 * Type support options.
 	 */
-	public static class Defaults {
-		private static final Value NONE = new Value(0, false);
-		private static final Value NUL = new Value(0, true);
-		public static final Defaults DEF = new Defaults(Map.of(Category.string, NUL));
-		private final Map<Category, Value> values;
-
-		private enum Category {
-			string,
-			buffer,
-			array1d,
-			arrayNd
-		}
-
-		/**
-		 * Array type configuration.
-		 */
-		public record Value(int count, boolean nul) {}
-
-		/**
-		 * Allows customization of default configurations.
-		 */
-		public static class Builder {
-			private final Map<Category, Value> values = Maps.of();
-
-			private Builder() {}
-
-			/**
-			 * Sets default string char count and nul-termination.
-			 */
-			public Builder string(int count, boolean nul) {
-				return value(Category.string, count, nul);
-			}
-
-			/**
-			 * Sets default buffer element count and nul-termination.
-			 */
-			public Builder buffer(int count, boolean nul) {
-				return value(Category.buffer, count, nul);
-			}
-
-			/**
-			 * Sets default 1-d array size and nul-termination. Use n-d for buffer or string arrays.
-			 */
-			public Builder array1d(int count, boolean nul) {
-				return value(Category.array1d, count, nul);
-			}
-
-			/**
-			 * Sets default array size and nul-termination for arrays > 1-d, string arrays, and
-			 * buffer arrays.
-			 */
-			public Builder arrayNd(int count, boolean nul) {
-				return value(Category.arrayNd, count, nul);
-			}
-
-			/**
-			 * Provides the defaults instance.
-			 */
-			public Defaults build() {
-				return new Defaults(Immutable.map(values));
-			}
-
-			/**
-			 * Provides the support lookup with defaults instance.
-			 */
-			public Supports supports() {
-				return new Supports(build());
-			}
-
-			private Builder value(Category category, int count, boolean nul) {
-				if (count >= 0) values.put(category, new Value(count, nul));
-				return this;
-			}
-		}
-
-		private Defaults(Map<Category, Value> values) {
-			this.values = values;
-		}
-
-		/**
-		 * Provides the array type configuration. Defaults to none.
-		 */
-		public Value string() {
-			return values.getOrDefault(Category.string, NONE);
-		}
-
-		/**
-		 * Provides the array type configuration. Defaults to none.
-		 */
-		public Value buffer() {
-			return values.getOrDefault(Category.buffer, NONE);
-		}
-
-		/**
-		 * Provides the array type configuration. Defaults to none.
-		 */
-		public Value array1d() {
-			return values.getOrDefault(Category.array1d, NONE);
-		}
-
-		/**
-		 * Provides the array type configuration. Defaults to none.
-		 */
-		public Value arrayNd() {
-			return values.getOrDefault(Category.arrayNd, NONE);
-		}
-
-		/**
-		 * Returns the array defaults based on component support.
-		 */
-		public Defaults.Value array(Support<?, ?, ?> support) {
-			if (support.isArray()) return arrayNd();
-			return switch (support.kind()) {
-				case STRING, BUFFER -> arrayNd();
-				default -> array1d();
-			};
-		}
-
-		@Override
-		public String toString() {
-			return values.toString();
-		}
+	public enum Option {
+		sizeRequired;
 	}
 
 	/**
-	 * Allows customization of array type defaults.
+	 * Returns support lookup using default array sizes.
 	 */
-	public static Defaults.Builder defaults() {
-		return new Defaults.Builder();
+	public static Supports of() {
+		return DEFAULT;
 	}
 
 	/**
-	 * Returns an instance with default array configurations.
+	 * Returns support lookup requiring explicit array sizes.
 	 */
-	public static Supports of(Defaults defaults) {
-		if (defaults == null || defaults == Defaults.DEF) return DEF;
-		return new Supports(defaults);
+	public static Supports fixed() {
+		return FIXED;
 	}
 
-	private Supports(Defaults defaults) {
-		this.defaults = defaults;
+	private Supports(Set<Option> options) {
+		this.options = options;
 	}
 
 	/**
@@ -186,21 +69,21 @@ public class Supports {
 	/**
 	 * Finds non-primitive support for the class type, with default refinement context.
 	 */
-	public <T> Typed<T, ?> typedFrom(Class<T> cls) {
+	public <T> Support.Typed<T, ?> typedFrom(Class<T> cls) {
 		return typedFrom(cls, Refine.Context.DEFAULT);
 	}
 
 	/**
 	 * Finds non-primitive support for the class type, with given refinement context.
 	 */
-	public <T> Typed<T, ?> typedFrom(Class<T> cls, Refine.Context context) {
+	public <T> Support.Typed<T, ?> typedFrom(Class<T> cls, Refine.Context context) {
 		return Reflect.unchecked(from(Reflect.boxed(cls), context));
 	}
 
 	/**
 	 * Finds support based on a type token and its annotations.
 	 */
-	public <T> Typed<T, ?> from(Generics.Token<T> token) {
+	public <T> Support.Typed<T, ?> from(Generics.Token<T> token) {
 		return Reflect.unchecked(from(TypeNode.of(token)));
 	}
 
@@ -233,9 +116,8 @@ public class Supports {
 		Refine.Context context) {
 		var support = node.isArray() ? array(node.component(), dims, index - 1, context) :
 			nonArrayFrom(node, context);
-		var def = defaults.array(support);
-		int size = dims != null ? dims.dim(index) : def.count();
-		boolean nul = support.isArray() ? false : context.nul(def.nul());
+		int size = dim(node, dims, index, SIZE_MAX_DEF);
+		boolean nul = support.isArray() ? false : context.nul(false);
 		return support.asArray(size, nul);
 	}
 
@@ -244,36 +126,58 @@ public class Supports {
 		if (cls == null) return nullCls(node, context);
 		var support = cache.get(cls);
 		if (support != null) return refine(support, context);
-		if (cls == Pointer.class) return pointer(node.type());
-		if (cls == String.class) return string(context);
-		return buffer(Reflect.unchecked(cls), context);
+		if (cls == Pointer.class) return pointer(node);
+		if (cls == String.class) return string(node, context);
+		return buffer(node, Reflect.unchecked(cls), context);
 	}
 
-	private Support<?, ?, ?> nullCls(TypeNode node, Refine.Context context) {
+	private static Support<?, ?, ?> nullCls(TypeNode node, Refine.Context context) {
 		if (node.isVoid()) return refine(Support.VOID, context);
 		throw new IllegalArgumentException("Type not supported: " + node);
 	}
 
 	private Support<?, ?, ?> pointer(TypeNode node) {
-		var context = node.context();
-		var support = Pointer.supportFor(node, context.constant());
-		return refine(support, context);
+		var typeNode = node.type();
+		if (typeNode == node) typeNode = TypeNode.VOID; // no generic type
+		Support.Typed<?, ?> type = Reflect.unchecked(from(typeNode));
+		var support = Pointer.support(type, typeNode.context().constant());
+		return refine(support, node.context());
 	}
 
-	private Support<?, ?, ?> string(Refine.Context context) {
+	private Support<?, ?, ?> string(TypeNode node, Refine.Context context) {
 		var chars = context.chars();
-		var size = context.size(defaults.string().count());
-		var nul = context.nul(defaults.string().nul());
+		var size = size(node, context, SIZE_MAX_DEF);
+		var nul = context.nul(true);
 		return refine(StringType.supportFor(chars, size, nul), context);
 	}
 
-	private <B extends Buffer> Support<?, ?, ?> buffer(Class<B> cls, Refine.Context context) {
-		var size = context.size(defaults.buffer().count());
-		var nul = context.nul(defaults.buffer().nul());
+	private <B extends Buffer> Support<?, ?, ?> buffer(TypeNode node, Class<B> cls,
+		Refine.Context context) {
+		var size = size(node, context, SIZE_MAX_DEF);
+		var nul = context.nul(false);
 		return refine(BufferType.supportFor(cls, size, nul), context);
 	}
 
-	private Support<?, ?, ?> refine(Support<?, ?, ?> support, Refine.Context context) {
+	private int size(TypeNode node, Refine.Context context, int def) {
+		var size = context.size(null);
+		if (size != null) return size;
+		if (!sizeRequired()) return def;
+		throw Exceptions.illegalArg("%s must be specified: %s", SIZE_ANNO, node);
+	}
+
+	private int dim(TypeNode node, Dimensions dims, int index, int def) {
+		if (dims != null && index < dims.count()) return dims.dim(index);
+		if (!sizeRequired()) return def;
+		if (dims == null)
+			throw Exceptions.illegalArg("%s must be specified on array: %s", DIMS_ANNO, node);
+		throw Exceptions.illegalArg("%s requires %d values: %s", DIMS_ANNO, node);
+	}
+
+	private boolean sizeRequired() {
+		return options.contains(Option.sizeRequired);
+	}
+
+	private static Support<?, ?, ?> refine(Support<?, ?, ?> support, Refine.Context context) {
 		if (support == null) return null;
 		if (support.kind() == Native.Kind.PRIMITIVE_POINTER && context.constant())
 			support = ((PointerType.Supporter<?>) support).asConst();
@@ -291,7 +195,7 @@ public class Supports {
 		if (cls == Pointer.class) return null; // needs more info
 		if (PointerType.class.isAssignableFrom(cls))
 			return PointerType.supportFor(Reflect.unchecked(cls));
-		// TODO: function pointer
+		// if (Callback.class.isAssignableFrom(cls)) return Upcall.from(Reflect.unchecked(cls));
 		if (cls == String.class) return null; // needs more info
 		if (Buffers.BASE_TYPES.contains(cls)) return null; // needs more info
 		throw new IllegalArgumentException("Type not supported: " + Reflect.simple(cls));

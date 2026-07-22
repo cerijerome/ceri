@@ -38,6 +38,7 @@ public class Layouts {
 	public static final ValueLayout.OfDouble DOUBLE = canonical(Native.Canonical.DOUBLE);
 	public static final ValueLayout.OfChar CHAR = copy(ValueLayout.JAVA_CHAR, SHORT);
 	public static final AddressLayout POINTER = canonical(Native.Canonical.VOID_P);
+	public static final MemoryLayout EMPTY = MemoryLayout.sequenceLayout(0, BYTE);
 	private static final int MASK_LE = 1;
 	private static final int MASK_BE = 2;
 	private static final int MASK_MAX = MASK_LE | MASK_BE;

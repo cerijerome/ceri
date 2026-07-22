@@ -6,7 +6,7 @@ import ceri.ffm.core.Segments;
 public class PointerTypeTester {
 
 	public static class myptr extends PointerType {
-		public static final Supporter<myptr> $ = PointerType.support(myptr.class);
+		public static final PointerType.Supporter<myptr> $ = PointerType.support(myptr.class);
 
 		public myptr(MemorySegment memory) {
 			super(memory);

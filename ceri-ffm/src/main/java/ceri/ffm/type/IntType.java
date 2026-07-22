@@ -179,6 +179,13 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		/**
+		 * Returns the native type.
+		 */
+		public Class<? extends Number> nativeType() {
+			return boxed.type();
+		}
+		
+		/**
 		 * Returns the type specification.
 		 */
 		public Spec spec() {
@@ -303,7 +310,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 * Returns cached operational support for the type.
 	 */
 	public static <T extends IntType<T>> Supporter<T> support(Class<T> cls) {
-		return Reflect.unchecked(Supports.DEF.from(cls));
+		return Reflect.unchecked(Supports.of().from(cls));
 	}
 
 	/**
