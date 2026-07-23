@@ -86,10 +86,10 @@ public class Caller<E extends Exception, T> {
 		/**
 		 * Wrapper to prevent application of transforms.
 		 */
-		public record Raw(Object name) {
+		public record Raw(Object raw) {
 			@Override
 			public String toString() {
-				return String.valueOf(name());
+				return String.valueOf(raw());
 			}
 		}
 
@@ -323,7 +323,7 @@ public class Caller<E extends Exception, T> {
 			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
 			.add(PointerType.Indexable.class, Transform::typedPointer) //
 			.add(PointerType.class, Transform::pointer) //
-			.add(Group.class, (c, g) -> Transform.group(c, g)) //
+			.add(Group.class, Transform::group) //
 			.build();
 	}
 }

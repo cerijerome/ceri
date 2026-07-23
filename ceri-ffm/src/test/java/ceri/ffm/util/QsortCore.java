@@ -27,8 +27,8 @@ public class QsortCore {
 	private static final MethodHandle QSORT = LINKER.downcallHandle(
 		LINKER.defaultLookup().findOrThrow("qsort"),
 		FunctionDescriptor.ofVoid(Layouts.POINTER, Layouts.LONG, Layouts.LONG, Layouts.POINTER));
-	private static final MethodHandle GENERAL =
-		Handles.staticMethod(QsortCore.class, "general", Object.class, Callback.class, Object[].class);
+	private static final MethodHandle GENERAL = Handles.staticMethod(QsortCore.class, "general",
+		Object.class, Callback.class, Object[].class);
 	private static final Map<Callback, MemorySegment> stubs = Maps.syncWeak();
 
 	public interface qsort_callback extends Callback {
@@ -45,16 +45,17 @@ public class QsortCore {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		var cb0 = qsort_callback.of("cb0", (i1, i2) -> Integer.compare(i1, i2));
-		var cb1 = qsort_callback.of("cb1", (i1, i2) -> Integer.compare(i2, i1));
-		var cb2 = qsort_callback.of("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3));
-		int[] array = { 0, 9, 3, 4, 6, 5, 1, 8, 2, 7 };
-		System.out.println(RawArray.toString(qsort(array, cb0)));
-		System.out.println(RawArray.toString(qsort(array, cb1)));
-		System.out.println(RawArray.toString(qsort(array, cb2)));
-		System.out.println(RawArray.toString(qsort(array, cb0)));
-		System.out.println(RawArray.toString(qsort(array, cb1)));
-		System.out.println(RawArray.toString(qsort(array, cb2)));
+		try (var cb0 = qsort_callback.of("cb0", (i1, i2) -> Integer.compare(i1, i2));
+			var cb1 = qsort_callback.of("cb1", (i1, i2) -> Integer.compare(i2, i1));
+			var cb2 = qsort_callback.of("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3))) {
+			int[] array = { 0, 9, 3, 4, 6, 5, 1, 8, 2, 7 };
+			System.out.println(RawArray.toString(qsort(array, cb0)));
+			System.out.println(RawArray.toString(qsort(array, cb1)));
+			System.out.println(RawArray.toString(qsort(array, cb2)));
+			System.out.println(RawArray.toString(qsort(array, cb0)));
+			System.out.println(RawArray.toString(qsort(array, cb1)));
+			System.out.println(RawArray.toString(qsort(array, cb2)));
+		}
 	}
 
 	public static int[] qsort(int[] array, qsort_callback callback) throws Throwable {

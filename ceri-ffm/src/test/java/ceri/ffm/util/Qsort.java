@@ -9,7 +9,6 @@ import ceri.common.array.RawArray;
 import ceri.common.data.Bytes;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
-import ceri.ffm.core.Call;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.reflect.Refine.Const;
 import ceri.ffm.reflect.Refine.Order;
@@ -42,25 +41,26 @@ public class Qsort {
 	public interface Native {
 		void qsort(Pointer.OfVoid p, size_t n, size_t size);
 	}
-	
+
 	public static void main(String[] args) throws Throwable {
-		var cb0 = qsort_callback.of("cb0", (i1, i2) -> Integer.compare(i1, i2));
-		var cb1 = qsort_callback.of("cb1", (i1, i2) -> Integer.compare(i2, i1));
-		var cb2 = qsort_callback.of("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3));
-		int[] array = { 0, 9, 3, 4, 6, 5, 1, 8, 2, 7 };
-		System.out.println(RawArray.toString(qsort(array, cb0)));
-		System.out.println(RawArray.toString(qsort(array, cb1)));
-		System.out.println(RawArray.toString(qsort(array, cb2)));
-		System.out.println(RawArray.toString(qsort(array, cb0)));
-		System.out.println(RawArray.toString(qsort(array, cb1)));
-		System.out.println(RawArray.toString(qsort(array, cb2)));
+		try (var cb0 = qsort_callback.of("cb0", (i1, i2) -> Integer.compare(i1, i2));
+			var cb1 = qsort_callback.of("cb1", (i1, i2) -> Integer.compare(i2, i1));
+			var cb2 = qsort_callback.of("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3))) {
+			int[] array = { 0, 9, 3, 4, 6, 5, 1, 8, 2, 7 };
+			System.out.println(RawArray.toString(qsort(array, cb0)));
+			System.out.println(RawArray.toString(qsort(array, cb1)));
+			System.out.println(RawArray.toString(qsort(array, cb2)));
+			System.out.println(RawArray.toString(qsort(array, cb0)));
+			System.out.println(RawArray.toString(qsort(array, cb1)));
+			System.out.println(RawArray.toString(qsort(array, cb2)));
+		}
 	}
 
 	public static int[] qsort(int[] array, qsort_callback callback) throws Throwable {
 		try (var arena = Arena.ofConfined()) {
 			var m = INT.allocArray(arena, array, false);
-			var stub = Call.upcall(callback);
-			QSORT.invoke(m, array.length, INT.layoutSize(), stub);
+			var pointer = Callback.pointer(callback);
+			QSORT.invoke(m, array.length, INT.layoutSize(), pointer);
 			return INT.getArray(m, false);
 		}
 	}

@@ -14,15 +14,14 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.array.Array;
 import ceri.common.collect.Collectable;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
-import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
+import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
@@ -46,9 +45,6 @@ public class Call {
 	private static final MethodHandle NATIVE_CALLBACK =
 		Handles.staticMethod(Call.class, "nativeCallback", Object.class, Up.class, Object[].class);
 	private static final Linker.Option[] NO_OPTIONS = new Linker.Option[0];
-	private static final Map<Class<? extends Callback>, Call.Config> callbackConfigs =
-		Maps.concurrent();
-	private static final Map<Callback, MemorySegment> callbackPointers = Maps.syncWeak();
 
 	private Call() {}
 
@@ -174,8 +170,23 @@ public class Call {
 		/**
 		 * Returns a native downcall for this method at given pointer.
 		 */
-		public Call.Down down(MemorySegment pointer) {
+		public Down down(MemorySegment pointer) {
 			return new Call.Down(this, pointer);
+		}
+
+		/**
+		 * Returns an upcall with local callback instance for the given function pointer.
+		 */
+		@SuppressWarnings("resource")
+		public Up up(MemorySegment pointer) {
+			return new Up(this, callback(pointer), pointer);
+		}
+
+		/**
+		 * Returns an upcall with function pointer for the given local callback instance.
+		 */
+		public Call.Up up(Callback callback) {
+			return new Up(this, callback);
 		}
 
 		@Override
@@ -194,16 +205,21 @@ public class Call {
 			return b;
 		}
 
-		private <C extends Callback> MemorySegment upcall(C callback, Arena arena) {
-			System.out.println("Upcall: " + callback);
-			if (callback == null) return null;
-			var upcall = new Up(this, callback, arena);
-			var handle = NATIVE_CALLBACK.bindTo(upcall).asVarargsCollector(Object[].class)
-				.asType(nativeMethodType);
-			return Native.LINKER.upcallStub(handle, nativeFuncDesc, arena, options(varArg, false));
+		private Callback callback(MemorySegment pointer) {
+			var downcall = down(pointer);
+			var downHandle = LOCAL_CALLBACK.bindTo(downcall).asVarargsCollector(Object[].class)
+				.asType(localMethodType);
+			return Reflect.unchecked(Handles.proxy(method.getDeclaringClass(), downHandle));
 		}
 
-		private Object invokeCallback(Callback callback, SegmentAllocator allocator,
+		private MemorySegment pointer(Up upcall) {
+			var handle = NATIVE_CALLBACK.bindTo(upcall).asVarargsCollector(Object[].class)
+				.asType(nativeMethodType);
+			return Native.LINKER.upcallStub(handle, nativeFuncDesc, upcall.arena,
+				options(varArg, false));
+		}
+
+		private Object invokeLocal(Callback callback, SegmentAllocator allocator,
 			Object[] nativeArgs) {
 			try {
 				var localArgs = localArgs(callback, nativeArgs);
@@ -225,8 +241,8 @@ public class Call {
 			return localArgs;
 		}
 
-		private Object down(SegmentAllocator allocator, MemorySegment pointer, Object[] localArgs)
-			throws Throwable {
+		private Object invokeNative(SegmentAllocator allocator, MemorySegment pointer,
+			Object[] localArgs) throws Throwable {
 			var adaptedArgs = adaptLocalArgs(allocator, flatten(localArgs));
 			var nativeArgs = nativeArgs(allocator, pointer, adaptedArgs);
 			var nativeRtn = nativeHandle.invokeWithArguments(nativeArgs); // invokeExact(...) fails
@@ -302,100 +318,121 @@ public class Call {
 	}
 
 	/**
-	 * Creates the native call configuration for the method.
-	 */
-	public static Config config(Method method) {
-		System.out.println("Config: " + method);
-		var b = new Config.Builder(method);
-		b.rtn(rtn(method));
-		var parameters = method.getParameters();
-		int paramCount = parameters.length;
-		if (method.isVarArgs()) paramCount--;
-		for (int i = 0; i < paramCount; i++)
-			b.arg(arg(parameters[i]));
-		if (Refine.lastError(method, true)) b.lastError();
-		return b.build();
-	}
-
-	/**
 	 * Encapsulates a native downcall.
 	 */
-	public record Down(Config config, MemorySegment pointer) {
+	public static class Down {
+		private final Config config;
+		private final MemorySegment pointer;
+		
+		private Down(Config config, MemorySegment pointer) {
+			this.config = config;
+			this.pointer = pointer;
+		}
+		
 		/**
-		 * Invokes the downcall with given allocator and local arguments.
+		 * Returns the method configuration.
+		 */
+		public Config config() {
+			return config;
+		}
+		
+		/**
+		 * Returns the function pointer.
+		 */
+		public MemorySegment pointer() {
+			return pointer;
+		}
+		
+		/**
+		 * Invokes the native call with given allocator and local arguments.
 		 */
 		public Object invoke(Object[] localArgs) throws Throwable {
 			try (var allocator = Arena.ofConfined()) {
-				return config().down(allocator, pointer(), localArgs);
+				return config.invokeNative(allocator, pointer, localArgs);
 			}
 		}
 
 		@Override
 		public String toString() {
-			return String.format("downcall%s/%s", Segments.addressString(pointer()), config());
+			return String.format("downcall%s/%s", Segments.addressString(pointer), config);
 		}
 	}
 
 	/**
 	 * Encapsulates a local callback.
 	 */
-	public record Up(Config config, Callback callback, Arena arena) {
+	public static class Up implements Functions.Closeable {
+		private final Config config;
+		private final Callback callback;
+		private final MemorySegment pointer;
+		private final Arena arena;
+
+		private Up(Config config, Callback callback, MemorySegment pointer) {
+			this.config = config;
+			this.callback = callback;
+			arena = Arena.ofShared();
+			this.pointer = pointer;
+		}
+
+		private Up(Config config, Callback callback) {
+			this.config = config;
+			this.callback = callback;
+			arena = Arena.ofShared();
+			pointer = config.pointer(this);
+		}
+
 		/**
-		 * Invokes the local callback method with native arguments adapted to local arguments, and
-		 * the local return value adapted to a native return value. Must not throw an exception.
+		 * Returns the method configuration.
 		 */
-		@SuppressWarnings("resource")
-		private Object invokeCallback(Object[] nativeArgs) {
-			// how/when to free memory allocated for return values?
-			// will accumulate until callback is garbage collected
-			return config().invokeCallback(callback(), arena(), nativeArgs);
+		public Config config() {
+			return config;
+		}
+		
+		/**
+		 * Returns the callback instance.
+		 */
+		public Callback callback() {
+			return callback;
+		}
+
+		/**
+		 * Returns the function pointer.
+		 */
+		public MemorySegment pointer() {
+			return pointer;
+		}
+
+		@Override
+		public void close() {
+			arena.close();
 		}
 
 		@Override
 		public String toString() {
-			return String.format("%s%s/%s", Basics.def(Lambdas.registered(callback()), "upcall"),
-				Reflect.nameHash(callback()), config());
+			return String.format("%s%s/%s", Basics.def(Lambdas.registered(callback), "upcall"),
+				Reflect.nameHash(callback), config);
+		}
+
+		/**
+		 * Invokes the local callback method with native arguments adapted to local arguments, and
+		 * the local return value adapted to a native return value. Must not throw an exception.
+		 */
+		private Object invokeCallback(Object[] nativeArgs) {
+			// how/when to free memory allocated for return values?
+			// will accumulate until callback is garbage collected
+			return config.invokeLocal(callback, arena, nativeArgs);
 		}
 	}
 
 	/**
-	 * Creates a function pointer for the local callback.
+	 * Creates the native call configuration for the method.
 	 */
-	public static <C extends Callback> MemorySegment upcall(C callback) {
-		if (callback == null) return null;
-		return callbackPointers.computeIfAbsent(callback,
-			_ -> callbackConfig(Callback.classOf(callback)).upcall(callback, Arena.ofAuto()));
-	}
-
-	/**
-	 * Returns a local callback instance for the function pointer.
-	 */
-	public static <C extends Callback> C callback(Class<C> cls, MemorySegment pointer)
-		throws Throwable {
-		if (cls == null || pointer == null) return null;
-		// map pointer to callback? how to clean up pointer mapping?
-		var config = callbackConfig(cls);
-		var downcall = config.down(pointer);
-		var handle = LOCAL_CALLBACK.bindTo(downcall).asVarargsCollector(Object[].class)
-			.asType(config.localMethodType);
-		return Handles.proxy(cls, handle);
-	}
-
-	public interface cbtest extends Callback {
-		int invoke(long l, int i);
-	}
-
-	public static void main(String[] args) throws Throwable {
-		cbtest cb = (l, i) -> {
-			var r = (int) (l + i);
-			System.out.printf("cbtest.invoke(%s, %s) -> %s", l, i, r);
-			return r;
-		};
-		cb.invoke(1, 2);
-		var p = upcall(cb);
-		System.out.println(p);
-		var c = callback(cbtest.class, p);
-		c.invoke(-2, -1);
+	public static Config config(Method method) {
+		System.out.println("config: " + method);
+		var b = new Config.Builder(method).rtn(rtn(method));
+		addArgs(b, method);
+		if (Refine.lastError(method, true)) b.lastError();
+		return b.build();
 	}
 
 	/**
@@ -414,6 +451,14 @@ public class Call {
 	}
 
 	// support
+
+	private static void addArgs(Config.Builder b, Method method) {
+		var params = method.getParameters();
+		int paramCount = params.length;
+		if (method.isVarArgs()) paramCount--;
+		for (int i = 0; i < paramCount; i++)
+			b.arg(arg(params[i]));
+	}
 
 	private static Native.Adapter<?, ?> arg(Parameter parameter) {
 		var node = TypeNode.of(parameter);
@@ -505,9 +550,5 @@ public class Call {
 	private static Class<?> varArgType(Object[] varArgs, int i) {
 		var value = Validate.nonNull(varArgs[i], "vararg[%d]", i);
 		return Native.promote(value.getClass());
-	}
-
-	private static Config callbackConfig(Class<? extends Callback> cls) {
-		return callbackConfigs.computeIfAbsent(cls, _ -> config(Callback.method(cls)));
 	}
 }
