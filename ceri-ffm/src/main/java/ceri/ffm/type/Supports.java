@@ -195,7 +195,8 @@ public class Supports {
 		if (cls == Pointer.class) return null; // needs more info
 		if (PointerType.class.isAssignableFrom(cls))
 			return PointerType.supportFor(Reflect.unchecked(cls));
-		// if (Callback.class.isAssignableFrom(cls)) return Upcall.from(Reflect.unchecked(cls));
+		if (Callback.class.isAssignableFrom(cls))
+			return Callback.Supporter.of(Reflect.unchecked(cls));
 		if (cls == String.class) return null; // needs more info
 		if (Buffers.BASE_TYPES.contains(cls)) return null; // needs more info
 		throw new IllegalArgumentException("Type not supported: " + Reflect.simple(cls));

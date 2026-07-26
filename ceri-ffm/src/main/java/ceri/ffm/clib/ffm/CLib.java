@@ -17,8 +17,7 @@ import ceri.ffm.type.Pointer;
  */
 public class CLib {
 	public static final Library<CLib.Native> library = Library.of(CLib.Native.class);
-	public static final Caller<CException, CLib.Native> caller =
-		Caller.config(CException::full).caller(library);
+	public static final Caller<CException, CLib.Native> caller = Caller.of(library);
 
 	private CLib() {}
 
@@ -86,6 +85,7 @@ public class CLib {
 		// <fcntl.h>
 
 		// int open(const char *pathname, int flags, ...)
+		// int open(String path, int flags, Object... args);
 		int open(String path, int flags, Object... args);
 
 		// int fcntl(int fd, int cmd, ...);

@@ -8,23 +8,28 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.array.Array;
+import ceri.common.array.RawArray;
 import ceri.common.collect.Collectable;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Joiner;
 import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.ffm.reflect.Refine;
@@ -36,50 +41,57 @@ import ceri.ffm.type.Support;
 import ceri.ffm.type.Supports;
 
 /**
- * Types for encapsulation of native upcalls and downcalls.
+ * Encapsulation of native upcalls and downcalls.
  */
 public class Call {
 	private static final Logger logger = LogManager.getFormatterLogger();
-	private static final MethodHandle LOCAL_CALLBACK =
-		Handles.staticMethod(Call.class, "localCallback", Object.class, Down.class, Object[].class);
-	private static final MethodHandle NATIVE_CALLBACK =
-		Handles.staticMethod(Call.class, "nativeCallback", Object.class, Up.class, Object[].class);
+	private static final MethodHandles.Lookup LOOKUP = Handles.privateLookup(Call.class);
+	private static final MethodHandle LOCAL_CALLBACK = Handles.staticMethod(LOOKUP, Call.class,
+		"localCallback", Object.class, Down.class, Object[].class);
+	private static final MethodHandle NATIVE_CALLBACK = Handles.staticMethod(LOOKUP, Call.class,
+		"nativeCallback", Object.class, Up.class, Object[].class);
+	private static final MethodHandle NO_OP_CALLBACK = Handles.staticMethod(LOOKUP, Call.class,
+		"noOpCallback", Object.class, Config.class, Object[].class);
 	private static final Linker.Option[] NO_OPTIONS = new Linker.Option[0];
 
 	private Call() {}
 
 	/**
-	 * Method cache lookup key. Uses method and var-arg types.
+	 * Utility to build a call configuration.
 	 */
-	public record Key(Method method, List<Class<?>> varArgTypes) implements Comparable<Key> {
-		private static final Comparator<Key> COMPARATOR =
-			Comparator.<Key, String>comparing(k -> k.method().getName())
-				.thenComparingInt(k -> k.varArgTypes().size());
+	private static class Builder {
+		private final Method method;
+		private Native.Adapter<?, ?> rtn = Native.Adapter.VOID;
+		private final List<Native.Adapter<?, ?>> args = Lists.of();
+		private int varArg = -1;
+		private boolean lastError = false;
 
-		/**
-		 * Returns a lookup key for a method without var-args.
-		 */
-		public static Key of(Method method) {
-			return new Key(method, Immutable.list());
+		private Builder(Method method) {
+			this.method = method;
 		}
 
-		/**
-		 * Returns a lookup key for a method with possible var-args.
-		 */
-		public static Key from(Method method, Object[] args) {
-			if (!method.isVarArgs() || args.length == 0) return of(method);
-			return new Key(method, Call.varArgTypes(args));
+		private Builder rtn(Native.Adapter<?, ?> rtn) {
+			this.rtn = rtn;
+			return this;
 		}
 
-		@Override
-		public int compareTo(Key key) {
-			return COMPARATOR.compare(this, key);
+		private Builder arg(Native.Adapter<?, ?> arg) {
+			args.add(arg);
+			return this;
 		}
 
-		@Override
-		public final String toString() {
-			return Reflect.name(method.getDeclaringClass()) + "." + method().getName()
-				+ Lists.adapt(Reflect::name, varArgTypes());
+		private Builder varArg() {
+			varArg = args.size();
+			return this;
+		}
+
+		private Builder lastError() {
+			lastError = true;
+			return this;
+		}
+
+		private Config build() {
+			return new Config(this);
 		}
 	}
 
@@ -91,49 +103,14 @@ public class Call {
 		private final Native.Adapter<?, ?> rtn;
 		private final List<Native.Adapter<?, ?>> args;
 		private final boolean groupReturn;
-		private final int varArg;
+		private final int varArg; // -1 for non-vararg and root vararg config
 		private final boolean lastError;
 		private final MethodType localMethodType;
 		private final MethodHandle localHandle;
 		private final FunctionDescriptor nativeFuncDesc;
 		private final MethodType nativeMethodType;
 		private final MethodHandle nativeHandle;
-
-		private static class Builder {
-			private final Method method;
-			private Native.Adapter<?, ?> rtn = Native.Adapter.VOID;
-			private final List<Native.Adapter<?, ?>> args = Lists.of();
-			private int varArg = -1;
-			private boolean lastError = false;
-
-			private Builder(Method method) {
-				this.method = method;
-			}
-
-			private Builder rtn(Native.Adapter<?, ?> rtn) {
-				this.rtn = rtn;
-				return this;
-			}
-
-			private Builder arg(Native.Adapter<?, ?> arg) {
-				args.add(arg);
-				return this;
-			}
-
-			private Builder varArg() {
-				varArg = args.size();
-				return this;
-			}
-
-			private Builder lastError() {
-				lastError = true;
-				return this;
-			}
-
-			private Config build() {
-				return new Config(this);
-			}
-		}
+		private final Map<List<Class<?>>, Config> varArgConfigs; // only for vararg root config
 
 		private Config(Builder builder) {
 			method = builder.method;
@@ -144,27 +121,11 @@ public class Call {
 			lastError = builder.lastError;
 			localMethodType = localMethodType(); // local types
 			localHandle = Handles.method(method); // class + local types
-			nativeFuncDesc = nativeFuncDesc();
-			nativeMethodType = nativeMethodType();
+			nativeFuncDesc = nativeFuncDesc(); // -> up+down
+			nativeMethodType = nativeMethodType(); // -> up
 			nativeHandle = Native.LINKER.downcallHandle(nativeFuncDesc, options(varArg, lastError));
-		}
-
-		/**
-		 * Extends the configuration with var-arg argument types.
-		 */
-		public Config withVarArgs(List<Class<?>> varArgTypes) {
-			var b = builder().varArg();
-			var parameter = Array.last(method.getParameters());
-			for (int i = 0; i < varArgTypes.size(); i++)
-				b.arg(varArg(parameter, varArgTypes, i));
-			return b.build();
-		}
-
-		/**
-		 * Returns the method that generated this configuration.
-		 */
-		public Method method() {
-			return method;
+			varArgConfigs = (args.size() < method.getParameterCount()) ? Maps.concurrent() : null;
+			System.out.println(" ==> config: " + this);
 		}
 
 		/**
@@ -175,34 +136,48 @@ public class Call {
 		}
 
 		/**
-		 * Returns an upcall with local callback instance for the given function pointer.
+		 * Returns an upcall with local callback instance for the given function pointer. Fails if
+		 * this config is not from a callback method.
 		 */
-		@SuppressWarnings("resource")
 		public Up up(MemorySegment pointer) {
-			return new Up(this, callback(pointer), pointer);
+			return new Up(this, pointer);
 		}
 
 		/**
-		 * Returns an upcall with function pointer for the given local callback instance.
+		 * Returns an upcall with function pointer for the given local callback instance. Fails if
+		 * this config is not for the callback type.
 		 */
-		public Call.Up up(Callback callback) {
+		public Up up(Callback callback) {
 			return new Up(this, callback);
+		}
+
+		/**
+		 * Returns an no-op upcall with function pointer. Fails if this config is not from a
+		 * callback method.
+		 */
+		@SuppressWarnings("resource")
+		public Up noOpUp() {
+			return up(noOpCallback());
 		}
 
 		@Override
 		public String toString() {
-			return Reflect.descriptor(method) + (lastError ? "!" : "");
+			var b = new StringBuilder(Reflect.simple(rtn.localCls())).append(' ')
+				.append(method.getName());
+			Joiner.PARAM.appendByIndex(b,
+				i -> (i < args.size()) ? Reflect.simple(args.get(i).localCls()) :
+					Reflect.simple(method.getParameters()[i].getType().getComponentType()) + "...",
+				args.size() + (varArgConfigs != null ? 1 : 0));
+			if (lastError) b.append('!');
+			return b.toString();
 		}
 
 		// support
 
-		private Builder builder() {
-			var b = new Config.Builder(method);
-			b.rtn = rtn;
-			b.args.addAll(args);
-			b.varArg = varArg;
-			b.lastError = lastError;
-			return b;
+		private Callback noOpCallback() {
+			var handle = NO_OP_CALLBACK.bindTo(this).asVarargsCollector(Object[].class)
+				.asType(localMethodType);
+			return Reflect.unchecked(Handles.proxy(method.getDeclaringClass(), handle));
 		}
 
 		private Callback callback(MemorySegment pointer) {
@@ -213,9 +188,9 @@ public class Call {
 		}
 
 		private MemorySegment pointer(Up upcall) {
-			var handle = NATIVE_CALLBACK.bindTo(upcall).asVarargsCollector(Object[].class)
+			var upHandle = NATIVE_CALLBACK.bindTo(upcall).asVarargsCollector(Object[].class)
 				.asType(nativeMethodType);
-			return Native.LINKER.upcallStub(handle, nativeFuncDesc, upcall.arena,
+			return Native.LINKER.upcallStub(upHandle, nativeFuncDesc, upcall.arena,
 				options(varArg, false));
 		}
 
@@ -223,7 +198,7 @@ public class Call {
 			Object[] nativeArgs) {
 			try {
 				var localArgs = localArgs(callback, nativeArgs);
-				var localRtn = localHandle.invokeWithArguments(localArgs);
+				var localRtn = Handles.invokeRaw(localHandle, localArgs);
 				return rtn.toNative(allocator, Reflect.unchecked(localRtn)).value();
 			} catch (Throwable t) {
 				logger.catching(t);
@@ -243,24 +218,21 @@ public class Call {
 
 		private Object invokeNative(SegmentAllocator allocator, MemorySegment pointer,
 			Object[] localArgs) throws Throwable {
+			return varArgConfig(localArgs).invokeNativeCall(allocator, pointer, localArgs);
+		}
+
+		private Object invokeNativeCall(SegmentAllocator allocator, MemorySegment pointer,
+			Object[] localArgs) throws Throwable {
 			var adaptedArgs = adaptLocalArgs(allocator, flatten(localArgs));
 			var nativeArgs = nativeArgs(allocator, pointer, adaptedArgs);
-			var nativeRtn = nativeHandle.invokeWithArguments(nativeArgs); // invokeExact(...) fails
+			var nativeRtn = Handles.invokeRaw(nativeHandle, nativeArgs);
 			resolveArgs(adaptedArgs, nativeArgs);
 			return rtn.toLocal(Reflect.unchecked(nativeRtn));
 		}
 
 		private Object[] flatten(Object[] localArgs) {
 			if (localArgs.length == 0 || varArg < 0) return localArgs;
-			var varArgs = (Object[]) Array.last(localArgs);
-			if (varArgs.length == 1) {
-				localArgs[localArgs.length - 1] = varArgs[0];
-				return localArgs;
-			}
-			var flat = new Object[localArgs.length - 1 + varArgs.length];
-			Array.copy(localArgs, 0, flat, 0, localArgs.length - 1);
-			Array.copy(varArgs, 0, flat, localArgs.length - 1, varArgs.length);
-			return flat;
+			return flattenVarArgs(localArgs);
 		}
 
 		private List<Native.Adapted<?>> adaptLocalArgs(SegmentAllocator allocator,
@@ -284,7 +256,7 @@ public class Call {
 		}
 
 		private int nativeArgCount(List<Native.Adapted<?>> adaptedArgs) {
-			return 1 + (groupReturn ? 1 : 0) + (lastError ? 1 : 0) + adaptedArgs.size();
+			return lastErrorIndex() + (lastError ? 1 : 0) + adaptedArgs.size();
 		}
 
 		private void resolveArgs(List<Native.Adapted<?>> adaptedArgs, Object[] nativeArgs) {
@@ -315,6 +287,25 @@ public class Call {
 				Collectable.adaptToArray(args, Class[]::new, Native.Adapter::nativeCls);
 			return MethodType.methodType(rtn.nativeCls(), nativeArgTypes);
 		}
+
+		private Config varArgConfig(Object[] localArgs) {
+			if (varArgConfigs == null) return this;
+			var varArgTypes = Call.varArgTypes(localArgs);
+			if (varArgTypes.isEmpty()) return this;
+			return varArgConfigs.computeIfAbsent(varArgTypes, this::createVarArgConfig);
+		}
+
+		private Config createVarArgConfig(List<Class<?>> varArgTypes) {
+			var b = new Builder(method);
+			b.rtn = rtn;
+			b.args.addAll(args);
+			b.varArg();
+			b.lastError = lastError;
+			var parameter = Array.last(method.getParameters());
+			for (int i = 0; i < varArgTypes.size(); i++)
+				b.arg(varArg(parameter, varArgTypes, i));
+			return b.build();
+		}
 	}
 
 	/**
@@ -323,30 +314,30 @@ public class Call {
 	public static class Down {
 		private final Config config;
 		private final MemorySegment pointer;
-		
+
 		private Down(Config config, MemorySegment pointer) {
 			this.config = config;
 			this.pointer = pointer;
 		}
-		
+
 		/**
 		 * Returns the method configuration.
 		 */
 		public Config config() {
 			return config;
 		}
-		
+
 		/**
 		 * Returns the function pointer.
 		 */
 		public MemorySegment pointer() {
 			return pointer;
 		}
-		
+
 		/**
 		 * Invokes the native call with given allocator and local arguments.
 		 */
-		public Object invoke(Object[] localArgs) throws Throwable {
+		public Object invoke(Object... localArgs) throws Throwable {
 			try (var allocator = Arena.ofConfined()) {
 				return config.invokeNative(allocator, pointer, localArgs);
 			}
@@ -367,18 +358,18 @@ public class Call {
 		private final MemorySegment pointer;
 		private final Arena arena;
 
-		private Up(Config config, Callback callback, MemorySegment pointer) {
+		private Up(Config config, MemorySegment pointer) {
 			this.config = config;
-			this.callback = callback;
-			arena = Arena.ofShared();
+			this.arena = Arena.ofShared();
+			this.callback = config.callback(pointer);
 			this.pointer = pointer;
 		}
 
 		private Up(Config config, Callback callback) {
 			this.config = config;
+			this.arena = Arena.ofShared();
 			this.callback = callback;
-			arena = Arena.ofShared();
-			pointer = config.pointer(this);
+			this.pointer = config.pointer(this);
 		}
 
 		/**
@@ -387,7 +378,7 @@ public class Call {
 		public Config config() {
 			return config;
 		}
-		
+
 		/**
 		 * Returns the callback instance.
 		 */
@@ -404,20 +395,20 @@ public class Call {
 
 		@Override
 		public void close() {
-			arena.close();
+			Closeables.close(arena);
 		}
 
 		@Override
 		public String toString() {
 			return String.format("%s%s/%s", Basics.def(Lambdas.registered(callback), "upcall"),
-				Reflect.nameHash(callback), config);
+				Segments.addressString(pointer), config);
 		}
 
 		/**
 		 * Invokes the local callback method with native arguments adapted to local arguments, and
 		 * the local return value adapted to a native return value. Must not throw an exception.
 		 */
-		private Object invokeCallback(Object[] nativeArgs) {
+		private Object invokeCallback(Object... nativeArgs) {
 			// how/when to free memory allocated for return values?
 			// will accumulate until callback is garbage collected
 			return config.invokeLocal(callback, arena, nativeArgs);
@@ -428,31 +419,40 @@ public class Call {
 	 * Creates the native call configuration for the method.
 	 */
 	public static Config config(Method method) {
-		System.out.println("config: " + method);
-		var b = new Config.Builder(method).rtn(rtn(method));
+		var b = new Builder(method).rtn(rtn(method));
 		addArgs(b, method);
 		if (Refine.lastError(method, true)) b.lastError();
 		return b.build();
 	}
 
-	/**
-	 * Common entry point for local invocation of a callback. Returns the local return value.
-	 */
-	public static Object localCallback(Down downcall, Object[] localArgs) throws Throwable {
-		return downcall.invoke(localArgs);
-	}
+	// support
 
 	/**
 	 * Common entry point for native invocation of a callback. Returns the native return value. Must
 	 * not throw an exception, or the JVM will terminate.
 	 */
-	public static Object nativeCallback(Up upcall, Object[] nativeArgs) {
+	@SuppressWarnings("unused") // accessed by method handle
+	private static Object nativeCallback(Up upcall, Object[] nativeArgs) {
 		return upcall.invokeCallback(nativeArgs);
 	}
 
-	// support
+	/**
+	 * Common entry point for local invocation of a callback. Returns the local return value.
+	 */
+	@SuppressWarnings("unused") // accessed by method handle
+	private static Object localCallback(Down downcall, Object[] localArgs) throws Throwable {
+		return downcall.invoke(localArgs);
+	}
 
-	private static void addArgs(Config.Builder b, Method method) {
+	/**
+	 * Common entry point for no-op callbacks. Returns the default native return value.
+	 */
+	@SuppressWarnings("unused") // accessed by method handle
+	private static Object noOpCallback(Config config, Object[] localArgs) {
+		return config.rtn.nativeDef();
+	}
+
+	private static void addArgs(Builder b, Method method) {
 		var params = method.getParameters();
 		int paramCount = params.length;
 		if (method.isVarArgs()) paramCount--;
@@ -487,11 +487,16 @@ public class Call {
 
 	private static Native.Adapter<?, ?> adapter(TypeNode node) {
 		var support = Supports.of().from(node);
+		return adapter(node, support);
+	}
+
+	private static Native.Adapter<?, ?> adapter(TypeNode node, Support<?, ?, ?> support) {
 		if (support.isArray()) return byRef(node, support);
 		return switch (support.kind()) {
 			case PRIMITIVE, BOXED -> primitive(node, support);
 			case INT_TYPE -> intType(node, Reflect.unchecked(support));
 			case POINTER, PRIMITIVE_POINTER -> pointer(node, Reflect.unchecked(support));
+			case CALLBACK -> callback(node, Reflect.unchecked(support));
 			case STRING, BUFFER -> byRef(node, support);
 			case null -> null;
 			default -> byVal(node, support);
@@ -513,6 +518,13 @@ public class Call {
 		pointer(TypeNode node, PointerType.Supporter<P> support) {
 		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
 			support.layout(), (_, t) -> Native.Adapted.of(t.memory()), m -> support.of(m));
+	}
+
+	private static <C extends Callback> Native.Adapter<C, MemorySegment> callback(TypeNode node,
+		Callback.Supporter<C> support) {
+		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
+			support.layout(), (_, c) -> Native.Adapted.of(support.pointer(c)),
+			p -> support.callback(p));
 	}
 
 	private static <T> Native.Adapter<T, MemorySegment> byVal(TypeNode node,
@@ -539,16 +551,33 @@ public class Call {
 		return options;
 	}
 
+	private static Object[] flattenVarArgs(Object[] localArgs) {
+		var varArgs = Array.last(localArgs);
+		var varArgsCount = RawArray.length(varArgs);
+		if (varArgsCount == 1) {
+			localArgs[localArgs.length - 1] = RawArray.get(varArgs, 0);
+			return localArgs;
+		}
+		var flat = new Object[localArgs.length - 1 + varArgsCount];
+		Array.copy(localArgs, 0, flat, 0, localArgs.length - 1);
+		for (int i = 0; i < varArgsCount; i++)
+			flat[localArgs.length - 1 + i] = RawArray.get(varArgs, i);
+		return flat;
+	}
+
 	private static List<Class<?>> varArgTypes(Object[] args) {
-		var varArgs = (Object[]) Array.last(args);
-		var types = Lists.<Class<?>>of();
-		for (int i = 0; i < varArgs.length; i++)
+		var varArgs = Array.last(args);
+		var varArgsCount = RawArray.length(varArgs);
+		if (varArgsCount == 0) return List.of();
+		var types = new ArrayList<Class<?>>(varArgsCount);
+		for (int i = 0; i < varArgsCount; i++)
 			types.add(varArgType(varArgs, i));
 		return Immutable.wrap(types);
 	}
 
-	private static Class<?> varArgType(Object[] varArgs, int i) {
-		var value = Validate.nonNull(varArgs[i], "vararg[%d]", i);
+	private static Class<?> varArgType(Object varArgs, int i) {
+		var value = RawArray.get(varArgs, i);
+		Validate.nonNull(value, "vararg[%d]", i);
 		return Native.promote(value.getClass());
 	}
 }

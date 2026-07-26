@@ -13,6 +13,7 @@ import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Call;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
+import ceri.ffm.core.Segments;
 
 /**
  * Marker interface for native callbacks. Callbacks must extend this interface with a single invoke
@@ -21,11 +22,6 @@ import ceri.ffm.core.Native;
 public interface Callback extends Functions.Closeable {
 	/** Required callback invocation method name. */
 	String METHOD_NAME = "invoke";
-
-	// TODO: handle callbacks with vararg params
-	// - need config for each vararg type combination
-	// - upcall need to have map of multiple configs?
-	// - move cache from library to downcall? reuse for callback?
 
 	/**
 	 * Frees resources used by the callback.
@@ -36,8 +32,7 @@ public interface Callback extends Functions.Closeable {
 	}
 
 	/**
-	 * Returns a function pointer for the callback instance. Callbacks and their pointers are
-	 * cached, so subsequent calls return the same pointer.
+	 * Returns a cached function pointer for the callback instance.
 	 */
 	static MemorySegment pointer(Callback callback) {
 		if (callback == null) return null;
@@ -45,8 +40,7 @@ public interface Callback extends Functions.Closeable {
 	}
 
 	/**
-	 * Returns a callback instance for the function pointer. Callbacks and their pointers are
-	 * cached, so subsequent calls return the same callback.
+	 * Returns a cached callback instance for the function pointer.
 	 */
 	static <C extends Callback> C callback(Class<C> cls, MemorySegment pointer) {
 		if (cls == null || pointer == null) return null;
@@ -54,10 +48,29 @@ public interface Callback extends Functions.Closeable {
 	}
 
 	/**
+	 * Returns a cached no-op callback instance for the callback type.
+	 */
+	@SuppressWarnings("resource")
+	static <C extends Callback> C noOpCallback(Class<C> cls) {
+		if (cls == null) return null;
+		return Reflect.unchecked(Cache.noOpCall(cls).callback());
+	}
+
+	/**
+	 * Returns a cached no-op callback instance for the callback type.
+	 */
+	@SuppressWarnings("resource")
+	static MemorySegment noOpPointer(Class<? extends Callback> cls) {
+		if (cls == null) return null;
+		return Cache.noOpCall(cls).pointer();
+	}
+
+	/**
 	 * Operational support for callback types.
 	 */
-	static class Supporter<C extends Callback> extends Support.Typed<C, AddressLayout> {
+	class Supporter<C extends Callback> extends Support.Typed<C, AddressLayout> {
 		private final Class<C> cls;
+		private volatile Call.Up noOpCall = null;
 
 		public static <C extends Callback> Supporter<C> of(Class<C> cls) {
 			return new Supporter<>(cls, Layouts.POINTER);
@@ -90,9 +103,21 @@ public interface Callback extends Functions.Closeable {
 			return layout == layout() ? this : new Supporter<>(cls, layout);
 		}
 
+		@SuppressWarnings("resource")
 		@Override
 		public C val() {
-			return null; // create no-op instance for class?
+			return Reflect.unchecked(noOpCall().callback());
+		}
+
+		public C callback(MemorySegment pointer) {
+			if (Segments.isNull(pointer)) return val();
+			return Callback.callback(cls, pointer);
+		}
+
+		@SuppressWarnings("resource")
+		public MemorySegment pointer(C callback) {
+			if (callback == null) return noOpCall().pointer();
+			return Callback.pointer(callback);
 		}
 
 		@Override
@@ -103,21 +128,31 @@ public interface Callback extends Functions.Closeable {
 		@Override
 		C rawGet(MemorySegment memory, long offset, long length) {
 			var pointer = memory.get(layout(), offset);
-			return Callback.callback(cls, pointer);
+			return callback(pointer);
 		}
 
 		@Override
 		void rawWrite(MemorySegment memory, long offset, long length, C value) {
-			var pointer = Callback.pointer(value);
+			var pointer = pointer(value);
 			memory.set(layout(), offset, pointer);
+		}
+
+		private Call.Up noOpCall() {
+			var noOpCall = this.noOpCall;
+			if (noOpCall == null) {
+				noOpCall = Cache.noOpCall(cls);
+				this.noOpCall = noOpCall;
+			}
+			return noOpCall;
 		}
 	}
 
 	/**
 	 * Cached callback and function pointer mappings.
 	 */
-	static class Cache {
+	class Cache {
 		private static final Map<Class<? extends Callback>, Call.Config> configs = Maps.of();
+		private static final Map<Class<? extends Callback>, Call.Up> noOpCalls = Maps.of();
 		private static final Map<Callback, Call.Up> callbacks = Maps.of();
 		private static final Map<MemorySegment, Call.Up> pointers = Maps.of();
 		private static final Locker locker = Locker.of();
@@ -129,8 +164,7 @@ public interface Callback extends Functions.Closeable {
 			return locker.get(() -> {
 				var upcall = callbacks.get(callback);
 				if (upcall != null) return upcall.pointer();
-				var config = config(Callback.classOf(callback));
-				upcall = config.up(callback);
+				upcall = config(Callback.classOf(callback)).up(callback);
 				return add(upcall).pointer();
 			});
 		}
@@ -140,10 +174,14 @@ public interface Callback extends Functions.Closeable {
 			return locker.get(() -> {
 				var upcall = pointers.get(pointer);
 				if (upcall != null) return Reflect.unchecked(upcall.callback());
-				var config = config(cls);
-				upcall = config.up(pointer);
+				upcall = config(cls).up(pointer);
 				return Reflect.unchecked(add(upcall).callback());
 			});
+		}
+
+		@SuppressWarnings("resource")
+		private static Call.Up noOpCall(Class<? extends Callback> cls) {
+			return locker.get(() -> noOpCalls.computeIfAbsent(cls, _ -> add(config(cls).noOpUp())));
 		}
 
 		@SuppressWarnings("resource")

@@ -8,7 +8,6 @@ import java.lang.foreign.StructLayout;
 import java.lang.invoke.VarHandle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.clib.ffm.CString;
 
 /**
@@ -59,7 +58,7 @@ public class LastError {
 		try {
 			var s = CString.strerror(code);
 			return s.startsWith(UNKNOWN) ? "" : s;
-		} catch (CException | RuntimeException e) {
+		} catch (RuntimeException e) {
 			logger.warn(e.getMessage());
 			return "";
 		}

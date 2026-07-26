@@ -74,5 +74,4 @@ public class LibraryTester {
 			System.out.println("Expected: " + e.getMessage());
 		}
 	}
-
 }

@@ -4,8 +4,8 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Supplier;
 import ceri.common.array.Array;
 import ceri.common.collect.Maps;
@@ -19,7 +19,7 @@ import ceri.common.util.Basics;
  * testing.
  */
 public class Library<T> implements Functions.Supplier<T> {
-	private final Map<Call.Key, Call.Down> cache = Maps.concurrent();
+	private final Map<Method, Call.Down> cache = Maps.concurrent();
 	private final Class<T> cls;
 	private final SymbolLookup lookup;
 	private final T proxy;
@@ -107,13 +107,14 @@ public class Library<T> implements Functions.Supplier<T> {
 	/**
 	 * Returns a copy of the current method cache.
 	 */
-	public Map<Call.Key, Call.Down> methods() {
-		return new TreeMap<>(cache);
+	public Map<Method, Call.Down> methods() {
+		return new HashMap<>(cache);
 	}
 
 	@Override
 	public String toString() {
-		return Reflect.name(cls) + (override == null ? "" : "*");
+		return String.format("%s(%d)%s", Reflect.name(cls), cache.size(),
+			override == null ? "" : "*");
 	}
 
 	// support
@@ -125,30 +126,13 @@ public class Library<T> implements Functions.Supplier<T> {
 	private Object invokeMethod(Method method, Object[] args) throws Throwable {
 		if (method.isDefault()) return InvocationHandler.invokeDefault(proxy, method, args);
 		args = Basics.def(args, Array.OBJECT.empty);
-		var call = call(method, args);
-		return call.invoke(args);
+		return call(method).invoke(args);
 	}
 
-	private Call.Down call(Method method, Object[] args) {
-		var call = cachedCall(method);
-		if (!method.isVarArgs() || args.length == 0) return call;
-		return cachedVarArgsCall(call, args);
-	}
-
-	private Call.Down cachedCall(Method method) {
-		var key = Call.Key.of(method);
-		return cache.computeIfAbsent(key, _ -> {
+	private Call.Down call(Method method) {
+		return cache.computeIfAbsent(method, _ -> {
 			var pointer = lookup.findOrThrow(method.getName());
 			return Call.config(method).down(pointer);
-		});
-	}
-
-	private Call.Down cachedVarArgsCall(Call.Down call, Object[] args) {
-		var key = Call.Key.from(call.config().method(), args);
-		if (key.varArgTypes().isEmpty()) return call;
-		return cache.computeIfAbsent(key, _ -> {
-			var config = call.config().withVarArgs(key.varArgTypes());
-			return config.down(call.pointer());
 		});
 	}
 }

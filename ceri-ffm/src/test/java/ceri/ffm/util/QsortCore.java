@@ -5,17 +5,13 @@ import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandle;
-import java.nio.ByteOrder;
-import java.util.Map;
 import ceri.common.array.RawArray;
-import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Handles;
+import ceri.common.test.Testing;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
-import ceri.ffm.type.Callback;
-import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
 
 /**
@@ -23,76 +19,83 @@ import ceri.ffm.type.Primitive;
  */
 public class QsortCore {
 	private static final Linker LINKER = Linker.nativeLinker();
-	private static final Primitive.OfInt INT = Primitive.INT.order(ByteOrder.BIG_ENDIAN);
+	private static final Primitive.OfInt INT = Primitive.INT; // .order(ByteOrder.BIG_ENDIAN);
 	private static final MethodHandle QSORT = LINKER.downcallHandle(
 		LINKER.defaultLookup().findOrThrow("qsort"),
 		FunctionDescriptor.ofVoid(Layouts.POINTER, Layouts.LONG, Layouts.LONG, Layouts.POINTER));
-	private static final MethodHandle GENERAL = Handles.staticMethod(QsortCore.class, "general",
-		Object.class, Callback.class, Object[].class);
-	private static final Map<Callback, MemorySegment> stubs = Maps.syncWeak();
+	private static FunctionDescriptor COMPAR_DESC =
+		FunctionDescriptor.of(Layouts.INT, Layouts.POINTER, Layouts.POINTER);
+	private static final MethodHandle NATIVE_CALLBACK = Handles.staticMethod(QsortCore.class,
+		"nativeCallback", int.class, compar.class, MemorySegment.class, MemorySegment.class);
+	private static long callbacks = 0;
 
-	public interface qsort_callback extends Callback {
-		static MethodHandle HANDLE = Handles.method(qsort_callback.class, METHOD_NAME, int.class,
-			Pointer.OfInt.class, Pointer.OfInt.class);
-		static FunctionDescriptor DESC =
-			FunctionDescriptor.of(Layouts.INT, Layouts.POINTER, Layouts.POINTER);
+	public interface compar {
+		int invoke(MemorySegment m1, MemorySegment m2);
 
-		int invoke(Pointer.OfInt p1, Pointer.OfInt p2);
-
-		static qsort_callback of(String name, Functions.IntBiOperator operator) {
-			return Lambdas.register((p1, p2) -> operator.applyAsInt(p1.get(), p2.get()), name);
+		static compar ofInt(String name, Functions.IntBiOperator operator) {
+			return Lambdas.register((m1, m2) -> {
+				callbacks++;
+				var i1 = INT.getInt(Segments.reslice(m1, INT.layout()), 0);
+				var i2 = INT.getInt(Segments.reslice(m2, INT.layout()), 0);
+				return operator.applyAsInt(i1, i2);
+			}, name);
 		}
 	}
 
 	public static void main(String[] args) throws Throwable {
-		try (var cb0 = qsort_callback.of("cb0", (i1, i2) -> Integer.compare(i1, i2));
-			var cb1 = qsort_callback.of("cb1", (i1, i2) -> Integer.compare(i2, i1));
-			var cb2 = qsort_callback.of("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3))) {
-			int[] array = { 0, 9, 3, 4, 6, 5, 1, 8, 2, 7 };
-			System.out.println(RawArray.toString(qsort(array, cb0)));
-			System.out.println(RawArray.toString(qsort(array, cb1)));
-			System.out.println(RawArray.toString(qsort(array, cb2)));
-			System.out.println(RawArray.toString(qsort(array, cb0)));
-			System.out.println(RawArray.toString(qsort(array, cb1)));
-			System.out.println(RawArray.toString(qsort(array, cb2)));
-		}
+		var cb0 = compar.ofInt("cb0", (i1, i2) -> Integer.compare(i1, i2));
+		var cb1 = compar.ofInt("cb1", (i1, i2) -> Integer.compare(i2, i1));
+		var cb2 = compar.ofInt("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3));
+		run(1000000, 3, cb0, cb1, cb2);
 	}
 
-	public static int[] qsort(int[] array, qsort_callback callback) throws Throwable {
-		try (var arena = Arena.ofConfined()) {
-			var m = INT.allocArray(arena, array, false);
-			var stub = stub(callback, qsort_callback.DESC, int.class, MemorySegment.class,
-				MemorySegment.class);
-			QSORT.invoke(m, array.length, INT.layoutSize(), stub);
-			return INT.getArray(m, false);
-		}
+	public static void qsort(MemorySegment base, long n, long size, MemorySegment stub)
+		throws Throwable {
+		callbacks = 0;
+		QSORT.invokeExact(base, n, size, stub);
 	}
 
-	public static Object general(Callback callback, Object... args) {
-		// convert native args to local args
-		var p1 = INT.pointer(Segments.reslice((MemorySegment) args[0], INT.layout()));
-		var p2 = INT.pointer(Segments.reslice((MemorySegment) args[1], INT.layout()));
-		Object[] localArgs = { callback, p1, p2 };
-		return Handles.invoke(qsort_callback.HANDLE, localArgs);
+	public static int nativeCallback(compar compar, MemorySegment m1, MemorySegment m2) {
+		try {
+			return compar.invoke(m1, m2);
+		} catch (Throwable t) {
+			System.err.println("nativeCallback: " + t);
+			return 0;
+		}
 	}
 
 	// support
 
-	private static MemorySegment stub(Callback callback, FunctionDescriptor desc, Class<?> rtnType,
-		Class<?>... argTypes) {
-		return stubs.computeIfAbsent(callback, c -> createStub(c, desc, rtnType, argTypes));
+	private static void run(int count, int repeats, compar... compars) throws Throwable {
+		int[] array = Testing.randomInts(count, 0, count);
+		for (int i = 0; i < repeats; i++) {
+			for (var compar : compars)
+				qsort(array, compar);
+			System.out.println();
+		}
 	}
 
-	private static MemorySegment createStub(Callback callback, FunctionDescriptor desc,
-		Class<?> rtnType, Class<?>... argTypes) {
-		System.out.println("Binding GENERAL to " + Lambdas.name(callback) + ": " + desc);
-		var handle = Handles.asType(GENERAL.bindTo(callback).asVarargsCollector(Object[].class),
-			rtnType, argTypes);
-		return upcallStub(handle, desc);
+	private static void qsort(int[] array, compar compar) throws Throwable {
+		try (var arena = Arena.ofConfined()) {
+			var base = INT.allocArray(arena, array, false);
+			var stub = stub(compar, arena);
+			var t = System.currentTimeMillis();
+			qsort(base, array.length, INT.layoutSize(), stub);
+			t = System.currentTimeMillis() - t;
+			print(t, base);
+		}
 	}
 
-	@SuppressWarnings("resource")
-	private static MemorySegment upcallStub(MethodHandle handle, FunctionDescriptor desc) {
-		return LINKER.upcallStub(handle, desc, Arena.ofAuto());
+	private static void print(long t, MemorySegment base) {
+		int[] r = INT.getArray(base, false);
+		double tc = (t * 1000.0) / Math.max(callbacks, 1);
+		System.out.printf("time = %dms (%.2fμs x %d)  ", t, tc, callbacks);
+		if (r.length <= 100) System.out.println(RawArray.toString(r));
+		else System.out.printf("[%d, %d, %d, ... %d, %d, %d]%n", r[0], r[1], r[2], r[r.length - 3],
+			r[r.length - 2], r[r.length - 1]);
+	}
+
+	private static MemorySegment stub(compar compar, Arena arena) {
+		return LINKER.upcallStub(NATIVE_CALLBACK.bindTo(compar), COMPAR_DESC, arena);
 	}
 }
