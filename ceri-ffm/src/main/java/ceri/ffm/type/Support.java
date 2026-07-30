@@ -321,6 +321,22 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		}
 
 		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		@SafeVarargs
+		public final Pointer<T> pointerOfAll(boolean nul, T... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory and copies the values with optional nul-termination.
+		 */
+		@SafeVarargs
+		public final Pointer<T> pointerOfAll(SegmentAllocator allocator, boolean nul, T... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Copies values to memory with optional nul-termination, within bounds; returns the number
 		 * of values copied, including nul-terminator.
 		 */
@@ -367,8 +383,8 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		}
 
 		@Override
-		Pointer<T> pointer(MemorySegment memory, boolean constant) {
-			return Pointer.of(memory, this, constant);
+		Pointer<T> rawPointer(MemorySegment memory, boolean constant) {
+			return new Pointer<>(memory, this, constant);
 		}
 		
 		/**
@@ -541,6 +557,27 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		return memory;
 	}
 
+	/**
+	 * Creates a typed pointer for the memory segment.
+	 */
+	public P pointer(MemorySegment memory) {
+		return pointer(memory, false);
+	}
+	
+	/**
+	 * Allocates memory as a pointer to the value. 
+	 */
+	public P pointerOf(T value) {
+		return pointerOf(Segments.auto(), value);
+	}
+	
+	/**
+	 * Allocates memory as a pointer to the value. 
+	 */
+	public P pointerOf(SegmentAllocator allocator, T value) {
+		return pointer(alloc(allocator, value), false);
+	}
+	
 	/**
 	 * Creates a new value from memory. Returns null value if the memory segment is smaller than the
 	 * layout.
@@ -744,6 +781,63 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		return memory;
 	}
 
+	/**
+	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
+	 */
+	public P pointerOfArray(A array, boolean nul) {
+		return pointerOfArray(array, 0, nul);
+	}
+
+	/**
+	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
+	 */
+	public P pointerOfArray(A array, int index, boolean nul) {
+		return pointerOfArray(array, index, Integer.MAX_VALUE, nul);
+	}
+
+	/**
+	 * Allocates memory as a pointer, for an array of given size.
+	 */
+	public P pointerOfArray(int count) {
+		return pointerOfArray(Segments.auto(), count);
+	}
+
+	/**
+	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
+	 */
+	public P pointerOfArray(A array, int index, int count, boolean nul) {
+		return pointerOfArray(Segments.auto(), array, index, count, nul);
+	}
+
+	/**
+	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
+	 */
+	public P pointerOfArray(SegmentAllocator allocator, A array, boolean nul) {
+		return pointerOfArray(allocator, array, 0, nul);
+	}
+
+	/**
+	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
+	 */
+	public P pointerOfArray(SegmentAllocator allocator, A array, int index, boolean nul) {
+		return pointerOfArray(allocator, array, index, Integer.MAX_VALUE, nul);
+	}
+	
+	/**
+	 * Allocates memory as a pointer to an array of given size.
+	 */
+	public P pointerOfArray(SegmentAllocator allocator, int count) {
+		return pointer(allocArray(allocator, count), false);
+	}
+	
+	/**
+	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
+	 */
+	public P pointerOfArray(SegmentAllocator allocator, A array, int index, int count,
+		boolean nul) {
+		return pointer(allocArray(allocator, array, index, count, nul), false);
+	}
+	
 	/**
 	 * Creates an array of values copied from memory up to optional nul-termination, and within
 	 * bounds. Returns null if nul-termination is specified but not found.
@@ -1010,9 +1104,16 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	}
 
 	/**
-	 * Creates a typed pointer from allocated memory.
+	 * Creates a typed pointer for the memory segment.
 	 */
-	abstract P pointer(MemorySegment memory, boolean constant);
+	P pointer(MemorySegment memory, boolean constant) {
+		return memory == null ? null : rawPointer(memory, constant);
+	}
+	
+	/**
+	 * Creates a typed pointer for the memory segment without a null check.
+	 */
+	abstract P rawPointer(MemorySegment memory, boolean constant);
 	
 	/**
 	 * Creates a new value from memory without performing bound checks.

@@ -2,7 +2,6 @@ package ceri.ffm.clib.ffm;
 
 import java.io.IOException;
 import java.util.Arrays;
-import ceri.common.function.Lambdas;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.ffm.CSignal.sighandler_t;
@@ -86,8 +85,8 @@ public class CLibTester {
 
 	private static void runSignal() throws CException {
 		int signum = CSignal.SIGUSR1;
-		try (sighandler_t sh1 = Lambdas.register(i -> System.out.println("sh1=" + i), "sh1");
-			sighandler_t sh2 = Lambdas.register(i -> System.out.println("sh2=" + i), "sh2")) {
+		try (sighandler_t sh1 = i -> System.out.println("sh1=" + i);
+			sighandler_t sh2 = i -> System.out.println("sh2=" + i)) {
 			var previous = CSignal.signal(signum, sh1);
 			CSignal.raise(signum);
 			previous = CSignal.signal(signum, sh2);

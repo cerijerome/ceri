@@ -271,6 +271,37 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		}
 
 		/**
+		 * Allocates memory as a pointer and writes the value to the memory.
+		 */
+		public final Pointer<T> pointerOf(Number number) {
+			return pointerOf(Segments.auto(), number);
+		}
+
+		/**
+		 * Allocates memory as a pointer and writes the value to the memory.
+		 */
+		public final Pointer<T> pointerOf(SegmentAllocator allocator, Number number) {
+			return pointerOf(allocator, of(number));
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies values from the array within bounds.
+		 */
+		@SafeVarargs
+		public final Pointer<T> pointerOfAll(boolean nul, Number... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies values from the array within bounds.
+		 */
+		@SafeVarargs
+		public final Pointer<T> pointerOfAll(SegmentAllocator allocator, boolean nul,
+			Number... array) {
+			return pointerOfArray(allocator, ofAll(array), nul);
+		}
+
+		/**
 		 * Copies values to memory within bounds; returns the number of values copied.
 		 */
 		@SafeVarargs

@@ -95,6 +95,18 @@ public class Lambdas {
 	}
 
 	/**
+	 * Returns the registered name if set, or the supplier result if an anonymous lambda, otherwise
+	 * toString.
+	 */
+	public static String name(Object obj, Functions.Supplier<String> op) {
+		if (obj == null) return Strings.NULL;
+		var registered = registered(obj);
+		if (registered != null) return registered;
+		var s = String.valueOf(obj);
+		return s.contains(ANON_LAMBDA_LABEL) ? op.get() : s;
+	}
+
+	/**
 	 * Returns the registered name if set, lambda symbol if the given object is an anonymous lambda,
 	 * otherwise toString.
 	 */
@@ -123,11 +135,4 @@ public class Lambdas {
 		return true;
 	}
 
-	private static String name(Object obj, Functions.Supplier<String> op) {
-		if (obj == null) return Strings.NULL;
-		var registered = registered(obj);
-		if (registered != null) return registered;
-		var s = String.valueOf(obj);
-		return s.contains(ANON_LAMBDA_LABEL) ? op.get() : s;
-	}
 }

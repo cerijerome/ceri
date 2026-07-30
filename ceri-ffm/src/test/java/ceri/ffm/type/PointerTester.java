@@ -1,14 +1,16 @@
 package ceri.ffm.type;
 
 import ceri.ffm.test.FfmTesting;
+import ceri.ffm.type.IntType.CLong;
+import ceri.ffm.type.IntType.size_t;
 
 public class PointerTester {
 
 	public static void main(String[] args) {
-		var pv = Pointer.of(IntType.CLong.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
-		var ps = Pointer.of(IntType.size_t.$.allocAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9));
-		var pb = Pointer.ofBytes(true, 1, -1, 2, -2, 3, -3, 4);
-		var pi = Pointer.ofInts(true, 1, -1, 2, -2, 3, -3, 4);
+		var pv = CLong.$.pointerOfAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+		var ps = size_t.$.pointerOfAll(true, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+		var pb = Primitive.BYTE.pointerOfAll(true, 1, -1, 2, -2, 3, -3, 4);
+		var pi = Primitive.INT.pointerOfAll(true, 1, -1, 2, -2, 3, -3, 4);
 		var m = PointerType.Raw.$.allocAll(true, pv, pb, pi);
 		var m0 = Pointer.$.allocAll(true, pv, ps);
 		FfmTesting.bin(pv);

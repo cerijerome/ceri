@@ -173,6 +173,35 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfBool pointerOfBool(boolean value) {
+			return pointerOfBool(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfBool pointerOfBool(SegmentAllocator allocator, boolean value) {
+			return pointer(allocBool(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfBool pointerOfAll(boolean nul, boolean... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfBool pointerOfAll(SegmentAllocator allocator, boolean nul,
+			boolean... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Copies values to memory with optional nul-termination, within bounds; returns the number
 		 * of values copied, including nul-terminator.
 		 */
@@ -199,7 +228,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		@Override
-		Pointer.OfBool pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfBool rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfBool(memory, this, constant);
 		}
 
@@ -328,6 +357,34 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfChar pointerOfChar(char value) {
+			return pointerOfChar(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfChar pointerOfChar(SegmentAllocator allocator, char value) {
+			return pointer(allocChar(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfChar pointerOfAll(boolean nul, char... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfChar pointerOfAll(SegmentAllocator allocator, boolean nul, char... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(char... array) {
@@ -370,7 +427,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfChar pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfChar rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfChar(memory, this, constant);
 		}
 
@@ -507,6 +564,48 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfByte pointerOfByte(int value) {
+			return pointerOfByte(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfByte pointerOfByte(SegmentAllocator allocator, int value) {
+			return pointer(allocByte(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfByte pointerOfAll(boolean nul, byte... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfByte pointerOfAll(boolean nul, int... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfByte pointerOfAll(SegmentAllocator allocator, boolean nul, byte... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfByte pointerOfAll(SegmentAllocator allocator, boolean nul, int... array) {
+			return pointerOfArray(allocator, Array.BYTE.of(array), nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(byte... array) {
@@ -541,7 +640,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfByte pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfByte rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfByte(memory, this, constant);
 		}
 
@@ -665,6 +764,49 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfShort pointerOfShort(int value) {
+			return pointerOfShort(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfShort pointerOfShort(SegmentAllocator allocator, int value) {
+			return pointer(allocShort(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfShort pointerOfAll(boolean nul, short... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfShort pointerOfAll(boolean nul, int... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfShort pointerOfAll(SegmentAllocator allocator, boolean nul,
+			short... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfShort pointerOfAll(SegmentAllocator allocator, boolean nul, int... array) {
+			return pointerOfArray(allocator, Array.SHORT.of(array), nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(short... array) {
@@ -699,7 +841,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfShort pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfShort rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfShort(memory, this, constant);
 		}
 
@@ -770,13 +912,6 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 			return Pointer.OfInt.support(this, constant);
 		}
 
-		/**
-		 * Creates a pointer for this type from memory.
-		 */
-		public Pointer.OfInt pointer(MemorySegment memory) {
-			return pointer(memory, false);
-		}
-
 		@Override
 		public Integer val() {
 			return VAL;
@@ -829,6 +964,34 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfInt pointerOfInt(int value) {
+			return pointerOfInt(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfInt pointerOfInt(SegmentAllocator allocator, int value) {
+			return pointer(allocInt(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfInt pointerOfAll(boolean nul, int... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfInt pointerOfAll(SegmentAllocator allocator, boolean nul, int... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(int... array) {
@@ -863,7 +1026,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfInt pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfInt rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfInt(memory, this, constant);
 		}
 
@@ -972,6 +1135,34 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfLong pointerOfLong(long value) {
+			return pointerOfLong(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfLong pointerOfLong(SegmentAllocator allocator, long value) {
+			return pointer(allocLong(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfLong pointerOfAll(boolean nul, long... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfLong pointerOfAll(SegmentAllocator allocator, boolean nul, long... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(long... array) {
@@ -1006,7 +1197,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfLong pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfLong rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfLong(memory, this, constant);
 		}
 
@@ -1116,6 +1307,35 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfFloat pointerOfFloat(float value) {
+			return pointerOfFloat(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer to the value.
+		 */
+		public Pointer.OfFloat pointerOfFloat(SegmentAllocator allocator, float value) {
+			return pointer(allocFloat(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfFloat pointerOfAll(boolean nul, float... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfFloat pointerOfAll(SegmentAllocator allocator, boolean nul,
+			float... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(float... array) {
@@ -1150,7 +1370,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfFloat pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfFloat rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfFloat(memory, this, constant);
 		}
 
@@ -1260,6 +1480,35 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		}
 
 		/**
+		 * Allocates memory as a pointer with the value.
+		 */
+		public Pointer.OfDouble pointerOfDouble(double value) {
+			return pointerOfDouble(Segments.auto(), value);
+		}
+
+		/**
+		 * Allocates memory as a pointer with the value.
+		 */
+		public Pointer.OfDouble pointerOfDouble(SegmentAllocator allocator, double value) {
+			return pointer(allocDouble(allocator, value), false);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfDouble pointerOfAll(boolean nul, double... array) {
+			return pointerOfAll(Segments.auto(), nul, array);
+		}
+
+		/**
+		 * Allocates memory as a pointer and copies the values with optional nul-termination.
+		 */
+		public Pointer.OfDouble pointerOfAll(SegmentAllocator allocator, boolean nul,
+			double... array) {
+			return pointerOfArray(allocator, array, nul);
+		}
+
+		/**
 		 * Wraps the values as a memory segment.
 		 */
 		public MemorySegment wrapAll(double... array) {
@@ -1294,7 +1543,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		// overrides
 
 		@Override
-		Pointer.OfDouble pointer(MemorySegment memory, boolean constant) {
+		Pointer.OfDouble rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfDouble(memory, this, constant);
 		}
 

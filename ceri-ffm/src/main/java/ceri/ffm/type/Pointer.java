@@ -717,143 +717,115 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	}
 
 	/**
-	 * Returns a primitive byte pointer for the memory segment.
+	 * Returns a primitive pointer for the memory segment.
 	 */
-	public static OfByte ofByte(MemorySegment memory) {
-		return new OfByte(memory, Primitive.BYTE, false);
+	public static OfBool ofBool(MemorySegment memory) {
+		return Primitive.BOOL.pointer(memory);
 	}
 
 	/**
-	 * Returns a primitive byte pointer for the allocated value.
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfBool ofBool(boolean value) {
+		return ofBool(Segments.auto(), value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfBool ofBool(SegmentAllocator allocator, boolean value) {
+		return Primitive.BOOL.pointerOfBool(allocator, value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the memory segment.
+	 */
+	public static OfChar ofChar(MemorySegment memory) {
+		return Primitive.CHAR.pointer(memory);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfChar ofChar(char value) {
+		return ofChar(Segments.auto(), value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfChar ofChar(SegmentAllocator allocator, char value) {
+		return Primitive.CHAR.pointerOfChar(allocator, value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the memory segment.
+	 */
+	public static OfByte ofByte(MemorySegment memory) {
+		return Primitive.BYTE.pointer(memory);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfByte ofByte(int value) {
 		return ofByte(Segments.auto(), value);
 	}
 
 	/**
-	 * Returns a primitive byte pointer for the allocated value.
+	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfByte ofByte(SegmentAllocator allocator, int value) {
-		return ofByte(Primitive.BYTE.allocByte(allocator, value));
+		return Primitive.BYTE.pointerOfByte(allocator, value);
 	}
 
 	/**
-	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfByte ofBytes(boolean nul, byte... values) {
-		return ofBytes(Segments.auto(), nul, values);
-	}
-
-	/**
-	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfByte ofBytes(SegmentAllocator allocator, boolean nul, byte... values) {
-		return ofByte(Primitive.BYTE.allocAll(allocator, nul, values));
-	}
-
-	/**
-	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfByte ofBytes(boolean nul, int... values) {
-		return ofBytes(Segments.auto(), nul, values);
-	}
-
-	/**
-	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfByte ofBytes(SegmentAllocator allocator, boolean nul, int... values) {
-		return ofByte(Primitive.BYTE.allocAll(allocator, nul, values));
-	}
-
-	/**
-	 * Returns a primitive short pointer for the memory segment.
+	 * Returns a primitive pointer for the memory segment.
 	 */
 	public static OfShort ofShort(MemorySegment memory) {
-		return new OfShort(memory, Primitive.SHORT, false);
+		return Primitive.SHORT.pointer(memory);
 	}
 
 	/**
-	 * Returns a primitive short pointer for the allocated value.
+	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfShort ofShort(int value) {
 		return ofShort(Segments.auto(), value);
 	}
 
 	/**
-	 * Returns a primitive short pointer for the allocated value.
+	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfShort ofShort(SegmentAllocator allocator, int value) {
-		return ofShort(Primitive.SHORT.allocShort(allocator, value));
+		return Primitive.SHORT.pointerOfShort(allocator, value);
 	}
 
 	/**
-	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfShort ofShorts(boolean nul, short... values) {
-		return ofShorts(Segments.auto(), nul, values);
-	}
-
-	/**
-	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfShort ofShorts(SegmentAllocator allocator, boolean nul, short... values) {
-		return ofShort(Primitive.SHORT.allocAll(allocator, nul, values));
-	}
-
-	/**
-	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfShort ofShorts(boolean nul, int... values) {
-		return ofShorts(Segments.auto(), nul, values);
-	}
-
-	/**
-	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfShort ofShorts(SegmentAllocator allocator, boolean nul, int... values) {
-		return ofShort(Primitive.BYTE.allocAll(allocator, nul, values));
-	}
-
-	/**
-	 * Returns a primitive int pointer for the memory segment.
+	 * Returns a primitive pointer for the memory segment.
 	 */
 	public static OfInt ofInt(MemorySegment memory) {
-		return new OfInt(memory, Primitive.INT, false);
+		return Primitive.INT.pointer(memory);
 	}
 
 	/**
-	 * Returns a primitive int pointer for the allocated value.
+	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfInt ofInt(int value) {
 		return ofInt(Segments.auto(), value);
 	}
 
 	/**
-	 * Returns a primitive int pointer for the allocated value.
+	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfInt ofInt(SegmentAllocator allocator, int value) {
-		return ofInt(Primitive.INT.allocInt(allocator, value));
-	}
-
-	/**
-	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfInt ofInts(boolean nul, int... values) {
-		return ofInts(Segments.auto(), nul, values);
-	}
-
-	/**
-	 * Returns a primitive byte pointer for the allocated values with optional nul-termination.
-	 */
-	public static OfInt ofInts(SegmentAllocator allocator, boolean nul, int... values) {
-		return ofInt(Primitive.INT.allocAll(allocator, nul, values));
+		return Primitive.INT.pointerOfInt(allocator, value);
 	}
 
 	/**
 	 * Returns a primitive pointer for the memory segment.
 	 */
 	public static OfLong ofLong(MemorySegment memory) {
-		return new OfLong(memory, Primitive.LONG, false);
+		return Primitive.LONG.pointer(memory);
 	}
 
 	/**
@@ -867,28 +839,56 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfLong ofLong(SegmentAllocator allocator, long value) {
-		return ofLong(Primitive.LONG.allocLong(allocator, value));
+		return Primitive.LONG.pointerOfLong(allocator, value);
 	}
 
 	/**
-	 * Returns a primitive pointer for the allocated values with optional nul-termination.
+	 * Returns a primitive pointer for the memory segment.
 	 */
-	public static OfLong ofLongs(boolean nul, long... values) {
-		return ofLongs(Segments.auto(), nul, values);
+	public static OfFloat ofFloat(MemorySegment memory) {
+		return Primitive.FLOAT.pointer(memory);
 	}
 
 	/**
-	 * Returns a primitive pointer for the allocated values with optional nul-termination.
+	 * Returns a primitive pointer for the allocated value.
 	 */
-	public static OfLong ofLongs(SegmentAllocator allocator, boolean nul, long... values) {
-		return ofLong(Primitive.LONG.allocAll(allocator, nul, values));
+	public static OfFloat ofFloat(int value) {
+		return ofFloat(Segments.auto(), value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfFloat ofFloat(SegmentAllocator allocator, int value) {
+		return Primitive.FLOAT.pointerOfFloat(allocator, value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the memory segment.
+	 */
+	public static OfDouble ofDouble(MemorySegment memory) {
+		return Primitive.DOUBLE.pointer(memory);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfDouble ofDouble(int value) {
+		return ofDouble(Segments.auto(), value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfDouble ofDouble(SegmentAllocator allocator, int value) {
+		return Primitive.DOUBLE.pointerOfDouble(allocator, value);
 	}
 
 	/**
 	 * Returns a void pointer for the memory segment.
 	 */
 	public static OfVoid ofVoid(MemorySegment memory) {
-		return new OfVoid(memory);
+		return memory == null ? null : new OfVoid(memory);
 	}
 
 	/**
@@ -902,50 +902,27 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns an allocated typed pointer to the pointer.
 	 */
 	public static <P extends PointerType> Pointer<P> of(P pointer) {
-		return of(pointer, false);
-	}
-
-	/**
-	 * Returns an allocated typed pointer to the pointer.
-	 */
-	public static <P extends PointerType> Pointer<P> of(P pointer, boolean constant) {
-		return of(Segments.auto(), pointer, constant);
+		return of(Segments.auto(), pointer);
 	}
 
 	/**
 	 * Returns an allocated typed pointer to the pointer.
 	 */
 	public static <P extends PointerType> Pointer<P> of(SegmentAllocator allocator, P pointer) {
-		return of(allocator, pointer, false);
-	}
-
-	/**
-	 * Returns an allocated typed pointer to the pointer.
-	 */
-	public static <P extends PointerType> Pointer<P> of(SegmentAllocator allocator, P pointer,
-		boolean constant) {
-		if (allocator == null || pointer == null) return null;
+		if (pointer == null) return null;
 		var type = Reflect.<Supporter<P>>unchecked(pointer.support());
-		var memory = type.alloc(allocator, pointer);
-		return of(memory, type, constant);
+		return type.pointerOf(allocator, pointer);
 	}
 
 	/**
 	 * Returns a typed pointer for the memory segment.
 	 */
 	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type) {
-		return of(memory, type, false);
+		if (memory == null || type == null) return null;
+		return new Pointer<>(memory, type, false);
 	}
 
-	/**
-	 * Returns a typed pointer for the memory segment.
-	 */
-	public static <T> Pointer<T> of(MemorySegment memory, Support.Typed<T, ?> type,
-		boolean constant) {
-		return new Pointer<>(memory, type, constant);
-	}
-
-	private Pointer(MemorySegment memory, Support.Typed<T, ?> type, boolean constant) {
+	Pointer(MemorySegment memory, Support.Typed<T, ?> type, boolean constant) {
 		super(memory, type, constant);
 	}
 

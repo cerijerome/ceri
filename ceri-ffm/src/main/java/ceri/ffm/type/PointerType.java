@@ -303,7 +303,7 @@ public abstract class PointerType {
 		 */
 		public <U> Pointer<U> as(Support.Typed<U, ?> type) {
 			if (type == null) return null;
-			return Pointer.of(memory(), type, isConst());
+			return new Pointer<>(memory(), type, isConst());
 		}
 
 		@Override

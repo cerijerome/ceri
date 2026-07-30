@@ -89,7 +89,7 @@ public class Qsort {
 
 	private static void qsort(int[] array, Native.compar compar) throws Throwable {
 		try (var arena = Arena.ofConfined()) {
-			var base = Pointer.ofInts(arena, false, array).asVoid();
+			var base = Primitive.INT.pointerOfAll(arena, false, array).asVoid();
 			var t = System.currentTimeMillis();
 			qsort(base, array.length, INT.layoutSize(), compar);
 			t = System.currentTimeMillis() - t;

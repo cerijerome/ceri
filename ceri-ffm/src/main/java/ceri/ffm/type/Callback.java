@@ -11,7 +11,6 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.Strings;
 import ceri.ffm.core.Call;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
@@ -71,9 +70,8 @@ public interface Callback extends Functions.Closeable {
 	 * Returns the string representation of a callback.
 	 */
 	static String toString(Callback callback) {
-		if (callback == null) return Strings.NULL;
-		var name = Lambdas.registered(callback);
-		return name != null ? name : classOf(callback).getSimpleName() + Reflect.hashId(callback);
+		return Lambdas.name(callback, () -> String.format("%s#%x",
+			classOf(callback).getSimpleName(), System.identityHashCode(callback)));
 	}
 
 	/**
@@ -144,8 +142,7 @@ public interface Callback extends Functions.Closeable {
 
 		@Override
 		void rawWrite(MemorySegment memory, long offset, long length, C value) {
-			var pointer = pointer(value);
-			memory.set(layout(), offset, pointer);
+			memory.set(layout(), offset, pointer(value));
 		}
 
 		private Call.Up noOpCall() {
