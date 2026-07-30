@@ -425,7 +425,7 @@ public enum CErrNo {
 	 * Create a CException from the code and message.
 	 */
 	public CException error(String message, Object... args) {
-		return CException.of(code, prefix() + " " + Strings.format(message, args));
+		return CException.of(code, prefix() + "; " + Strings.format(message, args));
 	}
 
 	public boolean defined() {
@@ -435,7 +435,7 @@ public enum CErrNo {
 	// support
 
 	private String prefix() {
-		return "[" + name() + ":" + code + "]";
+		return "[" + code + "] " + name();
 	}
 
 	private static class Const {

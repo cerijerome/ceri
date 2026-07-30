@@ -1,12 +1,9 @@
 package ceri.ffm.core;
 
-import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
-import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SymbolLookup;
-import java.lang.invoke.MethodHandle;
 import java.util.Map;
 import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
@@ -27,17 +24,31 @@ public class Native {
 	 * Supported types.
 	 */
 	public enum Kind {
+		/** No type. */
 		NONE,
+		/** Primitive types. */
 		PRIMITIVE,
+		/** Boxed primitive types. */
 		BOXED,
+		/** Runtime-sized integer types . */
 		INT_TYPE,
+		/** Struct types. */
 		STRUCT,
+		/** Union types. */
 		UNION,
+		/** Minimally-processed memory segments. */
+		MEMORY,
+		/** Generic type, wrapped memory segments. */
 		POINTER,
+		/** Primitive type, wrapped memory segments. */
 		PRIMITIVE_POINTER,
+		/** Opaque wrapped memory segments. */
 		POINTER_TYPE,
+		/** Function pointers. */
 		CALLBACK,
+		/** String type. */
 		STRING,
+		/** Primitive buffer types. */
 		BUFFER;
 	}
 
@@ -45,6 +56,8 @@ public class Native {
 	 * Represents an adapted value, with option to resolve the original value after changes.
 	 */
 	public interface Adapted<T> {
+		Adapted<?> NULL = of(null);
+		
 		/**
 		 * Provides the adapted value.
 		 */
@@ -60,6 +73,13 @@ public class Native {
 		 */
 		static <T> Adapted<T> of(T value) {
 			return () -> value;
+		}
+
+		/**
+		 * Returns an instance that returns null.
+		 */
+		static <T> Adapted<T> ofNull() {
+			return Reflect.unchecked(NULL);
 		}
 
 		/**
@@ -88,7 +108,7 @@ public class Native {
 		MemoryLayout layout, Functions.BiFunction<SegmentAllocator, T, Native.Adapted<R>> toNative,
 		Functions.Function<R, T> toLocal) {
 		public static final Adapter<?, ?> VOID = new Adapter<>(Generics.Typed.VOID, void.class,
-			null, Layouts.EMPTY, (_, _) -> null, _ -> null);
+			null, Layouts.EMPTY, (_, _) -> Adapted.ofNull(), _ -> null);
 
 		/**
 		 * Returns the local class type.
@@ -185,22 +205,7 @@ public class Native {
 	}
 
 	/**
-	 * Find native call by name from the default lookup.
-	 */
-	public static MemorySegment find(String method) {
-		return LOOKUP.find(method).orElseThrow();
-	}
-
-	/**
-	 * Creates a method handle from the default lookup.
-	 */
-	public static MethodHandle method(String name, FunctionDescriptor fdesc,
-		Linker.Option... options) {
-		return LINKER.downcallHandle(find(name), fdesc, options);
-	}
-
-	/**
-	 * Modifies type to mirror c type promotion, such as with variadic args.
+	 * Modifies the given type to mirror c type promotion, such as with variadic args.
 	 */
 	public static Class<?> promote(Class<?> cls) {
 		return PROMOTIONS.getOrDefault(cls, cls);

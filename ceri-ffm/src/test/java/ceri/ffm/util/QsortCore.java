@@ -9,7 +9,6 @@ import ceri.common.array.RawArray;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Handles;
-import ceri.common.test.Testing;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Segments;
 import ceri.ffm.type.Primitive;
@@ -42,13 +41,6 @@ public class QsortCore {
 		}
 	}
 
-	public static void main(String[] args) throws Throwable {
-		var cb0 = compar.ofInt("cb0", (i1, i2) -> Integer.compare(i1, i2));
-		var cb1 = compar.ofInt("cb1", (i1, i2) -> Integer.compare(i2, i1));
-		var cb2 = compar.ofInt("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3));
-		run(1000000, 3, cb0, cb1, cb2);
-	}
-
 	public static void qsort(MemorySegment base, long n, long size, MemorySegment stub)
 		throws Throwable {
 		callbacks = 0;
@@ -59,15 +51,23 @@ public class QsortCore {
 		try {
 			return compar.invoke(m1, m2);
 		} catch (Throwable t) {
-			System.err.println("nativeCallback: " + t);
+			System.err.println("nativeCallback: exiting due to error");
+			t.printStackTrace(System.err);
+			System.exit(-1);
 			return 0;
 		}
 	}
 
+	public static void run(int[] array, int repeats, Functions.IntBiOperator... ops)
+		throws Throwable {
+		var compars = RawArray.adaptValues(compar[]::new, ops,
+			(c, o, i) -> c[i] = compar.ofInt("cb" + i, o[i]));
+		run(array, repeats, compars);
+	}
+
 	// support
 
-	private static void run(int count, int repeats, compar... compars) throws Throwable {
-		int[] array = Testing.randomInts(count, 0, count);
+	private static void run(int[] array, int repeats, compar... compars) throws Throwable {
 		for (int i = 0; i < repeats; i++) {
 			for (var compar : compars)
 				qsort(array, compar);

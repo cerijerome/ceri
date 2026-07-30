@@ -22,7 +22,7 @@ public abstract class PointerType {
 	/**
 	 * Typed pointer constructor.
 	 */
-	interface Create<P extends PointerType, S extends Support<?, ?, ?>> {
+	interface Create<P extends PointerType, S extends Support<?, ?, ?, ?>> {
 		/**
 		 * Creates a new pointer instance.
 		 */
@@ -35,7 +35,7 @@ public abstract class PointerType {
 	public static class Supporter<P extends PointerType> extends Support.Typed<P, AddressLayout> {
 		private final Config<P, ?> config;
 
-		record Config<P extends PointerType, S extends Support<?, ?, ?>>(Class<P> type,
+		record Config<P extends PointerType, S extends Support<?, ?, ?, ?>>(Class<P> type,
 			Native.Kind kind, S support, Create<P, S> create, boolean constant) {
 
 			private Config<P, S> asConst() {
@@ -47,7 +47,7 @@ public abstract class PointerType {
 			}
 		}
 
-		static <P extends PointerType, S extends Support<?, ?, ?>> Supporter<P> of(Class<P> type,
+		static <P extends PointerType, S extends Support<?, ?, ?, ?>> Supporter<P> of(Class<P> type,
 			Native.Kind kind, S support, Create<P, S> create, boolean constant) {
 			var config = new Config<>(type, kind, support, create, constant);
 			return new Supporter<>(config, Layouts.POINTER);
@@ -134,7 +134,7 @@ public abstract class PointerType {
 			memory.set(layout(), offset, value.memory());
 		}
 
-		private Support<?, ?, ?> support() {
+		private Support<?, ?, ?, ?> support() {
 			return config.support();
 		}
 	}
@@ -180,6 +180,34 @@ public abstract class PointerType {
 		}
 
 		/**
+		 * Casts this pointer to boolean.
+		 */
+		public Pointer.OfBool asBool() {
+			return asBool(Primitive.BOOL);
+		}
+
+		/**
+		 * Casts this pointer to boolean.
+		 */
+		public Pointer.OfBool asBool(Primitive.OfBool type) {
+			return new Pointer.OfBool(memory(), type, isConst());
+		}
+
+		/**
+		 * Casts this pointer to char.
+		 */
+		public Pointer.OfChar asChar() {
+			return asChar(Primitive.CHAR);
+		}
+
+		/**
+		 * Casts this pointer to char.
+		 */
+		public Pointer.OfChar asChar(Primitive.OfChar type) {
+			return new Pointer.OfChar(memory(), type, isConst());
+		}
+
+		/**
 		 * Casts this pointer to byte.
 		 */
 		public Pointer.OfByte asByte() {
@@ -194,6 +222,20 @@ public abstract class PointerType {
 		}
 
 		/**
+		 * Casts this pointer to short.
+		 */
+		public Pointer.OfShort asShort() {
+			return asShort(Primitive.SHORT);
+		}
+
+		/**
+		 * Casts this pointer to short.
+		 */
+		public Pointer.OfShort asShort(Primitive.OfShort type) {
+			return new Pointer.OfShort(memory(), type, isConst());
+		}
+
+		/**
 		 * Casts this pointer to int.
 		 */
 		public Pointer.OfInt asInt() {
@@ -205,6 +247,48 @@ public abstract class PointerType {
 		 */
 		public Pointer.OfInt asInt(Primitive.OfInt type) {
 			return new Pointer.OfInt(memory(), type, isConst());
+		}
+
+		/**
+		 * Casts this pointer to long.
+		 */
+		public Pointer.OfLong asLong() {
+			return asLong(Primitive.LONG);
+		}
+
+		/**
+		 * Casts this pointer to long.
+		 */
+		public Pointer.OfLong asLong(Primitive.OfLong type) {
+			return new Pointer.OfLong(memory(), type, isConst());
+		}
+
+		/**
+		 * Casts this pointer to float.
+		 */
+		public Pointer.OfFloat asFloat() {
+			return asFloat(Primitive.FLOAT);
+		}
+
+		/**
+		 * Casts this pointer to float.
+		 */
+		public Pointer.OfFloat asFloat(Primitive.OfFloat type) {
+			return new Pointer.OfFloat(memory(), type, isConst());
+		}
+
+		/**
+		 * Casts this pointer to double.
+		 */
+		public Pointer.OfDouble asDouble() {
+			return asDouble(Primitive.DOUBLE);
+		}
+
+		/**
+		 * Casts this pointer to double.
+		 */
+		public Pointer.OfDouble asDouble(Primitive.OfDouble type) {
+			return new Pointer.OfDouble(memory(), type, isConst());
 		}
 
 		/**
@@ -228,7 +312,7 @@ public abstract class PointerType {
 		}
 
 		@Override
-		Support<?, ?, ?> type() {
+		Support<?, ?, ?, ?> type() {
 			return Support.VOID;
 		}
 	}
@@ -237,7 +321,7 @@ public abstract class PointerType {
 	 * Adds arithmetic, type array access, and const memory functionality.
 	 */
 	public static abstract class Indexable<P extends Indexable<P, T, A>, //
-		T extends Support<?, A, ?>, A> extends Raw {
+		T extends Support<?, A, ?, ?>, A> extends Raw {
 		private final T type;
 		private final boolean constant;
 
@@ -556,13 +640,13 @@ public abstract class PointerType {
 		return support(Reflect.getClass(this));
 	}
 
-	Support<?, ?, ?> type() {
+	Support<?, ?, ?, ?> type() {
 		return null;
 	}
 
 	// support
 
-	private static String typeDesc(Class<?> type, Support<?, ?, ?> support, boolean constant) {
+	private static String typeDesc(Class<?> type, Support<?, ?, ?, ?> support, boolean constant) {
 		if (support == null) return type.getSimpleName() + '*';
 		var desc = Support.wrapDesc(support.typeDesc()) + '*';
 		if (!constant || support.isVoid()) return desc;
@@ -573,7 +657,7 @@ public abstract class PointerType {
 		constructorFor(Class<P> cls) {
 		return Handles.asFunction(Handles.constructor(cls, MemorySegment.class));
 	}
-	
+
 	private static Supports supports() {
 		return Supports.fixed();
 	}

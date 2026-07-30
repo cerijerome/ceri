@@ -9,7 +9,9 @@ import ceri.common.collect.Maps;
 import ceri.common.concurrent.Locker;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
+import ceri.common.function.Lambdas;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Strings;
 import ceri.ffm.core.Call;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
@@ -63,6 +65,15 @@ public interface Callback extends Functions.Closeable {
 	static MemorySegment noOpPointer(Class<? extends Callback> cls) {
 		if (cls == null) return null;
 		return Cache.noOpCall(cls).pointer();
+	}
+
+	/**
+	 * Returns the string representation of a callback.
+	 */
+	static String toString(Callback callback) {
+		if (callback == null) return Strings.NULL;
+		var name = Lambdas.registered(callback);
+		return name != null ? name : classOf(callback).getSimpleName() + Reflect.hashId(callback);
 	}
 
 	/**
@@ -179,9 +190,8 @@ public interface Callback extends Functions.Closeable {
 			});
 		}
 
-		@SuppressWarnings("resource")
 		private static Call.Up noOpCall(Class<? extends Callback> cls) {
-			return locker.get(() -> noOpCalls.computeIfAbsent(cls, _ -> add(config(cls).noOpUp())));
+			return locker.get(() -> noOpCalls.computeIfAbsent(cls, _ -> createNoOp(cls)));
 		}
 
 		@SuppressWarnings("resource")
@@ -190,8 +200,14 @@ public interface Callback extends Functions.Closeable {
 		}
 
 		@SuppressWarnings("resource")
+		private static Call.Up createNoOp(Class<? extends Callback> cls) {
+			var noOpCall = config(cls).noOpUp();
+			Lambdas.register(noOpCall.callback(), "no-op");
+			return add(noOpCall);
+		}
+
+		@SuppressWarnings("resource")
 		private static Call.Up add(Call.Up upcall) {
-			System.out.println("add-to-cache: " + upcall);
 			callbacks.put(upcall.callback(), upcall);
 			pointers.put(upcall.pointer(), upcall);
 			return upcall;
@@ -200,7 +216,7 @@ public interface Callback extends Functions.Closeable {
 		@SuppressWarnings("resource")
 		private static void close(Call.Up upcall) {
 			if (upcall == null) return;
-			System.out.println("remove-from-cache: " + upcall);
+			if (noOpCalls.get(classOf(upcall)) == upcall) return; // don't close no-op calls
 			callbacks.remove(upcall.callback());
 			pointers.remove(upcall.pointer());
 			upcall.close();
@@ -213,6 +229,11 @@ public interface Callback extends Functions.Closeable {
 
 	// support
 
+	private static Class<? extends Callback> classOf(Call.Up upcall) {
+		if (upcall == null) return null;
+		return Reflect.unchecked(upcall.config().method().getDeclaringClass());
+	}
+
 	private static Class<? extends Callback> classOf(Callback callback) {
 		if (callback == null) return null;
 		var ifaces = callback.getClass().getInterfaces();
@@ -223,8 +244,9 @@ public interface Callback extends Functions.Closeable {
 	}
 
 	private static Method method(Class<? extends Callback> cls) {
-		var method = Reflect.publicMethod(cls, METHOD_NAME);
-		if (method != null) return method;
-		throw Exceptions.illegalArg("%s.%s(...) method not found", Reflect.name(cls), METHOD_NAME);
+		for (var method : cls.getMethods())
+			if (!method.isDefault() && method.getName().equals(METHOD_NAME)) return method;
+		throw Exceptions.illegalArg("%s.%s(...) interface method not found", Reflect.name(cls),
+			METHOD_NAME);
 	}
 }

@@ -15,9 +15,7 @@ public class CStdLib {
 	 */
 	public static void setenv(String name, String value, boolean overwrite) throws CException {
 		int overwriteValue = overwrite ? 1 : 0;
-		// caller.verify(() -> lib().setenv(name, value, overwriteValue), "setenv", name, value,
-		// overwriteValue);
-		CLib.caller.callInt(c -> c.lastError(c.lib().setenv(name, value, overwriteValue), -1),
+		CLib.caller.verifyInt(lib -> lib.setenv(name, value, overwriteValue), -1,
 			"setenv", name, value, overwriteValue);
 	}
 
@@ -25,7 +23,6 @@ public class CStdLib {
 	 * Get an environment variable.
 	 */
 	public static String getenv(String name) throws CException {
-		// return caller.callType(() -> lib().getenv(name), "getenv", name);
 		return CLib.caller.callType(c -> c.lib().getenv(name), "getenv", name);
 	}
 }

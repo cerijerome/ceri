@@ -42,6 +42,160 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	}
 
 	/**
+	 * Primitive boolean pointer.
+	 */
+	public static class OfBool extends PointerType.Indexable<OfBool, Primitive.OfBool, boolean[]> {
+		public static final Supporter<OfBool> $ = support(Primitive.BOOL, false);
+
+		static Supporter<OfBool> support(Primitive.OfBool type, boolean constant) {
+			return Supporter.of(OfBool.class, Native.Kind.PRIMITIVE_POINTER, type,
+				(m, t, c) -> new OfBool(m, t, c), constant);
+		}
+
+		OfBool(MemorySegment memory, Primitive.OfBool type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfBool> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfBool asBool() {
+			return this;
+		}
+
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
+		public boolean get() {
+			return getAt(0);
+		}
+
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
+		public boolean getAt(int index) {
+			return type().getBool(memory(), size(index));
+		}
+
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(boolean value) {
+			return setAt(0, value);
+		}
+
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, boolean value) {
+			if (isConst()) return false;
+			return type().setBool(memory(), size(index), value);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, boolean... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, boolean... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		@Override
+		OfBool instance(MemorySegment memory, Primitive.OfBool type, boolean constant) {
+			return new OfBool(memory, type, constant);
+		}
+	}
+
+	/**
+	 * Primitive char pointer.
+	 */
+	public static class OfChar extends PointerType.Indexable<OfChar, Primitive.OfChar, char[]> {
+		public static final Supporter<OfChar> $ = support(Primitive.CHAR, false);
+
+		static Supporter<OfChar> support(Primitive.OfChar type, boolean constant) {
+			return Supporter.of(OfChar.class, Native.Kind.PRIMITIVE_POINTER, type,
+				(m, t, c) -> new OfChar(m, t, c), constant);
+		}
+
+		OfChar(MemorySegment memory, Primitive.OfChar type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfChar> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfChar asChar() {
+			return this;
+		}
+
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
+		public char get() {
+			return getAt(0);
+		}
+
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
+		public char getAt(int index) {
+			return type().getChar(memory(), size(index));
+		}
+
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(char value) {
+			return setAt(0, value);
+		}
+
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, char value) {
+			if (isConst()) return false;
+			return type().setChar(memory(), size(index), value);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, char... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, char... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		@Override
+		OfChar instance(MemorySegment memory, Primitive.OfChar type, boolean constant) {
+			return new OfChar(memory, type, constant);
+		}
+	}
+
+	/**
 	 * Primitive byte pointer.
 	 */
 	public static class OfByte extends PointerType.Indexable<OfByte, Primitive.OfByte, byte[]> {
@@ -135,6 +289,99 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	}
 
 	/**
+	 * Primitive short pointer.
+	 */
+	public static class OfShort extends PointerType.Indexable<OfShort, Primitive.OfShort, short[]> {
+		public static final Supporter<OfShort> $ = support(Primitive.SHORT, false);
+
+		static Supporter<OfShort> support(Primitive.OfShort type, boolean constant) {
+			return Supporter.of(OfShort.class, Native.Kind.PRIMITIVE_POINTER, type,
+				(m, t, c) -> new OfShort(m, t, c), constant);
+		}
+
+		OfShort(MemorySegment memory, Primitive.OfShort type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfShort> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfShort asShort() {
+			return this;
+		}
+
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
+		public short get() {
+			return getAt(0);
+		}
+
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
+		public short getAt(int index) {
+			return type().getShort(memory(), size(index));
+		}
+
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(int value) {
+			return setAt(0, value);
+		}
+
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, int value) {
+			if (isConst()) return false;
+			return type().setShort(memory(), size(index), value);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, short... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, int... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, short... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, int... array) {
+			return setArrayAt(index, Array.SHORT.of(array), nul);
+		}
+
+		@Override
+		OfShort instance(MemorySegment memory, Primitive.OfShort type, boolean constant) {
+			return new OfShort(memory, type, constant);
+		}
+	}
+
+	/**
 	 * Primitive int pointer.
 	 */
 	public static class OfInt extends PointerType.Indexable<OfInt, Primitive.OfInt, int[]> {
@@ -216,6 +463,254 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 	}
 
+	/**
+	 * Primitive long pointer.
+	 */
+	public static class OfLong extends PointerType.Indexable<OfLong, Primitive.OfLong, long[]> {
+		public static final Supporter<OfLong> $ = support(Primitive.LONG, false);
+
+		static Supporter<OfLong> support(Primitive.OfLong type, boolean constant) {
+			return Supporter.of(OfLong.class, Native.Kind.PRIMITIVE_POINTER, type,
+				(m, t, c) -> new OfLong(m, t, c), constant);
+		}
+
+		public static OfLong of(MemorySegment memory, Primitive.OfLong type, boolean constant) {
+			if (memory == null || type == null) return null;
+			return new OfLong(memory, type, constant);
+		}
+
+		OfLong(MemorySegment memory, Primitive.OfLong type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfLong> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfLong asLong() {
+			return this;
+		}
+
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
+		public long get() {
+			return getAt(0);
+		}
+
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
+		public long getAt(int index) {
+			return type().getLong(memory(), size(index));
+		}
+
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(long value) {
+			return setAt(0, value);
+		}
+
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, long value) {
+			if (isConst()) return false;
+			return type().setLong(memory(), size(index), value);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, long... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, long... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		@Override
+		OfLong instance(MemorySegment memory, Primitive.OfLong type, boolean constant) {
+			return new OfLong(memory, type, constant);
+		}
+	}
+
+	/**
+	 * Primitive float pointer.
+	 */
+	public static class OfFloat
+		extends PointerType.Indexable<OfFloat, Primitive.OfFloat, float[]> {
+		public static final Supporter<OfFloat> $ = support(Primitive.FLOAT, false);
+
+		static Supporter<OfFloat> support(Primitive.OfFloat type, boolean constant) {
+			return Supporter.of(OfFloat.class, Native.Kind.PRIMITIVE_POINTER, type,
+				(m, t, c) -> new OfFloat(m, t, c), constant);
+		}
+
+		public static OfFloat of(MemorySegment memory, Primitive.OfFloat type, boolean constant) {
+			if (memory == null || type == null) return null;
+			return new OfFloat(memory, type, constant);
+		}
+
+		OfFloat(MemorySegment memory, Primitive.OfFloat type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfFloat> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfFloat asFloat() {
+			return this;
+		}
+
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
+		public float get() {
+			return getAt(0);
+		}
+
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
+		public float getAt(int index) {
+			return type().getFloat(memory(), size(index));
+		}
+
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(float value) {
+			return setAt(0, value);
+		}
+
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, float value) {
+			if (isConst()) return false;
+			return type().setFloat(memory(), size(index), value);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, float... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, float... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		@Override
+		OfFloat instance(MemorySegment memory, Primitive.OfFloat type, boolean constant) {
+			return new OfFloat(memory, type, constant);
+		}
+	}
+
+	/**
+	 * Primitive double pointer.
+	 */
+	public static class OfDouble
+		extends PointerType.Indexable<OfDouble, Primitive.OfDouble, double[]> {
+		public static final Supporter<OfDouble> $ = support(Primitive.DOUBLE, false);
+
+		static Supporter<OfDouble> support(Primitive.OfDouble type, boolean constant) {
+			return Supporter.of(OfDouble.class, Native.Kind.PRIMITIVE_POINTER, type,
+				(m, t, c) -> new OfDouble(m, t, c), constant);
+		}
+
+		public static OfDouble of(MemorySegment memory, Primitive.OfDouble type, boolean constant) {
+			if (memory == null || type == null) return null;
+			return new OfDouble(memory, type, constant);
+		}
+
+		OfDouble(MemorySegment memory, Primitive.OfDouble type, boolean constant) {
+			super(memory, type, constant);
+		}
+
+		@Override
+		public Supporter<OfDouble> support() {
+			return support(type(), isConst());
+		}
+
+		@Override
+		public Pointer.OfDouble asDouble() {
+			return this;
+		}
+
+		/**
+		 * Gets the primitive value at the pointer.
+		 */
+		public double get() {
+			return getAt(0);
+		}
+
+		/**
+		 * Gets the primitive value at the pointer type index.
+		 */
+		public double getAt(int index) {
+			return type().getDouble(memory(), size(index));
+		}
+
+		/**
+		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 */
+		public boolean set(double value) {
+			return setAt(0, value);
+		}
+
+		/**
+		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * range.
+		 */
+		public boolean setAt(int index, double value) {
+			if (isConst()) return false;
+			return type().setDouble(memory(), size(index), value);
+		}
+
+		/**
+		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
+		 * values set.
+		 */
+		public final int setAll(boolean nul, double... array) {
+			return setAllAt(0, nul, array);
+		}
+
+		/**
+		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * the number of values set.
+		 */
+		public final int setAllAt(int index, boolean nul, double... array) {
+			return setArrayAt(index, array, nul);
+		}
+
+		@Override
+		OfDouble instance(MemorySegment memory, Primitive.OfDouble type, boolean constant) {
+			return new OfDouble(memory, type, constant);
+		}
+	}
+
 	static <T> Supporter<Pointer<T>> support(Support.Typed<T, ?> type, boolean constant) {
 		return Supporter.of(Reflect.unchecked(Pointer.class), Native.Kind.POINTER, type,
 			(m, s, _) -> of(m, s), constant);
@@ -271,6 +766,55 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	}
 
 	/**
+	 * Returns a primitive short pointer for the memory segment.
+	 */
+	public static OfShort ofShort(MemorySegment memory) {
+		return new OfShort(memory, Primitive.SHORT, false);
+	}
+
+	/**
+	 * Returns a primitive short pointer for the allocated value.
+	 */
+	public static OfShort ofShort(int value) {
+		return ofShort(Segments.auto(), value);
+	}
+
+	/**
+	 * Returns a primitive short pointer for the allocated value.
+	 */
+	public static OfShort ofShort(SegmentAllocator allocator, int value) {
+		return ofShort(Primitive.SHORT.allocShort(allocator, value));
+	}
+
+	/**
+	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfShort ofShorts(boolean nul, short... values) {
+		return ofShorts(Segments.auto(), nul, values);
+	}
+
+	/**
+	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfShort ofShorts(SegmentAllocator allocator, boolean nul, short... values) {
+		return ofShort(Primitive.SHORT.allocAll(allocator, nul, values));
+	}
+
+	/**
+	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfShort ofShorts(boolean nul, int... values) {
+		return ofShorts(Segments.auto(), nul, values);
+	}
+
+	/**
+	 * Returns a primitive short pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfShort ofShorts(SegmentAllocator allocator, boolean nul, int... values) {
+		return ofShort(Primitive.BYTE.allocAll(allocator, nul, values));
+	}
+
+	/**
 	 * Returns a primitive int pointer for the memory segment.
 	 */
 	public static OfInt ofInt(MemorySegment memory) {
@@ -303,6 +847,41 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 */
 	public static OfInt ofInts(SegmentAllocator allocator, boolean nul, int... values) {
 		return ofInt(Primitive.INT.allocAll(allocator, nul, values));
+	}
+
+	/**
+	 * Returns a primitive pointer for the memory segment.
+	 */
+	public static OfLong ofLong(MemorySegment memory) {
+		return new OfLong(memory, Primitive.LONG, false);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfLong ofLong(long value) {
+		return ofLong(Segments.auto(), value);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated value.
+	 */
+	public static OfLong ofLong(SegmentAllocator allocator, long value) {
+		return ofLong(Primitive.LONG.allocLong(allocator, value));
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfLong ofLongs(boolean nul, long... values) {
+		return ofLongs(Segments.auto(), nul, values);
+	}
+
+	/**
+	 * Returns a primitive pointer for the allocated values with optional nul-termination.
+	 */
+	public static OfLong ofLongs(SegmentAllocator allocator, boolean nul, long... values) {
+		return ofLong(Primitive.LONG.allocAll(allocator, nul, values));
 	}
 
 	/**

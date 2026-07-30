@@ -14,7 +14,8 @@ import ceri.ffm.core.Segments;
 /**
  * Operational support for primitives.
  */
-public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, A, L> {
+public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayout>
+	extends Support<T, A, P, L> {
 	public static final OfBool BOOL = new OfBool(Layouts.BOOL);
 	public static final OfChar CHAR = new OfChar(Layouts.CHAR);
 	public static final OfByte BYTE = new OfByte(Layouts.BYTE);
@@ -36,9 +37,9 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		public static final Box<Long, ValueLayout.OfLong> LONG = new Box<>(Primitive.LONG);
 		public static final Box<Float, ValueLayout.OfFloat> FLOAT = new Box<>(Primitive.FLOAT);
 		public static final Box<Double, ValueLayout.OfDouble> DOUBLE = new Box<>(Primitive.DOUBLE);
-		private final Primitive<T, ?, L> primitive;
+		private final Primitive<T, ?, ?, L> primitive;
 
-		private Box(Primitive<T, ?, L> primitive) {
+		private Box(Primitive<T, ?, ?, L> primitive) {
 			super(primitive.layout());
 			this.primitive = primitive;
 		}
@@ -84,7 +85,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added bool support.
 	 */
-	public static class OfBool extends Primitive<Boolean, boolean[], ValueLayout.OfBoolean> {
+	public static class OfBool
+		extends Primitive<Boolean, boolean[], Pointer.OfBool, ValueLayout.OfBoolean> {
 
 		private OfBool(ValueLayout.OfBoolean layout) {
 			super(layout);
@@ -197,6 +199,11 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		@Override
+		Pointer.OfBool pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfBool(memory, this, constant);
+		}
+
+		@Override
 		Boolean rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
@@ -234,7 +241,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added char support.
 	 */
-	public static class OfChar extends Primitive<Character, char[], ValueLayout.OfChar> {
+	public static class OfChar
+		extends Primitive<Character, char[], Pointer.OfChar, ValueLayout.OfChar> {
 		private static final Character VAL = '\0';
 
 		private OfChar(ValueLayout.OfChar layout) {
@@ -362,6 +370,11 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
+		Pointer.OfChar pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfChar(memory, this, constant);
+		}
+
+		@Override
 		Character rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
@@ -380,7 +393,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added byte support.
 	 */
-	public static class OfByte extends Primitive<Byte, byte[], ValueLayout.OfByte> {
+	public static class OfByte extends Primitive<Byte, byte[], Pointer.OfByte, ValueLayout.OfByte> {
 		private static final Byte VAL = 0;
 
 		private OfByte(ValueLayout.OfByte layout) {
@@ -501,13 +514,6 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Wraps the converted values as a memory segment.
-		 */
-		public MemorySegment wrapAll(int... array) {
-			return wrapArray(Array.BYTE.of(array));
-		}
-
-		/**
 		 * Copies values to memory with optional nul-termination, within bounds; returns the number
 		 * of values copied, including nul-terminator.
 		 */
@@ -532,32 +538,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
-		/**
-		 * Copies values to memory with optional nul-termination, within bounds; returns the number
-		 * of values copied, including nul-terminator.
-		 */
-		public final int writeAll(MemorySegment memory, boolean nul, int... array) {
-			return writeAll(memory, 0L, nul, array);
-		}
-
-		/**
-		 * Copies values to memory with optional nul-termination, within bounds; returns the number
-		 * of values copied, including nul-terminator.
-		 */
-		public final int writeAll(MemorySegment memory, long offset, boolean nul, int... array) {
-			return writeAll(memory, offset, Long.MAX_VALUE, nul, array);
-		}
-
-		/**
-		 * Copies values to memory with optional nul-termination, within bounds; returns the number
-		 * of values copied, including nul-terminator.
-		 */
-		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
-			int... array) {
-			return writeAll(memory, offset, length, nul, Array.BYTE.of(array));
-		}
-
 		// overrides
+
+		@Override
+		Pointer.OfByte pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfByte(memory, this, constant);
+		}
 
 		@Override
 		Byte rawGet(MemorySegment memory, long offset, long length) {
@@ -578,7 +564,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added short support.
 	 */
-	public static class OfShort extends Primitive<Short, short[], ValueLayout.OfShort> {
+	public static class OfShort
+		extends Primitive<Short, short[], Pointer.OfShort, ValueLayout.OfShort> {
 		private static final Short VAL = 0;
 
 		private OfShort(ValueLayout.OfShort layout) {
@@ -685,13 +672,6 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		}
 
 		/**
-		 * Wraps the converted values as a memory segment.
-		 */
-		public MemorySegment wrapAll(int... array) {
-			return wrapArray(Array.SHORT.of(array));
-		}
-
-		/**
 		 * Copies values to memory with optional nul-termination, within bounds; returns the number
 		 * of values copied, including nul-terminator.
 		 */
@@ -716,32 +696,12 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 			return writeArray(memory, offset, length, array, 0, Integer.MAX_VALUE, nul);
 		}
 
-		/**
-		 * Copies values to memory with optional nul-termination, within bounds; returns the number
-		 * of values copied, including nul-terminator.
-		 */
-		public final int writeAll(MemorySegment memory, boolean nul, int... array) {
-			return writeAll(memory, 0L, nul, array);
-		}
-
-		/**
-		 * Copies values to memory with optional nul-termination, within bounds; returns the number
-		 * of values copied, including nul-terminator.
-		 */
-		public final int writeAll(MemorySegment memory, long offset, boolean nul, int... array) {
-			return writeAll(memory, offset, Long.MAX_VALUE, nul, array);
-		}
-
-		/**
-		 * Copies values to memory with optional nul-termination, within bounds; returns the number
-		 * of values copied, including nul-terminator.
-		 */
-		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
-			int... array) {
-			return writeAll(memory, offset, length, nul, Array.SHORT.of(array));
-		}
-
 		// overrides
+
+		@Override
+		Pointer.OfShort pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfShort(memory, this, constant);
+		}
 
 		@Override
 		Short rawGet(MemorySegment memory, long offset, long length) {
@@ -762,7 +722,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added int support.
 	 */
-	public static class OfInt extends Primitive<Integer, int[], ValueLayout.OfInt> {
+	public static class OfInt extends Primitive<Integer, int[], Pointer.OfInt, ValueLayout.OfInt> {
 		private static final Integer VAL = 0;
 
 		private OfInt(ValueLayout.OfInt layout) {
@@ -816,14 +776,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		public Pointer.OfInt pointer(MemorySegment memory) {
 			return pointer(memory, false);
 		}
-		
-		/**
-		 * Creates a pointer for this type from memory.
-		 */
-		public Pointer.OfInt pointer(MemorySegment memory, boolean constant) {
-			return Pointer.OfInt.of(memory, this, constant);
-		}
-		
+
 		@Override
 		public Integer val() {
 			return VAL;
@@ -910,6 +863,11 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
+		Pointer.OfInt pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfInt(memory, this, constant);
+		}
+
+		@Override
 		Integer rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
@@ -928,7 +886,7 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added long support.
 	 */
-	public static class OfLong extends Primitive<Long, long[], ValueLayout.OfLong> {
+	public static class OfLong extends Primitive<Long, long[], Pointer.OfLong, ValueLayout.OfLong> {
 		private static final Long VAL = 0L;
 
 		private OfLong(ValueLayout.OfLong layout) {
@@ -1048,6 +1006,11 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
+		Pointer.OfLong pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfLong(memory, this, constant);
+		}
+
+		@Override
 		Long rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
@@ -1066,7 +1029,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added float support.
 	 */
-	public static class OfFloat extends Primitive<Float, float[], ValueLayout.OfFloat> {
+	public static class OfFloat
+		extends Primitive<Float, float[], Pointer.OfFloat, ValueLayout.OfFloat> {
 		private static final Float VAL = 0f;
 
 		private OfFloat(ValueLayout.OfFloat layout) {
@@ -1186,6 +1150,11 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
+		Pointer.OfFloat pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfFloat(memory, this, constant);
+		}
+
+		@Override
 		Float rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
@@ -1204,7 +1173,8 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	/**
 	 * Added double support.
 	 */
-	public static class OfDouble extends Primitive<Double, double[], ValueLayout.OfDouble> {
+	public static class OfDouble
+		extends Primitive<Double, double[], Pointer.OfDouble, ValueLayout.OfDouble> {
 		private static final Double VAL = 0.0;
 
 		private OfDouble(ValueLayout.OfDouble layout) {
@@ -1324,6 +1294,11 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 		// overrides
 
 		@Override
+		Pointer.OfDouble pointer(MemorySegment memory, boolean constant) {
+			return new Pointer.OfDouble(memory, this, constant);
+		}
+
+		@Override
 		Double rawGet(MemorySegment memory, long offset, long length) {
 			return memory.get(layout(), offset);
 		}
@@ -1354,10 +1329,10 @@ public abstract class Primitive<T, A, L extends ValueLayout> extends Support<T, 
 	public abstract Class<T> boxType();
 
 	@Override
-	public abstract Primitive<T, A, L> align(long align);
+	public abstract Primitive<T, A, P, L> align(long align);
 
 	@Override
-	public abstract Primitive<T, A, L> order(ByteOrder order);
+	public abstract Primitive<T, A, P, L> order(ByteOrder order);
 
 	/**
 	 * Wraps the bounded array as a memory segment.

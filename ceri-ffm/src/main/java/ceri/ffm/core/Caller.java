@@ -13,6 +13,7 @@ import ceri.common.text.Joiner;
 import ceri.common.text.Transformer;
 import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.type.BufferType;
+import ceri.ffm.type.Callback;
 import ceri.ffm.type.Group;
 import ceri.ffm.type.PointerType;
 
@@ -249,6 +250,22 @@ public class Caller<E extends Exception, T> {
 		return result;
 	}
 
+	/**
+	 * Executes the call and returns an int, checking last error if the error code is returned.
+	 */
+	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error,
+		String name, Object... args) throws E {
+		return verifyInt(call, error, m -> m.accept(name, args));
+	}
+
+	/**
+	 * Executes the call and returns an int, checking last error if the error code is returned.
+	 */
+	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error,
+		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		return callInt(c -> c.lastError(call.applyAsInt(c.lib()), error), callDesc);
+	}
+
 	// support
 
 	private void verify(Context context, Functions.Function<CallDescriptor, String> callDesc)
@@ -305,6 +322,7 @@ public class Caller<E extends Exception, T> {
 			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
 			.add(PointerType.Indexable.class, Transform::typedPointer) //
 			.add(PointerType.class, Transform::pointer) //
+			.add(Callback.class, c -> Callback.toString(c)) //
 			.build();
 	}
 
@@ -317,6 +335,7 @@ public class Caller<E extends Exception, T> {
 			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
 			.add(PointerType.Indexable.class, Transform::typedPointer) //
 			.add(PointerType.class, Transform::pointer) //
+			.add(Callback.class, c -> Callback.toString(c)) //
 			.add(Group.class, Transform::group) //
 			.build();
 	}

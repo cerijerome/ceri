@@ -26,11 +26,9 @@ import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.function.Lambdas;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Joiner;
-import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.TypeNode;
@@ -125,7 +123,13 @@ public class Call {
 			nativeMethodType = nativeMethodType(); // -> up
 			nativeHandle = Native.LINKER.downcallHandle(nativeFuncDesc, options(varArg, lastError));
 			varArgConfigs = (args.size() < method.getParameterCount()) ? Maps.concurrent() : null;
-			System.out.println(" ==> config: " + this);
+		}
+
+		/**
+		 * Returns the method covered by this configuration.
+		 */
+		public Method method() {
+			return method;
 		}
 
 		/**
@@ -345,7 +349,7 @@ public class Call {
 
 		@Override
 		public String toString() {
-			return String.format("downcall%s/%s", Segments.addressString(pointer), config);
+			return String.format("call/%s/%s", Segments.addressString(pointer), config);
 		}
 	}
 
@@ -400,7 +404,7 @@ public class Call {
 
 		@Override
 		public String toString() {
-			return String.format("%s%s/%s", Basics.def(Lambdas.registered(callback), "upcall"),
+			return String.format("%s/%s/%s", Callback.toString(callback),
 				Segments.addressString(pointer), config);
 		}
 
@@ -490,10 +494,10 @@ public class Call {
 		return adapter(node, support);
 	}
 
-	private static Native.Adapter<?, ?> adapter(TypeNode node, Support<?, ?, ?> support) {
+	private static Native.Adapter<?, ?> adapter(TypeNode node, Support<?, ?, ?, ?> support) {
 		if (support.isArray()) return byRef(node, support);
 		return switch (support.kind()) {
-			case PRIMITIVE, BOXED -> primitive(node, support);
+			case PRIMITIVE, BOXED, MEMORY -> direct(node, support);
 			case INT_TYPE -> intType(node, Reflect.unchecked(support));
 			case POINTER, PRIMITIVE_POINTER -> pointer(node, Reflect.unchecked(support));
 			case CALLBACK -> callback(node, Reflect.unchecked(support));
@@ -503,7 +507,7 @@ public class Call {
 		};
 	}
 
-	private static Native.Adapter<?, ?> primitive(TypeNode node, Support<?, ?, ?> support) {
+	private static Native.Adapter<?, ?> direct(TypeNode node, Support<?, ?, ?, ?> support) {
 		return new Native.Adapter<>(node.typed(), support.type(), support.val(), support.layout(),
 			(_, t) -> Native.Adapted.of(t), t -> t);
 	}
@@ -528,14 +532,14 @@ public class Call {
 	}
 
 	private static <T> Native.Adapter<T, MemorySegment> byVal(TypeNode node,
-		Support<T, ?, ?> support) {
+		Support<T, ?, ?, ?> support) {
 		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
 			support.layout(), (a, t) -> Native.Adapted.of(support.alloc(a, t)),
 			m -> support.get(Segments.reslice(m, support.layout())));
 	}
 
 	private static <T> Native.Adapter<T, MemorySegment> byRef(TypeNode node,
-		Support<T, ?, ?> support) {
+		Support<T, ?, ?, ?> support) {
 		var direction = node.context().direction();
 		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
 			Layouts.POINTER, (a, t) -> support.encode(direction, a, t),
@@ -576,8 +580,7 @@ public class Call {
 	}
 
 	private static Class<?> varArgType(Object varArgs, int i) {
-		var value = RawArray.get(varArgs, i);
-		Validate.nonNull(value, "vararg[%d]", i);
+		var value = Validate.nonNull(RawArray.get(varArgs, i), "vararg[%d]", i);
 		return Native.promote(value.getClass());
 	}
 }

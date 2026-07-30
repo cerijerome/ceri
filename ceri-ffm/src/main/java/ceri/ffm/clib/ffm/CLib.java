@@ -1,6 +1,8 @@
 package ceri.ffm.clib.ffm;
 
+import java.lang.foreign.MemorySegment;
 import ceri.common.util.Os;
+import ceri.ffm.clib.ffm.CSignal.sigset_t;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Library;
 import ceri.ffm.reflect.Refine.LastError;
@@ -24,7 +26,7 @@ public class CLib {
 	/**
 	 * A collection of common C library functions, grouped by header file.
 	 */
-	public static interface Native {
+	public interface Native {
 
 		// <unistd.h>
 
@@ -53,16 +55,14 @@ public class CLib {
 		// <signal.h>
 
 		// sighandler_t signal(int signum, sighandler_t handler)
-		// Pointer signal(int signum, sighandler_t handler);
-
-		// sighandler_t signal(int signum, sighandler_t handler)
-		// Pointer signal(int signum, Pointer handler);
+		MemorySegment signal(int signum, MemorySegment handler);
 
 		// int raise(int sig)
-		// int raise(int sig); // ignore errno
+		@LastError(false) // ignore errno
+		int raise(int sig);
 
 		// int sigemptyset(sigset_t *set);
-		// int sigemptyset(Pointer set);
+		int sigemptyset(Pointer<sigset_t> set);
 
 		// int sigaddset(sigset_t *set, int signum);
 		// int sigaddset(Pointer set, int signum);

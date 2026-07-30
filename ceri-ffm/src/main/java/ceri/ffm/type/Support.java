@@ -22,7 +22,8 @@ import ceri.ffm.core.Segments;
 /**
  * Operational support for types and arrays with fixed-size layouts.
  */
-public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.Provider<L> {
+public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryLayout>
+	implements Layouts.Provider<L> {
 	public static final OfVoid VOID = new OfVoid(Layouts.BYTE);
 	private final L layout;
 
@@ -36,7 +37,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 		/**
 		 * Support array configuration; length includes the nul-terminator if specified.
 		 */
-		private record Config<T>(Support<?, T, ?> support, int count, boolean nul) {
+		private record Config<T>(Support<?, T, ?, ?> support, int count, boolean nul) {
 			/**
 			 * Returns a new sequence layout for support type arrays.
 			 */
@@ -216,7 +217,7 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 			return new OfArray<>(config, layout);
 		}
 
-		private Support<?, T, ?> elementSupport() {
+		private Support<?, T, ?, ?> elementSupport() {
 			return config.support();
 		}
 	}
@@ -273,7 +274,8 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Support for object types.
 	 */
-	public static abstract class Typed<T, L extends MemoryLayout> extends Support<T, T[], L> {
+	public static abstract class Typed<T, L extends MemoryLayout>
+		extends Support<T, T[], Pointer<T>, L> {
 
 		Typed(L layout) {
 			super(layout);
@@ -364,6 +366,11 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 			return encodeArray(direction, allocator, array, nul);
 		}
 
+		@Override
+		Pointer<T> pointer(MemorySegment memory, boolean constant) {
+			return Pointer.of(memory, this, constant);
+		}
+		
 		/**
 		 * Encodes an array with non-fixed element sizes. Count does not include terminator.
 		 */
@@ -457,12 +464,12 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 	/**
 	 * Returns an instance with modified layout.
 	 */
-	public abstract Support<T, A, L> align(long align);
+	public abstract Support<T, A, P, L> align(long align);
 
 	/**
 	 * Returns an instance with modified layout.
 	 */
-	public abstract Support<T, A, L> order(ByteOrder order);
+	public abstract Support<T, A, P, L> order(ByteOrder order);
 
 	@Override
 	public long count(long size) {
@@ -998,10 +1005,15 @@ public abstract class Support<T, A, L extends MemoryLayout> implements Layouts.P
 
 	// overrides
 
-	boolean equalTo(Support<?, ?, ?> support) {
+	boolean equalTo(Support<?, ?, ?, ?> support) {
 		return type().equals(support.type()) && layout().equals(support.layout());
 	}
 
+	/**
+	 * Creates a typed pointer from allocated memory.
+	 */
+	abstract P pointer(MemorySegment memory, boolean constant);
+	
 	/**
 	 * Creates a new value from memory without performing bound checks.
 	 */

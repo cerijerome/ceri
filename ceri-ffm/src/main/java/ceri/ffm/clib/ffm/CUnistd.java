@@ -34,7 +34,7 @@ public class CUnistd {
 	 * Closes the file descriptor.
 	 */
 	public static void close(int fd) throws CException {
-		if (fd >= 0) CLib.caller.callInt(c -> c.lastError(c.lib().close(fd), -1), "close", fd);
+		if (fd >= 0) CLib.caller.verifyInt(lib -> lib.close(fd), -1, "close", fd);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class CUnistd {
 	public static boolean closeSilently(int... fds) {
 		boolean closed = true;
 		for (int fd : fds)
-			if (CLib.lib().close(fd) < 0) closed = false;
+			if (fd >= 0 && CLib.lib().close(fd) < 0) closed = false;
 		return closed;
 	}
 
@@ -52,7 +52,7 @@ public class CUnistd {
 	 * Tests whether a file descriptor refers to a terminal.
 	 */
 	public static boolean isatty(int fd) throws CException {
-		// return caller.verifyInt(() -> lib().isatty(fd), "isatty", fd) == 1;
+		// errno set on 0 response
 		return CLib.caller.callInt(c -> c.lib().isatty(fd), "isatty", fd) == 1;
 	}
 
@@ -60,7 +60,6 @@ public class CUnistd {
 	 * Returns the number of bytes in a memory allocation block for mmap.
 	 */
 	public static int getpagesize() throws CException {
-		// return caller.verifyInt(() -> lib().getpagesize(), "getpagesize");
 		return CLib.caller.callInt(c -> c.lib().getpagesize(), "getpagesize");
 	}
 
@@ -70,8 +69,7 @@ public class CUnistd {
 	 */
 	public static int[] pipe() throws CException {
 		int[] pipefd = new int[2];
-		// caller.verify(() -> lib().pipe(pipefd), "pipe", pipefd);
-		CLib.caller.callInt(c -> c.lastError(c.lib().pipe(pipefd), -1), "pipe", pipefd);
+		CLib.caller.verifyInt(lib -> lib.pipe(pipefd), -1, "pipe", pipefd);
 		return pipefd;
 	}
 
@@ -88,13 +86,6 @@ public class CUnistd {
 			if (!NONBLOCK_ERRORS.contains(code)) c.fail(code);
 			return 0;
 		}, "read", fd, buffer, length);
-		// try {
-		// return caller.verifyInt(() -> lib().read(fd, buffer, size_t.of(length)).getInt(),
-		// "read", fd, buffer, length);
-		// } catch (CException e) {
-		// if (NONBLOCK_ERRORS.contains(e.code)) return 0;
-		// throw e;
-		// }
 	}
 
 	/**
@@ -335,7 +326,7 @@ public class CUnistd {
 			return 0;
 		}, "write", fd, buffer, length);
 	}
-	
+
 	// /**
 	// * Writes up to length bytes from the buffer. Returns the number of bytes written, or 0 on
 	// * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
@@ -559,8 +550,8 @@ public class CUnistd {
 	 * Moves the position of file descriptor. Returns the new position.
 	 */
 	public static int lseek(int fd, int offset, int whence) throws CException {
-		return CLib.caller.callInt(c -> c.lastError(c.lib().lseek(fd, offset, whence), -1), "lseek",
-			fd, offset, whence);
+		return CLib.caller.verifyInt(lib -> lib.lseek(fd, offset, whence), -1, "lseek", fd, offset,
+			whence);
 	}
 
 	/**

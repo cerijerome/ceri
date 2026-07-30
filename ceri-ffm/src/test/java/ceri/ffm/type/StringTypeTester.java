@@ -16,6 +16,9 @@ public class StringTypeTester {
 		r.resolve();
 		FfmTesting.arg(ss);
 		// FfmTesting.arg(s.decodeArray(m, 10, false));
+		
+		var p = StringType.UTF16.support(10, true).asPointer(false);
+		System.out.println(p);
 	}
 
 }

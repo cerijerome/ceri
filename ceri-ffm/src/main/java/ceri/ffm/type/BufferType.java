@@ -50,7 +50,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		of(Buffers.DOUBLE, Primitive.DOUBLE);
 	private static final Map<Class<?>, BufferType<?, ?, ?, ?>> MAP = map();
 	private final Config<B, A> config;
-	private final Primitive<T, A, L> primitive;
+	private final Primitive<T, A, ?, L> primitive;
 
 	private static class Config<B extends Buffer, A> {
 		private final Buffers<B, A> buffers;
@@ -348,11 +348,11 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	}
 
 	private static <B extends Buffer, T, A, L extends ValueLayout> BufferType<B, T, A, L>
-		of(Buffers<B, A> buffers, Primitive<T, A, L> primitive) {
+		of(Buffers<B, A> buffers, Primitive<T, A, ?, L> primitive) {
 		return new BufferType<>(new Config<>(buffers), primitive);
 	}
 
-	private BufferType(Config<B, A> config, Primitive<T, A, L> primitive) {
+	private BufferType(Config<B, A> config, Primitive<T, A, ?, L> primitive) {
 		this.config = config;
 		this.primitive = primitive;
 	}
@@ -360,7 +360,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	/**
 	 * Returns the matching primitive handler.
 	 */
-	public Primitive<T, A, L> primitive() {
+	public Primitive<T, A, ?, L> primitive() {
 		return primitive;
 	}
 

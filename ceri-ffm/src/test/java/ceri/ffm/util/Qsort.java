@@ -2,28 +2,43 @@ package ceri.ffm.util;
 
 import java.lang.foreign.Arena;
 import ceri.common.array.RawArray;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.test.Testing;
 import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Library;
+import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.Callback;
 import ceri.ffm.type.IntType.size_t;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
 
 /**
- * Qsort using framework.
+ * Qsort using framework to compare with JNA and core FFM (0.10μs vs 0.09 core FFM vs 1.25μs JNA).
  */
 public class Qsort {
-	public static final Library<Qsort.Native> library = Library.of(Qsort.Native.class);
-	public static final Caller<CException, Qsort.Native> caller = Caller.of(library);
+	private static final Library<Qsort.Native> library = Library.of(Qsort.Native.class);
+	private static final Caller<CException, Qsort.Native> caller = Caller.of(library);
 	private static final Primitive.OfInt INT = Primitive.INT; // .order(ByteOrder.BIG_ENDIAN);
 	private static long callbacks = 0;
 
-	public interface Native {
+	public static void main(String[] args) throws Throwable {
+		int count = 1000000;
+		int reps = 3;
+		Functions.IntBiOperator[] ops = { //
+			(i1, i2) -> Integer.compare(i1, i2), //
+			(i1, i2) -> Integer.compare(i2, i1), //
+			(i1, i2) -> Integer.compare(i1 & 3, i2 & 3) };
+		int[] array = Testing.randomInts(count, 0, count);
+		FfmTesting.title("Qsort framework");
+		run(array, reps, ops);
+		FfmTesting.title("Qsort core");
+		QsortCore.run(array, reps, ops);
+	}
 
+	public interface Native {
 		interface compar extends Callback {
 			int invoke(Pointer.OfVoid p1, Pointer.OfVoid p2);
 
@@ -39,16 +54,6 @@ public class Qsort {
 		void qsort(Pointer.OfVoid base, size_t n, size_t size, compar compar);
 	}
 
-	// TODO: why is cb2 so much faster in QsortCore?
-	
-	public static void main(String[] args) throws Throwable {
-		try (var cb0 = Native.compar.ofInt("cb0", (i1, i2) -> Integer.compare(i1, i2));
-			var cb1 = Native.compar.ofInt("cb1", (i1, i2) -> Integer.compare(i2, i1));
-			var cb2 = Native.compar.ofInt("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3))) {
-			run(1000000, 3, cb0, cb1, cb2);
-		}
-	}
-
 	public static void qsort(Pointer.OfVoid base, int n, int size, Native.compar compar)
 		throws CException {
 		callbacks = 0;
@@ -56,10 +61,25 @@ public class Qsort {
 			"qsort", base, n, size, compar);
 	}
 
+	public static void run(int[] array, int repeats) throws Throwable {
+		try (var cb0 = Native.compar.ofInt("cb0", (i1, i2) -> Integer.compare(i1, i2));
+			var cb1 = Native.compar.ofInt("cb1", (i1, i2) -> Integer.compare(i2, i1));
+			var cb2 = Native.compar.ofInt("cb2", (i1, i2) -> Integer.compare(i1 & 3, i2 & 3))) {
+			run(array, repeats, cb0, cb1, cb2);
+		}
+	}
+
+	public static void run(int[] array, int repeats, Functions.IntBiOperator... ops)
+		throws Throwable {
+		var compars = RawArray.adaptValues(Native.compar[]::new, ops,
+			(c, o, i) -> c[i] = Native.compar.ofInt("cb" + i, o[i]));
+		run(array, repeats, compars);
+		Closeables.closeReversed(compars);
+	}
+
 	// support
 
-	private static void run(int count, int repeats, Native.compar... compars) throws Throwable {
-		int[] array = Testing.randomInts(count, 0, count);
+	private static void run(int[] array, int repeats, Native.compar... compars) throws Throwable {
 		for (int i = 0; i < repeats; i++) {
 			for (var compar : compars)
 				qsort(array, compar);

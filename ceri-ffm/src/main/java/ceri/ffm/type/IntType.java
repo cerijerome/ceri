@@ -21,7 +21,6 @@ import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.reflect.Refine.Unsigned;
-import ceri.ffm.type.Support.Typed;
 
 /**
  * Represents an immutable integer type of desired size and signedness.
@@ -155,14 +154,15 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	/**
 	 * Support for int type operations.
 	 */
-	public static class Supporter<T extends IntType<T>> extends Typed<T, ValueLayout> {
+	public static class Supporter<T extends IntType<T>> extends Support.Typed<T, ValueLayout> {
 		private final Config<T> config;
-		private final Typed<? extends Number, ? extends ValueLayout> boxed;
+		private final Support.Typed<? extends Number, ? extends ValueLayout> boxed;
 
 		private record Config<T>(Class<T> type, Spec spec,
 			Functions.Function<Number, T> constructor) {}
 
-		private Supporter(Config<T> config, Typed<? extends Number, ? extends ValueLayout> boxed) {
+		private Supporter(Config<T> config,
+			Support.Typed<? extends Number, ? extends ValueLayout> boxed) {
 			super(boxed.layout());
 			this.config = config;
 			this.boxed = boxed;
@@ -184,7 +184,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		public Class<? extends Number> nativeType() {
 			return boxed.type();
 		}
-		
+
 		/**
 		 * Returns the type specification.
 		 */
@@ -467,19 +467,14 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	private static <T extends IntType<T>> Functions.Function<Number, T>
 		constructorFor(Class<T> cls) {
 		return Handles.asFunction(Handles.constructor(cls, Number.class));
-		// var constructor = Reflect.constructor(cls, Number.class);
-		// if (constructor != null) return n -> Reflect.create(constructor, n);
-		// Handles.constructor(cls, Number.class);
-		// throw Exceptions.illegalArg("Missing constructor %s(Number n)", Reflect.name(cls));
 	}
 
 	private static <N extends Number, L extends ValueLayout> Primitive.Box<N, L> boxed(int size) {
-		var box = switch (size) {
+		return Reflect.unchecked(switch (size) {
 			case Byte.BYTES -> Primitive.Box.BYTE;
 			case Short.BYTES -> Primitive.Box.SHORT;
 			case Integer.BYTES -> Primitive.Box.INT;
 			default -> Primitive.Box.LONG;
-		};
-		return Reflect.unchecked(box);
+		});
 	}
 }

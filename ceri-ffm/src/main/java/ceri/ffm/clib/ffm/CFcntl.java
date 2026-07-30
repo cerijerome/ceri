@@ -85,9 +85,7 @@ public class CFcntl {
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags) throws CException {
-		// return caller.verifyInt(() -> lib().open(path, flags),
-		// () -> caller.failMessage("open", path, Open.string(flags)));
-		return CLib.caller.callInt(c -> c.lastError(c.lib().open(path, flags), -1),
+		return CLib.caller.verifyInt(lib -> lib.open(path, flags), -1,
 			m -> m.accept("open", path, Open.string(flags)));
 	}
 
@@ -95,9 +93,7 @@ public class CFcntl {
 	 * Opens the path with flags and mode, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
-		// return caller.verifyInt(() -> lib().open(path, flags, mode), () -> caller
-		// .failMessage("open", path, Open.string(flags), Integer.toOctalString(mode)));
-		return CLib.caller.callInt(c -> c.lastError(c.lib().open(path, flags, mode), -1),
+		return CLib.caller.verifyInt(lib -> lib.open(path, flags, mode), -1,
 			m -> m.accept("open", path, Open.string(flags), Integer.toOctalString(mode)));
 	}
 
@@ -127,10 +123,7 @@ public class CFcntl {
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
 	public static int fcntl(String name, int fd, int command, Object... objs) throws CException {
-		// return caller.verifyInt(() -> lib().fcntl(fd, command, objs), "fcntl:" + name, fd,
-		// command,
-		// objs);
-		return CLib.caller.callInt(c -> c.lastError(c.lib().fcntl(fd, command, objs), -1),
+		return CLib.caller.verifyInt(lib -> lib.fcntl(fd, command, objs), -1,
 			m -> m.accept("fcntl:" + name, fd, command, objs));
 	}
 

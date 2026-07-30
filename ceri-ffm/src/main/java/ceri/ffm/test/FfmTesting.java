@@ -217,7 +217,7 @@ public class FfmTesting {
 	/**
 	 * Allocates a segment filled with random values, and nuls at given indexes.
 	 */
-	public static MemorySegment random(int size, Support<?, ?, ?> support, double... nuls) {
+	public static MemorySegment random(int size, Support<?, ?, ?, ?> support, double... nuls) {
 		var memory = randomBytes(support.layoutSize() * size);
 		var term = support.term();
 		for (var nul : nuls)

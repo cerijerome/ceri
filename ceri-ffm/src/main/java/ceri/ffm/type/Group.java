@@ -92,7 +92,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		private final long offset;
 		private final MemoryLayout layout;
 		private final VarHandle accessor;
-		private final Support<?, ?, ?> support;
+		private final Support<?, ?, ?, ?> support;
 		private final Actions<T> actions;
 		private final boolean flex;
 
@@ -100,7 +100,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			private final String name;
 			private final TypeNode node;
 			private final VarHandle accessor;
-			private Support<?, ?, ?> support;
+			private Support<?, ?, ?, ?> support;
 			private Actions<?> actions = null;
 			private boolean flex = false;
 			MemoryLayout layout = null;
@@ -120,7 +120,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 				return this;
 			}
 
-			private Builder support(Support<?, ?, ?> support) {
+			private Builder support(Support<?, ?, ?, ?> support) {
 				this.support = support;
 				return this;
 			}
@@ -139,7 +139,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		}
 
 		private Member(String name, long offset, MemoryLayout layout, VarHandle accessor,
-			Support<?, ?, ?> support, Actions<T> actions, boolean flex) {
+			Support<?, ?, ?, ?> support, Actions<T> actions, boolean flex) {
 			this.name = name;
 			this.offset = offset;
 			this.layout = layout;
@@ -446,7 +446,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		return setMember(supports().from(member.node), member);
 	}
 
-	private static <U> Member.Builder setMember(Support<U, ?, ?> support, Member.Builder member) {
+	private static <U> Member.Builder setMember(Support<U, ?, ?, ?> support, Member.Builder member) {
 		return member.layout(support.layout()).support(support).<U>actions(support::init, null,
 			support::update, support::write);
 	}
@@ -459,7 +459,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	}
 
 	private static <A> Member.Builder setFlexMember(Member.Builder member, int size) {
-		Support<?, A, ?> support = Reflect.unchecked(supports().from(member.node.component()));
+		Support<?, A, ?, ?> support = Reflect.unchecked(supports().from(member.node.component()));
 		var layout = MemoryLayout.sequenceLayout(size, support.layout());
 		var nul = member.node.context().nul();
 		return member.flex(true).layout(layout).support(support).<A>actions(
@@ -474,7 +474,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		return dims <= 1 ? dims : INVALID;
 	}
 
-	private static <A> A flexInit(Support<?, A, ?> support, A array, int flexSize) {
+	private static <A> A flexInit(Support<?, A, ?, ?> support, A array, int flexSize) {
 		if (array == null || RawArray.length(array) != flexSize) return support.initArray(flexSize);
 		return support.initArray(array);
 	}
