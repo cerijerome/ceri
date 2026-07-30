@@ -448,12 +448,26 @@ public class Testing {
 	}
 
 	/**
+	 * Returns a random array of given size with values between inclusive bounds.
+	 */
+	public static char[] randomChars(int size, char min, char max) {
+		return random(new char[size], (a, r, i) -> a[i] = (char) r.nextInt(min, max + 1));
+	}
+
+	/**
 	 * Returns a random array of given size.
 	 */
 	public static byte[] randomBytes(int size) {
 		var array = new byte[size];
 		ThreadLocalRandom.current().nextBytes(array);
 		return array;
+	}
+
+	/**
+	 * Returns a random array of given size with values between inclusive bounds.
+	 */
+	public static byte[] randomBytes(int size, int min, int max) {
+		return random(new byte[size], (a, r, i) -> a[i] = (byte) r.nextInt(min, max + 1));
 	}
 
 	/**
@@ -464,10 +478,27 @@ public class Testing {
 	}
 
 	/**
+	 * Returns a random array of given size with values between inclusive bounds.
+	 */
+	public static short[] randomShorts(int size, int min, int max) {
+		return random(new short[size], (a, r, i) -> a[i] = (short) r.nextInt(min, max + 1));
+	}
+
+	/**
 	 * Returns a random array of given size.
 	 */
 	public static int[] randomInts(int size) {
 		return random(new int[size], (a, r, i) -> a[i] = r.nextInt());
+	}
+
+	/**
+	 * Returns a random array of given size with values between inclusive bounds.
+	 */
+	public static int[] randomInts(int size, int min, int max) {
+		if (min == Integer.MIN_VALUE && max == Integer.MAX_VALUE) return randomInts(size);
+		if (max == Integer.MAX_VALUE)
+			return random(new int[size], (a, r, i) -> a[i] = r.nextInt(min - 1, max) + 1);
+		return random(new int[size], (a, r, i) -> a[i] = r.nextInt(min, max + 1));
 	}
 
 	/**
@@ -478,6 +509,16 @@ public class Testing {
 	}
 
 	/**
+	 * Returns a random array of given size with values between inclusive bounds.
+	 */
+	public static long[] randomLongs(int size, long min, long max) {
+		if (min == Long.MIN_VALUE && max == Long.MAX_VALUE) return randomLongs(size);
+		if (max == Long.MAX_VALUE)
+			return random(new long[size], (a, r, i) -> a[i] = r.nextLong(min - 1, max) + 1);
+		return random(new long[size], (a, r, i) -> a[i] = r.nextLong(min, max + 1));
+	}
+
+	/**
 	 * Returns a random array of given size.
 	 */
 	public static float[] randomFloats(int size) {
@@ -485,10 +526,24 @@ public class Testing {
 	}
 
 	/**
+	 * Returns a random array of given size with values from inclusive to exclusive bounds.
+	 */
+	public static float[] randomFloats(int size, double min, double max) {
+		return random(new float[size], (a, r, i) -> a[i] = r.nextFloat((float) min, (float) max));
+	}
+
+	/**
 	 * Returns a random array of given size.
 	 */
 	public static double[] randomDoubles(int size) {
 		return random(new double[size], (a, r, i) -> a[i] = r.nextDouble());
+	}
+
+	/**
+	 * Returns a random array of given size with values from inclusive to exclusive bounds.
+	 */
+	public static double[] randomDoubles(int size, double min, double max) {
+		return random(new double[size], (a, r, i) -> a[i] = r.nextDouble(min, max));
 	}
 
 	/**

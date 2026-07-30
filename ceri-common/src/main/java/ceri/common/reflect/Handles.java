@@ -55,6 +55,14 @@ public class Handles {
 	private Handles() {}
 
 	/**
+	 * Returns a lookup for private methods.
+	 */
+	public static MethodHandles.Lookup privateLookup(Class<?> cls) {
+		return ExceptionAdapter.illegalArg
+			.get(() -> MethodHandles.privateLookupIn(cls, MethodHandles.lookup()));
+	}
+
+	/**
 	 * Gets a typed value from the handle.
 	 */
 	public static <T> T get(VarHandle handle) {
@@ -81,8 +89,15 @@ public class Handles {
 	 * Returns a var handle for field access.
 	 */
 	public static VarHandle handle(Field field) {
-		if (field == null) return null;
-		return get(() -> LOOKUP.unreflectVarHandle(field));
+		return handle(LOOKUP, field);
+	}
+
+	/**
+	 * Returns a var handle for field access.
+	 */
+	public static VarHandle handle(MethodHandles.Lookup lookup, Field field) {
+		if (field == null || lookup == null) return null;
+		return get(() -> lookup.unreflectVarHandle(field));
 	}
 
 	/**
@@ -151,36 +166,81 @@ public class Handles {
 	}
 
 	/**
-	 * Invokes the method, converting exceptions.
+	 * Invokes the method handle, converting exceptions.
 	 */
 	public static <E extends Exception, T> T invoke(ExceptionAdapter<? extends E> except,
 		MethodHandle handle, Object... args) throws E {
 		if (handle == null || except == null) return null;
-		return Reflect.unchecked(except.get(() -> handle.invokeWithArguments(args)));
+		return Reflect.unchecked(except.get(() -> invokeRaw(handle, args)));
+	}
+
+	/**
+	 * Invokes the method handle, avoiding invoke-with-arguments. Seems to help performance.
+	 */
+	public static Object invokeRaw(MethodHandle handle, Object[] args) throws Throwable {
+		return switch (args.length) {
+			case 0 -> handle.invoke();
+			case 1 -> handle.invoke(args[0]);
+			case 2 -> handle.invoke(args[0], args[1]);
+			case 3 -> handle.invoke(args[0], args[1], args[2]);
+			case 4 -> handle.invoke(args[0], args[1], args[2], args[3]);
+			case 5 -> handle.invoke(args[0], args[1], args[2], args[3], args[4]);
+			case 6 -> handle.invoke(args[0], args[1], args[2], args[3], args[4], args[5]);
+			case 7 -> handle.invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+			case 8 -> handle.invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6],
+				args[7]);
+			case 9 -> handle.invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6],
+				args[7], args[8]);
+			default -> handle.invokeWithArguments(args);
+		};
 	}
 
 	/**
 	 * Looks up a constructor.
 	 */
 	public static MethodHandle constructor(Class<?> cls, Class<?>... args) {
-		if (cls == null || args == null) return null;
-		return get(() -> LOOKUP.findConstructor(cls, MethodType.methodType(void.class, args)));
+		return constructor(LOOKUP, cls, args);
+	}
+
+	/**
+	 * Looks up a constructor.
+	 */
+	public static MethodHandle constructor(MethodHandles.Lookup lookup, Class<?> cls,
+		Class<?>... args) {
+		if (cls == null || args == null || lookup == null) return null;
+		return get(() -> lookup.findConstructor(cls, MethodType.methodType(void.class, args)));
 	}
 
 	/**
 	 * Gets a method handle for the method.
 	 */
 	public static MethodHandle method(Method method) {
-		if (method == null) return null;
-		return get(() -> LOOKUP.unreflect(method));
+		return method(LOOKUP, method);
+	}
+
+	/**
+	 * Gets a method handle for the method.
+	 */
+	public static MethodHandle method(MethodHandles.Lookup lookup, Method method) {
+		if (method == null || lookup == null) return null;
+		return get(() -> lookup.unreflect(method));
 	}
 
 	/**
 	 * Looks up a non-static method.
 	 */
 	public static MethodHandle method(Class<?> cls, String name, Class<?> rtn, Class<?>... args) {
-		if (cls == null || name == null || rtn == null || args == null) return null;
-		return get(() -> LOOKUP.findVirtual(cls, name, MethodType.methodType(rtn, args)));
+		return method(LOOKUP, cls, name, rtn, args);
+	}
+
+	/**
+	 * Looks up a non-static method.
+	 */
+	public static MethodHandle method(MethodHandles.Lookup lookup, Class<?> cls, String name,
+		Class<?> rtn, Class<?>... args) {
+		if (cls == null || name == null || rtn == null || args == null || lookup == null)
+			return null;
+		return get(() -> lookup.findVirtual(cls, name, MethodType.methodType(rtn, args)));
 	}
 
 	/**
@@ -188,8 +248,32 @@ public class Handles {
 	 */
 	public static MethodHandle staticMethod(Class<?> cls, String name, Class<?> rtn,
 		Class<?>... args) {
-		if (cls == null || name == null || rtn == null || args == null) return null;
-		return get(() -> LOOKUP.findStatic(cls, name, MethodType.methodType(rtn, args)));
+		return staticMethod(LOOKUP, cls, name, rtn, args);
+	}
+
+	/**
+	 * Looks up a static method.
+	 */
+	public static MethodHandle staticMethod(MethodHandles.Lookup lookup, Class<?> cls, String name,
+		Class<?> rtn, Class<?>... args) {
+		if (rtn == null || args == null) return null;
+		return staticMethod(lookup, cls, name, MethodType.methodType(rtn, args));
+	}
+
+	/**
+	 * Looks up a static method.
+	 */
+	public static MethodHandle staticMethod(Class<?> cls, String name, MethodType methodType) {
+		return staticMethod(LOOKUP, cls, name, methodType);
+	}
+
+	/**
+	 * Looks up a static method.
+	 */
+	public static MethodHandle staticMethod(MethodHandles.Lookup lookup, Class<?> cls, String name,
+		MethodType methodType) {
+		if (cls == null || name == null || methodType == null || lookup == null) return null;
+		return get(() -> lookup.findStatic(cls, name, methodType));
 	}
 
 	/**

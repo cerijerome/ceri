@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.Date;
 import org.junit.Test;
 import ceri.common.array.Array;
@@ -450,6 +451,10 @@ public class ReflectTest {
 	public void testMethodDescriptor() {
 		Assert.string(Reflect.descriptor(null), "null");
 		Assert.string(Reflect.descriptor(Error.M_error), "String error(int)");
+		Assert.string(Reflect.descriptor(Reflect.publicMethod(Arrays.class, "asList")),
+			"List asList(Object...)");
+		Assert.string(Reflect.descriptor(Reflect.publicMethod(String.class, "format")),
+			"String format(String, Object...)");
 	}
 
 	@Test

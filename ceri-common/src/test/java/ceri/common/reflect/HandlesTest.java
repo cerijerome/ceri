@@ -2,8 +2,11 @@ package ceri.common.reflect;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Throws;
@@ -42,12 +45,24 @@ public class HandlesTest {
 		public static int s(int i) {
 			return C.i - i;
 		}
+
+		@SuppressWarnings("unused")
+		private static int i() {
+			return -1;
+		}
 	}
 
 	@Test
 	public void testAddExactInt() throws Throwable {
 		Assert.equal(Handles.Math.addExact(-1).invoke(3), 2);
 		Assert.equal(Handles.Math.addExact(-1L).invoke(3), 2L);
+	}
+
+	@Test
+	public void testPrivateLookup() {
+		var lookup = Handles.privateLookup(C.class);
+		var h = Handles.staticMethod(lookup, C.class, "i", int.class);
+		Assert.equal(Handles.invoke(h), -1);
 	}
 
 	@Test
@@ -109,6 +124,17 @@ public class HandlesTest {
 	}
 
 	@Test
+	public void testInvokeRaw() throws Throwable {
+		var h = Handles.staticMethod(Arrays.class, "asList", List.class, Object[].class);
+		for (int i = 0; i < 11; i++) {
+			var args = new Integer[i];
+			for (int j = 0; j < args.length; j++)
+				args[j] = j;
+			Assert.ordered(Reflect.<Iterable<Integer>>unchecked(Handles.invokeRaw(h, args)), args);
+		}
+	}
+
+	@Test
 	public void testConstructor() {
 		Assert.equal(Handles.constructor(null), null);
 		Assert.equal(Handles.constructor(C.class, NULL_CS), null);
@@ -133,12 +159,23 @@ public class HandlesTest {
 	}
 
 	@Test
-	public void testStaticMethod() {
+	public void testStaticMethodByClass() {
 		Assert.equal(Handles.staticMethod(null, "a", int.class, int.class), null);
 		Assert.equal(Handles.staticMethod(C.class, null, int.class, int.class), null);
 		Assert.equal(Handles.staticMethod(C.class, "a", null, int.class), null);
 		Assert.equal(Handles.staticMethod(C.class, "a", int.class, NULL_CS), null);
 		Assert.equal(Handles.invoke(C.MS, -3), 2);
+	}
+
+	@Test
+	public void testStaticMethodByType() {
+		var methodType = MethodType.methodType(int.class, int.class);
+		Assert.equal(Handles.staticMethod(null, C.class, "s", methodType), null);
+		Assert.equal(Handles.staticMethod(null, "s", methodType), null);
+		Assert.equal(Handles.staticMethod(C.class, null, methodType), null);
+		Assert.equal(Handles.staticMethod(C.class, "s", (MethodType) null), null);
+		var ms = Handles.staticMethod(C.class, "s", methodType);
+		Assert.equal(Handles.invoke(ms, -3), 2);
 	}
 
 	@Test

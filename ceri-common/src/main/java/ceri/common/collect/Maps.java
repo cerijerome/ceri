@@ -577,11 +577,11 @@ public class Maps {
 	}
 
 	/**
-	 * Returns the mapped value for the key; returns null if no mapping, or the map is null.
+	 * Returns the mapped value for the key; throws exception if no mapping. Null values allowed.
 	 */
 	public static <K, V> V getOrThrow(Map<K, V> map, K key) {
 		var value = Validate.nonNull(map, "map").get(key);
-		if (value != null || map.containsKey(key)) return value; // not atomic for null value
+		if (value != null || map.containsKey(key)) return value; // non-atomic for null value
 		throw new IllegalArgumentException("Key not found: " + key);
 	}
 

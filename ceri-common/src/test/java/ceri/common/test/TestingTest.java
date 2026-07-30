@@ -213,21 +213,82 @@ public class TestingTest {
 	}
 
 	@Test
-	public void testRandomBool() {
+	public void testRandomBools() {
 		Testing.randomBool();
+		Assert.equal(Testing.randomBools(5).length, 5);
 	}
 
 	@Test
-	public void testRandomArrays() {
-		Assert.equal(Testing.randomBools(5).length, 5);
-		Assert.equal(Testing.randomChars(4).length, 4);
-		Assert.equal(Testing.randomBytes(0).length, 0);
-		Assert.equal(Testing.randomBytes(100).length, 100);
-		Assert.equal(Testing.randomShorts(3).length, 3);
+	public void testRandomChars() {
+		Assert.equal(Testing.randomChars(2).length, 2);
+		var a = Testing.randomChars(3, 'a', 'c');
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, 'a', 'c');
+	}
+
+	@Test
+	public void testRandomBytes() {
+		Assert.equal(Testing.randomBytes(2).length, 2);
+		var a = Testing.randomBytes(3, -3, 3);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, -3, 3);
+	}
+
+	@Test
+	public void testRandomShorts() {
+		Assert.equal(Testing.randomShorts(2).length, 2);
+		var a = Testing.randomShorts(3, -3, 3);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, -3, 3);
+	}
+
+	@Test
+	public void testRandomInts() {
 		Assert.equal(Testing.randomInts(2).length, 2);
-		Assert.equal(Testing.randomLongs(3).length, 3);
-		Assert.equal(Testing.randomFloats(4).length, 4);
-		Assert.equal(Testing.randomDoubles(5).length, 5);
+		Assert.equal(Testing.randomInts(3, Integer.MIN_VALUE, Integer.MAX_VALUE).length, 3);
+		var a = Testing.randomInts(3, Integer.MAX_VALUE - 2, Integer.MAX_VALUE);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, Integer.MAX_VALUE - 2, Integer.MAX_VALUE);
+		a = Testing.randomInts(3, Integer.MIN_VALUE, Integer.MIN_VALUE + 2);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, Integer.MIN_VALUE, Integer.MIN_VALUE + 2);
+	}
+
+	@Test
+	public void testRandomLongs() {
+		Assert.equal(Testing.randomLongs(2).length, 2);
+		Assert.equal(Testing.randomLongs(3, Long.MIN_VALUE, Long.MAX_VALUE).length, 3);
+		var a = Testing.randomLongs(3, Long.MAX_VALUE - 2, Long.MAX_VALUE);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, Long.MAX_VALUE - 2, Long.MAX_VALUE);
+		a = Testing.randomLongs(3, Long.MIN_VALUE, Long.MIN_VALUE + 2);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, Long.MIN_VALUE, Long.MIN_VALUE + 2);
+	}
+
+	@Test
+	public void testRandomFloats() {
+		Assert.equal(Testing.randomFloats(2).length, 2);
+		var a = Testing.randomFloats(3, -3, 3);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, -3, 3);
+	}
+
+	@Test
+	public void testRandomDoubles() {
+		Assert.equal(Testing.randomDoubles(2).length, 2);
+		var a = Testing.randomDoubles(3, -3, 3);
+		Assert.equal(a.length, 3);
+		for (var r : a)
+			Assert.range(r, -3, 3);
 	}
 
 	@Test

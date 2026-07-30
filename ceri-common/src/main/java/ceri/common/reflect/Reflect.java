@@ -607,8 +607,13 @@ public class Reflect {
 	public static String descriptor(Method method) {
 		if (method == null) return Strings.NULL;
 		var b =
-			new StringBuilder(name(method.getReturnType())).append(' ').append(method.getName());
-		return Joiner.PARAM.appendAll(b, p -> name(p.getType()), method.getParameters()).toString();
+			new StringBuilder(simple(method.getReturnType())).append(' ').append(method.getName());
+		var params = method.getParameters();
+		return Joiner.PARAM.appendByIndex(b, i -> {
+			var type = params[i].getType();
+			if (i < params.length - 1 || !method.isVarArgs()) return simple(type);
+			return simple(type.getComponentType()) + "...";
+		}, params.length).toString();
 	}
 
 	/**
