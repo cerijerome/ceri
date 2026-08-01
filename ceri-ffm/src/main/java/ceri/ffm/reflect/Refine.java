@@ -31,11 +31,11 @@ public class Refine {
 	public static final int UNSPECIFIED = -1;
 
 	/**
-	 * Method marker to capture last error.
+	 * Method marker to capture last error number.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.TYPE, ElementType.METHOD })
-	public @interface LastError {
+	public @interface ErrNo {
 		boolean value() default true;
 	}
 
@@ -638,8 +638,8 @@ public class Refine {
 	/**
 	 * Extract last error capture directive from annotated type.
 	 */
-	public static Boolean lastError(AnnotatedElement element, Boolean def) {
-		return Annotations.resolve(element, LastError.class, LastError::value, def);
+	public static Boolean errNo(AnnotatedElement element, Boolean def) {
+		return Annotations.resolve(element, ErrNo.class, ErrNo::value, def);
 	}
 
 	// support

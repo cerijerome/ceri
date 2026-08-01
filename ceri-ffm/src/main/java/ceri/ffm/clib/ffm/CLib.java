@@ -5,7 +5,7 @@ import ceri.common.util.Os;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Library;
-import ceri.ffm.reflect.Refine.LastError;
+import ceri.ffm.reflect.Refine.ErrNo;
 import ceri.ffm.reflect.Refine.Out;
 import ceri.ffm.type.IntType.CUlong;
 import ceri.ffm.type.IntType.size_t;
@@ -40,16 +40,16 @@ public class CLib {
 		int pipe(@Out int[] pipefd);
 
 		// ssize_t read(int fd, void *buf, size_t count)
-		ssize_t read(int fd, Pointer<?> buffer, size_t len);
+		ssize_t read(int fd, MemorySegment buffer, size_t len);
 
 		// ssize_t write(int fd, const void *buf, size_t count)
-		ssize_t write(int fd, Pointer<?> buffer, size_t len);
+		ssize_t write(int fd, MemorySegment buffer, size_t len);
 
 		// off_t lseek(int fd, off_t offset, int whence)
 		int lseek(int fd, int offset, int whence);
 
 		// int getpagesize(void)
-		@LastError(false) // errno not set
+		@ErrNo(false) // errno not set
 		int getpagesize();
 
 		// <signal.h>
@@ -58,20 +58,20 @@ public class CLib {
 		MemorySegment signal(int signum, MemorySegment handler);
 
 		// int raise(int sig)
-		@LastError(false) // ignore errno
+		@ErrNo(false) // ignore errno
 		int raise(int sig);
 
 		// int sigemptyset(sigset_t *set);
 		int sigemptyset(Pointer<sigset_t> set);
 
 		// int sigaddset(sigset_t *set, int signum);
-		// int sigaddset(Pointer set, int signum);
+		int sigaddset(Pointer<sigset_t> set, int signum);
 
 		// int sigdelset(sigset_t *set, int signum);
-		// int sigdelset(Pointer set, int signum);
+		int sigdelset(Pointer<sigset_t> set, int signum);
 
 		// int sigismember(const sigset_t *set, int signum);
-		// int sigismember(Pointer set, int signum);
+		int sigismember(Pointer<sigset_t> set, int signum);
 
 		// <poll.h>
 
@@ -85,7 +85,6 @@ public class CLib {
 		// <fcntl.h>
 
 		// int open(const char *pathname, int flags, ...)
-		// int open(String path, int flags, Object... args);
 		int open(String path, int flags, Object... args);
 
 		// int fcntl(int fd, int cmd, ...);
@@ -94,7 +93,7 @@ public class CLib {
 		// <sys/ioctl.h>
 
 		// int ioctl(int d, unsigned long request, ...)
-		int ioctl(int fd, CUlong request, Object... objs);
+		int ioctl(int fd, CUlong request, Object... args);
 
 		// <termios.h>
 
@@ -146,12 +145,12 @@ public class CLib {
 		int setenv(String name, String value, int overwrite);
 
 		// char *getenv(const char *name)
-		@LastError(false) // errno not set
+		@ErrNo(false) // errno not set
 		String getenv(String name);
 
 		// <string.h>
 
-		@LastError(false) // don't capture errno
+		@ErrNo(false) // don't capture errno
 		String strerror(int errnum);
 	}
 

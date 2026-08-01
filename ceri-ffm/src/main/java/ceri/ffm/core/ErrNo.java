@@ -13,19 +13,18 @@ import ceri.ffm.clib.ffm.CString;
 /**
  * Support for capturing last error codes.
  */
-public class LastError {
+public class ErrNo {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final StructLayout CAPTURE_STATE_LAYOUT = Linker.Option.captureStateLayout();
-	private static final String ERRNO_FIELD = "errno";
-	private static final VarHandle ERRNO_HANDLE =
-		CAPTURE_STATE_LAYOUT.varHandle(PathElement.groupElement(ERRNO_FIELD));
-	public static final Linker.Option OPTION = Linker.Option.captureCallState(ERRNO_FIELD);
-	private static final String UNKNOWN = "Unknown error";
+	private static final String FIELD = "errno";
+	private static final VarHandle HANDLE =
+		CAPTURE_STATE_LAYOUT.varHandle(PathElement.groupElement(FIELD));
+	public static final Linker.Option OPTION = Linker.Option.captureCallState(FIELD);
 	private static final String OK_MESSAGE = "OK";
 	public static final int OK = 0;
-	private static final ThreadLocal<Integer> lastError = ThreadLocal.withInitial(() -> OK);
+	private static final ThreadLocal<Integer> errNo = ThreadLocal.withInitial(() -> OK);
 
-	private LastError() {}
+	private ErrNo() {}
 
 	/**
 	 * Creates an error code capture argument.
@@ -38,8 +37,8 @@ public class LastError {
 	 * Extracts the error code from the call argument after the call, and saves to thread-local.
 	 */
 	public static int save(MemorySegment arg) {
-		int errno = (int) ERRNO_HANDLE.get(arg, 0);
-		lastError.set(errno);
+		int errno = (int) HANDLE.get(arg, 0);
+		set(errno);
 		return errno;
 	}
 
@@ -47,17 +46,24 @@ public class LastError {
 	 * Returns the error code currently saved to thread-local.
 	 */
 	public static int get() {
-		return lastError.get();
+		return errNo.get();
 	}
 
 	/**
-	 * Looks up the description of the error code; returns empty string if not found.
+	 * Save the error code to thread-local.
+	 */
+	public static void set(int errno) {
+		errNo.set(errno);
+	}
+
+	/**
+	 * Looks up the description of the error code; returns empty string if unknown.
 	 */
 	public static String message(int code) {
 		if (code == OK) return OK_MESSAGE;
 		try {
 			var s = CString.strerror(code);
-			return s.startsWith(UNKNOWN) ? "" : s;
+			return s.endsWith(": " + code) ? "" : s; // "Unknown error: <code>"
 		} catch (RuntimeException e) {
 			logger.warn(e.getMessage());
 			return "";

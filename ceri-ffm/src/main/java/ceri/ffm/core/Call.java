@@ -253,7 +253,7 @@ public class Call {
 			int index = 0;
 			nativeArgs[index++] = pointer;
 			if (groupReturn) nativeArgs[index++] = allocator;
-			if (lastError) nativeArgs[index++] = LastError.capture(allocator);
+			if (lastError) nativeArgs[index++] = ErrNo.capture(allocator);
 			for (var adaptedArg : adaptedArgs)
 				nativeArgs[index++] = adaptedArg.value();
 			return nativeArgs;
@@ -264,7 +264,7 @@ public class Call {
 		}
 
 		private void resolveArgs(List<Native.Adapted<?>> adaptedArgs, Object[] nativeArgs) {
-			if (lastError) LastError.save((MemorySegment) nativeArgs[lastErrorIndex()]);
+			if (lastError) ErrNo.save((MemorySegment) nativeArgs[lastErrorIndex()]);
 			for (var adaptedArg : adaptedArgs)
 				adaptedArg.resolve();
 		}
@@ -425,7 +425,7 @@ public class Call {
 	public static Config config(Method method) {
 		var b = new Builder(method).rtn(rtn(method));
 		addArgs(b, method);
-		if (Refine.lastError(method, true)) b.lastError();
+		if (Refine.errNo(method, true)) b.lastError();
 		return b.build();
 	}
 
@@ -551,7 +551,7 @@ public class Call {
 		if (count == 0) return NO_OPTIONS;
 		var options = new Linker.Option[count];
 		if (varArg >= 0) options[--count] = Linker.Option.firstVariadicArg(varArg);
-		if (lastError) options[--count] = LastError.OPTION;
+		if (lastError) options[--count] = ErrNo.OPTION;
 		return options;
 	}
 

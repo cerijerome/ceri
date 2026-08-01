@@ -142,25 +142,16 @@ public class Caller<E extends Exception, T> {
 		/**
 		 * Returns the last error code.
 		 */
-		public int lastErrorCode() {
-			return LastError.get();
-		}
-
-		/**
-		 * If the call result matches the given error value, the last error will generate an
-		 * exception on call completion.
-		 */
-		public int lastError(int result, int error) {
-			if (result == error) lastError();
-			return result;
+		public int errNo() {
+			return ErrNo.get();
 		}
 
 		/**
 		 * Verifies the last error; a non-zero code will generate an exception on call completion.
 		 */
-		public void lastError() {
-			int code = lastErrorCode();
-			if (code != LastError.OK) fail(code);
+		public void verify() {
+			int code = errNo();
+			if (code != ErrNo.OK) fail(code);
 		}
 	}
 
@@ -174,8 +165,8 @@ public class Caller<E extends Exception, T> {
 	/**
 	 * Creates caller configuration with argument formatter and exception adapter.
 	 */
-	public static <E extends Exception, T> Caller<E, T> of(
-		ToException<E> exceptionFn, Functions.Supplier<T> lib) {
+	public static <E extends Exception, T> Caller<E, T> of(ToException<E> exceptionFn,
+		Functions.Supplier<T> lib) {
 		return of(Transform.COMPACT, -1, exceptionFn, lib);
 	}
 
@@ -253,8 +244,8 @@ public class Caller<E extends Exception, T> {
 	/**
 	 * Executes the call and returns an int, checking last error if the error code is returned.
 	 */
-	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error,
-		String name, Object... args) throws E {
+	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error, String name, Object... args)
+		throws E {
 		return verifyInt(call, error, m -> m.accept(name, args));
 	}
 
@@ -263,7 +254,30 @@ public class Caller<E extends Exception, T> {
 	 */
 	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error,
 		Functions.Function<CallDescriptor, String> callDesc) throws E {
-		return callInt(c -> c.lastError(call.applyAsInt(c.lib()), error), callDesc);
+		return callInt(c -> {
+			int result = call.applyAsInt(c.lib());
+			if (result == error) c.verify();
+			return result;
+		}, callDesc);
+	}
+
+	/**
+	 * Executes the call and returns a type, checking last error if null is returned.
+	 */
+	public <R> R verifyType(Excepts.Function<?, T, R> call, String name, Object... args) throws E {
+		return verifyType(call, m -> m.accept(name, args));
+	}
+
+	/**
+	 * Executes the call and returns a type, checking last error if null is returned.
+	 */
+	public <R> R verifyType(Excepts.Function<?, T, R> call,
+		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		return callType(c -> {
+			var result = call.apply(c.lib());
+			if (result == null) c.verify();
+			return result;
+		}, callDesc);
 	}
 
 	// support

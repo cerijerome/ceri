@@ -6,7 +6,7 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.text.Strings;
-import ceri.ffm.core.LastError;
+import ceri.ffm.core.ErrNo;
 
 @SuppressWarnings("serial")
 public class CException extends IOException {
@@ -54,8 +54,8 @@ public class CException extends IOException {
 	 * Throws a detailed exception if last error code is set.
 	 */
 	public static void lastError() throws CException {
-		int code = LastError.get();
-		if (code != LastError.OK) throw full(code, "");
+		int code = ErrNo.get();
+		if (code != ErrNo.OK) throw full(code, "");
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class CException extends IOException {
 		var b = new StringBuilder("[").append(code).append(']');
 		int n = b.length();
 		var errNo = CErrNo.from(code);
-		var errMsg = LastError.message(code);
+		var errMsg = ErrNo.message(code);
 		var message = Strings.format(format, args);
 		if (errNo.defined()) b.append(' ').append(errNo.name());
 		if (Strings.nonEmpty(errMsg)) b.append(' ').append(errMsg);

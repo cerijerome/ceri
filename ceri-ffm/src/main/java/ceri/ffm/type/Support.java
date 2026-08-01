@@ -560,6 +560,13 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Creates a typed pointer for the memory segment.
 	 */
+	public P pointer() {
+		return pointer(alloc());
+	}
+	
+	/**
+	 * Creates a typed pointer for the memory segment.
+	 */
 	public P pointer(MemorySegment memory) {
 		return pointer(memory, false);
 	}

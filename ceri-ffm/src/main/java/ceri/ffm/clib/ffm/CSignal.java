@@ -102,6 +102,16 @@ public class CSignal {
 	}
 
 	/**
+	 * Represents a sigset_t instance; underlying OS may use an integer type or struct.
+	 */
+	@CType(attrs = CType.Attr.typedef)
+	@Fields({ "bytes" })
+	public static class sigset_t extends Struct<sigset_t> {
+		public static final Struct.Supporter<sigset_t> $ = Struct.support(sigset_t.class);
+		public byte[] bytes = new byte[SIGSET_T_SIZE];
+	}
+
+	/**
 	 * An encapsulation of system and custom signal handlers.
 	 */
 	@CUndefined
@@ -155,19 +165,24 @@ public class CSignal {
 	}
 
 	/**
-	 * Sets a signal handler. Returns true if the result is not SIG_ERR.
+	 * Sets a signal handler. Returns the previous handler.
 	 */
 	public static sighandler signal(int signum, sighandler_t handler) throws CException {
 		return signal(signum, Callback.pointer(handler), handler);
 	}
 
 	/**
-	 * Sets a standard signal handler SIG_DFL or SIG_IGN. Returns true if the result is not SIG_ERR.
+	 * Sets the signal handler to SIG_DFL. Returns the previous handler.
 	 */
-	public static sighandler signal(int signum, int handler) throws CException {
-		if (handler != SIG_DFL && handler != SIG_IGN)
-			throw CErrNo.EINVAL.error("Only SIG_DFL or SIG_IGN allowed: %d", handler);
-		return signal(signum, MemorySegment.ofAddress(handler), handler);
+	public static sighandler signalDefault(int signum) throws CException {
+		return signal(signum, MemorySegment.ofAddress(SIG_DFL), SIG_DFL);
+	}
+
+	/**
+	 * Sets the signal handler to SIG_DFL. Returns the previous handler.
+	 */
+	public static sighandler signalIgnore(int signum) throws CException {
+		return signal(signum, MemorySegment.ofAddress(SIG_IGN), SIG_IGN);
 	}
 
 	/**
@@ -178,16 +193,6 @@ public class CSignal {
 	}
 
 	/**
-	 * Represents a sigset_t instance; underlying OS may use an integer type or struct.
-	 */
-	@CType(attrs = CType.Attr.typedef)
-	@Fields({ "bytes" })
-	public static class sigset_t extends Struct<sigset_t> {
-		public static final Struct.Supporter<sigset_t> $ = Struct.support(sigset_t.class);
-		public byte[] bytes = new byte[SIGSET_T_SIZE];
-	}
-
-	/**
 	 * Initializes a signal set.
 	 */
 	public static Pointer<sigset_t> sigemptyset(Pointer<sigset_t> set) throws CException {
@@ -195,27 +200,29 @@ public class CSignal {
 		return set;
 	}
 
-	// /**
-	// * Add signal to the set.
-	// */
-	// public static void sigaddset(sigset_t set, int signum) throws CException {
-	// caller.verify(() -> lib().sigaddset(set.getPointer(), signum), "sigaddset", set, signum);
-	// }
-	//
-	// /**
-	// * Delete signal from the set.
-	// */
-	// public static void sigdelset(sigset_t set, int signum) throws CException {
-	// caller.verify(() -> lib().sigdelset(set.getPointer(), signum), "sigdelset", set, signum);
-	// }
-	//
-	// /**
-	// * Returns true if the set contains the signal.
-	// */
-	// public static boolean sigismember(sigset_t set, int signum) throws CException {
-	// return caller.verifyInt(() -> lib().sigismember(set.getPointer(), signum), "sigismember",
-	// set, signum) == 1;
-	// }
+	/**
+	 * Adds the signal number to the set.
+	 */
+	public static Pointer<sigset_t> sigaddset(Pointer<sigset_t> set, int signum) throws CException {
+		CLib.caller.verifyInt(lib -> lib.sigaddset(set, signum), -1, "sigaddset", set, signum);
+		return set;
+	}
+
+	/**
+	 * Deletes the signal number from the set.
+	 */
+	public static Pointer<sigset_t> sigdelset(Pointer<sigset_t> set, int signum) throws CException {
+		CLib.caller.verifyInt(lib -> lib.sigdelset(set, signum), -1, "sigdelset", set, signum);
+		return set;
+	}
+
+	/**
+	 * Returns true if the set contains the signal number.
+	 */
+	public static boolean sigismember(Pointer<sigset_t> set, int signum) throws CException {
+		return CLib.caller.verifyInt(lib -> lib.sigismember(set, signum), -1, "sigismember", set,
+			signum) == 1;
+	}
 
 	// support
 
@@ -223,7 +230,7 @@ public class CSignal {
 		throws CException {
 		return CLib.caller.callType(c -> {
 			var previous = new sighandler(c.lib().signal(signum, handler));
-			if (previous.isError()) c.lastError();
+			if (previous.isError()) c.verify();
 			return previous;
 		}, "signal", signum, arg);
 	}

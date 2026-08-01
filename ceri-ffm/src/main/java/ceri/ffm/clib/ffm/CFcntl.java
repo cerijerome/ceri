@@ -52,8 +52,45 @@ public class CFcntl {
 		};
 		public final int value;
 
-		public static String string(int value) {
-			return Joiner.OR.join(xcoder.decodeAll(value));
+		/**
+		 * Holds a combined flag value.
+		 */
+		public record Flags(int value) {
+			/**
+			 * Decode the value to flag enums.
+			 */
+			public Set<Open> flags() {
+				return xcoder.decodeAll(value());
+			}
+
+			@Override
+			public String toString() {
+				return Joiner.OR.join(flags());
+			}
+		}
+
+		/**
+		 * Holds a mode value.
+		 */
+		public record Mode(int value) {
+			@Override
+			public final String toString() {
+				return Integer.toOctalString(value());
+			}
+		}
+
+		/**
+		 * Encapsulates open flags.
+		 */
+		public static Flags flags(int value) {
+			return new Flags(value);
+		}
+
+		/**
+		 * Encapsulates open mode.
+		 */
+		public static Mode mode(int value) {
+			return new Mode(value);
 		}
 
 		private Open(int value) {
@@ -86,7 +123,7 @@ public class CFcntl {
 	 */
 	public static int open(String path, int flags) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.open(path, flags), -1,
-			m -> m.accept("open", path, Open.string(flags)));
+			m -> m.accept("open", path, Open.flags(flags)));
 	}
 
 	/**
@@ -94,7 +131,7 @@ public class CFcntl {
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.open(path, flags, mode), -1,
-			m -> m.accept("open", path, Open.string(flags), Integer.toOctalString(mode)));
+			m -> m.accept("open", path, Open.flags(flags), Open.mode(mode)));
 	}
 
 	/**

@@ -6,8 +6,8 @@ import ceri.common.test.BinaryPrinter;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.ffm.CSignal.sighandler_t;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
+import ceri.ffm.core.ErrNo;
 import ceri.ffm.test.FfmTesting;
-import ceri.ffm.type.Pointer;
 
 public class CLibTester {
 	private static final String FILE = "file.txt";
@@ -67,14 +67,14 @@ public class CLibTester {
 
 	private static void runEnv() throws CException {
 		var key = "CERI_TEST";
+		System.out.printf("null = %s%n", CStdLib.getenv(null));
+		System.out.printf("\"\" = %s%n", CStdLib.getenv(""));
 		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
 		CStdLib.setenv(key, "hello1", false);
 		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
 		CStdLib.setenv(key, "hello2", true);
 		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
 		CStdLib.setenv(key, "hello3", false);
-		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
-		key = "";
 		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
 		try {
 			CStdLib.setenv(key, "hello4", true);
@@ -92,9 +92,9 @@ public class CLibTester {
 			previous = CSignal.signal(signum, sh2);
 			previous.invoke(signum);
 			CSignal.raise(signum);
-			previous = CSignal.signal(signum, 0);
+			previous = CSignal.signalDefault(signum);
 			previous.invoke(signum);
-			previous = CSignal.signal(signum, 1);
+			previous = CSignal.signalIgnore(signum);
 			previous.invoke(signum);
 			CSignal.raise(signum);
 			previous = CSignal.signal(signum, sh1);
@@ -104,9 +104,16 @@ public class CLibTester {
 	}
 
 	private static void runSigSet() throws CException {
-		var set = new sigset_t();
-		var m = sigset_t.$.alloc(set);
-		var p = Pointer.of(m, sigset_t.$);
-		CSignal.sigemptyset(p);
+		int signum1 = CSignal.SIGUSR1;
+		int signum2 = CSignal.SIGUSR2;
+		var set = sigset_t.$.pointer();
+		CSignal.sigemptyset(set);
+		CSignal.sigaddset(set, signum1);
+		CSignal.sigaddset(set, signum2);
+		System.out.printf("sigadd 1 2 => %s %s%n", CSignal.sigismember(set, signum1),
+			CSignal.sigismember(set, signum2));
+		CSignal.sigdelset(set, signum2);
+		System.out.printf("sigdel - 2 => %s %s%n", CSignal.sigismember(set, signum1),
+			CSignal.sigismember(set, signum2));
 	}
 }

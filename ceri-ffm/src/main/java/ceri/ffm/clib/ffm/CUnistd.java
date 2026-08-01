@@ -3,12 +3,13 @@ package ceri.ffm.clib.ffm;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Set;
-import ceri.common.util.Validate;
-import ceri.ffm.core.Segments;
+import ceri.common.array.Array;
+import ceri.common.function.Excepts;
+import ceri.common.math.Maths;
 import ceri.ffm.reflect.CAnnotations.CInclude;
-import ceri.ffm.type.Pointer;
-import ceri.ffm.type.Primitive;
 import ceri.ffm.type.IntType.size_t;
+import ceri.ffm.type.Memory;
+import ceri.ffm.type.Primitive;
 
 /**
  * Types and functions from {@code <unistd.h>}
@@ -74,477 +75,266 @@ public class CUnistd {
 	}
 
 	/**
-	 * Reads up to length bytes into the buffer. Returns the number of bytes read, or 0 on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes into the buffer. Returns the number of bytes read, or 0 on EAGAIN/EWOULDBLOCK
+	 * (with O_NONBLOCK) and EINTR errors.
 	 */
-	public static int read(int fd, Pointer<?> buffer, int length) throws CException {
-		if (length == 0) return 0;
+	public static int read(int fd, MemorySegment buffer) throws CException {
+		return read(fd, buffer, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Reads bytes into the buffer. Returns the number of bytes read, or 0 on EAGAIN/EWOULDBLOCK
+	 * (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int read(int fd, MemorySegment buffer, int length) throws CException {
+		int n = Memory.limitInt(buffer, length);
+		if (n == 0) return 0;
 		return CLib.caller.callInt(c -> {
-			int result = c.lib().read(fd, buffer, new size_t(length)).intValue();
+			int result = c.lib().read(fd, buffer, new size_t(n)).intValue();
 			if (result != -1) return result;
-			int code = c.lastErrorCode();
+			int code = c.errNo();
 			if (!NONBLOCK_ERRORS.contains(code)) c.fail(code);
 			return 0;
 		}, "read", fd, buffer, length);
 	}
 
 	/**
-	 * Reads bytes into a new buffer and copies to the byte array. Returns the number of bytes read,
-	 * or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes and copies to the byte array. Returns the number of bytes read, or 0 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes) throws CException {
 		return read(fd, bytes, 0);
 	}
 
 	/**
-	 * Reads bytes into a new buffer and copies to the byte array. Returns the number of bytes read,
-	 * or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes and copies to the byte array. Returns the number of bytes read, or 0 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes, int offset) throws CException {
-		return read(fd, bytes, offset, bytes.length - offset);
+		return read(fd, bytes, offset, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Reads up to length bytes into a new buffer and copies to the byte array. Returns the number
-	 * of bytes read, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes and copies to the byte array. Returns the number of bytes read, or 0 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes, int offset, int length) throws CException {
-		try (var arena = Arena.ofConfined()) {
-			return read(fd, Pointer.of(arena.allocate(length)), bytes, offset, length);
-		}
+		return applySlice(bytes, offset, length, (o, l) -> {
+			try (var arena = Arena.ofConfined()) {
+				var buffer = arena.allocate(l);
+				int n = read(fd, buffer);
+				if (n > 0) Primitive.BYTE.readArray(buffer, 0, n, bytes, o, n, false);
+				return n;
+			}
+		});
 	}
 
 	/**
-	 * Reads bytes into the buffer and copies to the byte array. Returns the number of bytes read,
-	 * or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors. The length must not be larger
-	 * than the buffer size.
-	 */
-	public static int read(int fd, Pointer<?> buffer, byte[] bytes) throws CException {
-		return read(fd, buffer, bytes, 0);
-	}
-
-	/**
-	 * Reads bytes into the buffer and copies to the byte array. Returns the number of bytes read,
-	 * or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors. The length must not be larger
-	 * than the buffer size.
-	 */
-	public static int read(int fd, Pointer<?> buffer, byte[] bytes, int offset) throws CException {
-		return read(fd, buffer, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Reads up to length bytes into the buffer and copies to the byte array. Returns the number of
-	 * bytes read, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors. The length must
-	 * not be larger than the buffer size.
-	 */
-	public static int read(int fd, Pointer<?> buffer, byte[] bytes, int offset, int length)
-		throws CException {
-		int n = read(fd, buffer, length);
-		Primitive.BYTE.readArray(buffer.memory(), 0, Integer.MAX_VALUE, bytes, offset, n, false);
-		return n;
-	}
-
-	/**
-	 * Reads up to length bytes into a new buffer and returns a new byte array. Returns empty array
-	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Reads and returns a new byte array up to specified size. Returns empty array on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static byte[] readBytes(int fd, int length) throws CException {
+		if (length <= 0) return Array.BYTE.empty;
 		try (var arena = Arena.ofConfined()) {
-			return readBytes(fd, arena.allocate(length));
+			var buffer = arena.allocate(length);
+			int n = read(fd, buffer);
+			return Primitive.BYTE.getArray(buffer, 0, n, false);
 		}
 	}
 
 	/**
-	 * Reads bytes into the buffer and returns a new byte array. Returns empty array on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Calls read() incrementally until buffer is full, or read() returns 0. May block without
+	 * O_NONBLOCK. Returns the total number of bytes read.
 	 */
-	public static byte[] readBytes(int fd, MemorySegment buffer) throws CException {
-		return readBytes(fd, Pointer.of(buffer), Segments.sizeInt(buffer));
+	public static int readAll(int fd, MemorySegment buffer) throws CException {
+		return readAll(fd, buffer, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Reads up to length bytes into the buffer and returns a new byte array. Returns empty array on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
+	 * block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
-	public static byte[] readBytes(int fd, Pointer<?> buffer, int length) throws CException {
-		int n = read(fd, buffer, length);
-		return Primitive.BYTE.getArray(buffer.memory(), 0, n, false);
-	}
-
-	/**
-	 * Calls read() incrementally over the buffer, until length bytes are read, or read() returns 0.
-	 * May block without O_NONBLOCK. Returns the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer<?> buffer, int length) throws CException {
+	public static int readAll(int fd, MemorySegment buffer, int length) throws CException {
+		length = Memory.limitInt(buffer, length);
 		int rem = length;
 		while (rem > 0) {
 			int n = read(fd, buffer, rem);
 			if (n <= 0) break; // n < rem?
 			rem -= n;
-			buffer = buffer.slice(n);
+			buffer = buffer.asSlice(n);
 		}
 		return length - rem;
 	}
 
 	/**
-	 * Calls read() incrementally over a new buffer, until length bytes are read, or read() returns
-	 * 0. May block without O_NONBLOCK. Returns the total bytes read as a new array.
-	 */
-	public static byte[] readAllBytes(int fd, int length) throws CException {
-		try (var arena = Arena.ofConfined()) {
-			return readAllBytes(fd, arena.allocate(length));
-		}
-	}
-
-	/**
-	 * Calls read() incrementally over the buffer, until full, or read() returns 0. May block
-	 * without O_NONBLOCK. Returns the total bytes read as a new array.
-	 */
-	public static byte[] readAllBytes(int fd, MemorySegment buffer) throws CException {
-		return readAllBytes(fd, Pointer.of(buffer), Segments.sizeInt(buffer));
-	}
-
-	/**
-	 * Calls read() incrementally over the buffer, until length bytes are read, or read() returns 0.
-	 * May block without O_NONBLOCK. Returns the total bytes read as a new array.
-	 */
-	public static byte[] readAllBytes(int fd, Pointer<?> buffer, int length) throws CException {
-		int n = readAll(fd, buffer, length);
-		return Primitive.BYTE.getArray(buffer.memory(), 0, n, false);
-	}
-
-	/**
-	 * Calls read() incrementally over a new buffer, until all bytes are read, or read() returns 0.
-	 * Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns the total
-	 * number of bytes read.
+	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
+	 * block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes) throws CException {
 		return readAll(fd, bytes, 0);
 	}
 
 	/**
-	 * Calls read() incrementally over a new buffer, until all bytes are read, or read() returns 0.
-	 * Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns the total
-	 * number of bytes read.
+	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
+	 * block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes, int offset) throws CException {
-		return readAll(fd, bytes, offset, bytes.length - offset);
+		return readAll(fd, bytes, offset, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Calls read() incrementally over a new buffer, until length bytes are read, or read() returns
-	 * 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns the total
-	 * number of bytes read.
+	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
+	 * block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes, int offset, int length) throws CException {
-		Validate.slice(bytes.length, offset, length);
+		return applySlice(bytes, offset, length, (o, l) -> {
+			try (var arena = Arena.ofConfined()) {
+				var buffer = arena.allocate(l);
+				int n = readAll(fd, buffer);
+				if (n > 0) Primitive.BYTE.readArray(buffer, 0, n, bytes, o, n, false);
+				return n;
+			}
+		});
+	}
+
+	/**
+	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
+	 * block without O_NONBLOCK. Returns the total number of bytes read.
+	 */
+	public static byte[] readAllBytes(int fd, int length) throws CException {
+		if (length <= 0) return Array.BYTE.empty;
 		try (var arena = Arena.ofConfined()) {
-			return readAll(fd, Pointer.of(arena.allocate(length)), length, bytes, offset, length);
+			var buffer = arena.allocate(length);
+			int n = read(fd, buffer);
+			return Primitive.BYTE.getArray(buffer, 0, n, false);
 		}
 	}
 
 	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, MemorySegment buffer, byte[] bytes) throws CException {
-		return readAll(fd, buffer, bytes, 0);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, MemorySegment buffer, byte[] bytes, int offset)
-		throws CException {
-		return readAll(fd, buffer, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until length bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, MemorySegment buffer, byte[] bytes, int offset, int length)
-		throws CException {
-		return readAll(fd, Pointer.of(buffer), Segments.sizeInt(buffer), bytes, offset, length);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer<?> buffer, int size, byte[] bytes) throws CException {
-		return readAll(fd, buffer, size, bytes, 0);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer<?> buffer, int size, byte[] bytes, int offset)
-		throws CException {
-		return readAll(fd, buffer, size, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until length bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer<?> buffer, int size, byte[] bytes, int offset,
-		int length) throws CException {
-		Validate.slice(bytes.length, offset, length);
-		int rem = length;
-		while (rem > 0) {
-			int n = Math.min(rem, size);
-			int m = readAll(fd, buffer, n);
-			Primitive.BYTE.readArray(buffer.memory(), 0, Integer.MAX_VALUE, bytes, offset, m,
-				false);
-			offset += m;
-			rem -= m;
-			if (m < n) break;
-		}
-		return length - rem;
-	}
-
-	/**
-	 * Writes up to length bytes from the buffer. Returns the number of bytes written, or 0 on
+	 * Writes bytes from the buffer, up to buffer size. Returns the number of bytes written, or 0 on
 	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
-	public static int write(int fd, Pointer<?> buffer, int length) throws CException {
-		if (length == 0) return 0;
+	public static int write(int fd, MemorySegment buffer) throws CException {
+		return write(fd, buffer, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Writes bytes from the buffer up to specified count. Returns the number of bytes written, or 0
+	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int write(int fd, MemorySegment buffer, int length) throws CException {
+		int n = Memory.limitInt(buffer, length);
+		if (n == 0) return 0;
 		return CLib.caller.callInt(c -> {
 			int result = c.lib().write(fd, buffer, new size_t(length)).intValue();
 			if (result != -1) return result;
-			int code = c.lastErrorCode();
+			int code = c.errNo();
 			if (!NONBLOCK_ERRORS.contains(code)) c.fail(code);
 			return 0;
 		}, "write", fd, buffer, length);
 	}
 
-	// /**
-	// * Writes up to length bytes from the buffer. Returns the number of bytes written, or 0 on
-	// * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, Pointer buffer, int length) throws CException {
-	// if (length == 0) return 0;
-	// try {
-	// return caller.verifyInt(() -> lib().write(fd, buffer, new size_t(length)).intValue(),
-	// "write", fd, buffer, length);
-	// } catch (CException e) {
-	// if (NONBLOCK_ERRORS.contains(e.code)) return 0;
-	// throw e;
-	// }
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and writes bytes from the buffer. Returns the
-	// * number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, int... bytes) throws CException {
-	// return write(fd, Array.bytes.of(bytes));
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and writes bytes from the buffer. Returns the
-	// * number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, byte[] bytes) throws CException {
-	// return write(fd, bytes, 0);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and writes bytes from the buffer. Returns the
-	// * number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, byte[] bytes, int offset) throws CException {
-	// return write(fd, bytes, offset, bytes.length - offset);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and writes up to length bytes from the buffer.
-	// * Returns the number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR
-	// * errors.
-	// */
-	// public static int write(int fd, byte[] bytes, int offset, int length) throws CException {
-	// try (var m = Jna.malloc(length)) {
-	// return write(fd, m, bytes, offset, length);
-	// }
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer, and writes bytes from the buffer. The length
-	// must
-	// * not be larger than the buffer size. Returns the number of bytes written, or 0 on
-	// * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, Pointer buffer, byte[] bytes) throws CException {
-	// return write(fd, buffer, bytes, 0);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer, and writes bytes from the buffer. The length
-	// must
-	// * not be larger than the buffer size. Returns the number of bytes written, or 0 on
-	// * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, Pointer buffer, byte[] bytes, int offset) throws CException {
-	// return write(fd, buffer, bytes, offset, bytes.length - offset);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer, and writes up to length bytes from the buffer.
-	// The
-	// * length must not be larger than the buffer size. Returns the number of bytes written, or 0
-	// on
-	// * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	// */
-	// public static int write(int fd, Pointer buffer, byte[] bytes, int offset, int length)
-	// throws CException {
-	// Jna.write(buffer, bytes, offset, length);
-	// return write(fd, buffer, length);
-	// }
-	//
-	// /**
-	// * Calls write() incrementally over the buffer, until length bytes are written, or write()
-	// * returns 0. May block without O_NONBLOCK. Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Pointer buffer, int length) throws CException {
-	// int rem = length;
-	// while (rem > 0) {
-	// int n = write(fd, buffer, rem);
-	// if (n <= 0) break;
-	// rem -= n;
-	// buffer = buffer.share(n);
-	// }
-	// return length - rem;
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and calls write() incrementally over the
-	// buffer
-	// * until all bytes are written, or write() returns 0. May block without O_NONBLOCK. Returns
-	// the
-	// * total number of bytes written.
-	// */
-	// public static int writeAll(int fd, int... bytes) throws CException {
-	// return writeAll(fd, Array.bytes.of(bytes));
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and calls write() incrementally over the
-	// buffer
-	// * until all bytes are written, or write() returns 0. May block without O_NONBLOCK. Returns
-	// the
-	// * total number of bytes written.
-	// */
-	// public static int writeAll(int fd, byte[] bytes) throws CException {
-	// return writeAll(fd, bytes, 0);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and calls write() incrementally over the
-	// buffer
-	// * until all bytes are written, or write() returns 0. May block without O_NONBLOCK. Returns
-	// the
-	// * total number of bytes written.
-	// */
-	// public static int writeAll(int fd, byte[] bytes, int offset) throws CException {
-	// return writeAll(fd, bytes, offset, bytes.length - offset);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to a new buffer, and calls write() incrementally over the
-	// buffer
-	// * until length bytes are written, or write() returns 0. May block without O_NONBLOCK. Returns
-	// * the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, byte[] bytes, int offset, int length) throws CException {
-	// Validate.slice(bytes.length, offset, length);
-	// try (Memory m = Jna.mallocBytes(bytes, offset, length)) {
-	// return writeAll(fd, m, length);
-	// }
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer in batches, calling write() incrementally over
-	// the
-	// * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	// * Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Memory buffer, byte[] bytes) throws CException {
-	// return writeAll(fd, buffer, bytes, 0);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer in batches, calling write() incrementally over
-	// the
-	// * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	// * Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Memory buffer, byte[] bytes, int offset) throws CException
-	// {
-	// return writeAll(fd, buffer, bytes, offset, bytes.length - offset);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer in batches, calling write() incrementally over
-	// the
-	// * buffer until length bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	// * Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Memory buffer, byte[] bytes, int offset, int length)
-	// throws CException {
-	// return writeAll(fd, buffer, Jna.intSize(buffer), bytes, offset, length);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer in batches, calling write() incrementally over
-	// the
-	// * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	// * Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes) throws CException
-	// {
-	// return writeAll(fd, buffer, size, bytes, 0);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer in batches, calling write() incrementally over
-	// the
-	// * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	// * Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes, int offset)
-	// throws CException {
-	// return writeAll(fd, buffer, size, bytes, offset, bytes.length - offset);
-	// }
-	//
-	// /**
-	// * Copies bytes from the array to the buffer in batches, calling write() incrementally over
-	// the
-	// * buffer until length bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	// * Returns the total number of bytes written.
-	// */
-	// public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes, int offset,
-	// int length) throws CException {
-	// Validate.slice(bytes.length, offset, length);
-	// int rem = length;
-	// while (rem > 0) {
-	// int n = Math.min(rem, size);
-	// Jna.write(buffer, bytes, offset, n);
-	// int m = writeAll(fd, buffer, n);
-	// offset += m;
-	// rem -= m;
-	// if (m < n) break;
-	// }
-	// return length - rem;
-	// }
+	/**
+	 * Writes bytes up to specified count using a buffer. Returns the number of bytes written, or 0
+	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int write(int fd, int... bytes) throws CException {
+		try (var arena = Arena.ofConfined()) {
+			var buffer = Primitive.BYTE.allocAll(arena, false, bytes);
+			return write(fd, buffer);
+		}
+	}
+
+	/**
+	 * Writes bytes up to specified count using a buffer. Returns the number of bytes written, or 0
+	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int write(int fd, byte[] bytes) throws CException {
+		return write(fd, bytes, 0);
+	}
+
+	/**
+	 * Writes bytes up to specified count using a buffer. Returns the number of bytes written, or 0
+	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int write(int fd, byte[] bytes, int offset) throws CException {
+		return write(fd, bytes, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Copies bytes from the array to a new buffer, and writes up to length bytes from the buffer.
+	 * Returns the number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR
+	 * errors.
+	 */
+	public static int write(int fd, byte[] bytes, int offset, int length) throws CException {
+		try (var arena = Arena.ofConfined()) {
+			var buffer = Primitive.BYTE.allocArray(arena, bytes, offset, length, false);
+			return write(fd, buffer);
+		}
+	}
+
+	/**
+	 * Calls write() incrementally over the buffer, until all is written, or write() returns 0. May
+	 * block without O_NONBLOCK. Returns the total number of bytes written.
+	 */
+	public static int writeAll(int fd, MemorySegment buffer) throws CException {
+		return writeAll(fd, buffer, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Calls write() incrementally over the buffer, until specified count is written, or write()
+	 * returns 0. May block without O_NONBLOCK. Returns the total number of bytes written.
+	 */
+	public static int writeAll(int fd, MemorySegment buffer, int length) throws CException {
+		length = Memory.limitInt(buffer, length);
+		int rem = length;
+		while (rem > 0) {
+			int n = write(fd, buffer, rem);
+			if (n <= 0) break; // n < rem?
+			rem -= n;
+			buffer = buffer.asSlice(n);
+		}
+		return length - rem;
+
+	}
+
+	/**
+	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
+	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int writeAll(int fd, int... bytes) throws CException {
+		try (var arena = Arena.ofConfined()) {
+			var buffer = Primitive.BYTE.allocAll(arena, false, bytes);
+			return writeAll(fd, buffer);
+		}
+	}
+
+	/**
+	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
+	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int writeAll(int fd, byte[] bytes) throws CException {
+		return writeAll(fd, bytes, 0);
+	}
+
+	/**
+	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
+	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int writeAll(int fd, byte[] bytes, int offset) throws CException {
+		return writeAll(fd, bytes, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
+	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 */
+	public static int writeAll(int fd, byte[] bytes, int offset, int length) throws CException {
+		try (var arena = Arena.ofConfined()) {
+			var buffer = Primitive.BYTE.allocArray(arena, bytes, offset, length, false);
+			return writeAll(fd, buffer);
+		}
+	}
 
 	/**
 	 * Moves the position of file descriptor. Returns the new position.
@@ -578,5 +368,16 @@ public class CUnistd {
 		int size = lseek(fd, 0, SEEK_END);
 		position(fd, pos);
 		return size;
+	}
+
+	// support
+
+	private static int applySlice(byte[] bytes, int offset, int length,
+		Excepts.IntBiOperator<CException> operator) throws CException {
+		if (bytes == null) return 0;
+		offset = Maths.limit(offset, 0, bytes.length);
+		length = Maths.limit(length, 0, bytes.length - offset);
+		if (length == 0) return 0;
+		return operator.applyAsInt(offset, length);
 	}
 }
