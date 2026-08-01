@@ -9,7 +9,7 @@ import ceri.common.test.Assert;
 
 public class SetsTest {
 	private static final Set<Integer> nullSet = null;
-	private static final Set<Integer> emptySet = Set.of();
+	private static final Set<Integer> emptySet = Sets.concurrent();
 	private static final List<Integer> list = Lists.ofAll(-1, null, 1);
 	private static final Set<Integer> set = Immutable.set(Sets::link, list);
 	private static final Map<Integer, String> nullMap = null;

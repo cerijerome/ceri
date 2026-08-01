@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -93,6 +94,13 @@ public class Sets {
 		return Collections.newSetFromMap(new IdentityHashMap<>());
 	}
 
+	/**
+	 * Creates an empty mutable concurrent hash set.
+	 */
+	public static <T> Set<T> concurrent() {
+		return ConcurrentHashMap.newKeySet();
+	}
+	
 	/**
 	 * Creates an empty mutable set.
 	 */
