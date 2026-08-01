@@ -137,38 +137,10 @@ public class CUnistd {
 	 */
 	public static int read(int fd, byte[] bytes, int offset, int length) throws CException {
 		try (var m = Jna.malloc(length)) {
-			return read(fd, m, bytes, offset, length);
+			int n = read(fd, m, length);
+			Jna.read(m, bytes, offset, n);
+			return n;
 		}
-	}
-
-	/**
-	 * Reads bytes into the buffer and copies to the byte array. Returns the number of bytes read,
-	 * or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors. The length must not be larger
-	 * than the buffer size.
-	 */
-	public static int read(int fd, Pointer buffer, byte[] bytes) throws CException {
-		return read(fd, buffer, bytes, 0);
-	}
-
-	/**
-	 * Reads bytes into the buffer and copies to the byte array. Returns the number of bytes read,
-	 * or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors. The length must not be larger
-	 * than the buffer size.
-	 */
-	public static int read(int fd, Pointer buffer, byte[] bytes, int offset) throws CException {
-		return read(fd, buffer, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Reads up to length bytes into the buffer and copies to the byte array. Returns the number of
-	 * bytes read, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors. The length must
-	 * not be larger than the buffer size.
-	 */
-	public static int read(int fd, Pointer buffer, byte[] bytes, int offset, int length)
-		throws CException {
-		int n = read(fd, buffer, length);
-		Jna.read(buffer, bytes, offset, n);
-		return n;
 	}
 
 	/**
@@ -177,25 +149,9 @@ public class CUnistd {
 	 */
 	public static byte[] readBytes(int fd, int length) throws CException {
 		try (var m = Jna.malloc(length)) {
-			return readBytes(fd, m);
+			int n = read(fd, m, length);
+			return Jna.bytes(m, 0, n);
 		}
-	}
-
-	/**
-	 * Reads bytes into the buffer and returns a new byte array. Returns empty array on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	 */
-	public static byte[] readBytes(int fd, Memory buffer) throws CException {
-		return readBytes(fd, buffer, Jna.intSize(buffer));
-	}
-
-	/**
-	 * Reads up to length bytes into the buffer and returns a new byte array. Returns empty array on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	 */
-	public static byte[] readBytes(int fd, Pointer buffer, int length) throws CException {
-		int n = read(fd, buffer, length);
-		return Jna.bytes(buffer, 0, n);
 	}
 
 	/**
@@ -211,33 +167,6 @@ public class CUnistd {
 			buffer = buffer.share(n);
 		}
 		return length - rem;
-	}
-
-	/**
-	 * Calls read() incrementally over a new buffer, until length bytes are read, or read() returns
-	 * 0. May block without O_NONBLOCK. Returns the total bytes read as a new array.
-	 */
-	public static byte[] readAllBytes(int fd, int length) throws CException {
-		try (var m = Jna.malloc(length)) {
-			return readAllBytes(fd, m);
-		}
-	}
-
-	/**
-	 * Calls read() incrementally over the buffer, until full, or read() returns 0. May block
-	 * without O_NONBLOCK. Returns the total bytes read as a new array.
-	 */
-	public static byte[] readAllBytes(int fd, Memory buffer) throws CException {
-		return readAllBytes(fd, buffer, Jna.intSize(buffer));
-	}
-
-	/**
-	 * Calls read() incrementally over the buffer, until length bytes are read, or read() returns 0.
-	 * May block without O_NONBLOCK. Returns the total bytes read as a new array.
-	 */
-	public static byte[] readAllBytes(int fd, Pointer buffer, int length) throws CException {
-		int n = readAll(fd, buffer, length);
-		return Jna.bytes(buffer, 0, n);
 	}
 
 	/**
@@ -266,75 +195,21 @@ public class CUnistd {
 	public static int readAll(int fd, byte[] bytes, int offset, int length) throws CException {
 		Validate.slice(bytes.length, offset, length);
 		try (Memory m = Jna.malloc(length)) {
-			return readAll(fd, m, length, bytes, offset, length);
+			int n = readAll(fd, m, length);
+			Jna.read(m, bytes, offset, n);
+			return n;
 		}
 	}
 
 	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
+	 * Calls read() incrementally over a new buffer, until length bytes are read, or read() returns
+	 * 0. May block without O_NONBLOCK. Returns the total bytes read as a new array.
 	 */
-	public static int readAll(int fd, Memory buffer, byte[] bytes) throws CException {
-		return readAll(fd, buffer, bytes, 0);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Memory buffer, byte[] bytes, int offset) throws CException {
-		return readAll(fd, buffer, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until length bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Memory buffer, byte[] bytes, int offset, int length)
-		throws CException {
-		return readAll(fd, buffer, Jna.intSize(buffer), bytes, offset, length);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer buffer, int size, byte[] bytes) throws CException {
-		return readAll(fd, buffer, size, bytes, 0);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until all bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer buffer, int size, byte[] bytes, int offset)
-		throws CException {
-		return readAll(fd, buffer, size, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Calls read() in batches incrementally over the buffer, until length bytes are read, or read()
-	 * returns 0. Copies bytes from the buffer to the array. May block without O_NONBLOCK. Returns
-	 * the total number of bytes read.
-	 */
-	public static int readAll(int fd, Pointer buffer, int size, byte[] bytes, int offset,
-		int length) throws CException {
-		Validate.slice(bytes.length, offset, length);
-		int rem = length;
-		while (rem > 0) {
-			int n = Math.min(rem, size);
-			int m = readAll(fd, buffer, n);
-			Jna.read(buffer, bytes, offset, m);
-			offset += m;
-			rem -= m;
-			if (m < n) break;
+	public static byte[] readAllBytes(int fd, int length) throws CException {
+		try (var m = Jna.malloc(length)) {
+			int n = readAll(fd, m, length);
+			return Jna.bytes(m, 0, n);
 		}
-		return length - rem;
 	}
 
 	/**
@@ -383,37 +258,9 @@ public class CUnistd {
 	 */
 	public static int write(int fd, byte[] bytes, int offset, int length) throws CException {
 		try (var m = Jna.malloc(length)) {
-			return write(fd, m, bytes, offset, length);
+			Jna.write(m, bytes, offset, length);
+			return write(fd, m, length);
 		}
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer, and writes bytes from the buffer. The length must
-	 * not be larger than the buffer size. Returns the number of bytes written, or 0 on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	 */
-	public static int write(int fd, Pointer buffer, byte[] bytes) throws CException {
-		return write(fd, buffer, bytes, 0);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer, and writes bytes from the buffer. The length must
-	 * not be larger than the buffer size. Returns the number of bytes written, or 0 on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	 */
-	public static int write(int fd, Pointer buffer, byte[] bytes, int offset) throws CException {
-		return write(fd, buffer, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer, and writes up to length bytes from the buffer. The
-	 * length must not be larger than the buffer size. Returns the number of bytes written, or 0 on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
-	 */
-	public static int write(int fd, Pointer buffer, byte[] bytes, int offset, int length)
-		throws CException {
-		Jna.write(buffer, bytes, offset, length);
-		return write(fd, buffer, length);
 	}
 
 	/**
@@ -468,73 +315,6 @@ public class CUnistd {
 		try (Memory m = Jna.mallocBytes(bytes, offset, length)) {
 			return writeAll(fd, m, length);
 		}
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer in batches, calling write() incrementally over the
-	 * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	 * Returns the total number of bytes written.
-	 */
-	public static int writeAll(int fd, Memory buffer, byte[] bytes) throws CException {
-		return writeAll(fd, buffer, bytes, 0);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer in batches, calling write() incrementally over the
-	 * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	 * Returns the total number of bytes written.
-	 */
-	public static int writeAll(int fd, Memory buffer, byte[] bytes, int offset) throws CException {
-		return writeAll(fd, buffer, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer in batches, calling write() incrementally over the
-	 * buffer until length bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	 * Returns the total number of bytes written.
-	 */
-	public static int writeAll(int fd, Memory buffer, byte[] bytes, int offset, int length)
-		throws CException {
-		return writeAll(fd, buffer, Jna.intSize(buffer), bytes, offset, length);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer in batches, calling write() incrementally over the
-	 * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	 * Returns the total number of bytes written.
-	 */
-	public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes) throws CException {
-		return writeAll(fd, buffer, size, bytes, 0);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer in batches, calling write() incrementally over the
-	 * buffer until all bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	 * Returns the total number of bytes written.
-	 */
-	public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes, int offset)
-		throws CException {
-		return writeAll(fd, buffer, size, bytes, offset, bytes.length - offset);
-	}
-
-	/**
-	 * Copies bytes from the array to the buffer in batches, calling write() incrementally over the
-	 * buffer until length bytes are written, or write() returns 0. May block without O_NONBLOCK.
-	 * Returns the total number of bytes written.
-	 */
-	public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes, int offset,
-		int length) throws CException {
-		Validate.slice(bytes.length, offset, length);
-		int rem = length;
-		while (rem > 0) {
-			int n = Math.min(rem, size);
-			Jna.write(buffer, bytes, offset, n);
-			int m = writeAll(fd, buffer, n);
-			offset += m;
-			rem -= m;
-			if (m < n) break;
-		}
-		return length - rem;
 	}
 
 	/**

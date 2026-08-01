@@ -61,7 +61,7 @@ public class CLibVerifier {
 			Assert.equal(CUnistd.lseek(fd, 0, CUnistd.SEEK_SET), 0);
 			Assert.equal(CIoctl.fionread(fd), 3);
 			var bytes = new byte[3];
-			Assert.equal(CUnistd.read(fd, bytes), 3);
+			Assert.equal(CUnistd.readAll(fd, bytes), 3);
 			Assert.array(bytes, 1, 2, 3);
 			verifyFileFlags(fd);
 		} finally {
@@ -90,7 +90,7 @@ public class CLibVerifier {
 			Assert.equal(CPoll.poll(pollfds, 1000), 2);
 			Assert.equal(CPoll.poll(pollfds, -1), 2);
 			if (Os.info().linux) verifyPpoll(pollfds);
-			CUnistd.read(fds[0], new byte[1]);
+			CUnistd.readAll(fds[0], new byte[1]);
 		} finally {
 			CUnistd.close(fds[0]);
 			CUnistd.close(fds[1]);

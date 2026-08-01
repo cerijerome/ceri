@@ -4,12 +4,13 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.Array;
+import ceri.common.collect.Maps;
+import ceri.common.collect.Sets;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.Bytes;
 import ceri.common.function.Enclosure;
@@ -30,17 +31,17 @@ import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.test.JnaTesting;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
-import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaLibrary;
 
 /**
  * Test implementation for CLib native interface.
  */
 public class TestCLibNative implements CLib.Native {
 	private AtomicInteger nextFd = new AtomicInteger();
-	public final Set<Integer> fds = ConcurrentHashMap.newKeySet();
-	public final Map<Integer, FdContext> fdContext = new ConcurrentHashMap<>();
-	public final Map<String, String> env = new ConcurrentHashMap<>();
+	public final Set<Integer> fds = Sets.concurrent();
+	public final Map<Integer, FdContext> fdContext = Maps.concurrent();
+	public final Map<String, String> env = Maps.concurrent();
 	public final CallSync.Consumer<OpenArgs> open = CallSync.consumer(null, true);
 	public final CallSync.Function<Integer, Integer> close = CallSync.function(null, 0);
 	public final CallSync.Function<Integer, Integer> isatty = CallSync.function(null, 0);

@@ -89,26 +89,6 @@ public class CUnistdTest {
 	}
 
 	@Test
-	public void testReadAllWithBuffer() throws IOException {
-		initFile();
-		fd = open("file1", 0);
-		m = new Memory(3);
-		byte[] b = new byte[5];
-		Assert.equal(CUnistd.readAll(fd, m, b), 4);
-		Assert.array(b, 't', 'e', 's', 't', 0);
-	}
-
-	@Test
-	public void testReadAllWithPointer() throws IOException {
-		initFile();
-		fd = open("file1", 0);
-		m = new Memory(4);
-		byte[] b = new byte[5];
-		Assert.equal(CUnistd.readAll(fd, m, 3, b), 4);
-		Assert.array(b, 't', 'e', 's', 't', 0);
-	}
-
-	@Test
 	public void testReadAllBytesFromFileDescriptor() throws IOException {
 		initFile();
 		fd = open("file1", 0);
@@ -123,23 +103,6 @@ public class CUnistdTest {
 		int fd = CFcntl.open("test", 0);
 		lib.read.error.setFrom(ErrNo.EAGAIN::lastError);
 		Assert.equal(CUnistd.read(fd, new byte[3]), 0);
-	}
-
-	@Test
-	public void testReadWithBuffer() throws IOException {
-		initFile();
-		fd = open("file1", 0);
-		m = new Memory(4);
-		byte[] b = new byte[3];
-		Assert.equal(CUnistd.read(fd, m, b), 3);
-	}
-
-	@Test
-	public void testReadWithUndersizedBuffer() throws IOException {
-		initFile();
-		fd = open("file1", 0);
-		m = new Memory(3);
-		Assert.thrown(() -> CUnistd.read(fd, m, new byte[4])); // buffer too small
 	}
 
 	@Test
@@ -173,15 +136,6 @@ public class CUnistdTest {
 	}
 
 	@Test
-	public void testWriteBytesWithBufferToFileDescriptor() throws IOException {
-		initFile();
-		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
-		m = new Memory(5);
-		Assert.equal(CUnistd.write(fd, m, "test".getBytes()), 4);
-		Assert.file(helper.path("file2"), "test".getBytes());
-	}
-
-	@Test
 	public void testWriteNothingOnNonBlockError() throws IOException {
 		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
@@ -198,31 +152,12 @@ public class CUnistdTest {
 	}
 
 	@Test
-	public void testWriteAllWithBuffer() throws IOException {
-		initFile();
-		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
-		m = new Memory(3);
-		Assert.equal(CUnistd.writeAll(fd, m, "test".getBytes()), 4);
-		Assert.file(helper.path("file2"), "test".getBytes());
-	}
-
-	@Test
-	public void testWriteAllWithPointer() throws IOException {
-		initFile();
-		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
-		m = new Memory(3);
-		Assert.equal(CUnistd.writeAll(fd, m, 2, "test".getBytes()), 4);
-		Assert.file(helper.path("file2"), "test".getBytes());
-	}
-
-	@Test
 	public void testWriteAllUnderWrite() throws IOException {
 		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
 		m = new Memory(3);
 		lib.write.autoResponses(0);
 		Assert.equal(CUnistd.writeAll(fd, m, 2), 0);
-		Assert.equal(CUnistd.writeAll(fd, m, new byte[4]), 0);
 	}
 
 	@Test
