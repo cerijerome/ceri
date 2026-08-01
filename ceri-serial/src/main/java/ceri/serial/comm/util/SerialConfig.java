@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import ceri.common.collect.Sets;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.jna.util.ThreadBuffers;
@@ -104,7 +104,7 @@ public class SerialConfig {
 	public static class Builder {
 		// need to keep state in multi-threaded context
 		volatile SerialParams params = SerialParams.DEFAULT;
-		final Set<FlowControl> flowControl = ConcurrentHashMap.newKeySet();
+		final Set<FlowControl> flowControl = Sets.concurrent();
 		volatile int inBufferSize = ThreadBuffers.SIZE_DEF;
 		volatile int outBufferSize = ThreadBuffers.SIZE_DEF;
 
