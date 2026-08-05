@@ -2,10 +2,8 @@ package ceri.ffm.core;
 
 import java.lang.foreign.MemorySegment;
 import org.junit.Test;
-import ceri.common.array.RawArray;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
-import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.Support;
 import ceri.ffm.type.Support.OfArray;
@@ -52,11 +50,11 @@ public class DecoderBehavior {
 
 	private static <T> MemorySegment encode(OfArray<T> support, T value) {
 		var r = support.encode(Direction.in, value);
-		FfmTesting.bin(r.value());
-		System.out.println("Encode: " + RawArray.toString(value));
+		//FfmTesting.bin(r.value());
+		//System.out.println("Encode: " + RawArray.toString(value));
 		var decoded = support.decode(r.value());
-		System.out.println("Decode: " + RawArray.toString(decoded));
-		System.out.println();
+		//System.out.println("Decode: " + RawArray.toString(decoded));
+		//System.out.println();
 		Assert.deepEqual(value, decoded);
 		return r.value();
 	}

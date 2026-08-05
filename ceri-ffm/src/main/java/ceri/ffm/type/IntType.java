@@ -4,8 +4,6 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Objects;
 import ceri.common.array.Array;
@@ -50,45 +48,6 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		public static final Supporter<CUlong> $ = support(CUlong.class);
 
 		public CUlong(Number value) {
-			super(value);
-		}
-	}
-
-	/**
-	 * C size_t unsigned type.
-	 */
-	@Unsigned
-	@Size(type = "size_t")
-	public static class size_t extends IntType<size_t> {
-		public static final Supporter<size_t> $ = support(size_t.class);
-
-		public size_t(Number value) {
-			super(value);
-		}
-	}
-
-	/**
-	 * C ssize_t signed type.
-	 */
-	@Size(type = "size_t")
-	public static class ssize_t extends IntType<ssize_t> {
-		public static final Supporter<ssize_t> $ = support(ssize_t.class);
-
-		public ssize_t(Number value) {
-			super(value);
-		}
-	}
-
-	/**
-	 * C wchar_t signed type. Native type is usually unsigned, but not always.
-	 */
-	@Size(type = "wchar_t")
-	public static class wchar_t extends IntType<wchar_t> {
-		public static final Supporter<wchar_t> $ = support(wchar_t.class);
-		public static final wchar_t TERM = new wchar_t(0);
-		public static final Charset CHARSET = charset($.spec().size());
-
-		public wchar_t(Number value) {
 			super(value);
 		}
 	}
@@ -477,14 +436,6 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		if (lul && !rul && lv < 0) return false;
 		if (rul && !lul && rv < 0) return false;
 		return lv == rv;
-	}
-
-	private static Charset charset(int size) {
-		return switch (size) {
-			case Byte.BYTES -> StandardCharsets.UTF_8;
-			case Short.BYTES -> StandardCharsets.UTF_16;
-			default -> StandardCharsets.UTF_32;
-		};
 	}
 
 	private static Spec specFor(Class<?> cls) {

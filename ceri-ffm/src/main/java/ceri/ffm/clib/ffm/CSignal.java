@@ -97,7 +97,7 @@ public class CSignal {
 	private CSignal() {}
 
 	// void (*sighandler_t)(int)
-	public static interface sighandler_t extends Callback {
+	public interface sighandler_t extends Callback {
 		void invoke(int signum);
 	}
 
@@ -114,14 +114,13 @@ public class CSignal {
 	/**
 	 * An encapsulation of system and custom signal handlers.
 	 */
-	@CUndefined
-	public static class sighandler {
-		public static final sighandler ERR = new sighandler(MemorySegment.ofAddress(SIG_ERR));
-		public static final sighandler IGN = new sighandler(MemorySegment.ofAddress(SIG_IGN));
-		public static final sighandler DFL = new sighandler(MemorySegment.ofAddress(SIG_DFL));
+	public static class Handler {
+		public static final Handler ERR = new Handler(MemorySegment.ofAddress(SIG_ERR));
+		public static final Handler IGN = new Handler(MemorySegment.ofAddress(SIG_IGN));
+		public static final Handler DFL = new Handler(MemorySegment.ofAddress(SIG_DFL));
 		public final MemorySegment pointer;
 
-		private sighandler(MemorySegment pointer) {
+		private Handler(MemorySegment pointer) {
 			this.pointer = pointer;
 		}
 
@@ -167,21 +166,21 @@ public class CSignal {
 	/**
 	 * Sets a signal handler. Returns the previous handler.
 	 */
-	public static sighandler signal(int signum, sighandler_t handler) throws CException {
+	public static Handler signal(int signum, sighandler_t handler) throws CException {
 		return signal(signum, Callback.pointer(handler), handler);
 	}
 
 	/**
 	 * Sets the signal handler to SIG_DFL. Returns the previous handler.
 	 */
-	public static sighandler signalDefault(int signum) throws CException {
+	public static Handler signalDefault(int signum) throws CException {
 		return signal(signum, MemorySegment.ofAddress(SIG_DFL), SIG_DFL);
 	}
 
 	/**
 	 * Sets the signal handler to SIG_DFL. Returns the previous handler.
 	 */
-	public static sighandler signalIgnore(int signum) throws CException {
+	public static Handler signalIgnore(int signum) throws CException {
 		return signal(signum, MemorySegment.ofAddress(SIG_IGN), SIG_IGN);
 	}
 
@@ -189,7 +188,9 @@ public class CSignal {
 	 * Send a signal to the caller.
 	 */
 	public static void raise(int sig) throws CException {
-		CLib.caller.callInt(c -> c.lib().raise(sig), "raise", sig);
+		CLib.caller.call(c -> {
+			if (c.lib().raise(sig) != 0) c.verify();
+		}, "raise", sig);
 	}
 
 	/**
@@ -226,10 +227,10 @@ public class CSignal {
 
 	// support
 
-	private static sighandler signal(int signum, MemorySegment handler, Object arg)
+	private static Handler signal(int signum, MemorySegment handler, Object arg)
 		throws CException {
 		return CLib.caller.callType(c -> {
-			var previous = new sighandler(c.lib().signal(signum, handler));
+			var previous = new Handler(c.lib().signal(signum, handler));
 			if (previous.isError()) c.verify();
 			return previous;
 		}, "signal", signum, arg);

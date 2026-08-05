@@ -7,11 +7,11 @@ import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.test.Testing;
 import ceri.ffm.clib.ffm.CException;
+import ceri.ffm.clib.ffm.CUnistd.size_t;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.Callback;
-import ceri.ffm.type.IntType.size_t;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
 

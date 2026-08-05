@@ -1,8 +1,8 @@
 package ceri.ffm.type;
 
+import ceri.ffm.clib.ffm.CUnistd.size_t;
 import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.IntType.CLong;
-import ceri.ffm.type.IntType.size_t;
 
 public class PointerTester {
 

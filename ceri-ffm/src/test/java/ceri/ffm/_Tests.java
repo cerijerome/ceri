@@ -9,6 +9,8 @@ import ceri.common.test.Testing;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// clib.ffm
+	ceri.ffm.clib.ffm.CUnistdTest.class, //
 	// core
 	ceri.ffm.core.DecoderBehavior.class, //
 	// type

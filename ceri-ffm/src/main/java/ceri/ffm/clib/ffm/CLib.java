@@ -3,13 +3,14 @@ package ceri.ffm.clib.ffm;
 import java.lang.foreign.MemorySegment;
 import ceri.common.util.Os;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
+import ceri.ffm.clib.ffm.CUnistd.size_t;
+import ceri.ffm.clib.ffm.CUnistd.ssize_t;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Library;
 import ceri.ffm.reflect.Refine.ErrNo;
 import ceri.ffm.reflect.Refine.Out;
+import ceri.ffm.type.IntType.CLong;
 import ceri.ffm.type.IntType.CUlong;
-import ceri.ffm.type.IntType.size_t;
-import ceri.ffm.type.IntType.ssize_t;
 import ceri.ffm.type.Pointer;
 
 /**
@@ -46,7 +47,7 @@ public class CLib {
 		ssize_t write(int fd, MemorySegment buffer, size_t len);
 
 		// off_t lseek(int fd, off_t offset, int whence)
-		int lseek(int fd, int offset, int whence);
+		CLong lseek(int fd, CLong offset, int whence);
 
 		// int getpagesize(void)
 		@ErrNo(false) // errno not set
@@ -58,7 +59,6 @@ public class CLib {
 		MemorySegment signal(int signum, MemorySegment handler);
 
 		// int raise(int sig)
-		@ErrNo(false) // ignore errno
 		int raise(int sig);
 
 		// int sigemptyset(sigset_t *set);

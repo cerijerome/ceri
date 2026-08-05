@@ -2,12 +2,16 @@ package ceri.ffm.clib.ffm;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.util.Set;
 import ceri.common.array.Array;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
+import ceri.common.util.Validate;
 import ceri.ffm.reflect.CAnnotations.CInclude;
-import ceri.ffm.type.IntType.size_t;
+import ceri.ffm.reflect.Refine.Size;
+import ceri.ffm.reflect.Refine.Unsigned;
+import ceri.ffm.type.IntType;
+import ceri.ffm.type.IntType.CLong;
 import ceri.ffm.type.Memory;
 import ceri.ffm.type.Primitive;
 
@@ -16,26 +20,63 @@ import ceri.ffm.type.Primitive;
  */
 @CInclude("unistd.h")
 public class CUnistd {
-	private static final Set<Integer> NONBLOCK_ERRORS =
-		CErrNo.codes(CErrNo.EAGAIN, CErrNo.EWOULDBLOCK, CErrNo.EINTR);
 	public static final int STDIN_FILENO = 0;
 	public static final int STDOUT_FILENO = 1;
 	public static final int STDERR_FILENO = 2;
-	// Constants from <stdio.h>
-	/** From start of file. */
-	public static final int SEEK_SET = 0;
-	/** From current position. */
-	public static final int SEEK_CUR = 1;
-	/** From end of file. */
-	public static final int SEEK_END = 2;
 
 	private CUnistd() {}
 
 	/**
-	 * Closes the file descriptor.
+	 * Unsigned size type.
 	 */
-	public static void close(int fd) throws CException {
-		if (fd >= 0) CLib.caller.verifyInt(lib -> lib.close(fd), -1, "close", fd);
+	@Unsigned
+	@Size(type = "size_t")
+	public static class size_t extends IntType<size_t> {
+		public static final Supporter<size_t> $ = support(size_t.class);
+
+		public size_t(Number value) {
+			super(value);
+		}
+	}
+
+	/**
+	 * Signed size type.
+	 */
+	@Size(type = "size_t")
+	public static class ssize_t extends IntType<ssize_t> {
+		public static final Supporter<ssize_t> $ = support(ssize_t.class);
+
+		public ssize_t(Number value) {
+			super(value);
+		}
+	}
+
+	/**
+	 * Constants for lseek whence from <stdio.h>
+	 */
+	public enum Seek {
+		/** From start of file. */
+		SEEK_SET(0),
+		/** From current position. */
+		SEEK_CUR(1),
+		/** From end of file. */
+		SEEK_END(2);
+
+		public static final Xcoder.Type<Seek> xcoder = Xcoder.type(Seek.class);
+		public final int value;
+
+		private Seek(int value) {
+			this.value = value;
+		}
+	}
+
+	/**
+	 * Closes the file descriptor. Returns false for standard fds or if interrupted.
+	 */
+	public static boolean close(int fd) throws CException {
+		if (stdFileNo(fd)) return false;
+		return CLib.caller.callInt(c -> c.verifyInt(c.lib().close(fd), -1, CErrNo.EINTR), "close",
+			fd) == 0;
 	}
 
 	/**
@@ -45,16 +86,19 @@ public class CUnistd {
 	public static boolean closeSilently(int... fds) {
 		boolean closed = true;
 		for (int fd : fds)
-			if (fd >= 0 && CLib.lib().close(fd) < 0) closed = false;
+			if (!stdFileNo(fd) && CLib.lib().close(fd) != 0) closed = false;
 		return closed;
 	}
 
 	/**
-	 * Tests whether a file descriptor refers to a terminal.
+	 * Tests whether a file descriptor refers to a terminal. Fails unless true or ENOTTY.
 	 */
 	public static boolean isatty(int fd) throws CException {
-		// errno set on 0 response
-		return CLib.caller.callInt(c -> c.lib().isatty(fd), "isatty", fd) == 1;
+		return CLib.caller.callInt(c -> {
+			int result = c.lib().isatty(fd);
+			if (result == 0) c.verify(CErrNo.ENOTTY);
+			return result;
+		}, "isatty", fd) == 1;
 	}
 
 	/**
@@ -75,31 +119,27 @@ public class CUnistd {
 	}
 
 	/**
-	 * Reads bytes into the buffer. Returns the number of bytes read, or 0 on EAGAIN/EWOULDBLOCK
-	 * (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes into the buffer up to the buffer size. Returns the number of bytes read, or -1 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, MemorySegment buffer) throws CException {
 		return read(fd, buffer, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Reads bytes into the buffer. Returns the number of bytes read, or 0 on EAGAIN/EWOULDBLOCK
-	 * (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes into the buffer up to the specified count. Returns the number of bytes read, or
+	 * -1 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, MemorySegment buffer, int length) throws CException {
 		int n = Memory.limitInt(buffer, length);
 		if (n == 0) return 0;
-		return CLib.caller.callInt(c -> {
-			int result = c.lib().read(fd, buffer, new size_t(n)).intValue();
-			if (result != -1) return result;
-			int code = c.errNo();
-			if (!NONBLOCK_ERRORS.contains(code)) c.fail(code);
-			return 0;
-		}, "read", fd, buffer, length);
+		return CLib.caller
+			.callInt(c -> c.verifyInt(c.lib().read(fd, buffer, new size_t(n)).intValue(), -1,
+				CErrNo.EAGAIN, CErrNo.EWOULDBLOCK, CErrNo.EINTR), "read", fd, buffer, length);
 	}
 
 	/**
-	 * Reads bytes and copies to the byte array. Returns the number of bytes read, or 0 on
+	 * Reads bytes into the array using a buffer. Returns the number of bytes read, or -1 on
 	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes) throws CException {
@@ -107,7 +147,7 @@ public class CUnistd {
 	}
 
 	/**
-	 * Reads bytes and copies to the byte array. Returns the number of bytes read, or 0 on
+	 * Reads bytes into the array using a buffer. Returns the number of bytes read, or -1 on
 	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes, int offset) throws CException {
@@ -115,7 +155,7 @@ public class CUnistd {
 	}
 
 	/**
-	 * Reads bytes and copies to the byte array. Returns the number of bytes read, or 0 on
+	 * Reads bytes into the array using a buffer. Returns the number of bytes read, or -1 on
 	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int read(int fd, byte[] bytes, int offset, int length) throws CException {
@@ -130,20 +170,21 @@ public class CUnistd {
 	}
 
 	/**
-	 * Reads and returns a new byte array up to specified size. Returns empty array on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Reads bytes into an array using a buffer. Returns an empty array on EAGAIN/EWOULDBLOCK (with
+	 * O_NONBLOCK) and EINTR errors.
 	 */
 	public static byte[] readBytes(int fd, int length) throws CException {
 		if (length <= 0) return Array.BYTE.empty;
 		try (var arena = Arena.ofConfined()) {
 			var buffer = arena.allocate(length);
 			int n = read(fd, buffer);
+			if (n <= 0) return Array.BYTE.empty;
 			return Primitive.BYTE.getArray(buffer, 0, n, false);
 		}
 	}
 
 	/**
-	 * Calls read() incrementally until buffer is full, or read() returns 0. May block without
+	 * Calls read() incrementally over the buffer, until all or no bytes are read. May block without
 	 * O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, MemorySegment buffer) throws CException {
@@ -151,8 +192,8 @@ public class CUnistd {
 	}
 
 	/**
-	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
-	 * block without O_NONBLOCK. Returns the total number of bytes read.
+	 * Calls read() incrementally over the buffer, until the specified count or no bytes are read.
+	 * May block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, MemorySegment buffer, int length) throws CException {
 		length = Memory.limitInt(buffer, length);
@@ -167,7 +208,7 @@ public class CUnistd {
 	}
 
 	/**
-	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
+	 * Calls read() incrementally over the array using a buffer, until all or no bytes are read. May
 	 * block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes) throws CException {
@@ -175,16 +216,16 @@ public class CUnistd {
 	}
 
 	/**
-	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
-	 * block without O_NONBLOCK. Returns the total number of bytes read.
+	 * Calls read() incrementally over the array using a buffer, until the specified count or no
+	 * bytes are read. May block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes, int offset) throws CException {
 		return readAll(fd, bytes, offset, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
-	 * block without O_NONBLOCK. Returns the total number of bytes read.
+	 * Calls read() incrementally over the array using a buffer, until the specified count or no
+	 * bytes are read. May block without O_NONBLOCK. Returns the total number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes, int offset, int length) throws CException {
 		return applySlice(bytes, offset, length, (o, l) -> {
@@ -198,73 +239,66 @@ public class CUnistd {
 	}
 
 	/**
-	 * Calls read() incrementally until specified number of bytes are read, or read() returns 0. May
-	 * block without O_NONBLOCK. Returns the total number of bytes read.
+	 * Calls read() incrementally into an array using a buffer, until the specified count or no
+	 * bytes are read. May block without O_NONBLOCK.
 	 */
 	public static byte[] readAllBytes(int fd, int length) throws CException {
 		if (length <= 0) return Array.BYTE.empty;
 		try (var arena = Arena.ofConfined()) {
 			var buffer = arena.allocate(length);
-			int n = read(fd, buffer);
+			int n = readAll(fd, buffer);
+			if (n <= 0) return Array.BYTE.empty;
 			return Primitive.BYTE.getArray(buffer, 0, n, false);
 		}
 	}
 
 	/**
-	 * Writes bytes from the buffer, up to buffer size. Returns the number of bytes written, or 0 on
-	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Writes bytes from the buffer, up to the buffer size. Returns the number of bytes written, or
+	 * -1 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, MemorySegment buffer) throws CException {
 		return write(fd, buffer, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Writes bytes from the buffer up to specified count. Returns the number of bytes written, or 0
-	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Writes bytes from the buffer up to the specified count. Returns the number of bytes written,
+	 * or -1 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, MemorySegment buffer, int length) throws CException {
 		int n = Memory.limitInt(buffer, length);
 		if (n == 0) return 0;
-		return CLib.caller.callInt(c -> {
-			int result = c.lib().write(fd, buffer, new size_t(length)).intValue();
-			if (result != -1) return result;
-			int code = c.errNo();
-			if (!NONBLOCK_ERRORS.contains(code)) c.fail(code);
-			return 0;
-		}, "write", fd, buffer, length);
+		return CLib.caller
+			.callInt(c -> c.verifyInt(c.lib().write(fd, buffer, new size_t(n)).intValue(), -1,
+				CErrNo.EAGAIN, CErrNo.EWOULDBLOCK, CErrNo.EINTR), "write", fd, buffer, n);
 	}
 
 	/**
-	 * Writes bytes up to specified count using a buffer. Returns the number of bytes written, or 0
-	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Writes bytes from the array using a buffer. Returns the number of bytes written, or -1 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, int... bytes) throws CException {
-		try (var arena = Arena.ofConfined()) {
-			var buffer = Primitive.BYTE.allocAll(arena, false, bytes);
-			return write(fd, buffer);
-		}
+		return write(fd, Array.BYTE.of(bytes));
 	}
 
 	/**
-	 * Writes bytes up to specified count using a buffer. Returns the number of bytes written, or 0
-	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Writes bytes from the array using a buffer. Returns the number of bytes written, or -1 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, byte[] bytes) throws CException {
 		return write(fd, bytes, 0);
 	}
 
 	/**
-	 * Writes bytes up to specified count using a buffer. Returns the number of bytes written, or 0
-	 * on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Writes bytes from the array using a buffer. Returns the number of bytes written, or -1 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, byte[] bytes, int offset) throws CException {
 		return write(fd, bytes, offset, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Copies bytes from the array to a new buffer, and writes up to length bytes from the buffer.
-	 * Returns the number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR
-	 * errors.
+	 * Writes bytes from the array using a buffer. Returns the number of bytes written, or -1 on
+	 * EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, byte[] bytes, int offset, int length) throws CException {
 		try (var arena = Arena.ofConfined()) {
@@ -274,16 +308,16 @@ public class CUnistd {
 	}
 
 	/**
-	 * Calls write() incrementally over the buffer, until all is written, or write() returns 0. May
-	 * block without O_NONBLOCK. Returns the total number of bytes written.
+	 * Calls write() incrementally over the buffer, until all or no bytes are written. May block
+	 * without O_NONBLOCK. Returns the total number of bytes written.
 	 */
 	public static int writeAll(int fd, MemorySegment buffer) throws CException {
 		return writeAll(fd, buffer, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Calls write() incrementally over the buffer, until specified count is written, or write()
-	 * returns 0. May block without O_NONBLOCK. Returns the total number of bytes written.
+	 * Calls write() incrementally over the buffer, until the specified count or no bytes are
+	 * written. May block without O_NONBLOCK. Returns the total number of bytes written.
 	 */
 	public static int writeAll(int fd, MemorySegment buffer, int length) throws CException {
 		length = Memory.limitInt(buffer, length);
@@ -299,35 +333,32 @@ public class CUnistd {
 	}
 
 	/**
-	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
-	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Calls write() incrementally over the array using a buffer, until all or no bytes are written.
+	 * May block without O_NONBLOCK. Returns the total number of bytes written.
 	 */
 	public static int writeAll(int fd, int... bytes) throws CException {
-		try (var arena = Arena.ofConfined()) {
-			var buffer = Primitive.BYTE.allocAll(arena, false, bytes);
-			return writeAll(fd, buffer);
-		}
+		return writeAll(fd, Array.BYTE.of(bytes));
 	}
 
 	/**
-	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
-	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Calls write() incrementally over the array using a buffer, until all or no bytes are written.
+	 * May block without O_NONBLOCK. Returns the total number of bytes written.
 	 */
 	public static int writeAll(int fd, byte[] bytes) throws CException {
 		return writeAll(fd, bytes, 0);
 	}
 
 	/**
-	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
-	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Calls write() incrementally over the array using a buffer, until the specified count or no
+	 * bytes are written. May block without O_NONBLOCK. Returns the total number of bytes written.
 	 */
 	public static int writeAll(int fd, byte[] bytes, int offset) throws CException {
 		return writeAll(fd, bytes, offset, Integer.MAX_VALUE);
 	}
 
 	/**
-	 * Calls write() incrementally up to specified count using a buffer. Returns the number of bytes
-	 * written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
+	 * Calls write() incrementally over the array using a buffer, until the specified count or no
+	 * bytes are written. May block without O_NONBLOCK. Returns the total number of bytes written.
 	 */
 	public static int writeAll(int fd, byte[] bytes, int offset, int length) throws CException {
 		try (var arena = Arena.ofConfined()) {
@@ -339,38 +370,51 @@ public class CUnistd {
 	/**
 	 * Moves the position of file descriptor. Returns the new position.
 	 */
-	public static int lseek(int fd, int offset, int whence) throws CException {
-		return CLib.caller.verifyInt(lib -> lib.lseek(fd, offset, whence), -1, "lseek", fd, offset,
-			whence);
+	public static long lseek(int fd, long offset, Seek whence) throws CException {
+		Validate.nonNull(whence, "whence");
+		return lseek(fd, offset, whence.value);
+	}
+	
+	/**
+	 * Moves the position of file descriptor. Returns the new position.
+	 */
+	public static long lseek(int fd, long offset, int whence) throws CException {
+		return CLib.caller.callLong(c -> {
+			long result = c.lib().lseek(fd, new CLong(offset), whence).value();
+			if (result < 0L) c.verify();
+			return result;
+		}, "lseek", fd, offset, whence);
 	}
 
 	/**
 	 * Returns the current position in the file.
 	 */
-	public static int position(int fd) throws CException {
-		return lseek(fd, 0, SEEK_CUR);
+	public static long position(int fd) throws CException {
+		return lseek(fd, 0, Seek.SEEK_CUR.value);
 	}
 
 	/**
 	 * Sets the current position in the file.
 	 */
-	public static void position(int fd, int position) throws CException {
-		int n = lseek(fd, position, SEEK_SET);
-		if (n != position)
-			throw CException.general("Unable to set position on %d: %d", fd, position);
+	public static long position(int fd, long position) throws CException {
+		return lseek(fd, position, Seek.SEEK_SET.value);
 	}
 
 	/**
 	 * Returns the file size by moving to end of file then back to original position.
 	 */
-	public static int size(int fd) throws CException {
-		int pos = position(fd);
-		int size = lseek(fd, 0, SEEK_END);
+	public static long size(int fd) throws CException {
+		long pos = position(fd);
+		long size = lseek(fd, 0, Seek.SEEK_END.value);
 		position(fd, pos);
 		return size;
 	}
 
 	// support
+
+	private static boolean stdFileNo(int fd) {
+		return Maths.within(fd, STDIN_FILENO, STDERR_FILENO);
+	}
 
 	private static int applySlice(byte[] bytes, int offset, int length,
 		Excepts.IntBiOperator<CException> operator) throws CException {

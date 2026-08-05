@@ -390,7 +390,7 @@ public enum CErrNo {
 	}
 
 	/**
-	 * Find from exception error code.
+	 * Finds the value from the exception error code.
 	 */
 	public static CErrNo from(CException e) {
 		return from(e.code);
@@ -415,19 +415,22 @@ public enum CErrNo {
 	}
 
 	/**
-	 * Create a CException from the code.
+	 * Creates a CException from the code.
 	 */
 	public CException error() {
 		return CException.of(code, prefix());
 	}
 
 	/**
-	 * Create a CException from the code and message.
+	 * Creates a CException from the code and message.
 	 */
 	public CException error(String message, Object... args) {
 		return CException.of(code, prefix() + "; " + Strings.format(message, args));
 	}
 
+	/**
+	 * Returns true if the error code is defined for the current system.
+	 */
 	public boolean defined() {
 		return code != Const.UNDEFINED;
 	}
@@ -540,7 +543,7 @@ public enum CErrNo {
 		public static final int ENOTRECOVERABLE;
 		public static final int ERFKILL;
 		public static final int EHWPOISON;
-		/* Mac only */
+		// Mac only
 		public static final int EAUTH;
 		public static final int EBADRPC;
 		public static final int EFTYPE;

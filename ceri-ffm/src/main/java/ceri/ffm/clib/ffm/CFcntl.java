@@ -18,6 +18,8 @@ public class CFcntl {
 	@CUndefined
 	public static final int INVALID_FD = -1;
 
+	private CFcntl() {}
+
 	/**
 	 * Open flags.
 	 */
@@ -53,9 +55,9 @@ public class CFcntl {
 		public final int value;
 
 		/**
-		 * Holds a combined flag value.
+		 * Holds combined flag value.
 		 */
-		public record Flags(int value) {
+		public record Value(int value) {
 			/**
 			 * Decode the value to flag enums.
 			 */
@@ -70,30 +72,95 @@ public class CFcntl {
 		}
 
 		/**
-		 * Holds a mode value.
+		 * Encapsulates open flags.
 		 */
-		public record Mode(int value) {
-			@Override
-			public final String toString() {
-				return Integer.toOctalString(value());
-			}
+		public static Value of(int value) {
+			return new Value(value);
 		}
 
 		/**
 		 * Encapsulates open flags.
 		 */
-		public static Flags flags(int value) {
-			return new Flags(value);
+		public static Value of(Open... flags) {
+			return of(xcoder.encodeInt(flags));
 		}
 
 		/**
-		 * Encapsulates open mode.
+		 * Returns true if access modes are valid.
 		 */
-		public static Mode mode(int value) {
-			return new Mode(value);
+		public boolean isValidAccess(int value) {
+			return (value & O_ACCMODE) != O_ACCMODE;
 		}
 
 		private Open(int value) {
+			this.value = value;
+		}
+	}
+
+	/**
+	 * Mode masks.
+	 */
+	public enum Mode {
+		xoth(0001),
+		woth(0002),
+		roth(0004),
+		rwxo(0007),
+		xgrp(0010),
+		wgrp(0020),
+		rgrp(0040),
+		rwxg(0070),
+		xusr(0100),
+		wusr(0200),
+		rusr(0400),
+		rwxu(0700),
+		svtx(01000),
+		sgid(02000),
+		suid(04000),
+		fifo(010000),
+		fchr(020000),
+		fdir(040000),
+		fblk(060000),
+		freg(0100000),
+		flnk(0120000),
+		fsock(0140000),
+		fmt(0170000);
+
+		public static final Xcoder.Types<Mode> xcoder =
+			Xcoder.types(Enums.of(Mode.class).reversed(), t -> t.value);
+		public final int value;
+
+		/**
+		 * Holds combined mode masks.
+		 */
+		public record Value(int value) {
+			/**
+			 * Extracts mode masks.
+			 */
+			public Set<Mode> modes() {
+				return xcoder.decodeAll(value());
+			}
+
+			@Override
+			public String toString() {
+				return "0" + Integer.toOctalString(value());
+			}
+		}
+
+		/**
+		 * Encapsulates combined mode masks.
+		 */
+		public static Value of(int value) {
+			return new Value(value);
+		}
+
+		/**
+		 * Encapsulates combined mode masks.
+		 */
+		public static Value of(Mode... modes) {
+			return of(xcoder.encodeInt(modes));
+		}
+
+		private Mode(int value) {
 			this.value = value;
 		}
 	}
@@ -116,22 +183,28 @@ public class CFcntl {
 		}
 	}
 
-	private CFcntl() {}
-
 	/**
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.open(path, flags), -1,
-			m -> m.accept("open", path, Open.flags(flags)));
+			m -> m.accept("open", path, Open.of(flags)));
 	}
 
 	/**
 	 * Opens the path with flags and mode, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
+		// mode_t vararg type is promoted to int
 		return CLib.caller.verifyInt(lib -> lib.open(path, flags, mode), -1,
-			m -> m.accept("open", path, Open.flags(flags), Open.mode(mode)));
+			m -> m.accept("open", path, Open.of(flags), Mode.of(mode)));
+	}
+
+	/**
+	 * Opens the path with flags, and returns a file descriptor.
+	 */
+	public static int open(String path, Open... flags) throws CException {
+		return open(path, Open.xcoder.encodeInt(flags));
 	}
 
 	/**
@@ -152,60 +225,59 @@ public class CFcntl {
 	/**
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
-	public static int fcntl(int fd, int command, Object... objs) throws CException {
-		return fcntl("", fd, command, objs);
-	}
-
-	/**
-	 * Performs a fcntl function. Arguments and return value depend on the function.
-	 */
 	public static int fcntl(String name, int fd, int command, Object... objs) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.fcntl(fd, command, objs), -1,
-			m -> m.accept("fcntl:" + name, fd, command, objs));
+			m -> m.accept(name, fd, name + ":0x" + Integer.toHexString(command), objs));
 	}
 
 	/**
-	 * Duplicate the file descriptor using the lowest-numbered available >= min.
+	 * Duplicates the file descriptor using the lowest-numbered available >= min.
 	 */
 	public static int dupFd(int fd, int min) throws CException {
-		return fcntl("F_DUPFD", fd, Action.F_DUPFD.value, min);
+		return fcntl(fd, Action.F_DUPFD, min);
 	}
 
 	/**
-	 * Get the file descriptor flags.
+	 * Gets the file descriptor flags.
 	 */
 	public static int getFd(int fd) throws CException {
-		return fcntl("F_GETFD", fd, Action.F_GETFD.value);
+		return fcntl(fd, Action.F_GETFD);
 	}
 
 	/**
-	 * Set the file descriptor flags.
+	 * Sets the file descriptor flags.
 	 */
 	public static void setFd(int fd, int flags) throws CException {
-		fcntl("F_SETFD", fd, Action.F_SETFD.value, flags);
+		fcntl(fd, Action.F_SETFD, flags);
 	}
 
 	/**
-	 * Get the file access mode and file status flags.
+	 * Gets the file access mode and file status flags.
 	 */
 	public static int getFl(int fd) throws CException {
-		return fcntl("F_GETFL", fd, Action.F_GETFL.value);
+		return fcntl(fd, Action.F_GETFL);
 	}
 
 	/**
-	 * Set the file status flags.
+	 * Sets the file status flags.
 	 */
 	public static void setFl(int fd, int flags) throws CException {
-		fcntl("F_SETFL", fd, Action.F_SETFL.value, flags);
+		fcntl(fd, Action.F_SETFL, flags);
 	}
 
 	/**
-	 * Update file status flags using an int function. Returns the new flags value.
+	 * Applies the modifier to current flags. Returns the new flags value.
 	 */
-	public static int setFl(int fd, IntUnaryOperator flagFn) throws CException {
+	public static int applyFl(int fd, IntUnaryOperator flagFn) throws CException {
 		int flags = flagFn.applyAsInt(getFl(fd));
 		setFl(fd, flags);
 		return flags;
+	}
+
+	// support
+
+	private static int fcntl(int fd, Action action, Object... objs) throws CException {
+		return fcntl(action.name(), fd, action.value, objs);
 	}
 
 	// os-specific initialization

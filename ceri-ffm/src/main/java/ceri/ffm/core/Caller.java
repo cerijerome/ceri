@@ -3,7 +3,7 @@ package ceri.ffm.core;
 import java.lang.foreign.MemorySegment;
 import java.nio.Buffer;
 import ceri.common.collect.Maps;
-import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -11,6 +11,7 @@ import ceri.common.io.Buffers;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Transformer;
+import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.type.BufferType;
 import ceri.ffm.type.Callback;
@@ -125,6 +126,27 @@ public class Caller<E extends Exception, T> {
 		}
 
 		/**
+		 * Verifies the last error if the result indicates an error; allowed errors will pass,
+		 * otherwise an exception is generated on call completion.
+		 */
+		public int verifyInt(int result, int error, CErrNo... allowedErrNos) {
+			if (result == error) verify(allowedErrNos);
+			return result;
+		}
+
+		/**
+		 * Verifies the last error; zero and allowed errors will pass, otherwise an exception is
+		 * generated on call completion.
+		 */
+		public void verify(CErrNo... allowedErrNos) {
+			int code = errNo();
+			if (code == ErrNo.OK) return;
+			for (var allowedErrNo : allowedErrNos)
+				if (code == allowedErrNo.code) return;
+			fail(code);
+		}
+
+		/**
 		 * Registers a failure code, which will generate an exception on call completion.
 		 */
 		public void fail(int code) {
@@ -144,14 +166,6 @@ public class Caller<E extends Exception, T> {
 		 */
 		public int errNo() {
 			return ErrNo.get();
-		}
-
-		/**
-		 * Verifies the last error; a non-zero code will generate an exception on call completion.
-		 */
-		public void verify() {
-			int code = errNo();
-			if (code != ErrNo.OK) fail(code);
 		}
 	}
 
@@ -223,6 +237,25 @@ public class Caller<E extends Exception, T> {
 	}
 
 	/**
+	 * Executes the call with contextual support, returning an int value.
+	 */
+	public long callLong(Excepts.ToLongFunction<?, Context> call, String name, Object... args)
+		throws E {
+		return callLong(call, m -> m.accept(name, args));
+	}
+
+	/**
+	 * Executes the call with contextual support, returning an int value.
+	 */
+	public long callLong(Excepts.ToLongFunction<?, Context> call,
+		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		var context = new Context();
+		long result = execLong(context, call);
+		verify(context, callDesc);
+		return result;
+	}
+
+	/**
 	 * Executes the call with contextual support, returning a typed value.
 	 */
 	public <R> R callType(Excepts.Function<?, Context, R> call, String name, Object... args)
@@ -254,30 +287,7 @@ public class Caller<E extends Exception, T> {
 	 */
 	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error,
 		Functions.Function<CallDescriptor, String> callDesc) throws E {
-		return callInt(c -> {
-			int result = call.applyAsInt(c.lib());
-			if (result == error) c.verify();
-			return result;
-		}, callDesc);
-	}
-
-	/**
-	 * Executes the call and returns a type, checking last error if null is returned.
-	 */
-	public <R> R verifyType(Excepts.Function<?, T, R> call, String name, Object... args) throws E {
-		return verifyType(call, m -> m.accept(name, args));
-	}
-
-	/**
-	 * Executes the call and returns a type, checking last error if null is returned.
-	 */
-	public <R> R verifyType(Excepts.Function<?, T, R> call,
-		Functions.Function<CallDescriptor, String> callDesc) throws E {
-		return callType(c -> {
-			var result = call.apply(c.lib());
-			if (result == null) c.verify();
-			return result;
-		}, callDesc);
+		return callInt(c -> c.verifyInt(call.applyAsInt(c.lib()), error), callDesc);
 	}
 
 	// support
@@ -290,9 +300,8 @@ public class Caller<E extends Exception, T> {
 	private void exec(Context context, Excepts.Consumer<?, Context> call) {
 		try {
 			call.accept(context);
-		} catch (RuntimeInterruptedException e) {
-			throw e;
 		} catch (Exception e) {
+			Concurrent.checkRuntimeInterrupted(e);
 			context.fail(generalCode, e);
 		}
 	}
@@ -300,9 +309,18 @@ public class Caller<E extends Exception, T> {
 	private int execInt(Context context, Excepts.ToIntFunction<?, Context> call) {
 		try {
 			return call.applyAsInt(context);
-		} catch (RuntimeInterruptedException e) {
-			throw e;
 		} catch (Exception e) {
+			Concurrent.checkRuntimeInterrupted(e);
+			context.fail(generalCode, e);
+			return 0;
+		}
+	}
+
+	private long execLong(Context context, Excepts.ToLongFunction<?, Context> call) {
+		try {
+			return call.applyAsLong(context);
+		} catch (Exception e) {
+			Concurrent.checkRuntimeInterrupted(e);
 			context.fail(generalCode, e);
 			return 0;
 		}
@@ -311,9 +329,8 @@ public class Caller<E extends Exception, T> {
 	private <R> R execType(Context context, Excepts.Function<?, Context, R> call) {
 		try {
 			return call.apply(context);
-		} catch (RuntimeInterruptedException e) {
-			throw e;
 		} catch (Exception e) {
+			Concurrent.checkRuntimeInterrupted(e);
 			context.fail(generalCode, e);
 			return null;
 		}

@@ -62,7 +62,7 @@ public class Call {
 		private Native.Adapter<?, ?> rtn = Native.Adapter.VOID;
 		private final List<Native.Adapter<?, ?>> args = Lists.of();
 		private int varArg = -1;
-		private boolean lastError = false;
+		private boolean errNo = false;
 
 		private Builder(Method method) {
 			this.method = method;
@@ -83,8 +83,8 @@ public class Call {
 			return this;
 		}
 
-		private Builder lastError() {
-			lastError = true;
+		private Builder errNo() {
+			errNo = true;
 			return this;
 		}
 
@@ -102,7 +102,7 @@ public class Call {
 		private final List<Native.Adapter<?, ?>> args;
 		private final boolean groupReturn;
 		private final int varArg; // -1 for non-vararg and root vararg config
-		private final boolean lastError;
+		private final boolean errNo;
 		private final MethodType localMethodType;
 		private final MethodHandle localHandle;
 		private final FunctionDescriptor nativeFuncDesc;
@@ -116,12 +116,12 @@ public class Call {
 			groupReturn = (rtn.layout() instanceof GroupLayout);
 			args = Immutable.wrap(builder.args);
 			varArg = builder.varArg;
-			lastError = builder.lastError;
+			errNo = builder.errNo;
 			localMethodType = localMethodType(); // local types
 			localHandle = Handles.method(method); // class + local types
 			nativeFuncDesc = nativeFuncDesc(); // -> up+down
 			nativeMethodType = nativeMethodType(); // -> up
-			nativeHandle = Native.LINKER.downcallHandle(nativeFuncDesc, options(varArg, lastError));
+			nativeHandle = Native.LINKER.downcallHandle(nativeFuncDesc, options(varArg, errNo));
 			varArgConfigs = (args.size() < method.getParameterCount()) ? Maps.concurrent() : null;
 		}
 
@@ -172,7 +172,7 @@ public class Call {
 				i -> (i < args.size()) ? Reflect.simple(args.get(i).localCls()) :
 					Reflect.simple(method.getParameters()[i].getType().getComponentType()) + "...",
 				args.size() + (varArgConfigs != null ? 1 : 0));
-			if (lastError) b.append('!');
+			if (errNo) b.append('!');
 			return b.toString();
 		}
 
@@ -253,23 +253,23 @@ public class Call {
 			int index = 0;
 			nativeArgs[index++] = pointer;
 			if (groupReturn) nativeArgs[index++] = allocator;
-			if (lastError) nativeArgs[index++] = ErrNo.capture(allocator);
+			if (errNo) nativeArgs[index++] = ErrNo.capture(allocator);
 			for (var adaptedArg : adaptedArgs)
 				nativeArgs[index++] = adaptedArg.value();
 			return nativeArgs;
 		}
 
 		private int nativeArgCount(List<Native.Adapted<?>> adaptedArgs) {
-			return lastErrorIndex() + (lastError ? 1 : 0) + adaptedArgs.size();
+			return errNoIndex() + (errNo ? 1 : 0) + adaptedArgs.size();
 		}
 
 		private void resolveArgs(List<Native.Adapted<?>> adaptedArgs, Object[] nativeArgs) {
-			if (lastError) ErrNo.save((MemorySegment) nativeArgs[lastErrorIndex()]);
+			if (errNo) ErrNo.save((MemorySegment) nativeArgs[errNoIndex()]);
 			for (var adaptedArg : adaptedArgs)
 				adaptedArg.resolve();
 		}
 
-		private int lastErrorIndex() {
+		private int errNoIndex() {
 			return 1 + (groupReturn ? 1 : 0);
 		}
 
@@ -304,7 +304,7 @@ public class Call {
 			b.rtn = rtn;
 			b.args.addAll(args);
 			b.varArg();
-			b.lastError = lastError;
+			b.errNo = errNo;
 			var parameter = Array.last(method.getParameters());
 			for (int i = 0; i < varArgTypes.size(); i++)
 				b.arg(varArg(parameter, varArgTypes, i));
@@ -425,7 +425,7 @@ public class Call {
 	public static Config config(Method method) {
 		var b = new Builder(method).rtn(rtn(method));
 		addArgs(b, method);
-		if (Refine.errNo(method, true)) b.lastError();
+		if (Refine.errNo(method, true)) b.errNo();
 		return b.build();
 	}
 
@@ -546,12 +546,12 @@ public class Call {
 			m -> support.decode(Segments.reslice(m, support.layout())));
 	}
 
-	private static Linker.Option[] options(int varArg, boolean lastError) {
-		int count = (varArg >= 0 ? 1 : 0) + (lastError ? 1 : 0);
+	private static Linker.Option[] options(int varArg, boolean errNo) {
+		int count = (varArg >= 0 ? 1 : 0) + (errNo ? 1 : 0);
 		if (count == 0) return NO_OPTIONS;
 		var options = new Linker.Option[count];
 		if (varArg >= 0) options[--count] = Linker.Option.firstVariadicArg(varArg);
-		if (lastError) options[--count] = ErrNo.OPTION;
+		if (errNo) options[--count] = ErrNo.OPTION;
 		return options;
 	}
 

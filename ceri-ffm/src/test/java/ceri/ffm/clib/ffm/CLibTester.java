@@ -6,7 +6,6 @@ import ceri.common.test.BinaryPrinter;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.ffm.CSignal.sighandler_t;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
-import ceri.ffm.core.ErrNo;
 import ceri.ffm.test.FfmTesting;
 
 public class CLibTester {
