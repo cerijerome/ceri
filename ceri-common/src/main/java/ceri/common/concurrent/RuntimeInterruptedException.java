@@ -9,7 +9,7 @@ public class RuntimeInterruptedException extends RuntimeException {
 		super(message);
 	}
 
-	public RuntimeInterruptedException(InterruptedException e) {
+	public RuntimeInterruptedException(Exception e) {
 		super(Exceptions.message(e), e);
 	}
 }

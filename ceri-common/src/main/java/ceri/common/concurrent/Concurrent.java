@@ -476,6 +476,14 @@ public class Concurrent {
 	}
 
 	/**
+	 * Checks if the exception is from an interrupt and (re-)throw as runtime.
+	 */
+	public static void checkRuntimeInterrupted(Exception e) {
+		if (e instanceof RuntimeInterruptedException re) throw re;
+		if (e instanceof InterruptedException) throw new RuntimeInterruptedException(e);
+	}
+
+	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
 	public static void runInterruptible(Excepts.Runnable<? extends InterruptedException> runnable) {

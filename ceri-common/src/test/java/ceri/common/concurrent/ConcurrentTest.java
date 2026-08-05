@@ -225,8 +225,8 @@ public class ConcurrentTest {
 	public void testTryExecuteGet() {
 		var lock = new ReentrantLock();
 		var holder0 = Concurrent.tryLockedGet(lock, () -> {
-			try (var exec =
-				Testing.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
+			try (
+				var exec = Testing.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
 				var holder1 = exec.get();
 				Assert.equal(holder1.isEmpty(), true);
 			}
@@ -285,6 +285,15 @@ public class ConcurrentTest {
 		Concurrent.checkRuntimeInterrupted();
 		Concurrent.interrupt();
 		Assert.thrown(RuntimeInterruptedException.class, Concurrent::checkRuntimeInterrupted);
+	}
+
+	@Test
+	public void testCheckRuntimeInterruptedException() {
+		Concurrent.checkRuntimeInterrupted(new NullPointerException());
+		Assert.thrown(RuntimeInterruptedException.class,
+			() -> Concurrent.checkRuntimeInterrupted(new RuntimeInterruptedException("test")));
+		Assert.thrown(RuntimeInterruptedException.class,
+			() -> Concurrent.checkRuntimeInterrupted(new InterruptedException("test")));
 	}
 
 	@Test
