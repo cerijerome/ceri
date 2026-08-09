@@ -33,7 +33,7 @@ import ceri.ffm.type.Primitive;
  */
 public class TestCLibNative implements CLib.Native {
 	private static final CErrNo OK = null;
-	public final Set<Integer> openFds = Sets.concurrent(); // open
+	public final Set<Integer> openFds = Sets.concurrent();
 	public final Map<Integer, Fd> allFds = Maps.concurrent();
 	public final Map<String, String> env = Maps.concurrent();
 	public final CallSync.Function<Fd, CErrNo> open = CallSync.function(null, OK);
@@ -60,7 +60,6 @@ public class TestCLibNative implements CLib.Native {
 	// public final CallSync.Function<CfArgs, Integer> cf = CallSync.function(null, 0);
 	// public final CallSync.Function<MmapArgs, Presult> mmap = CallSync.function(null, Presult.OK);
 	private final AtomicInteger nextFd = new AtomicInteger();
-	private volatile Fd lastFd = null;
 
 	/**
 	 * A result with value and/or error.
@@ -108,14 +107,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for signal set calls.
 	 */
-	public record SigSet(CSignal.sigset_t sigset, Action action, int signum) {
-		public enum Action {
-			none,
-			empty,
-			add,
-			del;
-		}
-	}
+	public record SigSet(CSignal.sigset_t sigset, int signum, boolean modify) {}
 
 	/**
 	 * Arguments for poll calls.
@@ -244,22 +236,22 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int sigemptyset(Pointer<CSignal.sigset_t> set) {
-		return applySigSet(set, SigSet.Action.empty, 0, (_, _) -> 0L);
+		return applySigSet(set, 0, (_, _) -> 0L);
 	}
 
 	@Override
 	public int sigaddset(Pointer<CSignal.sigset_t> set, int signum) {
-		return applySigSet(set, SigSet.Action.add, signum, (v, s) -> v | s);
+		return applySigSet(set, signum, (v, s) -> v | s);
 	}
 
 	@Override
 	public int sigdelset(Pointer<CSignal.sigset_t> set, int signum) {
-		return applySigSet(set, SigSet.Action.del, signum, (v, s) -> v & ~s);
+		return applySigSet(set, signum, (v, s) -> v & ~s);
 	}
 
 	@Override
 	public int sigismember(Pointer<CSignal.sigset_t> set, int signum) {
-		var errNo = sigset.apply(new SigSet(set.get(), SigSet.Action.none, signum));
+		var errNo = sigset.apply(new SigSet(set.get(), signum, false));
 		if (!ok(errNo)) return error(-1, errNo);
 		return (Bytes.fromMsb(set.get().bytes) & sigSetVal(signum)) == 0 ? 0 : 1;
 	}
@@ -286,7 +278,6 @@ public class TestCLibNative implements CLib.Native {
 		if ((flags & CFcntl.Open.O_ACCMODE) == CFcntl.Open.O_ACCMODE)
 			return error(-1, CErrNo.EINVAL);
 		var fd = Fd.of(nextFd.getAndIncrement(), path, flags, (int) Array.at(args, 0, 0));
-		lastFd = fd;
 		var errNo = this.open.apply(fd);
 		return ok(errNo) ? add(fd) : error(-1, errNo);
 	}
@@ -369,7 +360,6 @@ public class TestCLibNative implements CLib.Native {
 	private int add(Fd fd) {
 		allFds.put(fd.fd(), fd);
 		openFds.add(fd.fd());
-		lastFd = fd;
 		return fd.fd();
 	}
 
@@ -378,10 +368,10 @@ public class TestCLibNative implements CLib.Native {
 		return error(error, CErrNo.EBADF);
 	}
 
-	private int applySigSet(Pointer<CSignal.sigset_t> set, SigSet.Action action, int signum,
+	private int applySigSet(Pointer<CSignal.sigset_t> set, int signum,
 		Functions.LongBiOperator operator) {
 		var struct = set.get();
-		var errNo = sigset.apply(new SigSet(struct, action, signum));
+		var errNo = sigset.apply(new SigSet(struct, signum, true));
 		if (!ok(errNo)) return error(-1, errNo);
 		var value = Bytes.fromMsb(struct.bytes);
 		value = operator.applyAsLong(value, sigSetVal(signum));
@@ -400,10 +390,6 @@ public class TestCLibNative implements CLib.Native {
 
 	private static boolean ok(CErrNo errNo) {
 		return errNo == null; // || !errNo.defined();
-	}
-
-	private static <T> T result(Result<T> result) {
-		return result(result, result.value());
 	}
 
 	private static <T> T result(Result<T> result, T error) {
