@@ -20,6 +20,8 @@ public class Native {
 	/** The default symbol lookup. */
 	public static final SymbolLookup LOOKUP = LINKER.defaultLookup();
 
+	private Native() {}
+
 	/**
 	 * Supported types.
 	 */
@@ -57,7 +59,7 @@ public class Native {
 	 */
 	public interface Adapted<T> {
 		Adapted<?> NULL = of(null);
-		
+
 		/**
 		 * Provides the adapted value.
 		 */
@@ -121,7 +123,7 @@ public class Native {
 		 * Adapts the local value to its native value, with option to resolve the original value
 		 * after changes.
 		 */
-		public Native.Adapted<R> toNative(SegmentAllocator allocator, T localValue) {
+		public Adapted<R> toNative(SegmentAllocator allocator, T localValue) {
 			return toNative().apply(allocator, localValue);
 		}
 

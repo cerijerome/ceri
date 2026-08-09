@@ -10,6 +10,7 @@ import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
 import ceri.common.data.Bytes;
 import ceri.common.math.Maths;
+import ceri.common.reflect.ClassReInitializer;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.Testing;
@@ -21,6 +22,7 @@ import ceri.ffm.core.Segments;
 import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.Support;
+import ceri.ffm.util.FfmOs;
 
 public class FfmTesting {
 	public static BinaryPrinter P = BinaryPrinter.STD;
@@ -290,6 +292,22 @@ public class FfmTesting {
 		P.message(Segments.string(m));
 		print(Segments.slice(m, offset, length));
 		P.message("");
+	}
+
+	/**
+	 * Reloads and instantiates the test class, overriding the current OS. Support classes are
+	 * reloaded if accessed.
+	 */
+	public static void testAsOs(FfmOs os, Class<?> testCls, Class<?>... reloads) {
+		os.accept(_ -> ClassReInitializer.of(testCls, reloads).reinit());
+	}
+
+	/**
+	 * Reloads and instantiates the test class for each supported OS, overriding the current OS.
+	 * Support classes are reloaded if accessed.
+	 */
+	public static void testForEachOs(Class<?> testCls, Class<?>... reloads) {
+		FfmOs.forEach(os -> testAsOs(os, testCls, reloads));
 	}
 
 	// support

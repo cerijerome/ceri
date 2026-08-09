@@ -262,6 +262,12 @@ public class PathsTest {
 	}
 
 	@Test
+	public void testString() {
+		Assert.equal(Paths.string(null), null);
+		Assert.equal(Paths.string(Path.of("a/b/c")), "a/b/c");
+	}
+
+	@Test
 	public void testToUnix() {
 		Assert.equal(Paths.toUnix((String) null), null);
 		Assert.equal(Paths.toUnix((Path) null), null);

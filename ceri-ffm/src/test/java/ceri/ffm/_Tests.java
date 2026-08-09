@@ -10,6 +10,13 @@ import ceri.common.test.Testing;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// clib.ffm
+	ceri.ffm.clib.ffm.CErrNoTest.class, //
+	ceri.ffm.clib.ffm.CFcntlTest.class, //
+	ceri.ffm.clib.ffm.CPollTest.class, //
+	ceri.ffm.clib.ffm.CSignalTest.class, //
+	ceri.ffm.clib.ffm.CStdLibTest.class, //
+	ceri.ffm.clib.ffm.CStringTest.class, //
+	ceri.ffm.clib.ffm.CTimeTest.class, //
 	ceri.ffm.clib.ffm.CUnistdTest.class, //
 	// core
 	ceri.ffm.core.DecoderBehavior.class, //

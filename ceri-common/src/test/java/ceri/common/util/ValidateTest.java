@@ -61,8 +61,8 @@ public class ValidateTest {
 	public void testNonNull() {
 		Validate.nonNull(OBJ);
 		Validate.nonNull(OBJ, TEST);
-		assertInvalid(() -> Validate.nonNull(null));
-		assertInvalid(() -> Validate.nonNull(null, TEST));
+		Assert.nullPointer(() -> Validate.nonNull(null));
+		Assert.nullPointer(() -> Validate.nonNull(null, TEST));
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class ValidateTest {
 	public void testAllNonNull() {
 		Validate.allNonNull();
 		Validate.allNonNull(OBJ, "");
-		assertInvalid(() -> Validate.allNonNull(OBJ, null, ""));
-		assertInvalid(() -> Validate.allNonNull(nullArr));
+		Assert.nullPointer(() -> Validate.allNonNull(OBJ, null, ""));
+		Assert.nullPointer(() -> Validate.allNonNull(nullArr));
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class ValidateTest {
 
 	@Test
 	public void testNonEmpty() {
-		assertInvalid(() -> Validate.nonEmpty(nullSet));
+		Assert.nullPointer(() -> Validate.nonEmpty(nullSet));
 		assertInvalid(() -> Validate.nonEmpty(Set.of()));
 		Assert.unordered(Validate.nonEmpty(Sets.ofAll(nullStr)), nullStr);
 	}

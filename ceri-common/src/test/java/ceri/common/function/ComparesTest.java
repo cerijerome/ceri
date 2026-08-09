@@ -44,9 +44,9 @@ public class ComparesTest {
 	@Test
 	public void testNullFails() {
 		var c = Compares.<Integer>of(Compares.Nulls.fail);
-		Assert.illegalArg(() -> c.compare(null, null));
-		Assert.illegalArg(() -> c.compare(null, 1));
-		Assert.illegalArg(() -> c.compare(1, null));
+		Assert.nullPointer(() -> c.compare(null, null));
+		Assert.nullPointer(() -> c.compare(null, 1));
+		Assert.nullPointer(() -> c.compare(1, null));
 		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 

@@ -1,7 +1,9 @@
 package ceri.ffm.clib.ffm;
 
 import java.lang.foreign.MemorySegment;
+import ceri.common.data.Xcoder;
 import ceri.common.util.Os;
+import ceri.common.util.Validate;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.reflect.CAnnotations.CType;
 import ceri.ffm.reflect.CAnnotations.CUndefined;
@@ -84,17 +86,57 @@ public class CSignal {
 	public static final int SIGIO;
 	/** Bad system call (Core) */
 	public static final int SIGSYS;
-	/** Default signal handler */
-	@CUndefined // cast to pointer
-	public static final int SIG_DFL = 0;
-	/** Ignore signal handler */
-	@CUndefined // cast to pointer
-	public static final int SIG_IGN = 1;
-	/** Error response */
-	@CUndefined // cast to pointer
-	public static final int SIG_ERR = -1;
 
 	private CSignal() {}
+
+	/**
+	 * Built-in signal handler macros.
+	 */
+	@CUndefined
+	public enum Macro {
+		/** Error response */
+		SIG_ERR(-1L),
+		/** Default signal handler */
+		SIG_DFL(0L),
+		/** Ignore signal handler */
+		SIG_IGN(1L);
+
+		public static final Xcoder.Type<Macro> xcoder =
+			Xcoder.type(Macro.class, t -> t.pointer.address());
+		public final MemorySegment pointer;
+
+		private Macro(long address) {
+			pointer = MemorySegment.ofAddress(address);
+		}
+	}
+
+	/**
+	 * An encapsulation of macro and custom signal handlers.
+	 */
+	public record Result(MemorySegment pointer) {
+		@SuppressWarnings("resource")
+		public boolean invoke(int signum) {
+			var callback = callback();
+			if (callback == null) return false;
+			callback.invoke(signum);
+			return true;
+		}
+
+		public Macro macro() {
+			return Macro.xcoder.decode(pointer.address());
+		}
+
+		public sighandler_t callback() {
+			return macro() != null ? null : Callback.callback(sighandler_t.class, pointer);
+		}
+
+		@SuppressWarnings("resource")
+		@Override
+		public String toString() {
+			var macro = macro();
+			return String.valueOf(macro != null ? macro : Callback.toString(callback()));
+		}
+	}
 
 	// void (*sighandler_t)(int)
 	public interface sighandler_t extends Callback {
@@ -112,76 +154,24 @@ public class CSignal {
 	}
 
 	/**
-	 * An encapsulation of system and custom signal handlers.
-	 */
-	public static class Handler {
-		public static final Handler ERR = new Handler(MemorySegment.ofAddress(SIG_ERR));
-		public static final Handler IGN = new Handler(MemorySegment.ofAddress(SIG_IGN));
-		public static final Handler DFL = new Handler(MemorySegment.ofAddress(SIG_DFL));
-		public final MemorySegment pointer;
-
-		private Handler(MemorySegment pointer) {
-			this.pointer = pointer;
-		}
-
-		@SuppressWarnings("resource")
-		public boolean invoke(int signum) {
-			var callback = callback();
-			if (callback == null) return false;
-			callback.invoke(signum);
-			return true;
-		}
-
-		private sighandler_t callback() {
-			return isCallback() ? Callback.callback(sighandler_t.class, pointer) : null;
-		}
-
-		public boolean isCallback() {
-			long address = pointer.address();
-			return address != SIG_ERR && address != SIG_IGN && address != SIG_DFL;
-		}
-
-		public boolean isDefault() {
-			return pointer.address() == SIG_DFL;
-		}
-
-		public boolean isIgnore() {
-			return pointer.address() == SIG_IGN;
-		}
-
-		public boolean isError() {
-			return pointer.address() == SIG_ERR;
-		}
-
-		@SuppressWarnings("resource")
-		@Override
-		public String toString() {
-			if (isDefault()) return "SIG_DFL";
-			if (isIgnore()) return "SIG_IGN";
-			if (isError()) return "SIG_ERR";
-			return Callback.toString(callback());
-		}
-	}
-
-	/**
 	 * Sets a signal handler. Returns the previous handler.
 	 */
-	public static Handler signal(int signum, sighandler_t handler) throws CException {
+	public static Result signal(int signum, sighandler_t handler) throws CException {
 		return signal(signum, Callback.pointer(handler), handler);
 	}
 
 	/**
 	 * Sets the signal handler to SIG_DFL. Returns the previous handler.
 	 */
-	public static Handler signalDefault(int signum) throws CException {
-		return signal(signum, MemorySegment.ofAddress(SIG_DFL), SIG_DFL);
+	public static Result signalDefault(int signum) throws CException {
+		return signal(signum, Macro.SIG_DFL.pointer, Macro.SIG_DFL);
 	}
 
 	/**
 	 * Sets the signal handler to SIG_DFL. Returns the previous handler.
 	 */
-	public static Handler signalIgnore(int signum) throws CException {
-		return signal(signum, MemorySegment.ofAddress(SIG_IGN), SIG_IGN);
+	public static Result signalIgnore(int signum) throws CException {
+		return signal(signum, Macro.SIG_IGN.pointer, Macro.SIG_IGN);
 	}
 
 	/**
@@ -197,6 +187,7 @@ public class CSignal {
 	 * Initializes a signal set.
 	 */
 	public static Pointer<sigset_t> sigemptyset(Pointer<sigset_t> set) throws CException {
+		Validate.nonNull(set);
 		CLib.caller.verifyInt(lib -> lib.sigemptyset(set), -1, "sigemptyset", set);
 		return set;
 	}
@@ -205,6 +196,7 @@ public class CSignal {
 	 * Adds the signal number to the set.
 	 */
 	public static Pointer<sigset_t> sigaddset(Pointer<sigset_t> set, int signum) throws CException {
+		Validate.nonNull(set);
 		CLib.caller.verifyInt(lib -> lib.sigaddset(set, signum), -1, "sigaddset", set, signum);
 		return set;
 	}
@@ -213,6 +205,7 @@ public class CSignal {
 	 * Deletes the signal number from the set.
 	 */
 	public static Pointer<sigset_t> sigdelset(Pointer<sigset_t> set, int signum) throws CException {
+		Validate.nonNull(set);
 		CLib.caller.verifyInt(lib -> lib.sigdelset(set, signum), -1, "sigdelset", set, signum);
 		return set;
 	}
@@ -221,17 +214,17 @@ public class CSignal {
 	 * Returns true if the set contains the signal number.
 	 */
 	public static boolean sigismember(Pointer<sigset_t> set, int signum) throws CException {
+		Validate.nonNull(set);
 		return CLib.caller.verifyInt(lib -> lib.sigismember(set, signum), -1, "sigismember", set,
 			signum) == 1;
 	}
 
 	// support
 
-	private static Handler signal(int signum, MemorySegment handler, Object arg)
-		throws CException {
+	private static Result signal(int signum, MemorySegment handler, Object arg) throws CException {
 		return CLib.caller.callType(c -> {
-			var previous = new Handler(c.lib().signal(signum, handler));
-			if (previous.isError()) c.verify();
+			var previous = new Result(c.lib().signal(signum, handler));
+			if (previous.macro() == Macro.SIG_ERR) c.verify();
 			return previous;
 		}, "signal", signum, arg);
 	}

@@ -54,7 +54,7 @@ public class Exceptions {
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static NullPointerException nullPtr(String format, Object... args) {
+	public static NullPointerException nullPointer(String format, Object... args) {
 		return from(NullPointerException::new, null, format, args);
 	}
 

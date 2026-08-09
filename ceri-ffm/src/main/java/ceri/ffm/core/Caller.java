@@ -23,7 +23,7 @@ import ceri.ffm.type.PointerType;
  */
 public class Caller<E extends Exception, T> {
 	private final Transformer transformer;
-	private final int generalCode;
+	private final int generalErrorCode;
 	private final ToException<E> exceptionFn;
 	private final Functions.Supplier<T> lib;
 
@@ -173,30 +173,31 @@ public class Caller<E extends Exception, T> {
 	 * Creates caller configuration with exception adapter.
 	 */
 	public static <T> Caller<CException, T> of(Functions.Supplier<T> lib) {
-		return of(CException::full, lib);
+		return of(CException::full, CException.GENERAL_ERROR_CODE, lib);
 	}
 
 	/**
 	 * Creates caller configuration with argument formatter and exception adapter.
 	 */
 	public static <E extends Exception, T> Caller<E, T> of(ToException<E> exceptionFn,
+		int generalErrorCode,
 		Functions.Supplier<T> lib) {
-		return of(Transform.COMPACT, -1, exceptionFn, lib);
+		return of(Transform.COMPACT, exceptionFn, generalErrorCode, lib);
 	}
 
 	/**
 	 * Creates caller configuration with argument formatter and exception adapter.
 	 */
-	public static <E extends Exception, T> Caller<E, T> of(Transformer transformer, int generalCode,
-		ToException<E> exceptionFn, Functions.Supplier<T> lib) {
-		return new Caller<>(transformer, generalCode, exceptionFn, lib);
+	public static <E extends Exception, T> Caller<E, T> of(Transformer transformer, 
+		ToException<E> exceptionFn, int generalErrorCode, Functions.Supplier<T> lib) {
+		return new Caller<>(transformer, exceptionFn, generalErrorCode, lib);
 	}
 
-	private Caller(Transformer transformer, int generalCode, ToException<E> exceptionFn,
+	private Caller(Transformer transformer, ToException<E> exceptionFn, int generalErrorCode, 
 		Functions.Supplier<T> lib) {
 		this.transformer = transformer;
-		this.generalCode = generalCode;
 		this.exceptionFn = exceptionFn;
+		this.generalErrorCode = generalErrorCode;
 		this.lib = lib;
 	}
 
@@ -301,8 +302,7 @@ public class Caller<E extends Exception, T> {
 		try {
 			call.accept(context);
 		} catch (Exception e) {
-			Concurrent.checkRuntimeInterrupted(e);
-			context.fail(generalCode, e);
+			fail(context, e);
 		}
 	}
 
@@ -310,8 +310,7 @@ public class Caller<E extends Exception, T> {
 		try {
 			return call.applyAsInt(context);
 		} catch (Exception e) {
-			Concurrent.checkRuntimeInterrupted(e);
-			context.fail(generalCode, e);
+			fail(context, e);
 			return 0;
 		}
 	}
@@ -320,9 +319,8 @@ public class Caller<E extends Exception, T> {
 		try {
 			return call.applyAsLong(context);
 		} catch (Exception e) {
-			Concurrent.checkRuntimeInterrupted(e);
-			context.fail(generalCode, e);
-			return 0;
+			fail(context, e);
+			return 0L;
 		}
 	}
 
@@ -330,12 +328,16 @@ public class Caller<E extends Exception, T> {
 		try {
 			return call.apply(context);
 		} catch (Exception e) {
-			Concurrent.checkRuntimeInterrupted(e);
-			context.fail(generalCode, e);
+			fail(context, e);
 			return null;
 		}
 	}
 
+	private void fail(Context context, Exception e) {
+		Concurrent.checkRuntimeInterrupted(e);
+		context.fail(generalErrorCode, e);
+	}
+	
 	private E exception(int code, Functions.Function<CallDescriptor, String> callDesc,
 		Throwable cause) {
 		var message = callDesc.apply(this::failMessage);

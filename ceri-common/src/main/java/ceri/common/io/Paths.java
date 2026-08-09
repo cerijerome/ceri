@@ -342,6 +342,13 @@ public class Paths {
 	}
 
 	/**
+	 * Returns the path as a string or null.
+	 */
+	public static String string(Path path) {
+		return path == null ? null : path.toString();
+	}
+	
+	/**
 	 * Convert file path to unix format.
 	 */
 	public static String toUnix(Path path) {

@@ -515,13 +515,15 @@ public class Call {
 	private static <T extends IntType<T>> Native.Adapter<T, Number> intType(TypeNode node,
 		IntType.Supporter<T> support) {
 		return new Native.Adapter<>(node.typed(), support.nativeType(), support.val().nativeValue(),
-			support.layout(), (_, t) -> Native.Adapted.of(t.nativeValue()), n -> support.of(n));
+			support.layout(), (_, t) -> Native.Adapted.of(IntType.nativeValue(t)),
+			n -> support.of(n));
 	}
 
 	private static <P extends PointerType.Raw> Native.Adapter<P, MemorySegment>
 		pointer(TypeNode node, PointerType.Supporter<P> support) {
 		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
-			support.layout(), (_, t) -> Native.Adapted.of(t.memory()), m -> support.of(m));
+			support.layout(), (_, t) -> Native.Adapted.of(PointerType.memory(t)),
+			m -> support.of(m));
 	}
 
 	private static <C extends Callback> Native.Adapter<C, MemorySegment> callback(TypeNode node,

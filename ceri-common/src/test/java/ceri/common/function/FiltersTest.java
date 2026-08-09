@@ -78,7 +78,7 @@ public class FiltersTest {
 		assertTest(Filters.of(Filters.Nulls.yes, null), false, "", 1);
 		assertTest(Filters.of(Filters.Nulls.no, null), false, null, "", 1);
 		assertTest(Filters.of(Filters.Nulls.none, null), false, null, "", 1);
-		Assert.illegalArg(() -> Filters.of(Filters.Nulls.fail, null).test(null));
+		Assert.nullPointer(() -> Filters.of(Filters.Nulls.fail, null).test(null));
 		assertTest(Filters.of(Filters.Nulls.fail, null), false, "", 1);
 	}
 
@@ -90,7 +90,7 @@ public class FiltersTest {
 		assertTest(Filters.of(Filters.Nulls.no, Filters.YES), false, nullStr);
 		assertTest(Filters.of(Filters.Nulls.no, Filters.YES), true, "", 1);
 		assertTest(Filters.of(Filters.Nulls.none, Filters.YES), true, null, "", 1);
-		Assert.illegalArg(() -> Filters.of(Filters.Nulls.fail, Filters.YES).test(null));
+		Assert.nullPointer(() -> Filters.of(Filters.Nulls.fail, Filters.YES).test(null));
 		assertTest(Filters.of(Filters.Nulls.fail, Filters.YES), true, "", 1);
 	}
 
@@ -158,7 +158,7 @@ public class FiltersTest {
 		Assert.thrown(() -> Filters.biAs(Filters.Nulls.none, a1, a2, bp).test(null));
 		assertTest(Filters.biAs(Filters.Nulls.fail, a1, a2, bp), false, " ", "a ");
 		assertTest(Filters.biAs(Filters.Nulls.fail, a1, a2, bp), true, "", "a b");
-		Assert.illegalArg(() -> Filters.biAs(Filters.Nulls.fail, a1, a2, bp).test(null));
+		Assert.nullPointer(() -> Filters.biAs(Filters.Nulls.fail, a1, a2, bp).test(null));
 	}
 
 	@Test

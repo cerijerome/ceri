@@ -222,6 +222,17 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	}
 
 	/**
+	 * Returns a charset for char size.
+	 */
+	public static Charset charset(int size) {
+		return switch (size) {
+			case Byte.BYTES -> StandardCharsets.UTF_8;
+			case Short.BYTES -> StandardCharsets.UTF_16;
+			default -> StandardCharsets.UTF_32;
+		};
+	}
+	
+	/**
 	 * Returns an instance for the charset.
 	 */
 	public static StringType of(Charset charset) {

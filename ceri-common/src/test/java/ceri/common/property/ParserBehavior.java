@@ -49,9 +49,9 @@ public class ParserBehavior {
 	@Test
 	public void shouldValidateAgainstNull() {
 		Assert.ordered(strings("").getValid());
-		Assert.illegalArg(() -> Parser.type(null).getValid());
-		Assert.illegalArg(() -> Parser.type(null).getValid("test"));
-		Assert.illegalArg(() -> Parser.types((List<?>) null).getValid());
+		Assert.nullPointer(() -> Parser.type(null).getValid());
+		Assert.nullPointer(() -> Parser.type(null).getValid("test"));
+		Assert.nullPointer(() -> Parser.types((List<?>) null).getValid());
 	}
 
 	@Test

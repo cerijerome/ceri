@@ -12,7 +12,7 @@ import ceri.jna.test.JnaAssert;
 import ceri.jna.type.Struct;
 
 /**
- * Provides support for low-level serial testing. Simulates some interactions of serial calls using
+ * Provides support for low-level serial testing. Emulates some interactions of serial calls using
  * test CLib.
  */
 public abstract class CSerialTestHelper {

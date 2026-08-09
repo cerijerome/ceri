@@ -6,9 +6,9 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
-import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.test.TestCLibNative;
+import ceri.ffm.clib.test.TestCLibNative.Result;
 import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmAssert;
 
@@ -66,10 +66,12 @@ public class CUnistdTest {
 	@Test
 	public void testPipe() throws IOException {
 		int[] pipefd = CUnistd.pipe();
-		CUnistd.writeAll(pipefd[1], 1, 2, 3);
-		Assert.array(CUnistd.readBytes(pipefd[0], 8), 1, 2, 3); // only reads 3
-		CUnistd.close(pipefd[0]);
-		CUnistd.close(pipefd[1]);
+		try {
+			CUnistd.writeAll(pipefd[1], 1, 2, 3);
+			Assert.array(CUnistd.readBytes(pipefd[0], 8), 1, 2, 3); // only reads 3
+		} finally {
+			CUnistd.closeSilently(pipefd);
+		}
 	}
 
 	@Test
@@ -107,8 +109,8 @@ public class CUnistdTest {
 
 	@Test
 	public void testReadError() throws IOException {
-		initTestFile().read.autoResponses(result(1, 2, 3), error(CErrNo.EAGAIN),
-			error(CErrNo.EACCES));
+		initTestFile().read.autoResponses(Result.bytes(1, 2, 3), Result.errno(CErrNo.EAGAIN),
+			Result.errno(CErrNo.EACCES));
 		Assert.array(CUnistd.readBytes(fd, 5), 1, 2, 3);
 		Assert.array(CUnistd.readBytes(fd, 3));
 		FfmAssert.cexception(CErrNo.EACCES, () -> CUnistd.readBytes(fd, 3));
@@ -122,7 +124,8 @@ public class CUnistdTest {
 
 	@Test
 	public void testReadAllToBytes() throws IOException {
-		initTestFile().read.autoResponses(result(), result(1, 2, 3), result(4, 5), result());
+		initTestFile().read.autoResponses(Result.NO_BYTES, Result.bytes(1, 2, 3),
+			Result.bytes(4, 5), Result.NO_BYTES);
 		Assert.equal(CUnistd.readAll(fd, (byte[]) null), 0);
 		Assert.array(readAllToBytes(fd, 0));
 		Assert.array(readAllToBytes(fd, 3), 0, 0, 0);
@@ -131,7 +134,8 @@ public class CUnistdTest {
 
 	@Test
 	public void testReadAllBytes() throws IOException {
-		initTestFile().read.autoResponses(result(), result(1, 2, 3), result(4, 5), result());
+		initTestFile().read.autoResponses(Result.NO_BYTES, Result.bytes(1, 2, 3),
+			Result.bytes(4, 5), Result.NO_BYTES);
 		Assert.array(CUnistd.readAllBytes(fd, 0));
 		Assert.array(CUnistd.readAllBytes(fd, 3));
 		Assert.array(CUnistd.readAllBytes(fd, 6), 1, 2, 3, 4, 5);
@@ -139,8 +143,8 @@ public class CUnistdTest {
 
 	@Test
 	public void testReadAllError() throws IOException {
-		initTestFile().read.autoResponses(result(1, 2, 3), error(CErrNo.EAGAIN),
-			error(CErrNo.EACCES));
+		initTestFile().read.autoResponses(Result.bytes(1, 2, 3), Result.errno(CErrNo.EAGAIN),
+			Result.errno(CErrNo.EACCES));
 		Assert.array(CUnistd.readAllBytes(fd, 5), 1, 2, 3);
 		FfmAssert.cexception(CErrNo.EACCES, () -> CUnistd.readAllBytes(fd, 3));
 	}
@@ -170,7 +174,8 @@ public class CUnistdTest {
 	@Test
 	public void testWriteAllBytes() throws IOException {
 		byte[][] bytes = { { 0, 0 }, { 0 } };
-		initTestFile().write.autoResponses(result(bytes[0]), result(bytes[1]), result());
+		initTestFile().write.autoResponses(Result.of(bytes[0]), Result.of(bytes[1]),
+			Result.NO_BYTES);
 		Assert.equal(CUnistd.writeAll(fd), 0);
 		Assert.equal(CUnistd.writeAll(fd, new byte[] { 1, 2, 3, 4, 5 }), 3);
 		Assert.deepEqual(bytes, new byte[][] { { 1, 2 }, { 3 } });
@@ -179,8 +184,8 @@ public class CUnistdTest {
 	@Test
 	public void testWriteAllError() throws IOException {
 		var bytes = new byte[2];
-		initTestFile().write.autoResponses(result(bytes), error(CErrNo.EAGAIN),
-			error(CErrNo.EACCES));
+		initTestFile().write.autoResponses(Result.of(bytes), Result.errno(CErrNo.EAGAIN),
+			Result.errno(CErrNo.EACCES));
 		Assert.equal(CUnistd.writeAll(fd, 1, 2, 3), 2);
 		Assert.array(bytes, 1, 2);
 		FfmAssert.cexception(CErrNo.EACCES, () -> CUnistd.writeAll(fd, 4, 5));
@@ -206,7 +211,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testLseekResponses() throws IOException {
-		initTestFile().lseek.autoResponses(result(3L), error(CErrNo.ESPIPE));
+		initTestFile().lseek.autoResponses(Result.of(3L), Result.errno(CErrNo.ESPIPE));
 		Assert.equal(CUnistd.lseek(fd, 1, CUnistd.Seek.SEEK_END), 3L);
 		FfmAssert.cexception(CErrNo.ESPIPE, () -> CUnistd.lseek(fd, 0, CUnistd.Seek.SEEK_SET));
 	}
@@ -225,40 +230,20 @@ public class CUnistdTest {
 		return bytes;
 	}
 
-	private static <T> TestCLibNative.Result<T> error(CErrNo errNo) {
-		return TestCLibNative.Result.error(errNo);
-	}
-
-	private static TestCLibNative.Result<byte[]> result(int... bytes) {
-		return TestCLibNative.Result.ofBytes(bytes);
-	}
-
-	private static <T> TestCLibNative.Result<T> result(T bytes) {
-		return TestCLibNative.Result.of(bytes);
-	}
-
 	private void initFile() throws IOException {
 		helper = FileTestHelper.builder().file(FILE, "test").build();
-		fd = open(FILE, 0);
+		fd = CFcntl.open(helper.path(FILE));
 	}
 
 	private void createFile() throws IOException {
 		helper = FileTestHelper.builder().file(FILE, "").build();
-		fd = open(FILE, CFcntl.Open.O_RDWR.value, 0666);
+		fd = CFcntl.open(helper.path(FILE), 0666, CFcntl.Open.O_RDWR);
 	}
 
 	private TestCLibNative initTestFile() throws CException {
 		ref.init();
 		fd = CFcntl.open(FILE, 0);
 		return ref.lib();
-	}
-
-	private int open(String file, int open, int mode) throws IOException {
-		return CFcntl.open(helper.path(file).toString(), open, mode);
-	}
-
-	private int open(String file, int open) throws IOException {
-		return CFcntl.open(helper.path(file).toString(), open);
 	}
 
 	private void assertFile(int... bytes) throws IOException {

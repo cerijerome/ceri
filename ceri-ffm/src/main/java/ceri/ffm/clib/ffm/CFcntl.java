@@ -1,10 +1,13 @@
 package ceri.ffm.clib.ffm;
 
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.function.IntUnaryOperator;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Maps;
 import ceri.common.data.Xcoder;
+import ceri.common.io.Paths;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Joiner;
 import ceri.common.util.Os;
 import ceri.ffm.reflect.CAnnotations.CInclude;
@@ -17,8 +20,14 @@ import ceri.ffm.reflect.CAnnotations.CUndefined;
 public class CFcntl {
 	@CUndefined
 	public static final int INVALID_FD = -1;
+	/** Used by fcntl F_SETFD/F_GETFD. */
+	public static final int FD_CLOEXEC = 1;
 
 	private CFcntl() {}
+
+	static {
+		Reflect.init(Const.class); // make sure initialized first
+	}
 
 	/**
 	 * Open flags.
@@ -83,13 +92,6 @@ public class CFcntl {
 		 */
 		public static Value of(Open... flags) {
 			return of(xcoder.encodeInt(flags));
-		}
-
-		/**
-		 * Returns true if access modes are valid.
-		 */
-		public boolean isValidAccess(int value) {
-			return (value & O_ACCMODE) != O_ACCMODE;
 		}
 
 		private Open(int value) {
@@ -166,7 +168,7 @@ public class CFcntl {
 	}
 
 	/**
-	 * File descriptor actions.
+	 * File descriptor actions. Only a subset are included here.
 	 */
 	public enum Action {
 		F_DUPFD(0),
@@ -203,8 +205,15 @@ public class CFcntl {
 	/**
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
-	public static int open(String path, Open... flags) throws CException {
-		return open(path, Open.xcoder.encodeInt(flags));
+	public static int open(Path path, Open... flags) throws CException {
+		return open(Paths.string(path), Open.xcoder.encodeInt(flags));
+	}
+
+	/**
+	 * Opens the path with flags and mode, and returns a file descriptor.
+	 */
+	public static int open(Path path, int mode, Open... flags) throws CException {
+		return open(Paths.string(path), Open.xcoder.encodeInt(flags), mode);
 	}
 
 	/**
@@ -225,9 +234,9 @@ public class CFcntl {
 	/**
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
-	public static int fcntl(String name, int fd, int command, Object... objs) throws CException {
+	public static int fcntl(int fd, String name, int command, Object... objs) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.fcntl(fd, command, objs), -1,
-			m -> m.accept(name, fd, name + ":0x" + Integer.toHexString(command), objs));
+			m -> m.accept("fcntl", fd, name + ":0x" + Integer.toHexString(command), objs));
 	}
 
 	/**
@@ -252,14 +261,21 @@ public class CFcntl {
 	}
 
 	/**
-	 * Gets the file access mode and file status flags.
+	 * Applies the modifier to current flags. Returns the new flags value.
+	 */
+	public static int applyFd(int fd, IntUnaryOperator flagFn) throws CException {
+		return applyFcntl(fd, Action.F_GETFD, Action.F_SETFD, flagFn);
+	}
+
+	/**
+	 * Gets the file access mode and status flags.
 	 */
 	public static int getFl(int fd) throws CException {
 		return fcntl(fd, Action.F_GETFL);
 	}
 
 	/**
-	 * Sets the file status flags.
+	 * Sets the file access mode and status flags.
 	 */
 	public static void setFl(int fd, int flags) throws CException {
 		fcntl(fd, Action.F_SETFL, flags);
@@ -269,15 +285,21 @@ public class CFcntl {
 	 * Applies the modifier to current flags. Returns the new flags value.
 	 */
 	public static int applyFl(int fd, IntUnaryOperator flagFn) throws CException {
-		int flags = flagFn.applyAsInt(getFl(fd));
-		setFl(fd, flags);
-		return flags;
+		return applyFcntl(fd, Action.F_GETFL, Action.F_SETFL, flagFn);
 	}
 
 	// support
 
 	private static int fcntl(int fd, Action action, Object... objs) throws CException {
-		return fcntl(action.name(), fd, action.value, objs);
+		return fcntl(fd, action.name(), action.value, objs);
+	}
+
+	private static int applyFcntl(int fd, Action get, Action set, IntUnaryOperator flagFn)
+		throws CException {
+		int previous = fcntl(fd, get);
+		int flags = flagFn.applyAsInt(previous);
+		if (flags != previous) fcntl(fd, set, flags);
+		return flags;
 	}
 
 	// os-specific initialization

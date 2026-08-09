@@ -12,7 +12,7 @@ import ceri.ffm.core.ErrNo;
 public class CException extends IOException {
 	public static final ExceptionAdapter<CException> ADAPTER =
 		ExceptionAdapter.of(CException.class, CException::adapt);
-	public static final int GENERAL_ERROR_CODE = CErrNo.UNDEFINED.code;
+	public static final int GENERAL_ERROR_CODE = CErrNo.EINVAL.code;
 	public final int code;
 
 	public static class Runtime extends RuntimeException {

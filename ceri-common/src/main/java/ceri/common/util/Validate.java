@@ -96,7 +96,7 @@ public class Validate {
 	 */
 	public static <T> T nonNull(T actual, String format, Object... args) {
 		if (actual != null) return actual;
-		throw failed("%s must not be null", f(format, args));
+		throw Exceptions.nullPointer("%s must not be null", format, args);
 	}
 
 	/**

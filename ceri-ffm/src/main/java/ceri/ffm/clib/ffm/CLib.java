@@ -2,6 +2,7 @@ package ceri.ffm.clib.ffm;
 
 import java.lang.foreign.MemorySegment;
 import ceri.common.util.Os;
+import ceri.ffm.clib.ffm.CPoll.pollfd;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
 import ceri.ffm.clib.ffm.CUnistd.size_t;
 import ceri.ffm.clib.ffm.CUnistd.ssize_t;
@@ -76,11 +77,7 @@ public class CLib {
 		// <poll.h>
 
 		// int poll(struct pollfd *__fds, nfds_t __nfds, int __timeout);
-		// int poll(Pointer fds, int nfds, int timeout);
-
-		// int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec * tmo_p,
-		// const sigset_t * sigmask);
-		// int ppoll(Pointer fds, int nfds, Pointer tmo_p, Pointer sigmask);
+		int poll(Pointer<pollfd> fds, int nfds, int timeout);
 
 		// <fcntl.h>
 

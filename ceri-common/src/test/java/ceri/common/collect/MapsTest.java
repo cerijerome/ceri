@@ -222,7 +222,7 @@ public class MapsTest {
 
 	@Test
 	public void testGetOrThrow() {
-		Assert.illegalArg(() -> Maps.getOrThrow(nullMap, -1));
+		Assert.nullPointer(() -> Maps.getOrThrow(nullMap, -1));
 		Assert.illegalArg(() -> Maps.getOrThrow(emptyMap, -1));
 		Assert.illegalArg(() -> Maps.getOrThrow(map, 0));
 		Assert.equal(Maps.getOrThrow(map, -1), "A");

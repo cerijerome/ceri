@@ -34,7 +34,7 @@ public class ExceptionsTest {
 
 	@Test
 	public void testNullPtr() {
-		Assert.throwable(Exceptions.nullPtr("%d", 123), NullPointerException.class, "123");
+		Assert.throwable(Exceptions.nullPointer("%d", 123), NullPointerException.class, "123");
 	}
 
 	@Test

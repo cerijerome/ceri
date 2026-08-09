@@ -457,28 +457,28 @@ public abstract class PointerType {
 		}
 
 		/**
-		 * Returns a new array from memory, with up to optional nul-termination.
+		 * Returns a new array from memory up to optional nul-termination.
 		 */
 		public A getArray(boolean nul) {
 			return getArray(Integer.MAX_VALUE, nul);
 		}
 
 		/**
-		 * Returns a new array from memory, with up to optional nul-termination.
+		 * Returns a new array from memory up to optional nul-termination.
 		 */
 		public A getArray(int count, boolean nul) {
 			return getArrayAt(0, count, nul);
 		}
 
 		/**
-		 * Returns a new array from memory, with up to optional nul-termination.
+		 * Returns a new array from memory up to optional nul-termination.
 		 */
 		public A getArrayAt(int index, boolean nul) {
 			return getArrayAt(index, Integer.MAX_VALUE, nul);
 		}
 
 		/**
-		 * Returns a new array from memory, with up to optional nul-termination.
+		 * Returns a new array from memory up to optional nul-termination.
 		 */
 		public A getArrayAt(int index, int count, boolean nul) {
 			return type().getArray(memory(), size(index), size(count), nul);
@@ -535,6 +535,61 @@ public abstract class PointerType {
 		}
 
 		/**
+		 * Copies values from memory up to optional nul-termination, to the array within bounds.
+		 * Returns the number of values copied. Returns 0 if nul-termination is specified but not
+		 * found.
+		 */
+		public int readArray(A array, boolean nul) {
+			return readArray(array, 0, nul);
+		}
+
+		/**
+		 * Copies values from memory up to optional nul-termination, to the array within bounds.
+		 * Returns the number of values copied. Returns 0 if nul-termination is specified but not
+		 * found.
+		 */
+		public int readArray(A array, int start, boolean nul) {
+			return readArray(array, start, Integer.MAX_VALUE, nul);
+		}
+
+		/**
+		 * Copies values from memory up to optional nul-termination, to the array within bounds.
+		 * Returns the number of values copied. Returns 0 if nul-termination is specified but not
+		 * found.
+		 */
+		public int readArray(A array, int start, int count, boolean nul) {
+			return readArrayAt(0, array, start, count, nul);
+		}
+
+		/**
+		 * Copies values from memory at value index, up to optional nul-termination, to the array
+		 * within bounds. Returns the number of values copied. Returns 0 if nul-termination is
+		 * specified but not found.
+		 */
+		public int readArrayAt(int index, A array, boolean nul) {
+			return readArrayAt(index, array, 0, nul);
+		}
+
+		/**
+		 * Copies values from memory at value index, up to optional nul-termination, to the array
+		 * within bounds. Returns the number of values copied. Returns 0 if nul-termination is
+		 * specified but not found.
+		 */
+		public int readArrayAt(int index, A array, int start, boolean nul) {
+			return readArrayAt(index, array, start, Integer.MAX_VALUE, nul);
+		}
+
+		/**
+		 * Copies values from memory at value index, up to optional nul-termination, to the array
+		 * within bounds. Returns the number of values copied. Returns 0 if nul-termination is
+		 * specified but not found.
+		 */
+		public int readArrayAt(int index, A array, int start, int count, boolean nul) {
+			return type().readArray(memory(), size(index), Long.MAX_VALUE, array, start, count,
+				nul);
+		}
+
+		/**
 		 * Returns the byte size for the given the pointer type count.
 		 */
 		long size(int count) {
@@ -556,6 +611,13 @@ public abstract class PointerType {
 				return Reflect.unchecked(this);
 			return instance(memory, type, constant);
 		}
+	}
+
+	/**
+	 * Returns the pointer types memory segment, or null.
+	 */
+	public static MemorySegment memory(PointerType pointer) {
+		return pointer == null ? null : pointer.memory();
 	}
 
 	/**

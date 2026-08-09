@@ -560,15 +560,22 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Creates a typed pointer for the memory segment.
 	 */
-	public P pointer() {
-		return pointer(alloc());
+	public P pointer(MemorySegment memory) {
+		return pointer(memory, false);
 	}
 	
 	/**
-	 * Creates a typed pointer for the memory segment.
+	 * Allocates memory as a pointer to an empty value. 
 	 */
-	public P pointer(MemorySegment memory) {
-		return pointer(memory, false);
+	public P pointer() {
+		return pointer(Segments.auto());
+	}
+	
+	/**
+	 * Allocates memory as a pointer to an empty value. 
+	 */
+	public P pointer(SegmentAllocator allocator) {
+		return pointer(alloc(allocator));
 	}
 	
 	/**
@@ -582,7 +589,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Allocates memory as a pointer to the value. 
 	 */
 	public P pointerOf(SegmentAllocator allocator, T value) {
-		return pointer(alloc(allocator, value), false);
+		return pointer(alloc(allocator, value));
 	}
 	
 	/**

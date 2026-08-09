@@ -18,8 +18,7 @@ Questions:
 - why doesn't ffm stop actions on null address => SIGSEGV?
   - AddressLayout.withTargetLayout causes SIGSEGV on call return if address = 0
   - fixed in later JDK?
-- how to specify platform alignment in ffm?
-  - can't go back once changed
+- how to specify platform alignment in ffm? (byte order is now an enum)
   - JNA: platform def, 1, gnuc (field <= 4), msvc (field)
 - how does JNA determine if errno should cause LastErrorException?
   - errno usually not cleared by c call, just set on error
@@ -32,7 +31,7 @@ Questions:
     - more flexible, but more work for caller (make part of Caller verify?)
   - option 3) @ErrNo on call to capture errno thread-local var; available to caller
     - more flexible, but more work for caller (make part of Caller verify?)
-    - always collect errno? no need for @ErrNo; minimal extra overhead?
+    - always collect errno? no need for @ErrNo; but minimal extra overhead?
 - how to get linker apart from Linker.nativeLinker?
 - how to handle function pointers? linker.upcallStub
 - when is Linker.Option.critical() used?

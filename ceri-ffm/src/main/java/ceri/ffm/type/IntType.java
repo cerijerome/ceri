@@ -321,6 +321,13 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	}
 
 	/**
+	 * Returns the native value or null.
+	 */
+	public static Number nativeValue(IntType<?> value) {
+		return value == null ? null : value.nativeValue();
+	}
+	
+	/**
 	 * Returns the default layout for the type.
 	 */
 	public static <T extends IntType<T>> ValueLayout layout(Class<T> cls) {

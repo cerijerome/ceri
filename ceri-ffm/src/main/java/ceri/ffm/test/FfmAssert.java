@@ -34,6 +34,10 @@ public class FfmAssert {
 		return result;
 	}
 	
+	public static void cexception(Excepts.Runnable<Exception> runnable) {
+		Assert.thrown(CException.class, runnable);
+	}	
+	
 	public static void cexception(CErrNo errNo, Excepts.Runnable<Exception> runnable) {
 		cexception(errNo.code, runnable);
 	}
