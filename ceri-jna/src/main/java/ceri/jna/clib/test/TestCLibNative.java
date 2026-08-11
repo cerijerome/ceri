@@ -38,7 +38,7 @@ import ceri.jna.util.JnaLibrary;
  * Test implementation for CLib native interface.
  */
 public class TestCLibNative implements CLib.Native {
-	private AtomicInteger nextFd = new AtomicInteger();
+	private final AtomicInteger nextFd = new AtomicInteger();
 	public final Set<Integer> fds = Sets.concurrent();
 	public final Map<Integer, FdContext> fdContext = Maps.concurrent();
 	public final Map<String, String> env = Maps.concurrent();

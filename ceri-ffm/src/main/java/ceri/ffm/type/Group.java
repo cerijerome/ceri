@@ -32,7 +32,6 @@ import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.TypeNode;
 
 /**
@@ -54,10 +53,24 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	}
 
 	/**
+	 * Updates a type from memory, or returns a new type from memory if immutable.
+	 */
+	public interface Updater<T> {
+		T apply(MemorySegment memory, long offset, T t);
+	}
+
+	/**
+	 * Writes type instance to memory.
+	 */
+	public interface Writer<T> {
+		void accept(MemorySegment memory, long offset, T t);
+	}
+
+	/**
 	 * Provides actions for a group member.
 	 */
 	private record Actions<T>(Functions.Operator<T> init, Functions.ObjIntFunction<T, T> flexInit,
-		Segments.Update<T> update, Segments.Write<T> write) {
+		Updater<T> update, Writer<T> write) {
 
 		/**
 		 * Initializes a type instance with optional flex array size (structs).
@@ -131,8 +144,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			}
 
 			private <T> Builder actions(Functions.Operator<T> init,
-				Functions.ObjIntFunction<T, T> flexInit, Segments.Update<T> update,
-				Segments.Write<T> write) {
+				Functions.ObjIntFunction<T, T> flexInit, Updater<T> update, Writer<T> write) {
 				actions = new Actions<>(init, flexInit, update, write);
 				return this;
 			}
@@ -446,7 +458,8 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		return setMember(supports().from(member.node), member);
 	}
 
-	private static <U> Member.Builder setMember(Support<U, ?, ?, ?> support, Member.Builder member) {
+	private static <U> Member.Builder setMember(Support<U, ?, ?, ?> support,
+		Member.Builder member) {
 		return member.layout(support.layout()).support(support).<U>actions(support::init, null,
 			support::update, support::write);
 	}

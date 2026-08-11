@@ -22,7 +22,6 @@ import ceri.ffm.core.Decoder;
 import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 import ceri.ffm.core.Terminator;
 
 /**
@@ -168,7 +167,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		String decode(Decoder decoder, long length) {
 			length = Math.min(length, layoutSize());
 			var memory = string.slice(decoder.memory(), decoder.offset(), length, nul);
-			if (Segments.isNull(memory)) return decodeNoVal(decoder, length);
+			if (Memory.isNull(memory)) return decodeNoVal(decoder, length);
 			var buffer = memory.asByteBuffer();
 			var value = string.decode(buffer);
 			decoder.inc(buffer.position() + string.termSize(nul));
@@ -231,7 +230,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 			default -> StandardCharsets.UTF_32;
 		};
 	}
-	
+
 	/**
 	 * Returns an instance for the charset.
 	 */
@@ -358,7 +357,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 * Allocates memory with the encoded chars and optional nul-termination.
 	 */
 	public MemorySegment alloc(CharSequence s, int index, int count, boolean nul) {
-		return alloc(Segments.auto(), s, index, count, nul);
+		return alloc(Memory.auto(), s, index, count, nul);
 	}
 
 	/**
@@ -410,7 +409,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 */
 	public String get(MemorySegment memory, long offset, long length, boolean nul) {
 		memory = slice(memory, offset, length, nul);
-		if (Segments.isNull(memory)) return null;
+		if (Memory.isNull(memory)) return null;
 		return decode(memory.asByteBuffer());
 	}
 
@@ -436,7 +435,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	 */
 	public int write(MemorySegment memory, long offset, long length, CharSequence s, int index,
 		int count, boolean nul) {
-		if (s == null || Segments.isNull(memory)) return 0;
+		if (s == null || Memory.isNull(memory)) return 0;
 		var chars = Buffers.CHAR.of(s, index, count);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);

@@ -11,7 +11,6 @@ import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	private static final Lazy.ForClass<Group.Config<? extends Union<?>, UnionLayout>> cache =
@@ -66,7 +65,7 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 		}
 
 		private void memory(T union, MemorySegment memory, long offset) {
-			union.memory(Segments.slice(memory, offset, layoutSize()));
+			union.memory(Memory.slice(memory, offset, layoutSize()));
 		}
 	}
 
@@ -243,8 +242,8 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 
 	private MemorySegment memory(Config<T, ?> config) {
 		var memory = memory();
-		if (!Segments.isAlive(memory)) {
-			memory = Segments.auto().allocate(config.layout());
+		if (!Memory.isAlive(memory)) {
+			memory = Memory.auto().allocate(config.layout());
 			memory(memory);
 		}
 		return memory;

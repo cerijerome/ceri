@@ -161,6 +161,10 @@ public class Native {
 		private Canonical(String name) {
 			this.name = name;
 		}
+
+		public int size() {
+			return Size.lookup(this);
+		}
 	}
 
 	/**

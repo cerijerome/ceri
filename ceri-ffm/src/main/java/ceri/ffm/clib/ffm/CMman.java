@@ -1,0 +1,67 @@
+package ceri.ffm.clib.ffm;
+
+import java.lang.foreign.MemorySegment;
+import java.util.Objects;
+import ceri.common.util.Os;
+import ceri.ffm.clib.ffm.CUnistd.size_t;
+import ceri.ffm.reflect.CAnnotations.CInclude;
+
+/**
+ * Types and functions from {@code <sys/mman.h>}
+ */
+@CInclude("sys/mman.h")
+public class CMman {
+	public static final MemorySegment MAP_FAILED = MemorySegment.ofAddress(-1L);
+	/** Pages may not be accessed. */
+	public static final int PROT_NONE = 0x00;
+	/** Pages may be read. */
+	public static final int PROT_READ = 0x01;
+	/** Pages may be written. */
+	public static final int PROT_WRITE = 0x02;
+	/** Pages may be executed. */
+	public static final int PROT_EXEC = 0x04;
+	/** Updates are visible to other processes mapping the same region. */
+	public static final int MAP_SHARED = 0x01;
+	/** Updates are not visible to other processes mapping the same file. */
+	public static final int MAP_PRIVATE = 0x02;
+	/** Place the mapping at exactly that address. */
+	public static final int MAP_FIXED = 0x10;
+	/** The mapping is not backed by any file; its contents are initialized to zero. */
+	public static final int MAP_ANONYMOUS;
+	/** Do not reserve swap space for this mapping. */
+	public static final int MAP_NORESERVE;
+
+	private CMman() {}
+
+	/**
+	 * Creates a new mapping in the virtual address space of the calling process.
+	 */
+	public static MemorySegment mmap(MemorySegment addr, long len, int prot, int flags, int fd,
+		int offset) throws CException {
+		return CLib.caller.callType(c -> {
+			var map = c.lib().mmap(addr, new size_t(len), prot, flags, fd, offset);
+			if (Objects.equals(map, MAP_FAILED)) c.verify();
+			return map;
+		}, "mmap", addr, len, prot, flags, offset);
+	}
+
+	/**
+	 * Deletes the mappings for the specified address range, and causes further references to
+	 * addresses within the range to generate invalid memory references.
+	 */
+	public static void munmap(MemorySegment addr, long len) throws CException {
+		CLib.caller.verifyInt(lib -> lib.munmap(addr, new size_t(len)), -1, "munmap", addr, len);
+	}
+
+	// os-specific initialization
+
+	static {
+		if (Os.info().mac) {
+			MAP_ANONYMOUS = 0x1000;
+			MAP_NORESERVE = 0x0040;
+		} else {
+			MAP_ANONYMOUS = 0x20;
+			MAP_NORESERVE = 0x04000;
+		}
+	}
+}

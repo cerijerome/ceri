@@ -16,6 +16,7 @@ import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.type.BufferType;
 import ceri.ffm.type.Callback;
 import ceri.ffm.type.Group;
+import ceri.ffm.type.Memory;
 import ceri.ffm.type.PointerType;
 
 /**
@@ -180,20 +181,19 @@ public class Caller<E extends Exception, T> {
 	 * Creates caller configuration with argument formatter and exception adapter.
 	 */
 	public static <E extends Exception, T> Caller<E, T> of(ToException<E> exceptionFn,
-		int generalErrorCode,
-		Functions.Supplier<T> lib) {
+		int generalErrorCode, Functions.Supplier<T> lib) {
 		return of(Transform.COMPACT, exceptionFn, generalErrorCode, lib);
 	}
 
 	/**
 	 * Creates caller configuration with argument formatter and exception adapter.
 	 */
-	public static <E extends Exception, T> Caller<E, T> of(Transformer transformer, 
+	public static <E extends Exception, T> Caller<E, T> of(Transformer transformer,
 		ToException<E> exceptionFn, int generalErrorCode, Functions.Supplier<T> lib) {
 		return new Caller<>(transformer, exceptionFn, generalErrorCode, lib);
 	}
 
-	private Caller(Transformer transformer, ToException<E> exceptionFn, int generalErrorCode, 
+	private Caller(Transformer transformer, ToException<E> exceptionFn, int generalErrorCode,
 		Functions.Supplier<T> lib) {
 		this.transformer = transformer;
 		this.exceptionFn = exceptionFn;
@@ -337,7 +337,7 @@ public class Caller<E extends Exception, T> {
 		Concurrent.checkRuntimeInterrupted(e);
 		context.fail(generalErrorCode, e);
 	}
-	
+
 	private E exception(int code, Functions.Function<CallDescriptor, String> callDesc,
 		Throwable cause) {
 		var message = callDesc.apply(this::failMessage);
@@ -352,7 +352,7 @@ public class Caller<E extends Exception, T> {
 		return Transformer.builder() //
 			.add(CharSequence.class, (_, c) -> Transform.chars(c, -1)) //
 			.add(Buffer.class, Transform::buffer) //
-			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
+			.add(MemorySegment.class, (_, m) -> Memory.string(m)) //
 			.add(PointerType.Indexable.class, Transform::typedPointer) //
 			.add(PointerType.class, Transform::pointer) //
 			.add(Callback.class, c -> Callback.toString(c)) //
@@ -365,7 +365,7 @@ public class Caller<E extends Exception, T> {
 			.maps(Transformer.joiner(Joiner.LIST, sequenceSize), "=") //
 			.add(CharSequence.class, (_, c) -> Transform.chars(c, stringSize)) //
 			.add(Buffer.class, Transform::buffer) //
-			.add(MemorySegment.class, (_, m) -> Segments.string(m)) //
+			.add(MemorySegment.class, (_, m) -> Memory.string(m)) //
 			.add(PointerType.Indexable.class, Transform::typedPointer) //
 			.add(PointerType.class, Transform::pointer) //
 			.add(Callback.class, c -> Callback.toString(c)) //

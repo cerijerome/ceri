@@ -34,6 +34,7 @@ import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.TypeNode;
 import ceri.ffm.type.Callback;
 import ceri.ffm.type.IntType;
+import ceri.ffm.type.Memory;
 import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Support;
 import ceri.ffm.type.Supports;
@@ -349,7 +350,7 @@ public class Call {
 
 		@Override
 		public String toString() {
-			return String.format("call/%s/%s", Segments.addressString(pointer), config);
+			return String.format("call/%s/%s", Memory.addressString(pointer), config);
 		}
 	}
 
@@ -405,7 +406,7 @@ public class Call {
 		@Override
 		public String toString() {
 			return String.format("%s/%s/%s", Callback.toString(callback),
-				Segments.addressString(pointer), config);
+				Memory.addressString(pointer), config);
 		}
 
 		/**
@@ -537,7 +538,7 @@ public class Call {
 		Support<T, ?, ?, ?> support) {
 		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
 			support.layout(), (a, t) -> Native.Adapted.of(support.alloc(a, t)),
-			m -> support.get(Segments.reslice(m, support.layout())));
+			m -> support.get(Memory.resize(m, support.layout())));
 	}
 
 	private static <T> Native.Adapter<T, MemorySegment> byRef(TypeNode node,
@@ -545,7 +546,7 @@ public class Call {
 		var direction = node.context().direction();
 		return new Native.Adapter<>(node.typed(), MemorySegment.class, MemorySegment.NULL,
 			Layouts.POINTER, (a, t) -> support.encode(direction, a, t),
-			m -> support.decode(Segments.reslice(m, support.layout())));
+			m -> support.decode(Memory.resize(m, support.layout())));
 	}
 
 	private static Linker.Option[] options(int varArg, boolean errNo) {

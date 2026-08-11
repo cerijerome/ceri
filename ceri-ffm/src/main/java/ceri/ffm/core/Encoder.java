@@ -6,6 +6,7 @@ import java.util.List;
 import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
 import ceri.common.io.Direction;
+import ceri.ffm.type.Memory;
 
 /**
  * Dynamically encodes types to memory.
@@ -47,7 +48,7 @@ public class Encoder {
 	 * Accepts an encoding with known length, and an update to read back from the memory after
 	 * processing.
 	 */
-	public Encoder accept(Segments.Consumer encoding, Segments.Consumer update, long length) {
+	public Encoder accept(Memory.Consumer encoding, Memory.Consumer update, long length) {
 		var offset = align();
 		if (encoding != null && in()) encodings.add(m -> encoding.accept(m, offset, length));
 		if (update != null && out()) updates.add(m -> update.accept(m, offset, length));
@@ -59,7 +60,7 @@ public class Encoder {
 	 * Adds padding/nul-termination of given size.
 	 */
 	public Encoder acceptNul(long length) {
-		return accept((m, o, l) -> Segments.fill(m, o, l, 0), null, length);
+		return accept((m, o, l) -> Memory.fill(m, o, l, 0), null, length);
 	}
 
 	/**

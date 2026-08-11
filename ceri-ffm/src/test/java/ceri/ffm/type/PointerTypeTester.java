@@ -1,7 +1,6 @@
 package ceri.ffm.type;
 
 import java.lang.foreign.MemorySegment;
-import ceri.ffm.core.Segments;
 
 public class PointerTypeTester {
 
@@ -14,7 +13,7 @@ public class PointerTypeTester {
 	}
 
 	public static void main(String[] args) {
-		var p = new myptr(Segments.auto().allocate(13));
+		var p = new myptr(Memory.auto().allocate(13));
 		var pp = Pointer.of(p);
 		var v = Pointer.ofVoid(p.memory());
 		var pv = Pointer.of(v).asConst();
@@ -31,5 +30,4 @@ public class PointerTypeTester {
 		System.out.println(i2);
 		System.out.println(pi2);
 	}
-
 }

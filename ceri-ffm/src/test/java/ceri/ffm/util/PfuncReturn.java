@@ -7,7 +7,7 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
+import ceri.ffm.type.Memory;
 
 public class PfuncReturn {
 
@@ -24,7 +24,7 @@ public class PfuncReturn {
 
 	public static void main(String[] args) throws Throwable {
 		// 1. Acquire the system linker and load your native library symbols
-		var lookup = SymbolLookup.libraryLookup("my_math_lib", Segments.GLOBAL);
+		var lookup = SymbolLookup.libraryLookup("my_math_lib", Memory.GLOBAL);
 		// 2. Define descriptors: (int, int) -> int and (String) -> Function Pointer
 		var mathOpDesc = FunctionDescriptor.of(Layouts.INT, Layouts.INT, Layouts.INT);
 		var getOpDesc = FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS);

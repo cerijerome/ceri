@@ -18,7 +18,7 @@ import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Segments;
+import ceri.ffm.type.Memory;
 import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.Support;
@@ -105,7 +105,7 @@ public class FfmTesting {
 		 * Returns a new block allocator instance with auto allocator.
 		 */
 		public static Alloc of() {
-			return of(Segments.auto());
+			return of(Memory.auto());
 		}
 
 		/**
@@ -162,7 +162,7 @@ public class FfmTesting {
 			mems[0] = fill(allocator.allocate(offset, alignment), filler);
 			int index = 1;
 			for (var slice : slices)
-				mems[index++] = fill(Segments.slice(mems[0], slice[0], slice[1]), 0);
+				mems[index++] = fill(Memory.slice(mems[0], slice[0], slice[1]), 0);
 			return mems;
 		}
 	}
@@ -185,28 +185,28 @@ public class FfmTesting {
 	 * Allocates a segment using an encoded, nul-term string.
 	 */
 	public static MemorySegment alloc(String s, Charset charset) {
-		return Segments.auto().allocateFrom(s, Chars.safe(charset));
+		return Memory.auto().allocateFrom(s, Chars.safe(charset));
 	}
 
 	/**
 	 * Allocates a segment from values.
 	 */
 	public static MemorySegment allocBytes(int... values) {
-		return Primitive.BYTE.allocAll(Segments.auto(), false, values);
+		return Primitive.BYTE.allocAll(Memory.auto(), false, values);
 	}
 
 	/**
 	 * Allocates a segment from values.
 	 */
 	public static MemorySegment alloc(int... values) {
-		return Primitive.INT.allocAll(Segments.auto(), false, values);
+		return Primitive.INT.allocAll(Memory.auto(), false, values);
 	}
 
 	/**
 	 * Allocates a segment from values.
 	 */
 	public static MemorySegment alloc(long... values) {
-		return Primitive.LONG.allocAll(Segments.auto(), false, values);
+		return Primitive.LONG.allocAll(Memory.auto(), false, values);
 	}
 
 	/**
@@ -289,8 +289,8 @@ public class FfmTesting {
 	 * Prints the binary contents of the memory segment range.
 	 */
 	public static void bin(MemorySegment m, long offset, long length) {
-		P.message(Segments.string(m));
-		print(Segments.slice(m, offset, length));
+		P.message(Memory.string(m));
+		print(Memory.slice(m, offset, length));
 		P.message("");
 	}
 
@@ -317,7 +317,7 @@ public class FfmTesting {
 	}
 
 	private static MemorySegment fill(MemorySegment m, int filler) {
-		Segments.fill(m, filler);
+		Memory.fill(m, filler);
 		return m;
 	}
 }

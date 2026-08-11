@@ -2,6 +2,7 @@ package ceri.ffm.core;
 
 import java.lang.foreign.MemorySegment;
 import ceri.common.math.Maths;
+import ceri.ffm.type.Memory;
 
 /**
  * Dynamically decodes types from memory.
@@ -16,7 +17,7 @@ public class Decoder {
 	 * Create an instance for bounded memory with given alignment.
 	 */
 	public static Decoder of(MemorySegment memory, long offset, long length, long alignment) {
-		if (Segments.isNull(memory)) return null;
+		if (Memory.isNull(memory)) return null;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);
 		return new Decoder(memory, offset, length, alignment);

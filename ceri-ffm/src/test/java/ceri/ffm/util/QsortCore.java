@@ -10,7 +10,7 @@ import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Handles;
 import ceri.ffm.core.Layouts;
-import ceri.ffm.core.Segments;
+import ceri.ffm.type.Memory;
 import ceri.ffm.type.Primitive;
 
 /**
@@ -34,8 +34,8 @@ public class QsortCore {
 		static compar ofInt(String name, Functions.IntBiOperator operator) {
 			return Lambdas.register((m1, m2) -> {
 				callbacks++;
-				var i1 = INT.getInt(Segments.reslice(m1, INT.layout()), 0);
-				var i2 = INT.getInt(Segments.reslice(m2, INT.layout()), 0);
+				var i1 = INT.getInt(Memory.resize(m1, INT.layout()), 0);
+				var i2 = INT.getInt(Memory.resize(m2, INT.layout()), 0);
 				return operator.applyAsInt(i1, i2);
 			}, name);
 		}

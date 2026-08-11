@@ -27,7 +27,6 @@ import ceri.ffm.core.Decoder;
 import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 /**
  * Operational support for Buffers.
@@ -291,7 +290,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * to determine read-only buffers.
 	 */
 	public static Truth canWrap(MemorySegment memory) {
-		if (Segments.isNull(memory)) return Truth.no;
+		if (Memory.isNull(memory)) return Truth.no;
 		if (memory.isNative()) return Truth.yes;
 		var array = memory.heapBase().orElse(null);
 		if (array == null && memory.isReadOnly()) return Truth.maybe; // read-only returns null
@@ -309,7 +308,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * Wraps the segment as a byte buffer with given byte order.
 	 */
 	public static ByteBuffer asByte(ByteOrder order, MemorySegment memory) {
-		if (Segments.isNull(memory)) return BYTE.nullVal().order(order);
+		if (Memory.isNull(memory)) return BYTE.nullVal().order(order);
 		return memory.asByteBuffer().order(order);
 	}
 
@@ -465,7 +464,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-termination. The buffer position is updated after copying.
 	 */
 	public MemorySegment alloc(B buffer, int count, boolean nul) {
-		return alloc(Segments.auto(), buffer, count, nul);
+		return alloc(Memory.auto(), buffer, count, nul);
 	}
 
 	/**
@@ -510,7 +509,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 * nul-termination. The buffer position is updated after copying.
 	 */
 	public MemorySegment allocAt(B buffer, int position, int count, boolean nul) {
-		return allocAt(Segments.auto(), buffer, position, count, nul);
+		return allocAt(Memory.auto(), buffer, position, count, nul);
 	}
 
 	/**
@@ -590,7 +589,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 */
 	public int read(MemorySegment memory, long offset, long length, B buffer, int count,
 		boolean nul) {
-		if (buffer == null || Segments.isNull(memory)) return 0;
+		if (buffer == null || Memory.isNull(memory)) return 0;
 		if (nul) return read(slice(memory, offset, length, nul), 0L, Long.MAX_VALUE, buffer, count,
 			false);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
@@ -655,7 +654,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	 */
 	public int write(MemorySegment memory, long offset, long length, B buffer, int count,
 		boolean nul) {
-		if (buffer == null || Segments.isNull(memory)) return 0;
+		if (buffer == null || Memory.isNull(memory)) return 0;
 		count = Maths.limit(count, 0, buffer.remaining()) + (nul ? 1 : 0);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = Maths.limit(length, 0L, memory.byteSize() - offset);

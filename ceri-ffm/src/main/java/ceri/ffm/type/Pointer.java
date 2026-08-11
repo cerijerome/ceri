@@ -2,15 +2,33 @@ package ceri.ffm.type;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
-import com.google.common.base.Objects;
+import java.util.Objects;
 import ceri.common.array.Array;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
 	/** Wildcard pointer support. */
 	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(support(Support.VOID, true));
+
+	/**
+	 * Tracks a value and its allocated memory.
+	 */
+	public record Ref<T>(T value, Pointer<T> pointer) {
+		/**
+		 * Updates the value from pointer memory. Returns false if immutable.
+		 */
+		public boolean read() {
+			return pointer().read(value());
+		}
+
+		/**
+		 * Updates pointer memory from the value. Returns false if a constant pointer.
+		 */
+		public boolean write() {
+			return pointer().write(value());
+		}
+	}
 
 	/**
 	 * Constant void pointer.
@@ -81,35 +99,35 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(boolean value) {
-			return setAt(0, value);
+		public boolean write(boolean value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, boolean value) {
+		public boolean writeAt(int index, boolean value) {
 			if (isConst()) return false;
 			return type().setBool(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, boolean... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, boolean... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, boolean... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, boolean... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		@Override
@@ -158,35 +176,35 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(char value) {
-			return setAt(0, value);
+		public boolean write(char value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, char value) {
+		public boolean writeAt(int index, char value) {
 			if (isConst()) return false;
 			return type().setChar(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, char... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, char... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, char... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, char... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		@Override
@@ -235,51 +253,51 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(int value) {
-			return setAt(0, value);
+		public boolean write(int value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, int value) {
+		public boolean writeAt(int index, int value) {
 			if (isConst()) return false;
 			return type().setByte(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, byte... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, byte... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, int... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, int... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, byte... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, byte... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, int... array) {
-			return setArrayAt(index, Array.BYTE.of(array), nul);
+		public final int writeAllAt(int index, boolean nul, int... array) {
+			return writeArrayAt(index, Array.BYTE.of(array), nul);
 		}
 
 		@Override
@@ -328,51 +346,51 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(int value) {
-			return setAt(0, value);
+		public boolean write(int value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, int value) {
+		public boolean writeAt(int index, int value) {
 			if (isConst()) return false;
 			return type().setShort(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, short... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, short... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, int... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, int... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, short... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, short... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, int... array) {
-			return setArrayAt(index, Array.SHORT.of(array), nul);
+		public final int writeAllAt(int index, boolean nul, int... array) {
+			return writeArrayAt(index, Array.SHORT.of(array), nul);
 		}
 
 		@Override
@@ -426,35 +444,35 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(int value) {
-			return setAt(0, value);
+		public boolean write(int value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, int value) {
+		public boolean writeAt(int index, int value) {
 			if (isConst()) return false;
 			return type().setInt(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, int... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, int... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, int... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, int... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		@Override
@@ -508,35 +526,35 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(long value) {
-			return setAt(0, value);
+		public boolean write(long value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, long value) {
+		public boolean writeAt(int index, long value) {
 			if (isConst()) return false;
 			return type().setLong(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, long... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, long... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, long... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, long... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		@Override
@@ -548,8 +566,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive float pointer.
 	 */
-	public static class OfFloat
-		extends PointerType.Indexable<OfFloat, Primitive.OfFloat, float[]> {
+	public static class OfFloat extends PointerType.Indexable<OfFloat, Primitive.OfFloat, float[]> {
 		public static final Supporter<OfFloat> $ = support(Primitive.FLOAT, false);
 
 		static Supporter<OfFloat> support(Primitive.OfFloat type, boolean constant) {
@@ -591,35 +608,35 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(float value) {
-			return setAt(0, value);
+		public boolean write(float value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, float value) {
+		public boolean writeAt(int index, float value) {
 			if (isConst()) return false;
 			return type().setFloat(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, float... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, float... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, float... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, float... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		@Override
@@ -674,35 +691,35 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 		}
 
 		/**
-		 * Sets the primitive value at the pointer. Returns false if constant or out of range.
+		 * Writes the primitive value at the pointer. Returns false if constant or out of range.
 		 */
-		public boolean set(double value) {
-			return setAt(0, value);
+		public boolean write(double value) {
+			return writeAt(0, value);
 		}
 
 		/**
-		 * Sets the primitive value at the pointer type index. Returns false if constant or out of
+		 * Writes the primitive value at the pointer type index. Returns false if constant or out of
 		 * range.
 		 */
-		public boolean setAt(int index, double value) {
+		public boolean writeAt(int index, double value) {
 			if (isConst()) return false;
 			return type().setDouble(memory(), size(index), value);
 		}
 
 		/**
-		 * Sets primitive values at the pointer with optional nul-termination. Returns the number of
-		 * values set.
+		 * Writes primitive values at the pointer with optional nul-termination. Returns the number
+		 * of values set.
 		 */
-		public final int setAll(boolean nul, double... array) {
-			return setAllAt(0, nul, array);
+		public final int writeAll(boolean nul, double... array) {
+			return writeAllAt(0, nul, array);
 		}
 
 		/**
-		 * Sets primitive values at the pointer type index with optional nul-termination. Returns
+		 * Writes primitive values at the pointer type index with optional nul-termination. Returns
 		 * the number of values set.
 		 */
-		public final int setAllAt(int index, boolean nul, double... array) {
-			return setArrayAt(index, array, nul);
+		public final int writeAllAt(int index, boolean nul, double... array) {
+			return writeArrayAt(index, array, nul);
 		}
 
 		@Override
@@ -727,7 +744,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfBool ofBool(boolean value) {
-		return ofBool(Segments.auto(), value);
+		return ofBool(Memory.auto(), value);
 	}
 
 	/**
@@ -748,7 +765,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfChar ofChar(char value) {
-		return ofChar(Segments.auto(), value);
+		return ofChar(Memory.auto(), value);
 	}
 
 	/**
@@ -769,7 +786,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfByte ofByte(int value) {
-		return ofByte(Segments.auto(), value);
+		return ofByte(Memory.auto(), value);
 	}
 
 	/**
@@ -790,7 +807,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfShort ofShort(int value) {
-		return ofShort(Segments.auto(), value);
+		return ofShort(Memory.auto(), value);
 	}
 
 	/**
@@ -811,7 +828,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfInt ofInt(int value) {
-		return ofInt(Segments.auto(), value);
+		return ofInt(Memory.auto(), value);
 	}
 
 	/**
@@ -832,7 +849,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns a primitive pointer for the allocated value.
 	 */
 	public static OfLong ofLong(long value) {
-		return ofLong(Segments.auto(), value);
+		return ofLong(Memory.auto(), value);
 	}
 
 	/**
@@ -852,14 +869,14 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Returns a primitive pointer for the allocated value.
 	 */
-	public static OfFloat ofFloat(int value) {
-		return ofFloat(Segments.auto(), value);
+	public static OfFloat ofFloat(float value) {
+		return ofFloat(Memory.auto(), value);
 	}
 
 	/**
 	 * Returns a primitive pointer for the allocated value.
 	 */
-	public static OfFloat ofFloat(SegmentAllocator allocator, int value) {
+	public static OfFloat ofFloat(SegmentAllocator allocator, float value) {
 		return Primitive.FLOAT.pointerOfFloat(allocator, value);
 	}
 
@@ -873,14 +890,14 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Returns a primitive pointer for the allocated value.
 	 */
-	public static OfDouble ofDouble(int value) {
-		return ofDouble(Segments.auto(), value);
+	public static OfDouble ofDouble(double value) {
+		return ofDouble(Memory.auto(), value);
 	}
 
 	/**
 	 * Returns a primitive pointer for the allocated value.
 	 */
-	public static OfDouble ofDouble(SegmentAllocator allocator, int value) {
+	public static OfDouble ofDouble(SegmentAllocator allocator, double value) {
 		return Primitive.DOUBLE.pointerOfDouble(allocator, value);
 	}
 
@@ -902,7 +919,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns an allocated typed pointer to the pointer.
 	 */
 	public static <P extends PointerType> Pointer<P> of(P pointer) {
-		return of(Segments.auto(), pointer);
+		return of(Memory.auto(), pointer);
 	}
 
 	/**
@@ -933,55 +950,88 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 
 	@Override
 	public <U> Pointer<U> as(Support.Typed<U, ?> type) {
-		if (Objects.equal(type(), type)) return Reflect.unchecked(this);
+		if (Objects.equals(type(), type)) return Reflect.unchecked(this);
 		return super.as(type);
 	}
 
 	/**
-	 * Returns the type value at the pointer.
+	 * Returns the value populated from memory at the pointer.
 	 */
 	public T get() {
 		return get(0);
 	}
 
 	/**
-	 * Returns the type value at the pointer type index.
+	 * Returns the value populated from memory at the pointer type index.
 	 */
 	public T get(int index) {
 		return type().get(memory(), size(index));
 	}
 
 	/**
-	 * Writes the type value at the pointer, if not constant.
+	 * Updates the value from memory. Returns false if the value is immutable.
 	 */
-	public boolean set(T value) {
-		return setAt(0, value);
+	public boolean read(T value) {
+		return type().read(memory(), value);
 	}
 
 	/**
-	 * Writes the type value at the pointer type index, if not constant.
+	 * Updates the value from memory at the pointer type index. Returns false if the value is
+	 * immutable.
 	 */
-	public boolean setAt(int index, T value) {
+	public boolean readAt(int index, T value) {
+		return type().read(memory(), size(index), value);
+	}
+
+	/**
+	 * Writes the value to memory at the pointer, if not constant.
+	 */
+	public boolean write(T value) {
+		return writeAt(0, value);
+	}
+
+	/**
+	 * Writes the value to memory at the pointer type index, if not constant.
+	 */
+	public boolean writeAt(int index, T value) {
 		if (isConst()) return false;
 		return type().write(memory(), size(index), value);
 	}
 
 	/**
-	 * Writes the type values at the pointer type index with optional nul-termination, if not
-	 * constant.
+	 * Updates the values from memory. Returns the number of values updated, or 0 if values are
+	 * immutable.
 	 */
 	@SafeVarargs
-	public final int setAll(boolean nul, T... array) {
-		return setAllAt(0, nul, array);
+	public final int readAll(T... array) {
+		return readAllAt(0, array);
 	}
 
 	/**
-	 * Writes the type values at the pointer type index with optional nul-termination, if not
-	 * constant.
+	 * Updates the values from memory starting at the pointer type index. Returns the number of
+	 * values updated, or 0 if values are immutable.
 	 */
 	@SafeVarargs
-	public final int setAllAt(int index, boolean nul, T... array) {
-		return setArrayAt(index, array, nul);
+	public final int readAllAt(int index, T... array) {
+		return type().readArray(memory(), size(index), array, 0, false);
+	}
+
+	/**
+	 * Writes the type values at the pointer type index with optional nul-termination. Returns the
+	 * number of values written, 0 if constant.
+	 */
+	@SafeVarargs
+	public final int writeAll(boolean nul, T... array) {
+		return writeAllAt(0, nul, array);
+	}
+
+	/**
+	 * Writes the type values at the pointer type index with optional nul-termination. Returns the
+	 * number of values written, 0 if constant.
+	 */
+	@SafeVarargs
+	public final int writeAllAt(int index, boolean nul, T... array) {
+		return writeArrayAt(index, array, nul);
 	}
 
 	// shared

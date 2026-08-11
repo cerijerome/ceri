@@ -15,7 +15,6 @@ import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Format;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.Refine;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.reflect.Refine.Unsigned;
@@ -202,7 +201,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		 * Allocates memory and writes the value to the memory.
 		 */
 		public final MemorySegment alloc(Number number) {
-			return alloc(Segments.auto(), number);
+			return alloc(Memory.auto(), number);
 		}
 
 		/**
@@ -217,7 +216,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		 */
 		@SafeVarargs
 		public final MemorySegment allocAll(boolean nul, Number... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -233,7 +232,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		 * Allocates memory as a pointer and writes the value to the memory.
 		 */
 		public final Pointer<T> pointerOf(Number number) {
-			return pointerOf(Segments.auto(), number);
+			return pointerOf(Memory.auto(), number);
 		}
 
 		/**
@@ -248,7 +247,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		 */
 		@SafeVarargs
 		public final Pointer<T> pointerOfAll(boolean nul, Number... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -326,7 +325,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	public static Number nativeValue(IntType<?> value) {
 		return value == null ? null : value.nativeValue();
 	}
-	
+
 	/**
 	 * Returns the default layout for the type.
 	 */
@@ -373,6 +372,13 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 */
 	public int intValue() {
 		return (int) value();
+	}
+
+	/**
+	 * Returns the value cast to int. Throws an exception if outside int range.
+	 */
+	public int intValueExact() {
+		return Math.toIntExact(value());
 	}
 
 	/**

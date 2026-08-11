@@ -1,6 +1,5 @@
 package ceri.ffm.type;
 
-import ceri.ffm.core.Segments;
 import ceri.ffm.reflect.Refine.Align;
 import ceri.ffm.reflect.Refine.Packed;
 import ceri.ffm.test.FfmTesting;
@@ -43,7 +42,7 @@ public class UnionTester {
 		s.u0.l = 0xfedcba9876543210L;
 		FfmTesting.out(s);
 
-		var m = S1.$.alloc(Segments.auto(), s);
+		var m = S1.$.alloc(Memory.auto(), s);
 		FfmTesting.bin(m);
 		FfmTesting.out(s);
 

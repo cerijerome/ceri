@@ -4,6 +4,7 @@ import java.lang.foreign.MemorySegment;
 import ceri.common.util.Os;
 import ceri.ffm.clib.ffm.CPoll.pollfd;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
+import ceri.ffm.clib.ffm.CTermios.speed_t;
 import ceri.ffm.clib.ffm.CUnistd.size_t;
 import ceri.ffm.clib.ffm.CUnistd.ssize_t;
 import ceri.ffm.core.Caller;
@@ -95,46 +96,45 @@ public class CLib {
 		// <termios.h>
 
 		// int tcgetattr(int fd, struct termios *termios_p)
-		// int tcgetattr(int fd, Pointer termios);
+		int tcgetattr(int fd, MemorySegment termios);
 
 		// int tcsetattr(int fd, int optional_actions, const struct termios *termios_p)
-		// int tcsetattr(int fd, int optional_actions, Pointer termios);
+		int tcsetattr(int fd, int optional_actions, MemorySegment termios);
 
 		// int tcsendbreak(int fd, int duration)
-		// int tcsendbreak(int fd, int duration);
+		int tcsendbreak(int fd, int duration);
 
 		// int tcdrain(int fd)
-		// int tcdrain(int fd);
+		int tcdrain(int fd);
 
 		// int tcflush(int fd, int queue_selector)
-		// int tcflush(int fd, int queue_selector);
+		int tcflush(int fd, int queue_selector);
 
 		// int tcflow(int fd, int action)
-		// int tcflow(int fd, int action);
+		int tcflow(int fd, int action);
 
 		// void cfmakeraw(struct termios *termios_p)
-		// void cfmakeraw(Pointer termios);
+		void cfmakeraw(MemorySegment termios);
 
 		// speed_t cfgetispeed(const struct termios *termios_p)
-		// speed_t cfgetispeed(Pointer termios);
+		speed_t cfgetispeed(MemorySegment termios);
 
 		// speed_t cfgetospeed(const struct termios *termios_p)
-		// speed_t cfgetospeed(Pointer termios);
+		speed_t cfgetospeed(MemorySegment termios);
 
 		// int cfsetispeed(struct termios *termios_p, speed_t speed)
-		// int cfsetispeed(Pointer termios, speed_t speed);
+		int cfsetispeed(MemorySegment termios, speed_t speed);
 
 		// int cfsetospeed(struct termios *termios_p, speed_t speed)
-		// int cfsetospeed(Pointer termios, speed_t speed);
+		int cfsetospeed(MemorySegment termios, speed_t speed);
 
 		// <sys/mman.h>
 
 		// void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
-		// Pointer mmap(Pointer addr, size_t len, int prot, int flags, int fd, int offset)
-		// ;
+		MemorySegment mmap(MemorySegment addr, size_t len, int prot, int flags, int fd, int offset);
 
 		// int munmap (void *addr, size_t len)
-		// int munmap(Pointer addr, size_t len);
+		int munmap(MemorySegment addr, size_t len);
 
 		// <stdlib.h>
 

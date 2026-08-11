@@ -7,6 +7,7 @@ import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.math.Maths;
+import ceri.ffm.type.Memory;
 
 /**
  * A nul-terminator of specified size in bytes.
@@ -23,7 +24,7 @@ public record Terminator(int size) {
 	 * Sets the terminator at given offset, within bounds. Returns the number of bytes set.
 	 */
 	public static int set(MemorySegment memory, long offset, int size) {
-		if (Segments.isNull(memory)) return 0;
+		if (Memory.isNull(memory)) return 0;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		size = (int) Maths.limit(size, 0L, memory.byteSize() - offset);
 		switch (size) {
@@ -41,25 +42,18 @@ public record Terminator(int size) {
 	 * Returns true if the memory segment contains only zero bytes.
 	 */
 	public static boolean is(MemorySegment memory) {
-		return is(memory, Segments.size(memory));
+		return is(memory, 0L, Memory.size(memory));
 	}
 	
 	/**
 	 * Returns true if the memory segment slice contains only zero bytes.
 	 */
-	public static boolean is(MemorySegment memory, long size) {
-		return is(memory, 0L, size);
-	}
-	
-	/**
-	 * Returns true if the memory segment slice contains only zero bytes.
-	 */
-	public static boolean is(MemorySegment memory, long offset, long size) {
-		if (Segments.isNull(memory)) return false;
+	public static boolean is(MemorySegment memory, long offset, long length) {
+		if (Memory.isNull(memory)) return false;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
-		if (size < 0 || size > memory.byteSize() - offset) return false;
-		if (size > BLOCK_SIZE) return matchLarge(memory, offset, size);
-		return matchSmall(memory, offset, size);
+		if (length < 0 || length > memory.byteSize() - offset) return false;
+		if (length > BLOCK_SIZE) return matchLarge(memory, offset, length);
+		return matchSmall(memory, offset, length);
 	}
 
 	/**
@@ -101,7 +95,7 @@ public record Terminator(int size) {
 	 * Returns the first index of this terminator within the segment range, or -1 if not found.
 	 */
 	public long find(MemorySegment memory, long offset, long length) {
-		if (Segments.isNull(memory)) return -1;
+		if (Memory.isNull(memory)) return -1;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		return pos(memory, offset, length, size());
@@ -125,7 +119,7 @@ public record Terminator(int size) {
 	 * Returns the memory slice from offset to start of terminator, or null if not found.
 	 */
 	public MemorySegment slice(MemorySegment memory, long offset, long length) {
-		if (Segments.isNull(memory)) return memory;
+		if (Memory.isNull(memory)) return memory;
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		long pos = pos(memory, offset, length, size());
@@ -152,7 +146,7 @@ public record Terminator(int size) {
 	 */
 	public List<MemorySegment> slices(int count, int max, MemorySegment memory, long offset,
 		long length) {
-		if (max <= 0 || Segments.isNull(memory)) return List.of();
+		if (max <= 0 || Memory.isNull(memory)) return List.of();
 		offset = Maths.limit(offset, 0, memory.byteSize());
 		length = Maths.limit(length, 0, memory.byteSize() - offset);
 		long end = offset + length;

@@ -14,7 +14,6 @@ import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Call;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 /**
  * Marker interface for native callbacks. Callbacks must extend this interface with a single invoke
@@ -119,7 +118,7 @@ public interface Callback extends Functions.Closeable {
 		}
 
 		public C callback(MemorySegment pointer) {
-			if (Segments.isNull(pointer)) return val();
+			if (Memory.isNull(pointer)) return val();
 			return Callback.callback(cls, pointer);
 		}
 

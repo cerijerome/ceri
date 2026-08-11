@@ -45,8 +45,8 @@ public class Qsort {
 			static compar ofInt(String name, Functions.IntBiOperator operator) {
 				return Lambdas.register((p1, p2) -> {
 					callbacks++;
-					return operator.applyAsInt(p1.asInt().reslice().get(),
-						p2.asInt().reslice().get());
+					return operator.applyAsInt(p1.asInt().resize().get(),
+						p2.asInt().resize().get());
 				}, name);
 			}
 		}

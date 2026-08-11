@@ -18,13 +18,16 @@ import ceri.common.text.Strings;
 import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CFcntl;
 import ceri.ffm.clib.ffm.CLib;
+import ceri.ffm.clib.ffm.CMman;
 import ceri.ffm.clib.ffm.CPoll;
 import ceri.ffm.clib.ffm.CSignal;
+import ceri.ffm.clib.ffm.CTermios;
 import ceri.ffm.clib.ffm.CUnistd;
 import ceri.ffm.core.ErrNo;
 import ceri.ffm.core.Library;
 import ceri.ffm.type.IntType.CLong;
 import ceri.ffm.type.IntType.CUlong;
+import ceri.ffm.type.Memory;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
 
@@ -33,9 +36,6 @@ import ceri.ffm.type.Primitive;
  */
 public class TestCLibNative implements CLib.Native {
 	private static final CErrNo OK = null;
-	public final Set<Integer> openFds = Sets.concurrent();
-	public final Map<Integer, Fd> allFds = Maps.concurrent();
-	public final Map<String, String> env = Maps.concurrent();
 	public final CallSync.Function<Fd, CErrNo> open = CallSync.function(null, OK);
 	public final CallSync.Function<Fd, CErrNo> close = CallSync.function(null, OK);
 	public final CallSync.Function<Fd, CErrNo> isatty = CallSync.function(null, OK);
@@ -56,10 +56,14 @@ public class TestCLibNative implements CLib.Native {
 		CallSync.function(null, Result.of(0));
 	public final CallSync.Function<Control, Result<Integer>> fcntl =
 		CallSync.function(null, Result.of(0));
-	// public final CallSync.Function<TcArgs, Integer> tc = CallSync.function(null, 0);
-	// public final CallSync.Function<CfArgs, Integer> cf = CallSync.function(null, 0);
-	// public final CallSync.Function<MmapArgs, Presult> mmap = CallSync.function(null, Presult.OK);
+	public final CallSync.Function<Tc, Result<Integer>> tc = CallSync.function(null, Result.of(0));
+	public final CallSync.Function<Cf, Result<Integer>> cf = CallSync.function(null, Result.of(0));
+	public final CallSync.Function<Mmap, Result<MemorySegment>> mmap =
+		CallSync.function(null, Result.of(null));
 	private final AtomicInteger nextFd = new AtomicInteger();
+	public final Set<Integer> openFds = Sets.concurrent();
+	public final Map<Integer, Fd> allFds = Maps.concurrent();
+	public final Map<String, String> env = Maps.concurrent();
 
 	/**
 	 * A result with value and/or error.
@@ -131,6 +135,58 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	/**
+	 * Arguments for termios tc calls.
+	 */
+	public record Tc(String name, Fd fd, List<Object> args) {
+		public static Tc of(String name, Fd fd, Object... args) {
+			return new Tc(name, fd, List.of(args));
+		}
+
+		/**
+		 * Provide vararg argument as a typed object.
+		 */
+		public <T> T arg(int i) {
+			return Reflect.unchecked(args().get(i));
+		}
+	}
+
+	/**
+	 * Arguments for termios cf calls.
+	 */
+	public record Cf(String name, MemorySegment termios, List<Object> args) {
+		public static Cf of(String name, MemorySegment termios, Object... args) {
+			return new Cf(name, termios, List.of(args));
+		}
+
+		/**
+		 * Returns a copy of the Linux termios struct.
+		 */
+		public CTermios.Linux.termios termiosLinux() {
+			return CTermios.Linux.termios.$.get(termios);
+		}
+
+		/**
+		 * Returns a copy of the Mac termios struct.
+		 */
+		public CTermios.Mac.termios termiosMac() {
+			return CTermios.Mac.termios.$.get(termios);
+		}
+
+		/**
+		 * Provide vararg argument as a typed object.
+		 */
+		public <T> T arg(int i) {
+			return Reflect.unchecked(args().get(i));
+		}
+	}
+
+	/**
+	 * Parameters for mmap/munmap.
+	 */
+	public record Mmap(MemorySegment addr, long len, int prot, int flags, int fd, int off,
+		boolean map) {}
+
+	/**
 	 * A wrapper for repeatedly overriding the library in tests.
 	 */
 	public static Library.Ref<TestCLibNative> ref() {
@@ -153,8 +209,8 @@ public class TestCLibNative implements CLib.Native {
 		openFds.clear();
 		allFds.clear();
 		env.clear();
-		CallSync.resetAll(/* cf, */ close, fcntl, ioctl, isatty, lseek, pagesize, /* mmap, */ open,
-			pipe, poll, raise, read, signal, sigset, /* tc, */ write);
+		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, pagesize, mmap, open, pipe, poll,
+			raise, read, signal, sigset, tc, write);
 		Collectable.addAll(openFds, CUnistd.STDIN_FILENO, CUnistd.STDOUT_FILENO,
 			CUnistd.STDERR_FILENO);
 	}
@@ -266,7 +322,7 @@ public class TestCLibNative implements CLib.Native {
 		int count = 0;
 		for (var pollFd : pollFds)
 			if (pollFd.revents != 0) count++;
-		fds.setArray(pollFds, false);
+		fds.writeArray(pollFds, false);
 		return count;
 	}
 
@@ -296,33 +352,80 @@ public class TestCLibNative implements CLib.Native {
 
 	// <termios.h>
 
-	// int tcgetattr(int fd, Pointer termios);
+	@Override
+	public int tcgetattr(int fd, MemorySegment termios) {
+		return result(tc.apply(Tc.of("tcgetattr", fd(fd), termios)), -1);
+	}
 
-	// int tcsetattr(int fd, int optional_actions, Pointer termios);
+	@Override
+	public int tcsetattr(int fd, int optional_actions, MemorySegment termios) {
+		return result(tc.apply(Tc.of("tcsetattr", fd(fd), optional_actions, termios)), -1);
+	}
 
-	// int tcsendbreak(int fd, int duration);
+	@Override
+	public int tcsendbreak(int fd, int duration) {
+		return result(tc.apply(Tc.of("tcsendbreak", fd(fd), duration)), -1);
+	}
 
-	// int tcdrain(int fd);
+	@Override
+	public int tcdrain(int fd) {
+		return result(tc.apply(Tc.of("tcdrain", fd(fd))), -1);
+	}
 
-	// int tcflush(int fd, int queue_selector);
+	@Override
+	public int tcflush(int fd, int queue_selector) {
+		return result(tc.apply(Tc.of("tcflush", fd(fd), queue_selector)), -1);
+	}
 
-	// int tcflow(int fd, int action);
+	@Override
+	public int tcflow(int fd, int action) {
+		return result(tc.apply(Tc.of("tcflow", fd(fd), action)), -1);
+	}
 
-	// void cfmakeraw(Pointer termios);
+	@Override
+	public void cfmakeraw(MemorySegment termios) {
+		cf.apply(Cf.of("cfmakeraw", termios));
+	}
 
-	// speed_t cfgetispeed(Pointer termios);
+	@Override
+	public CTermios.speed_t cfgetispeed(MemorySegment termios) {
+		return new CTermios.speed_t(cf.apply(Cf.of("cfgetispeed", termios)).value());
+	}
 
-	// speed_t cfgetospeed(Pointer termios);
+	@Override
+	public CTermios.speed_t cfgetospeed(MemorySegment termios) {
+		return new CTermios.speed_t(cf.apply(Cf.of("cfgetospeed", termios)).value());
+	}
 
-	// int cfsetispeed(Pointer termios, speed_t speed);
+	@Override
+	public int cfsetispeed(MemorySegment termios, CTermios.speed_t speed) {
+		return result(cf.apply(Cf.of("cfsetispeed", termios, speed.value())), -1);
+	}
 
-	// int cfsetospeed(Pointer termios, speed_t speed);
+	@Override
+	public int cfsetospeed(MemorySegment termios, CTermios.speed_t speed) {
+		return result(cf.apply(Cf.of("cfsetospeed", termios, speed.value())), -1);
+	}
 
 	// <sys/mman.h>
 
-	// Pointer mmap(Pointer addr, size_t len, int prot, int flags, int fd, int offset)
+	@Override
+	public MemorySegment mmap(MemorySegment addr, CUnistd.size_t len, int prot, int flags, int fd,
+		int off) {
+		if (Memory.isNull(addr) || len.value() == 0) return error(CMman.MAP_FAILED, CErrNo.EINVAL);
+		var result = mmap.apply(new Mmap(addr, len.value(), prot, flags, fd, off, true));
+		if (!ok(result)) return error(CMman.MAP_FAILED, result.errNo());
+		var memory = result.value();
+		if (memory == null) memory = Memory.auto().allocate(len.value());
+		return memory;
+	}
 
-	// int munmap(Pointer addr, size_t len);
+	@Override
+	public int munmap(MemorySegment addr, CUnistd.size_t len) {
+		if (Memory.isNull(addr) || len.value() == 0) return error(-1, CErrNo.EINVAL);
+		var result = mmap.apply(new Mmap(addr, len.value(), 0, 0, 0, 0, false));
+		return result(0, -1, result.errNo());
+	}
 
 	// <stdlib.h>
 
@@ -376,7 +479,7 @@ public class TestCLibNative implements CLib.Native {
 		var value = Bytes.fromMsb(struct.bytes);
 		value = operator.applyAsLong(value, sigSetVal(signum));
 		Bytes.writeMsb(value, struct.bytes);
-		set.set(struct);
+		set.write(struct);
 		return 0;
 	}
 

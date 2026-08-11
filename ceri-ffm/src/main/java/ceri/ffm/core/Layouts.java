@@ -27,6 +27,8 @@ import ceri.common.function.Functions;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
+import ceri.common.util.Validate;
+import ceri.ffm.type.Memory;
 
 public class Layouts {
 	public static final ValueLayout.OfBoolean BOOL = canonical(Native.Canonical.BOOL);
@@ -131,7 +133,7 @@ public class Layouts {
 		 */
 		default MemorySegment slice(MemorySegment memory, long offset, long length, boolean nul) {
 			if (nul) return term().slice(memory, offset, length);
-			return Segments.slice(memory, offset, length);
+			return Memory.slice(memory, offset, length);
 		}
 
 		/**
@@ -364,18 +366,22 @@ public class Layouts {
 	 * Calculates the padding required from the offset for the given byte alignment.
 	 */
 	public static long padding(long offset, long align) {
-		if (offset == 0 || offset % align == 0) return 0;
-		return align - (offset % align);
+		if (align <= 1L) return 0L;
+		long diff = offset % align;
+		return diff == 0L ? 0L : align - diff;
 	}
 
 	/**
 	 * Calculates the padding required from the offset for the layout byte alignment.
 	 */
 	public static long padding(long offset, MemoryLayout layout) {
-		if (layout == null) return 0L;
-		return padding(offset, layout.byteAlignment());
+		return layout == null ? 0L : padding(offset, layout.byteAlignment());
 	}
 
+	public static long validateAlignment(long offset, long align) {
+		return Validate.equal(padding(offset, align), 0L, "Alignment padding");
+	}
+	
 	/**
 	 * Returns the selected address layout target, or null if not an address.
 	 */

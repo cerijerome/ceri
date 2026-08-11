@@ -17,7 +17,6 @@ import ceri.ffm.core.Decoder;
 import ceri.ffm.core.Encoder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 /**
  * Operational support for types and arrays with fixed-size layouts.
@@ -309,7 +308,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		 */
 		@SafeVarargs
 		public final MemorySegment allocAll(boolean nul, T... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -325,7 +324,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		 */
 		@SafeVarargs
 		public final Pointer<T> pointerOfAll(boolean nul, T... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -370,7 +369,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		@SafeVarargs
 		public final Native.Adapted<MemorySegment> encodeAll(Direction direction, boolean nul,
 			T... array) {
-			return encodeAll(direction, Segments.auto(), nul, array);
+			return encodeAll(direction, Memory.auto(), nul, array);
 		}
 
 		/**
@@ -386,7 +385,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		Pointer<T> rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer<>(memory, this, constant);
 		}
-		
+
 		/**
 		 * Encodes an array with non-fixed element sizes. Count does not include terminator.
 		 */
@@ -530,14 +529,14 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Allocates memory for a value.
 	 */
 	public MemorySegment alloc() {
-		return alloc(Segments.auto());
+		return alloc(Memory.auto());
 	}
 
 	/**
 	 * Allocates memory and writes the value to the memory.
 	 */
 	public MemorySegment alloc(T value) {
-		return alloc(Segments.auto(), value);
+		return alloc(Memory.auto(), value);
 	}
 
 	/**
@@ -563,35 +562,35 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	public P pointer(MemorySegment memory) {
 		return pointer(memory, false);
 	}
-	
+
 	/**
-	 * Allocates memory as a pointer to an empty value. 
+	 * Allocates memory as a pointer to an empty value.
 	 */
 	public P pointer() {
-		return pointer(Segments.auto());
+		return pointer(Memory.auto());
 	}
-	
+
 	/**
-	 * Allocates memory as a pointer to an empty value. 
+	 * Allocates memory as a pointer to an empty value.
 	 */
 	public P pointer(SegmentAllocator allocator) {
 		return pointer(alloc(allocator));
 	}
-	
+
 	/**
-	 * Allocates memory as a pointer to the value. 
+	 * Allocates memory as a pointer to the value.
 	 */
 	public P pointerOf(T value) {
-		return pointerOf(Segments.auto(), value);
+		return pointerOf(Memory.auto(), value);
 	}
-	
+
 	/**
-	 * Allocates memory as a pointer to the value. 
+	 * Allocates memory as a pointer to the value.
 	 */
 	public P pointerOf(SegmentAllocator allocator, T value) {
 		return pointer(alloc(allocator, value));
 	}
-	
+
 	/**
 	 * Creates a new value from memory. Returns null value if the memory segment is smaller than the
 	 * layout.
@@ -613,7 +612,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * layout.
 	 */
 	public T get(MemorySegment memory, long offset, long length) {
-		if (Segments.isNull(memory)) return null;
+		if (Memory.isNull(memory)) return null;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = length(memory, offset, length);
 		return count(length) < 1 ? init() : rawGet(memory, offset, length);
@@ -749,14 +748,14 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Allocates memory for an array of given size.
 	 */
 	public MemorySegment allocArray(int count) {
-		return allocArray(Segments.auto(), count);
+		return allocArray(Memory.auto(), count);
 	}
 
 	/**
 	 * Allocates memory and copies the values with optional nul-termination.
 	 */
 	public MemorySegment allocArray(A array, int index, int count, boolean nul) {
-		return allocArray(Segments.auto(), array, index, count, nul);
+		return allocArray(Memory.auto(), array, index, count, nul);
 	}
 
 	/**
@@ -813,14 +812,14 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Allocates memory as a pointer, for an array of given size.
 	 */
 	public P pointerOfArray(int count) {
-		return pointerOfArray(Segments.auto(), count);
+		return pointerOfArray(Memory.auto(), count);
 	}
 
 	/**
 	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
 	 */
 	public P pointerOfArray(A array, int index, int count, boolean nul) {
-		return pointerOfArray(Segments.auto(), array, index, count, nul);
+		return pointerOfArray(Memory.auto(), array, index, count, nul);
 	}
 
 	/**
@@ -836,14 +835,14 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	public P pointerOfArray(SegmentAllocator allocator, A array, int index, boolean nul) {
 		return pointerOfArray(allocator, array, index, Integer.MAX_VALUE, nul);
 	}
-	
+
 	/**
 	 * Allocates memory as a pointer to an array of given size.
 	 */
 	public P pointerOfArray(SegmentAllocator allocator, int count) {
 		return pointer(allocArray(allocator, count), false);
 	}
-	
+
 	/**
 	 * Allocates memory as a pointer, and copies the values with optional nul-termination.
 	 */
@@ -851,7 +850,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		boolean nul) {
 		return pointer(allocArray(allocator, array, index, count, nul), false);
 	}
-	
+
 	/**
 	 * Creates an array of values copied from memory up to optional nul-termination, and within
 	 * bounds. Returns null if nul-termination is specified but not found.
@@ -928,7 +927,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 */
 	public int readArray(MemorySegment memory, long offset, long length, A array, int index,
 		int count, boolean nul) {
-		if (array == null || Segments.isNull(memory)) return 0;
+		if (array == null || Memory.isNull(memory)) return 0;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index);
 		if (nul) return readArray(slice(memory, offset, Math.min(length, size(count, nul)), nul),
@@ -963,7 +962,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 */
 	public int writeArray(MemorySegment memory, long offset, long length, A array, int index,
 		int count, boolean nul) {
-		if (array == null || Segments.isNull(memory)) return 0;
+		if (array == null || Memory.isNull(memory)) return 0;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index) + (nul ? 1 : 0);
 		offset = Maths.limit(offset, 0L, memory.byteSize());
@@ -979,7 +978,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Encodes the value to allocated memory without padding.
 	 */
 	public Native.Adapted<MemorySegment> encode(Direction direction, T value) {
-		return encode(direction, Segments.auto(), value);
+		return encode(direction, Memory.auto(), value);
 	}
 
 	/**
@@ -1036,7 +1035,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 */
 	public Native.Adapted<MemorySegment> encodeArray(Direction direction, A array, int index,
 		int count, boolean nul) {
-		return encodeArray(direction, Segments.auto(), array, index, count, nul);
+		return encodeArray(direction, Memory.auto(), array, index, count, nul);
 	}
 
 	/**
@@ -1123,12 +1122,12 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	P pointer(MemorySegment memory, boolean constant) {
 		return memory == null ? null : rawPointer(memory, constant);
 	}
-	
+
 	/**
 	 * Creates a typed pointer for the memory segment without a null check.
 	 */
 	abstract P rawPointer(MemorySegment memory, boolean constant);
-	
+
 	/**
 	 * Creates a new value from memory without performing bound checks.
 	 */

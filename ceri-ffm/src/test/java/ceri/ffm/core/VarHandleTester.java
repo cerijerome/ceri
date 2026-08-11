@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
 import ceri.common.array.Dimensions;
 import ceri.ffm.test.FfmTesting;
 import ceri.ffm.test.FfmTesting.Gen;
+import ceri.ffm.type.Memory;
 
 /**
  * Demonstrates access to values using layout var handles.
@@ -89,8 +90,8 @@ public class VarHandleTester {
 			var mems = FfmTesting.Alloc.of().add(Refs.LAYOUT, n).add(Refs.S_LAYOUT, n)
 				.add(Refs.BBB_LAYOUT, n).alloc();
 			for (int i = 0; i < n; i++) {
-				Refs.PS.a.set(mems[1], 0L, i, Segments.sliceAt(mems[2], i, Refs.S_LAYOUT));
-				Refs.PBBB.a.set(mems[1], 0L, i, Segments.sliceAt(mems[3], i, Refs.BBB_LAYOUT));
+				Refs.PS.a.set(mems[1], 0L, i, Memory.slice(mems[2], i, Refs.S_LAYOUT, 1));
+				Refs.PBBB.a.set(mems[1], 0L, i, Memory.slice(mems[3], i, Refs.BBB_LAYOUT, 1));
 			}
 			return mems;
 		}

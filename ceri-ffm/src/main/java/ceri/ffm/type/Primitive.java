@@ -9,7 +9,6 @@ import ceri.common.array.RawArray;
 import ceri.common.math.Maths;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 /**
  * Operational support for primitives.
@@ -128,7 +127,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public boolean getBool(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			return memory.get(layout(), offset);
 		}
 
@@ -136,7 +135,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setBool(MemorySegment memory, long offset, boolean value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, value);
 			return true;
 		}
@@ -145,7 +144,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocBool(boolean value) {
-			return allocBool(Segments.auto(), value);
+			return allocBool(Memory.auto(), value);
 		}
 
 		/**
@@ -162,7 +161,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, boolean... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -176,7 +175,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfBool pointerOfBool(boolean value) {
-			return pointerOfBool(Segments.auto(), value);
+			return pointerOfBool(Memory.auto(), value);
 		}
 
 		/**
@@ -190,7 +189,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfBool pointerOfAll(boolean nul, boolean... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -314,7 +313,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public char getChar(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.charValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.charValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -322,7 +321,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setChar(MemorySegment memory, long offset, char value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, value);
 			return true;
 		}
@@ -331,7 +330,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocChar(char value) {
-			return allocChar(Segments.auto(), value);
+			return allocChar(Memory.auto(), value);
 		}
 
 		/**
@@ -346,7 +345,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, char... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -360,7 +359,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfChar pointerOfChar(char value) {
-			return pointerOfChar(Segments.auto(), value);
+			return pointerOfChar(Memory.auto(), value);
 		}
 
 		/**
@@ -374,7 +373,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfChar pointerOfAll(boolean nul, char... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -507,7 +506,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public byte getByte(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.byteValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.byteValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -515,7 +514,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setByte(MemorySegment memory, long offset, int value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, (byte) value);
 			return true;
 		}
@@ -524,7 +523,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocByte(int value) {
-			return allocByte(Segments.auto(), value);
+			return allocByte(Memory.auto(), value);
 		}
 
 		/**
@@ -539,14 +538,14 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, byte... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, int... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -567,7 +566,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfByte pointerOfByte(int value) {
-			return pointerOfByte(Segments.auto(), value);
+			return pointerOfByte(Memory.auto(), value);
 		}
 
 		/**
@@ -581,14 +580,14 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfByte pointerOfAll(boolean nul, byte... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfByte pointerOfAll(boolean nul, int... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -707,7 +706,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public short getShort(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.shortValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.shortValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -715,7 +714,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setShort(MemorySegment memory, long offset, int value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, (short) value);
 			return true;
 		}
@@ -724,7 +723,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocShort(int value) {
-			return allocShort(Segments.auto(), value);
+			return allocShort(Memory.auto(), value);
 		}
 
 		/**
@@ -739,14 +738,14 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, short... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, int... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -767,7 +766,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfShort pointerOfShort(int value) {
-			return pointerOfShort(Segments.auto(), value);
+			return pointerOfShort(Memory.auto(), value);
 		}
 
 		/**
@@ -781,14 +780,14 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfShort pointerOfAll(boolean nul, short... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfShort pointerOfAll(boolean nul, int... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -921,7 +920,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public int getInt(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.intValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.intValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -929,7 +928,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setInt(MemorySegment memory, long offset, int value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, value);
 			return true;
 		}
@@ -938,7 +937,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocInt(int value) {
-			return allocInt(Segments.auto(), value);
+			return allocInt(Memory.auto(), value);
 		}
 
 		/**
@@ -953,7 +952,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, int... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -967,7 +966,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfInt pointerOfInt(int value) {
-			return pointerOfInt(Segments.auto(), value);
+			return pointerOfInt(Memory.auto(), value);
 		}
 
 		/**
@@ -981,7 +980,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfInt pointerOfAll(boolean nul, int... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1092,7 +1091,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public long getLong(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.longValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.longValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -1100,7 +1099,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setLong(MemorySegment memory, long offset, long value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, value);
 			return true;
 		}
@@ -1109,7 +1108,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocLong(long value) {
-			return allocLong(Segments.auto(), value);
+			return allocLong(Memory.auto(), value);
 		}
 
 		/**
@@ -1124,7 +1123,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, long... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1138,7 +1137,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfLong pointerOfLong(long value) {
-			return pointerOfLong(Segments.auto(), value);
+			return pointerOfLong(Memory.auto(), value);
 		}
 
 		/**
@@ -1152,7 +1151,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfLong pointerOfAll(boolean nul, long... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1264,7 +1263,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public float getFloat(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.floatValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.floatValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -1272,7 +1271,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setFloat(MemorySegment memory, long offset, float value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, value);
 			return true;
 		}
@@ -1281,7 +1280,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocFloat(float value) {
-			return allocFloat(Segments.auto(), value);
+			return allocFloat(Memory.auto(), value);
 		}
 
 		/**
@@ -1296,7 +1295,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, float... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1310,7 +1309,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer to the value.
 		 */
 		public Pointer.OfFloat pointerOfFloat(float value) {
-			return pointerOfFloat(Segments.auto(), value);
+			return pointerOfFloat(Memory.auto(), value);
 		}
 
 		/**
@@ -1324,7 +1323,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfFloat pointerOfAll(boolean nul, float... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1437,7 +1436,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Gets the value at the offset. Returns default value if out of range.
 		 */
 		public double getDouble(MemorySegment memory, long offset) {
-			if (!Segments.within(memory, offset, layoutSize())) return VAL.doubleValue();
+			if (!Memory.within(memory, offset, layoutSize())) return VAL.doubleValue();
 			return memory.get(layout(), offset);
 		}
 
@@ -1445,7 +1444,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Sets the value at the offset. Returns false if out of range.
 		 */
 		public boolean setDouble(MemorySegment memory, long offset, double value) {
-			if (!Segments.within(memory, offset, layoutSize())) return false;
+			if (!Memory.within(memory, offset, layoutSize())) return false;
 			memory.set(layout(), offset, value);
 			return true;
 		}
@@ -1454,7 +1453,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory with the value.
 		 */
 		public MemorySegment allocDouble(double value) {
-			return allocDouble(Segments.auto(), value);
+			return allocDouble(Memory.auto(), value);
 		}
 
 		/**
@@ -1469,7 +1468,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory and copies the values with optional nul-termination.
 		 */
 		public MemorySegment allocAll(boolean nul, double... array) {
-			return allocAll(Segments.auto(), nul, array);
+			return allocAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1483,7 +1482,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer with the value.
 		 */
 		public Pointer.OfDouble pointerOfDouble(double value) {
-			return pointerOfDouble(Segments.auto(), value);
+			return pointerOfDouble(Memory.auto(), value);
 		}
 
 		/**
@@ -1497,7 +1496,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		 * Allocates memory as a pointer and copies the values with optional nul-termination.
 		 */
 		public Pointer.OfDouble pointerOfAll(boolean nul, double... array) {
-			return pointerOfAll(Segments.auto(), nul, array);
+			return pointerOfAll(Memory.auto(), nul, array);
 		}
 
 		/**
@@ -1604,7 +1603,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 		if (array == null) return null;
 		index = Maths.limit(index, 0, RawArray.length(array));
 		length = Maths.limit(length, 0, RawArray.length(array) - index);
-		return Segments.slice(rawWrapArray(array), size(index), size(length));
+		return Memory.slice(rawWrapArray(array), size(index), size(length));
 	}
 
 	// overrides

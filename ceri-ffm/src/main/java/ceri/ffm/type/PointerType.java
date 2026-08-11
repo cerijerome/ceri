@@ -11,7 +11,6 @@ import ceri.common.reflect.Reflect;
 import ceri.common.util.Basics;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
-import ceri.ffm.core.Segments;
 
 /**
  * An opaque base container for a memory segment.
@@ -308,7 +307,7 @@ public abstract class PointerType {
 
 		@Override
 		public String toString() {
-			return typeDesc() + '(' + Segments.string(memory()) + ')';
+			return typeDesc() + '(' + Memory.string(memory()) + ')';
 		}
 
 		@Override
@@ -403,42 +402,7 @@ public abstract class PointerType {
 		 * Returns a pointer with resized memory segment.
 		 */
 		public P resize(int index, int count) {
-			return copy(Segments.resize(memory(), size(index), size(count)), null, isConst());
-		}
-
-		/**
-		 * Returns a pointer with sliced memory segment.
-		 */
-		public P slice(int index) {
-			return slice(index, Integer.MAX_VALUE);
-		}
-
-		/**
-		 * Returns a pointer with sliced memory segment.
-		 */
-		public P slice(int index, int count) {
-			return copy(Segments.slice(memory(), size(index), size(count)), null, isConst());
-		}
-
-		/**
-		 * Returns a pointer with resized memory segment if native, otherwise with sliced segment.
-		 */
-		public P reslice() {
-			return reslice(1);
-		}
-
-		/**
-		 * Returns a pointer with resized memory segment if native, otherwise with sliced segment.
-		 */
-		public P reslice(int count) {
-			return reslice(0, count);
-		}
-
-		/**
-		 * Returns a pointer with resized memory segment if native, otherwise with sliced segment.
-		 */
-		public P reslice(int index, int count) {
-			return copy(Segments.reslice(memory(), size(index), size(count)), null, isConst());
+			return copy(Memory.resize(memory(), size(index), size(count)), null, isConst());
 		}
 
 		/**
@@ -488,54 +452,54 @@ public abstract class PointerType {
 		 * Writes the array to memory with optional nul-termination; returns the number of elements
 		 * written.
 		 */
-		public int setArray(A array, boolean nul) {
-			return setArray(array, 0, nul);
+		public int writeArray(A array, boolean nul) {
+			return writeArray(array, 0, nul);
 		}
 
 		/**
 		 * Writes the array to memory with optional nul-termination; returns the number of elements
 		 * written.
 		 */
-		public int setArray(A array, int start, boolean nul) {
-			return setArray(array, start, Integer.MAX_VALUE, nul);
+		public int writeArray(A array, int start, boolean nul) {
+			return writeArray(array, start, Integer.MAX_VALUE, nul);
 		}
 
 		/**
 		 * Writes the array to memory with optional nul-termination; returns the number of elements
 		 * written.
 		 */
-		public int setArray(A array, int start, int count, boolean nul) {
-			return setArrayAt(0, array, start, count, nul);
+		public int writeArray(A array, int start, int count, boolean nul) {
+			return writeArrayAt(0, array, start, count, nul);
 		}
 
 		/**
 		 * Writes the array to memory with optional nul-termination; returns the number of elements
 		 * written.
 		 */
-		public int setArrayAt(int index, A array, boolean nul) {
-			return setArrayAt(index, array, 0, nul);
+		public int writeArrayAt(int index, A array, boolean nul) {
+			return writeArrayAt(index, array, 0, nul);
 		}
 
 		/**
 		 * Writes the array to memory with optional nul-termination; returns the number of elements
 		 * written.
 		 */
-		public int setArrayAt(int index, A array, int start, boolean nul) {
-			return setArrayAt(index, array, start, Integer.MAX_VALUE, nul);
+		public int writeArrayAt(int index, A array, int start, boolean nul) {
+			return writeArrayAt(index, array, start, Integer.MAX_VALUE, nul);
 		}
 
 		/**
 		 * Writes the array to memory with optional nul-termination; returns the number of elements
 		 * written.
 		 */
-		public int setArrayAt(int index, A array, int start, int count, boolean nul) {
+		public int writeArrayAt(int index, A array, int start, int count, boolean nul) {
 			if (isConst()) return 0;
 			return type().writeArray(memory(), size(index), Long.MAX_VALUE, array, start, count,
 				nul);
 		}
 
 		/**
-		 * Copies values from memory up to optional nul-termination, to the array within bounds.
+		 * Reads values from memory up to optional nul-termination, to the array within bounds.
 		 * Returns the number of values copied. Returns 0 if nul-termination is specified but not
 		 * found.
 		 */
@@ -544,7 +508,7 @@ public abstract class PointerType {
 		}
 
 		/**
-		 * Copies values from memory up to optional nul-termination, to the array within bounds.
+		 * Reads values from memory up to optional nul-termination, to the array within bounds.
 		 * Returns the number of values copied. Returns 0 if nul-termination is specified but not
 		 * found.
 		 */
@@ -553,7 +517,7 @@ public abstract class PointerType {
 		}
 
 		/**
-		 * Copies values from memory up to optional nul-termination, to the array within bounds.
+		 * Reads values from memory up to optional nul-termination, to the array within bounds.
 		 * Returns the number of values copied. Returns 0 if nul-termination is specified but not
 		 * found.
 		 */
@@ -562,7 +526,7 @@ public abstract class PointerType {
 		}
 
 		/**
-		 * Copies values from memory at value index, up to optional nul-termination, to the array
+		 * Reads values from memory at value index, up to optional nul-termination, to the array
 		 * within bounds. Returns the number of values copied. Returns 0 if nul-termination is
 		 * specified but not found.
 		 */
@@ -571,7 +535,7 @@ public abstract class PointerType {
 		}
 
 		/**
-		 * Copies values from memory at value index, up to optional nul-termination, to the array
+		 * Reads values from memory at value index, up to optional nul-termination, to the array
 		 * within bounds. Returns the number of values copied. Returns 0 if nul-termination is
 		 * specified but not found.
 		 */
@@ -580,7 +544,7 @@ public abstract class PointerType {
 		}
 
 		/**
-		 * Copies values from memory at value index, up to optional nul-termination, to the array
+		 * Reads values from memory at value index, up to optional nul-termination, to the array
 		 * within bounds. Returns the number of values copied. Returns 0 if nul-termination is
 		 * specified but not found.
 		 */
@@ -645,7 +609,7 @@ public abstract class PointerType {
 	 * Returns true if the contained memory segment has native address 0.
 	 */
 	public boolean isNull() {
-		return Segments.isNull(memory());
+		return Memory.isNull(memory());
 	}
 
 	/**
@@ -659,7 +623,7 @@ public abstract class PointerType {
 	 * Returns the pointer address.
 	 */
 	public long address() {
-		return Segments.address(memory());
+		return Memory.address(memory());
 	}
 
 	/**
@@ -690,7 +654,7 @@ public abstract class PointerType {
 
 	@Override
 	public String toString() {
-		return typeDesc() + '(' + Segments.addressString(memory()) + ')';
+		return typeDesc() + '(' + Memory.addressString(memory()) + ')';
 	}
 
 	// shared
