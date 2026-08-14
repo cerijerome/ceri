@@ -4,6 +4,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.util.Objects;
 import ceri.common.array.Array;
+import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Native;
 
@@ -958,13 +959,13 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	 * Returns the value populated from memory at the pointer.
 	 */
 	public T get() {
-		return get(0);
+		return getAt(0);
 	}
 
 	/**
 	 * Returns the value populated from memory at the pointer type index.
 	 */
-	public T get(int index) {
+	public T getAt(int index) {
 		return type().get(memory(), size(index));
 	}
 
@@ -996,6 +997,45 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	public boolean writeAt(int index, T value) {
 		if (isConst()) return false;
 		return type().write(memory(), size(index), value);
+	}
+
+	/**
+	 * Reads the value from memory, applies the consumer, then writes the value back to memory.
+	 */
+	public <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer) throws E {
+		acceptAt(0, consumer);
+	}
+
+	/**
+	 * Reads the value from memory at pointer type index, applies the consumer, then writes the
+	 * value back to memory.
+	 */
+	public <E extends Exception> void acceptAt(int index, Excepts.Consumer<E, ? super T> consumer)
+		throws E {
+		if (consumer == null) return;
+		var t = getAt(index);
+		consumer.accept(t);
+		writeAt(index, t);
+	}
+
+	/**
+	 * Reads the value from memory, applies the consumer, then writes the value back to memory.
+	 */
+	public <E extends Exception, R> R apply(Excepts.Function<E, ? super T, R> function) throws E {
+		return applyAt(0, function);
+	}
+
+	/**
+	 * Reads the value from memory at pointer type index, applies the consumer, then writes the
+	 * value back to memory.
+	 */
+	public <E extends Exception, R> R applyAt(int index, Excepts.Function<E, ? super T, R> function)
+		throws E {
+		if (function == null) return null;
+		var t = getAt(index);
+		var result = function.apply(t);
+		writeAt(index, t);
+		return result;
 	}
 
 	/**

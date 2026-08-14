@@ -177,7 +177,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 		@Override
 		public String toString() {
-			return String.format("0x%02x %s %s", offset(), desc(), Layouts.desc(layout));
+			return String.format("0x%02x %s %s", offset(), desc(), Layouts.string(layout));
 		}
 
 		String desc() {
@@ -360,7 +360,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 		@Override
 		public final String toString() {
-			return ToString.ofName(Reflect.simple(type()), Layouts.desc(layout()))
+			return ToString.ofName(Reflect.simple(type()), Layouts.string(layout()))
 				.childrens(config.members()).toString();
 		}
 	}

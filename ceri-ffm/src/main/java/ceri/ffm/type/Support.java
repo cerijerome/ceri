@@ -13,8 +13,7 @@ import ceri.common.io.Direction;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
-import ceri.ffm.core.Decoder;
-import ceri.ffm.core.Encoder;
+import ceri.ffm.core.Coder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 
@@ -184,23 +183,23 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		}
 
 		@Override
-		void encode(Encoder encoder, T value) {
+		void encode(Coder.Out encoder, T value) {
 			int count = Maths.min(RawArray.length(value), elements());
 			elementSupport().encodeArray(encoder, value, 0, count, nul());
 		}
 
 		@Override
-		T decode(Decoder decoder, long length) {
+		T decode(Coder.In decoder, long length) {
 			return elementSupport().decodeArray(decoder, length, count(), nul());
 		}
 
 		@Override
-		void encodeArray(Encoder encoder, T[] array, int index, int count, boolean nul) {
+		void encodeArray(Coder.Out encoder, T[] array, int index, int count, boolean nul) {
 			encodeDynamicArray(encoder, array, index, count, nul);
 		}
 
 		@Override
-		T[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+		T[] decodeArray(Coder.In decoder, long length, int count, boolean nul) {
 			return decodeDynamicArray(decoder, length, count, nul);
 		}
 
@@ -389,7 +388,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		/**
 		 * Encodes an array with non-fixed element sizes. Count does not include terminator.
 		 */
-		void encodeDynamicArray(Encoder encoder, T[] array, int index, int count, boolean nul) {
+		void encodeDynamicArray(Coder.Out encoder, T[] array, int index, int count, boolean nul) {
 			for (int i = 0; i < count; i++)
 				encode(encoder, array[index + i]);
 			if (nul) encoder.acceptNul(encodeTermSize());
@@ -398,7 +397,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 		/**
 		 * Decodes an array with non-fixed element sizes. Count includes terminator if specified.
 		 */
-		T[] decodeDynamicArray(Decoder decoder, long length, int count, boolean nul) {
+		T[] decodeDynamicArray(Coder.In decoder, long length, int count, boolean nul) {
 			if (nul) count--;
 			var termSize = nul ? encodeTermSize() : 0;
 			long end = decoder.offset() + length - termSize;
@@ -986,7 +985,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 */
 	public Native.Adapted<MemorySegment> encode(Direction direction, SegmentAllocator allocator,
 		T value) {
-		var encoder = Encoder.of(direction, layout().byteAlignment());
+		var encoder = Coder.encoder(direction, layout().byteAlignment());
 		if (value != null) encode(encoder, value);
 		return encoder.alloc(allocator);
 	}
@@ -1009,7 +1008,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Decodes the value from memory without padding.
 	 */
 	public T decode(MemorySegment memory, long offset, long length) {
-		var decoder = Decoder.of(memory, offset, length, layout().byteAlignment());
+		var decoder = Coder.decoder(memory, offset, length, layout().byteAlignment());
 		if (decoder == null) return null;
 		return decode(decoder, decoder.length());
 	}
@@ -1061,7 +1060,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	public Native.Adapted<MemorySegment> encodeArray(Direction direction,
 		SegmentAllocator allocator, A array, int index, int count, boolean nul) {
 		if (array == null) return null;
-		var encoder = Encoder.of(direction, layout().byteAlignment());
+		var encoder = Coder.encoder(direction, layout().byteAlignment());
 		index = Maths.limit(index, 0, RawArray.length(array));
 		count = Maths.limit(count, 0, RawArray.length(array) - index);
 		encodeArray(encoder, array, index, count, nul);
@@ -1089,7 +1088,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * padding.
 	 */
 	public A decodeArray(MemorySegment memory, long offset, long length, int count, boolean nul) {
-		var decoder = Decoder.of(memory, offset, length, layout().byteAlignment());
+		var decoder = Coder.decoder(memory, offset, length, layout().byteAlignment());
 		if (decoder == null) return null;
 		return decodeArray(decoder, decoder.length(), count, nul);
 	}
@@ -1107,7 +1106,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 
 	@Override
 	public String toString() {
-		return ToString.forName("$", typeDesc(), Layouts.desc(layout()));
+		return ToString.forName("$", typeDesc(), Layouts.string(layout()));
 	}
 
 	// overrides
@@ -1186,7 +1185,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Provides sequential encoding for the type without padding.
 	 */
-	void encode(Encoder encoder, T value) {
+	void encode(Coder.Out encoder, T value) {
 		encoder.accept(encoder.in() ? (m, o, l) -> write(m, o, l, value) : null,
 			encoder.out() && !immutable() ? (m, o, l) -> read(m, o, l, value) : null, layoutSize());
 	}
@@ -1194,7 +1193,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Provides sequential decoding for the type without padding.
 	 */
-	T decode(Decoder decoder, long length) {
+	T decode(Coder.In decoder, long length) {
 		var value = get(decoder.memory(), decoder.offset(), length);
 		decoder.inc(layoutSize());
 		return value;
@@ -1204,7 +1203,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Provides sequential encoding for the array without padding, after bound checks. The count
 	 * does not include the nul-terminator if specified.
 	 */
-	void encodeArray(Encoder encoder, A array, int index, int count, boolean nul) {
+	void encodeArray(Coder.Out encoder, A array, int index, int count, boolean nul) {
 		encoder.accept(
 			encoder.in() ? (m, o, l) -> writeArray(m, o, l, array, index, count, nul) : null,
 			encoder.out() ? (m, o, l) -> readArray(m, o, l, array, index, count, nul) : null,
@@ -1215,7 +1214,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 * Provides sequential decoding for an array from memory with max count and optional
 	 * nul-termination, after bound checks. Count includes nul-terminator if specified.
 	 */
-	A decodeArray(Decoder decoder, long length, int count, boolean nul) {
+	A decodeArray(Coder.In decoder, long length, int count, boolean nul) {
 		length = Math.min(length, size(count));
 		var array = getArray(decoder.memory(), decoder.offset(), length, nul);
 		if (array == null) return decodeNoVals(decoder, length);
@@ -1226,7 +1225,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Failed to find value; position the decoder and return an empty value.
 	 */
-	T decodeNoVal(Decoder decoder, long length) {
+	T decodeNoVal(Coder.In decoder, long length) {
 		decoder.inc(length);
 		return val();
 	}
@@ -1234,7 +1233,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Failed to find values; position the decoder and return an empty array.
 	 */
-	A decodeNoVals(Decoder decoder, long length) {
+	A decodeNoVals(Coder.In decoder, long length) {
 		decoder.inc(length);
 		return valArray(0);
 	}

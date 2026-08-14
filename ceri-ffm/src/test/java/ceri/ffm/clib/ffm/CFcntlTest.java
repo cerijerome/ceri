@@ -8,20 +8,19 @@ import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.test.TestCLibNative;
 import ceri.ffm.clib.test.TestCLibNative.Result;
-import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmAssert;
 import ceri.ffm.test.FfmTesting;
 
 public class CFcntlTest {
 	private static final String FILE = "file1";
-	private final Library.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private final FfmTesting.Lib<TestCLibNative> lib = TestCLibNative.lib();
 	private FileTestHelper helper = null;
 	private int fd = -1;
 
 	@After
 	public void after() {
 		if (fd != -1) CUnistd.closeSilently(fd);
-		Closeables.close(ref, helper);
+		Closeables.close(lib, helper);
 		helper = null;
 		fd = -1;
 	}
@@ -64,7 +63,7 @@ public class CFcntlTest {
 
 	@Test
 	public void testOpenEmulatedErrors() {
-		ref.init().open.autoResponse(null, CErrNo.EEXIST);
+		lib.init().open.autoResponse(null, CErrNo.EEXIST);
 		FfmAssert.cexception(CErrNo.ENOENT, () -> CFcntl.open(null, 0));
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CFcntl.open(FILE, 3));
 		FfmAssert.cexception(CErrNo.EEXIST, () -> CFcntl.open(FILE, 0));
@@ -125,7 +124,7 @@ public class CFcntlTest {
 
 	@Test
 	public void testFcntlEmulated() throws CException {
-		ref.init().fcntl.autoResponse(c -> {
+		lib.init().fcntl.autoResponse(c -> {
 			Assert.equal(c.fd().path(), FILE);
 			Assert.equal(c.request(), 1000L);
 			Assert.equal(c.arg(0), 1);
@@ -135,10 +134,10 @@ public class CFcntlTest {
 		fd = CFcntl.open(FILE, 0);
 		Assert.equal(CFcntl.fcntl(fd, "test", 1000, 1, -1), 3);
 	}
-	
+
 	@Test
 	public void testFcntlEmulatedErrors() throws CException {
-		ref.init().fcntl.autoResponses(Result.errno(CErrNo.EINVAL));
+		lib.init().fcntl.autoResponses(Result.errno(CErrNo.EINVAL));
 		fd = CFcntl.open(FILE, 0);
 		FfmAssert.cexception(CErrNo.EBADF, () -> CFcntl.dupFd(-1, 1));
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CFcntl.dupFd(fd, 0));

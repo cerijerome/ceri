@@ -9,19 +9,19 @@ import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.test.TestCLibNative;
 import ceri.ffm.clib.test.TestCLibNative.Result;
-import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmAssert;
+import ceri.ffm.test.FfmTesting;
 
 public class CUnistdTest {
 	private static final String FILE = "file1";
-	private final Library.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private final FfmTesting.Lib<TestCLibNative> lib = TestCLibNative.lib();
 	private FileTestHelper helper = null;
 	private int fd = -1;
 
 	@After
 	public void after() {
 		if (fd != -1) CUnistd.closeSilently(fd);
-		Closeables.close(ref, helper);
+		Closeables.close(lib, helper);
 		helper = null;
 		fd = -1;
 	}
@@ -59,7 +59,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testPageSize() throws IOException {
-		ref.init().pagesize.autoResponses(0x100);
+		lib.init().pagesize.autoResponses(0x100);
 		Assert.equal(CUnistd.getpagesize(), 0x100);
 	}
 
@@ -76,11 +76,11 @@ public class CUnistdTest {
 
 	@Test
 	public void testPipeErrors() {
-		ref.init().pipe.autoResponses(null, null, null, CErrNo.ENFILE);
-		Assert.equal(ref.lib().pipe(null), 0);
-		Assert.equal(ref.lib().pipe(new int[1]), 0);
-		Assert.equal(ref.lib().pipe(new int[2]), 0);
-		FfmAssert.result(ref.lib().pipe(new int[2]), -1, CErrNo.ENFILE);
+		lib.init().pipe.autoResponses(null, null, null, CErrNo.ENFILE);
+		Assert.equal(lib.lib().pipe(null), 0);
+		Assert.equal(lib.lib().pipe(new int[1]), 0);
+		Assert.equal(lib.lib().pipe(new int[2]), 0);
+		FfmAssert.result(lib.lib().pipe(new int[2]), -1, CErrNo.ENFILE);
 	}
 
 	@Test
@@ -241,9 +241,9 @@ public class CUnistdTest {
 	}
 
 	private TestCLibNative initTestFile() throws CException {
-		ref.init();
+		lib.init();
 		fd = CFcntl.open(FILE, 0);
-		return ref.lib();
+		return lib.lib();
 	}
 
 	private void assertFile(int... bytes) throws IOException {

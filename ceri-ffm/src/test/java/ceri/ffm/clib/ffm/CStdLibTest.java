@@ -5,16 +5,16 @@ import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.ffm.clib.test.TestCLibNative;
-import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmAssert;
+import ceri.ffm.test.FfmTesting;
 
 public class CStdLibTest {
 	private static final String KEY = CStdLibTest.class.getName();
-	private final Library.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private final FfmTesting.Lib<TestCLibNative> lib = TestCLibNative.lib();
 
 	@After
 	public void after() {
-		Closeables.close(ref);
+		Closeables.close(lib);
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class CStdLibTest {
 
 	@Test
 	public void testSetEnvEmulated() throws CException {
-		ref.init();
+		lib.init();
 		Assert.equal(CStdLib.getenv(KEY), null);
 		CStdLib.setenv(KEY, "123", false);
 		Assert.equal(CStdLib.getenv(KEY), "123");
@@ -62,7 +62,7 @@ public class CStdLibTest {
 
 	@Test
 	public void testSetEnvEmulatedErrors() {
-		ref.init();
+		lib.init();
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CStdLib.setenv(null, "test", false));
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CStdLib.setenv("", "test", false));
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CStdLib.setenv("x=y", "test", false));

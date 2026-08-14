@@ -144,6 +144,7 @@ public class Native {
 	 * Known canonical layout names.
 	 */
 	public enum Canonical {
+		NONE(""),
 		BOOL("bool"),
 		CHAR("char"),
 		SHORT("short"),
@@ -210,6 +211,15 @@ public class Native {
 		}
 	}
 
+	/**
+	 * Make sure classes are initialized before returning the value.
+	 */
+	public static <T> T init(T value, Class<?>...classes) {
+		for (var cls : classes)
+			Reflect.init(cls);
+		return value;
+	}
+	
 	/**
 	 * Modifies the given type to mirror c type promotion, such as with variadic args.
 	 */

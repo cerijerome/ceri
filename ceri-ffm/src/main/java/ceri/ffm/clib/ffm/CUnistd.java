@@ -7,6 +7,7 @@ import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
 import ceri.common.util.Validate;
+import ceri.ffm.core.Native;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.reflect.Refine.Unsigned;
@@ -30,7 +31,7 @@ public class CUnistd {
 	 * Unsigned size type.
 	 */
 	@Unsigned
-	@Size(type = "size_t")
+	@Size(canon = Native.Canonical.SIZE_T)
 	public static class size_t extends IntType<size_t> {
 		public static final Supporter<size_t> $ = support(size_t.class);
 
@@ -42,7 +43,7 @@ public class CUnistd {
 	/**
 	 * Signed size type.
 	 */
-	@Size(type = "size_t")
+	@Size(canon = Native.Canonical.SIZE_T)
 	public static class ssize_t extends IntType<ssize_t> {
 		public static final Supporter<ssize_t> $ = support(ssize_t.class);
 

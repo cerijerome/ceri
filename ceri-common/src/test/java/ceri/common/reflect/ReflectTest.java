@@ -624,4 +624,16 @@ public class ReflectTest {
 		Date date = new Date(0);
 		Assert.isNull(Reflect.castOrNull(java.sql.Date.class, date));
 	}
+
+	@Test
+	public void testFlattenVarArgs() {
+		Assert.equal(Reflect.flattenVarArgs(null), null);
+		Assert.array(Reflect.flattenVarArgs(new Object[0]));
+		Assert.array(Reflect.flattenVarArgs(new Integer[] { 1 }), 1);
+		Assert.array(Reflect.flattenVarArgs(new Object[] { 1, -1 }), 1, -1);
+		Assert.array(Reflect.flattenVarArgs(new Object[] { 1, new Object[] { -1 } }), 1, -1);
+		Assert.array(Reflect.flattenVarArgs(new Object[] { 1, -1, new Object[] { 0, 1 } }), 1, -1,
+			0, 1);
+	}
+
 }

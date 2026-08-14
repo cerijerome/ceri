@@ -29,7 +29,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	/**
 	 * C signed long type.
 	 */
-	@Size(type = "long")
+	@Size(canon = Native.Canonical.LONG)
 	public static class CLong extends IntType<CLong> {
 		public static final Supporter<CLong> $ = support(CLong.class);
 
@@ -42,7 +42,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 * C unsigned long type.
 	 */
 	@Unsigned
-	@Size(type = "long")
+	@Size(canon = Native.Canonical.LONG)
 	public static class CUlong extends IntType<CUlong> {
 		public static final Supporter<CUlong> $ = support(CUlong.class);
 

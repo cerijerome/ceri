@@ -237,7 +237,7 @@ public class Call {
 
 		private Object[] flatten(Object[] localArgs) {
 			if (localArgs.length == 0 || varArg < 0) return localArgs;
-			return flattenVarArgs(localArgs);
+			return Reflect.flattenVarArgs(localArgs);
 		}
 
 		private List<Native.Adapted<?>> adaptLocalArgs(SegmentAllocator allocator,
@@ -556,20 +556,6 @@ public class Call {
 		if (varArg >= 0) options[--count] = Linker.Option.firstVariadicArg(varArg);
 		if (errNo) options[--count] = ErrNo.OPTION;
 		return options;
-	}
-
-	private static Object[] flattenVarArgs(Object[] localArgs) {
-		var varArgs = Array.last(localArgs);
-		var varArgsCount = RawArray.length(varArgs);
-		if (varArgsCount == 1) {
-			localArgs[localArgs.length - 1] = RawArray.get(varArgs, 0);
-			return localArgs;
-		}
-		var flat = new Object[localArgs.length - 1 + varArgsCount];
-		Array.copy(localArgs, 0, flat, 0, localArgs.length - 1);
-		for (int i = 0; i < varArgsCount; i++)
-			flat[localArgs.length - 1 + i] = RawArray.get(varArgs, i);
-		return flat;
 	}
 
 	private static List<Class<?>> varArgTypes(Object[] args) {

@@ -236,7 +236,7 @@ public class CFcntl {
 	 */
 	public static int fcntl(int fd, String name, int command, Object... objs) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.fcntl(fd, command, objs), -1,
-			m -> m.accept("fcntl", fd, name + ":0x" + Integer.toHexString(command), objs));
+			m -> m.accept("fcntl", fd, m.fmt("%s:0x%x", name, command), objs));
 	}
 
 	/**

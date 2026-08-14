@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import ceri.common.array.Array;
 import ceri.common.collect.Maps;
 import ceri.common.function.Enclosure;
@@ -24,41 +23,6 @@ public class Library<T> implements Functions.Supplier<T> {
 	private final SymbolLookup lookup;
 	private final T proxy;
 	private volatile T override = null;
-
-	/**
-	 * A wrapper for repeatedly overriding the native library.
-	 */
-	public static class Ref<T> implements Functions.Closeable, Supplier<T> {
-		private final Enclosure.Repeater<RuntimeException, T> repeater;
-
-		private Ref(Library<? super T> library, Supplier<? extends T> constructor) {
-			repeater = Enclosure.Repeater.unsafe(() -> library.enclosed(constructor.get()));
-		}
-
-		/**
-		 * Re-initializes the override.
-		 */
-		public T init() {
-			return repeater.init();
-		}
-
-		@Override
-		public T get() {
-			return repeater.get();
-		}
-
-		/**
-		 * Returns the current value of the override, which may be null.
-		 */
-		public T lib() {
-			return repeater.ref();
-		}
-
-		@Override
-		public void close() {
-			repeater.close();
-		}
-	}
 
 	/**
 	 * Creates an instance for the native interface, with default call and upcall builders.
@@ -95,13 +59,6 @@ public class Library<T> implements Functions.Supplier<T> {
 	public <U extends T> Enclosure<U> enclosed(U override) {
 		set(override);
 		return Enclosure.of(override, _ -> set(null));
-	}
-
-	/**
-	 * A wrapper for repeatedly overriding the native library.
-	 */
-	public <U extends T> Ref<U> ref(Supplier<U> constructor) {
-		return new Ref<>(this, constructor);
 	}
 
 	/**

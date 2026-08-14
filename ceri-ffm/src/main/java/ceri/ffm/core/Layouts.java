@@ -23,7 +23,6 @@ import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
-import ceri.common.function.Functions;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
@@ -38,9 +37,11 @@ public class Layouts {
 	public static final ValueLayout.OfLong LONG = canonical(Native.Canonical.LONG_LONG);
 	public static final ValueLayout.OfFloat FLOAT = canonical(Native.Canonical.FLOAT);
 	public static final ValueLayout.OfDouble DOUBLE = canonical(Native.Canonical.DOUBLE);
-	public static final ValueLayout.OfChar CHAR = copy(ValueLayout.JAVA_CHAR, SHORT);
+	public static final ValueLayout.OfChar CHAR =
+		set(ValueLayout.JAVA_CHAR, null, SHORT.byteAlignment(), SHORT.order());
 	public static final AddressLayout POINTER = canonical(Native.Canonical.VOID_P);
 	public static final MemoryLayout EMPTY = MemoryLayout.sequenceLayout(0, BYTE);
+	public static final long ALIGN_NATURAL = 0L;
 	private static final int MASK_LE = 1;
 	private static final int MASK_BE = 2;
 	private static final int MASK_MAX = MASK_LE | MASK_BE;
@@ -48,21 +49,7 @@ public class Layouts {
 	private Layouts() {}
 
 	/**
-	 * Alignment support.
-	 */
-	public static class Align {
-		/** Indicates byte alignment is unspecified. */
-		public static final long UNSPECIFIED = -1;
-		/** Indicates natural byte alignment. */
-		public static final long NATURAL = 0;
-		/** Indicates no byte alignment. */
-		public static final long NONE = 1;
-
-		private Align() {}
-	}
-
-	/**
-	 * Provides a fixed layout, and functionality based on the layout.
+	 * Interface that provides a fixed layout, and additional functionality based on the layout.
 	 */
 	public interface Provider<L extends MemoryLayout> {
 		/**
@@ -137,23 +124,6 @@ public class Layouts {
 		}
 
 		/**
-		 * Provides a view of the memory segment, with optional nul-terminated boundary. Returns
-		 * null if nul-termination is specified but not found.
-		 */
-		default MemorySegment sliceByCount(MemorySegment memory, long count, boolean nul) {
-			return sliceByCount(memory, 0L, count, nul);
-		}
-
-		/**
-		 * Provides a view of the memory segment, with optional nul-terminated boundary. Returns
-		 * null if nul-termination is specified but not found.
-		 */
-		default MemorySegment sliceByCount(MemorySegment memory, long offset, long count,
-			boolean nul) {
-			return slice(memory, offset, size(count), nul);
-		}
-
-		/**
 		 * Returns a terminator matching layout size.
 		 */
 		default Terminator term() {
@@ -177,28 +147,28 @@ public class Layouts {
 	}
 
 	/**
-	 * Returns the byte size of the layout, 0 if null.
+	 * Returns the byte size of the layout, or 0 if null.
 	 */
 	public static long size(MemoryLayout layout) {
 		return layout == null ? 0L : layout.byteSize();
 	}
 
 	/**
-	 * Returns the total byte size from layout and count.
+	 * Returns the total byte size from layout and count, or 0 if null.
 	 */
 	public static long size(MemoryLayout layout, long count) {
 		return size(layout) * Math.max(0L, count);
 	}
 
 	/**
-	 * Returns the byte size of the layout, 0 if null. Fails if larger than int.
+	 * Returns the byte size of the layout, or 0 if null. Fails if larger than int.
 	 */
 	public static int sizeInt(MemoryLayout layout) {
 		return Math.toIntExact(size(layout));
 	}
 
 	/**
-	 * Returns the total byte size from layout and count. Fails if larger than int.
+	 * Returns the total byte size from layout and count, or 0 if null. Fails if larger than int.
 	 */
 	public static int sizeInt(MemoryLayout layout, long count) {
 		return Math.toIntExact(size(layout, count));
@@ -209,8 +179,7 @@ public class Layouts {
 	 */
 	public static long count(MemoryLayout layout, long size) {
 		var lsize = size(layout);
-		if (lsize == 0L) return 0L;
-		return Math.max(0L, size) / lsize;
+		return lsize == 0L ? 0L : Math.max(0L, size) / lsize;
 	}
 
 	/**
@@ -238,6 +207,10 @@ public class Layouts {
 		};
 	}
 
+	/**
+	 * Returns a natural int-based layout based on type size in bytes. Fails if not a power of 2 or
+	 * larger than long.
+	 */
 	public static ValueLayout ofInt(int size) {
 		return switch (size) {
 			case Byte.BYTES -> BYTE;
@@ -248,54 +221,24 @@ public class Layouts {
 		};
 	}
 
-	public static ValueLayout ofInt(int size, long alignment) {
-		return ofInt(size).withByteAlignment(alignment);
-	}
-
-	public static ValueLayout ofInt(int size, long alignment, ByteOrder order) {
-		return ofInt(size, alignment).withOrder(order);
-	}
-
-	public static <L extends MemoryLayout> L set(L layout, String name, long align) {
-		return align(name(layout, name), align);
+	/**
+	 * Returns a simple string descriptor for the layout.
+	 */
+	public static String string(MemoryLayout layout) {
+		if (layout == null) return Strings.NULL;
+		var b = new StringBuilder().append(layout.name().orElse(""));
+		if (!b.isEmpty()) b.append(':');
+		return b.append(orderSymbol(layout)).append(layout.byteSize()).append('/')
+			.append(layout.byteAlignment()).toString();
 	}
 
 	/**
-	 * Sets layout name, byte alignment and order. Only sets the value if name is non-null, align is
-	 * > 0 or order is non-null.
+	 * Sets layout name, byte alignment and order. Ignores name if empty/null, align if <= 0, and
+	 * order if null.
 	 */
 	public static <L extends MemoryLayout> L set(L layout, String name, long align,
 		ByteOrder order) {
 		return order(align(name(layout, name), align), order);
-	}
-
-	/**
-	 * Applies settings to the layout, and returns an existing type or constructs a new type
-	 * depending on whether the the layout is changed.
-	 */
-	public static <L extends MemoryLayout, R> R with(R current,
-		Functions.Function<L, R> constructor, L layout, String name, long align, ByteOrder order) {
-		var modified = Layouts.set(layout, name, align, order);
-		return layout.equals(modified) ? current : constructor.apply(modified);
-	}
-
-	/**
-	 * Returns a simple string descriptor for the layout.
-	 */
-	public static String desc(MemoryLayout layout) {
-		if (layout == null) return Strings.NULL;
-		var b = new StringBuilder().append(layout.name().orElse(""));
-		if (!b.isEmpty()) b.append(':');
-		b.append(orderSymbol(layout));
-		return b.append(layout.byteSize()).append('/').append(layout.byteAlignment()).toString();
-	}
-
-	/**
-	 * Copies byte alignment and order from one layout to another.
-	 */
-	public static <L extends ValueLayout> L copy(L layout, ValueLayout from) {
-		if (from == null) return layout;
-		return set(layout, null, from.byteAlignment(), from.order());
 	}
 
 	/**
@@ -318,7 +261,7 @@ public class Layouts {
 	}
 
 	/**
-	 * Gets layout alignment, or 0 if not available.
+	 * Gets layout alignment, or 0 if null.
 	 */
 	public static long align(MemoryLayout layout) {
 		return layout == null ? 0L : layout.byteAlignment();
@@ -339,13 +282,6 @@ public class Layouts {
 	}
 
 	/**
-	 * Sets layout alignment as an element of an sequence.
-	 */
-	public static <L extends MemoryLayout> L alignAsElement(L layout, long align) {
-		return align(layout, elementAlign(layout, align));
-	}
-
-	/**
 	 * Returns an alignment value limited to the layout size. This value allows the layout to be
 	 * used as an element in a sequence.
 	 */
@@ -354,7 +290,7 @@ public class Layouts {
 	}
 
 	/**
-	 * Sets layout byte order if value is non-null and layout is a value layout.
+	 * Sets layout byte order if non-null and the layout is a value layout.
 	 */
 	public static <L extends MemoryLayout> L order(L layout, ByteOrder order) {
 		if (layout == null || order == null || !(layout instanceof ValueLayout vlayout)
@@ -380,15 +316,6 @@ public class Layouts {
 
 	public static long validateAlignment(long offset, long align) {
 		return Validate.equal(padding(offset, align), 0L, "Alignment padding");
-	}
-	
-	/**
-	 * Returns the selected address layout target, or null if not an address.
-	 */
-	public static MemoryLayout target(StructLayout layout, PathElement... elements) {
-		if (layout == null || elements == null) return null;
-		return (layout.select(elements) instanceof AddressLayout address) ?
-			address.targetLayout().orElse(null) : null;
 	}
 
 	/**

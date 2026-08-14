@@ -53,12 +53,12 @@ public class CTimeTest {
 	}
 
 	private void assertTime(CTime.timeval t, long sec, long usec) {
-		FfmAssert.clong(t.tv_sec, sec);
-		FfmAssert.clong(t.tv_usec, usec);
+		FfmAssert.equal(t.tv_sec, sec);
+		FfmAssert.equal(t.tv_usec, usec);
 	}
 
 	private void assertTime(CTime.timespec t, long sec, long usec) {
-		FfmAssert.clong(t.tv_sec, sec);
-		FfmAssert.clong(t.tv_nsec, usec);
+		FfmAssert.equal(t.tv_sec, sec);
+		FfmAssert.equal(t.tv_nsec, usec);
 	}
 }

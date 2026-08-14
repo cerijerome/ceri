@@ -8,8 +8,10 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.Buffers;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
+import ceri.common.text.Strings;
 import ceri.common.text.Transformer;
 import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CException;
@@ -41,11 +43,39 @@ public class Caller<E extends Exception, T> {
 	/**
 	 * Provides a message from call name and arguments.
 	 */
-	public interface CallDescriptor {
+	public interface Message {
 		/**
 		 * Returns a message from call name and arguments.
 		 */
 		String accept(String name, Object... args);
+
+		default Object raw(Object obj) {
+			return new Raw(obj);
+		}
+
+		default Object fmt(String format, Object... args) {
+			return new Format(format, args);
+		}
+	}
+
+	/**
+	 * Wrapper to prevent application of transforms.
+	 */
+	private record Raw(Object obj) {
+		@Override
+		public String toString() {
+			return String.valueOf(obj);
+		}
+	}
+
+	/**
+	 * Formatting wrapper to prevent application of transforms.
+	 */
+	private record Format(String format, Object... args) {
+		@Override
+		public String toString() {
+			return Strings.format(format, args);
+		}
 	}
 
 	/**
@@ -58,16 +88,6 @@ public class Caller<E extends Exception, T> {
 		public static Transformer FULL = fullTransformer();
 
 		private Transform() {}
-
-		/**
-		 * Wrapper to prevent application of transforms.
-		 */
-		public record Raw(Object raw) {
-			@Override
-			public String toString() {
-				return String.valueOf(raw());
-			}
-		}
 
 		/**
 		 * Shows escaped and quoted char sequences.
@@ -212,10 +232,10 @@ public class Caller<E extends Exception, T> {
 	 * Executes the call with contextual support.
 	 */
 	public void call(Excepts.Consumer<?, Context> call,
-		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		Functions.Function<Message, String> messaging) throws E {
 		var context = new Context();
 		exec(context, call);
-		verify(context, callDesc);
+		verify(context, messaging);
 	}
 
 	/**
@@ -230,10 +250,10 @@ public class Caller<E extends Exception, T> {
 	 * Executes the call with contextual support, returning an int value.
 	 */
 	public int callInt(Excepts.ToIntFunction<?, Context> call,
-		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		Functions.Function<Message, String> messaging) throws E {
 		var context = new Context();
 		int result = execInt(context, call);
-		verify(context, callDesc);
+		verify(context, messaging);
 		return result;
 	}
 
@@ -249,10 +269,10 @@ public class Caller<E extends Exception, T> {
 	 * Executes the call with contextual support, returning an int value.
 	 */
 	public long callLong(Excepts.ToLongFunction<?, Context> call,
-		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		Functions.Function<Message, String> messaging) throws E {
 		var context = new Context();
 		long result = execLong(context, call);
-		verify(context, callDesc);
+		verify(context, messaging);
 		return result;
 	}
 
@@ -268,10 +288,10 @@ public class Caller<E extends Exception, T> {
 	 * Executes the call with contextual support, returning a typed value.
 	 */
 	public <R> R callType(Excepts.Function<?, Context, R> call,
-		Functions.Function<CallDescriptor, String> callDesc) throws E {
+		Functions.Function<Message, String> messaging) throws E {
 		var context = new Context();
 		R result = execType(context, call);
-		verify(context, callDesc);
+		verify(context, messaging);
 		return result;
 	}
 
@@ -287,15 +307,14 @@ public class Caller<E extends Exception, T> {
 	 * Executes the call and returns an int, checking last error if the error code is returned.
 	 */
 	public int verifyInt(Excepts.ToIntFunction<?, T> call, int error,
-		Functions.Function<CallDescriptor, String> callDesc) throws E {
-		return callInt(c -> c.verifyInt(call.applyAsInt(c.lib()), error), callDesc);
+		Functions.Function<Message, String> messaging) throws E {
+		return callInt(c -> c.verifyInt(call.applyAsInt(c.lib()), error), messaging);
 	}
 
 	// support
 
-	private void verify(Context context, Functions.Function<CallDescriptor, String> callDesc)
-		throws E {
-		if (context.code != 0) throw exception(context.code, callDesc, context.cause);
+	private void verify(Context context, Functions.Function<Message, String> messaging) throws E {
+		if (context.code != 0) throw exception(context.code, messaging, context.cause);
 	}
 
 	private void exec(Context context, Excepts.Consumer<?, Context> call) {
@@ -338,13 +357,13 @@ public class Caller<E extends Exception, T> {
 		context.fail(generalErrorCode, e);
 	}
 
-	private E exception(int code, Functions.Function<CallDescriptor, String> callDesc,
-		Throwable cause) {
-		var message = callDesc.apply(this::failMessage);
+	private E exception(int code, Functions.Function<Message, String> messaging, Throwable cause) {
+		var message = messaging.apply(this::failMessage);
 		return Exceptions.initCause(exceptionFn.apply(code, message), cause);
 	}
 
 	private String failMessage(String name, Object... args) {
+		args = Reflect.flattenVarArgs(args);
 		return name + Joiner.PARAM.joinAll(transformer, args) + " failed";
 	}
 

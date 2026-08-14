@@ -2,7 +2,7 @@ package ceri.ffm.clib.ffm;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import ceri.common.function.Functions;
+import java.lang.foreign.SegmentAllocator;
 import ceri.common.util.Os;
 import ceri.common.util.Validate;
 import ceri.ffm.clib.ffm.CTermios.speed_t;
@@ -10,6 +10,7 @@ import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.reflect.CAnnotations.CType;
 import ceri.ffm.type.Group.Fields;
 import ceri.ffm.type.IntType.CUlong;
+import ceri.ffm.type.Memory;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Struct;
 import ceri.ffm.util.FfmOs;
@@ -48,6 +49,8 @@ public class CIoctl {
 	private CIoctl() {}
 
 	/**
+	 * Generates an ioctl request code.
+	 * 
 	 * <pre>
 	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx| value
 	 * |--------|--------|--------|--------|
@@ -64,18 +67,30 @@ public class CIoctl {
 		return inOut | ((size & _IOC_SIZEMASK) << Short.SIZE) | (group << Byte.SIZE) | num;
 	}
 
+	/**
+	 * Generates an ioctl request code without read or write parameters.
+	 */
 	public static int _IO(int group, int num) {
 		return _IOC(_IOC_NONE, group, num, 0);
 	}
 
+	/**
+	 * Generates an ioctl request code with read parameters.
+	 */
 	public static int _IOR(int group, int num, int size) {
 		return _IOC(IOC_OUT, group, num, size); // sizeof(t)
 	}
 
+	/**
+	 * Generates an ioctl request code with write parameters.
+	 */
 	public static int _IOW(int group, int num, int size) {
 		return _IOC(IOC_IN, group, num, size); // sizeof(t)
 	}
 
+	/**
+	 * Generates an ioctl request code with read and write parameters.
+	 */
 	public static int _IOWR(int group, int num, int size) {
 		return _IOC(IOC_IN | IOC_OUT, group, num, size); // sizeof(t)
 	}
@@ -83,33 +98,23 @@ public class CIoctl {
 	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
-	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
+	public static int ioctl(int fd, String name, int request, Object... objs) throws CException {
 		return CLib.caller.verifyInt(lib -> lib.ioctl(fd, new CUlong(request), objs), -1,
-			m -> m.accept("ioctl:" + name, fd, request, objs));
-	}
-
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
-	public static int ioctl(Functions.Supplier<String> errorMsg, int fd, int request,
-		Object... objs) throws CException {
-		var n = new CUlong(request);
-		return CLib.caller.verifyInt(lib -> lib.ioctl(fd, n, objs), -1,
-			c -> c.accept(errorMsg.get()));
+			m -> m.accept("ioctl", fd, m.fmt("%s:0x%x", name, request), objs));
 	}
 
 	/**
 	 * Turn break on; start sending zero bits.
 	 */
 	public static void tiocsbrk(int fd) throws CException {
-		ioctl("TIOCSBRK", fd, TIOCSBRK);
+		ioctl(fd, "TIOCSBRK", TIOCSBRK);
 	}
 
 	/**
 	 * Turn break off; stop sending zero bits.
 	 */
 	public static void tioccbrk(int fd) throws CException {
-		ioctl("TIOCCBRK", fd, TIOCCBRK);
+		ioctl(fd, "TIOCCBRK", TIOCCBRK);
 	}
 
 	/**
@@ -118,7 +123,7 @@ public class CIoctl {
 	public static int fionread(int fd) throws CException {
 		try (var arena = Arena.ofConfined()) {
 			var argp = Pointer.ofInt(arena, 0);
-			ioctl("FIONREAD", fd, FIONREAD, argp);
+			ioctl(fd, "FIONREAD", FIONREAD, argp);
 			return argp.get();
 		}
 	}
@@ -129,7 +134,7 @@ public class CIoctl {
 	public static int tiocoutq(int fd) throws CException {
 		try (var arena = Arena.ofConfined()) {
 			var argp = Pointer.ofInt(arena, 0);
-			ioctl("TIOCOUTQ", fd, TIOCOUTQ, argp);
+			ioctl(fd, "TIOCOUTQ", TIOCOUTQ, argp);
 			return argp.get();
 		}
 	}
@@ -138,7 +143,7 @@ public class CIoctl {
 	 * Put the terminal into exclusive mode; no further open() is permitted.
 	 */
 	public static void tiocexcl(int fd) throws CException {
-		ioctl("TIOCEXCL", fd, TIOCEXCL);
+		ioctl(fd, "TIOCEXCL", TIOCEXCL);
 	}
 
 	/**
@@ -147,7 +152,7 @@ public class CIoctl {
 	public static int tiocmget(int fd) throws CException {
 		try (var arena = Arena.ofConfined()) {
 			var argp = Pointer.ofInt(arena, 0);
-			ioctl("TIOCMGET", fd, TIOCMGET, argp);
+			ioctl(fd, "TIOCMGET", TIOCMGET, argp);
 			return argp.get();
 		}
 	}
@@ -155,22 +160,20 @@ public class CIoctl {
 	/**
 	 * Set the modem status bit.
 	 */
-	public static int tiocmbis(int fd, int bit) throws CException {
+	public static void tiocmbis(int fd, int bit) throws CException {
 		try (var arena = Arena.ofConfined()) {
 			var argp = Pointer.ofInt(arena, bit);
-			ioctl("TIOCMBIS", fd, TIOCMBIS, argp);
-			return argp.get();
+			ioctl(fd, "TIOCMBIS", TIOCMBIS, argp);
 		}
 	}
 
 	/**
 	 * Clear the modem status bit.
 	 */
-	public static int tiocmbic(int fd, int bit) throws CException {
+	public static void tiocmbic(int fd, int bit) throws CException {
 		try (var arena = Arena.ofConfined()) {
 			var argp = Pointer.ofInt(arena, bit);
-			ioctl("TIOCMBIC", fd, TIOCMBIC, argp);
-			return argp.get();
+			ioctl(fd, "TIOCMBIC", TIOCMBIC, argp);
 		}
 	}
 
@@ -180,15 +183,16 @@ public class CIoctl {
 	public static void tiocmset(int fd, int bits) throws CException {
 		try (var arena = Arena.ofConfined()) {
 			var argp = Pointer.ofInt(arena, bits);
-			ioctl("TIOCMSET", fd, TIOCMSET, argp);
+			ioctl(fd, "TIOCMSET", TIOCMSET, argp);
 		}
 	}
 
 	/**
 	 * Set or clear the modem status bit. Not an ioctl type.
 	 */
-	public static int tiocmbit(int fd, int bit, boolean enable) throws CException {
-		return enable ? tiocmbis(fd, bit) : tiocmbic(fd, bit);
+	public static void tiocmbit(int fd, int bit, boolean enable) throws CException {
+		if (enable) tiocmbis(fd, bit);
+		else tiocmbic(fd, bit);
 	}
 
 	/**
@@ -206,7 +210,7 @@ public class CIoctl {
 	public static final class Mac {
 		private Mac() {}
 
-		/* <IOKit/serial/ioss.h> */
+		// <IOKit/serial/ioss.h>
 
 		public static final int IOSSIOSPEED = _IOW('T', 2, speed_t.$.sizeInt(1)); // 0x80085402
 
@@ -217,7 +221,7 @@ public class CIoctl {
 		public static void iossiospeed(int fd, int speed) throws CException {
 			try (var arena = Arena.ofConfined()) {
 				var argp = speed_t.$.pointerOf(arena, speed);
-				ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, argp);
+				ioctl(fd, "IOSSIOSPEED", IOSSIOSPEED, argp);
 			}
 		}
 	}
@@ -238,10 +242,14 @@ public class CIoctl {
 		public static final int ASYNC_SPD_CUST = ASYNC_SPD_HI | ASYNC_SPD_VHI;
 		public static final int ASYNC_SPD_MASK = ASYNC_SPD_HI | ASYNC_SPD_VHI | ASYNC_SPD_SHI;
 
+		/**
+		 * Serial port settings.
+		 */
 		@Fields({ "type", "line", "port", "irq", "flags", "xmit_fifo_size", "custom_divisor",
 			"baud_base", "close_delay", "io_type", "reserved_char", "hub6", "closing_wait",
 			"closing_wait2", "iomem_base", "iomem_reg_shift", "port_high", "iomap_base" })
 		public static class serial_struct extends Struct<serial_struct> {
+			public static final Supporter<serial_struct> $ = support(serial_struct.class);
 			public int type;
 			public int line;
 			public int port; // unsigned
@@ -267,14 +275,28 @@ public class CIoctl {
 		public static final int TIOCGSERIAL = _IO('T', 0x1e); // 0x541e;
 		public static final int TIOCSSERIAL = _IO('T', 0x1f); // 0x541f;
 
-		public static serial_struct tiocgserial(int fd) throws CException {
-			var serial = new serial_struct();
-			ioctl("TIOCGSERIAL", fd, TIOCGSERIAL, serial);
+		/**
+		 * Reads serial port settings.
+		 */
+		public static Pointer<serial_struct> tiocgserial(int fd) throws CException {
+			return tiocgserial(Memory.auto(), fd);
+		}
+
+		/**
+		 * Reads serial port settings.
+		 */
+		public static Pointer<serial_struct> tiocgserial(SegmentAllocator allocator, int fd)
+			throws CException {
+			var serial = serial_struct.$.pointer(allocator);
+			ioctl(fd, "TIOCGSERIAL", TIOCGSERIAL, serial);
 			return serial;
 		}
 
-		public static void tiocsserial(int fd, serial_struct serial) throws CException {
-			ioctl("TIOCGSERIAL", fd, TIOCSSERIAL, serial);
+		/**
+		 * Writes serial port settings.
+		 */
+		public static void tiocsserial(int fd, Pointer<serial_struct> serial) throws CException {
+			ioctl(fd, "TIOCSSERIAL", TIOCSSERIAL, serial);
 		}
 	}
 

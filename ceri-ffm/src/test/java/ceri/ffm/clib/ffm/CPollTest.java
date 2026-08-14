@@ -6,15 +6,15 @@ import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.ffm.clib.ffm.CPoll.pollfd;
 import ceri.ffm.clib.test.TestCLibNative;
-import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmAssert;
+import ceri.ffm.test.FfmTesting;
 
 public class CPollTest {
-	private final Library.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private final FfmTesting.Lib<TestCLibNative> lib = TestCLibNative.lib();
 
 	@After
 	public void after() {
-		Closeables.close(ref);
+		Closeables.close(lib);
 	}
 
 	@Test
@@ -37,10 +37,10 @@ public class CPollTest {
 			CUnistd.closeSilently(fds);
 		}
 	}
-	
+
 	@Test
 	public void testPollEmulated() throws CException {
-		ref.init().poll.autoResponse(p -> {
+		lib.init().poll.autoResponse(p -> {
 			for (var pollFd : p.pollFds())
 				pollFd.revents = CPoll.POLLOUT;
 		}, null);
@@ -58,7 +58,7 @@ public class CPollTest {
 
 	@Test
 	public void testPollEmulatedErrors() throws CException {
-		ref.init().poll.autoResponses(null, CErrNo.EFAULT);
+		lib.init().poll.autoResponses(null, CErrNo.EFAULT);
 		var pollFd = new pollfd();
 		var pointer = pollfd.$.pointerOf(pollFd);
 		Assert.equal(CPoll.poll(pointer, 0), 0);

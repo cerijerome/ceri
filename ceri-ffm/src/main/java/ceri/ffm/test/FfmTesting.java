@@ -6,9 +6,12 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.function.Supplier;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Lists;
 import ceri.common.data.Bytes;
+import ceri.common.function.Enclosure;
+import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.ClassReInitializer;
 import ceri.common.reflect.Reflect;
@@ -18,6 +21,7 @@ import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Caller;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Library;
 import ceri.ffm.type.Memory;
 import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Primitive;
@@ -29,6 +33,36 @@ public class FfmTesting {
 	public static final SegmentAllocator A = Arena.ofAuto();
 
 	private FfmTesting() {}
+
+	/**
+	 * A wrapper for repeatedly overriding a native library.
+	 */
+	public static class Lib<T> implements Functions.Closeable {
+		private final Enclosure.Repeater<RuntimeException, T> repeater;
+
+		private Lib(Library<? super T> library, Supplier<? extends T> constructor) {
+			repeater = Enclosure.Repeater.unsafe(() -> library.enclosed(constructor.get()));
+		}
+
+		/**
+		 * Re-initializes the library override. 
+		 */
+		public T init() {
+			return repeater.init();
+		}
+
+		/**
+		 * Returns the current override, which will be null if uninitialized.
+		 */
+		public T lib() {
+			return repeater.ref();
+		}
+
+		@Override
+		public void close() {
+			repeater.close();
+		}
+	}
 
 	/**
 	 * Generation of test values.
@@ -165,6 +199,13 @@ public class FfmTesting {
 				mems[index++] = fill(Memory.slice(mems[0], slice[0], slice[1]), 0);
 			return mems;
 		}
+	}
+
+	/**
+	 * Returns a wrapper for repeatedly overriding a native library.
+	 */
+	public static <T> Lib<T> lib(Library<? super T> library, Functions.Supplier<T> constructor) {
+		return new Lib<>(library, constructor);
 	}
 
 	/**

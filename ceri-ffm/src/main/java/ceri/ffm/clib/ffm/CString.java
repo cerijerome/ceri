@@ -1,6 +1,7 @@
 package ceri.ffm.clib.ffm;
 
 import java.nio.charset.Charset;
+import ceri.ffm.core.Native;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.type.IntType;
@@ -18,7 +19,7 @@ public class CString {
 	/**
 	 * Signed type. Native type is usually unsigned, but not always.
 	 */
-	@Size(type = "wchar_t")
+	@Size(canon = Native.Canonical.WCHAR_T)
 	public static class wchar_t extends IntType<wchar_t> {
 		public static final Supporter<wchar_t> $ = support(wchar_t.class);
 		public static final wchar_t TERM = new wchar_t(0);

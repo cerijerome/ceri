@@ -12,6 +12,7 @@ import ceri.common.test.Testing;
 	// clib.ffm
 	ceri.ffm.clib.ffm.CErrNoTest.class, //
 	ceri.ffm.clib.ffm.CFcntlTest.class, //
+	ceri.ffm.clib.ffm.CIoctlTest.class, //
 	ceri.ffm.clib.ffm.CPollTest.class, //
 	ceri.ffm.clib.ffm.CSignalTest.class, //
 	ceri.ffm.clib.ffm.CStdLibTest.class, //

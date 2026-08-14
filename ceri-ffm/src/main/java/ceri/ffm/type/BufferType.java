@@ -23,8 +23,7 @@ import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
 import ceri.common.util.Truth;
-import ceri.ffm.core.Decoder;
-import ceri.ffm.core.Encoder;
+import ceri.ffm.core.Coder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 
@@ -192,7 +191,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		void encode(Encoder encoder, B value) {
+		void encode(Coder.Out encoder, B value) {
 			int position = value.position();
 			long length = Math.min(layoutSize(), buffer.size(value.remaining(), nul()));
 			encoder.accept(encoder.in() ? (m, o, l) -> encodeIn(m, o, l, value, position) : null,
@@ -200,7 +199,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		B decode(Decoder decoder, long length) {
+		B decode(Coder.In decoder, long length) {
 			length = Math.min(length, layoutSize());
 			var value = buffer.asBuffer(decoder.memory(), decoder.offset(), length, nul());
 			if (value == null) return decodeNoVal(decoder, length);
@@ -209,12 +208,12 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		void encodeArray(Encoder encoder, B[] array, int index, int count, boolean nul) {
+		void encodeArray(Coder.Out encoder, B[] array, int index, int count, boolean nul) {
 			encodeDynamicArray(encoder, array, index, count, nul);
 		}
 
 		@Override
-		B[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+		B[] decodeArray(Coder.In decoder, long length, int count, boolean nul) {
 			return decodeDynamicArray(decoder, length, count, nul);
 		}
 
@@ -707,7 +706,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, config, Layouts.desc(layout()));
+		return ToString.forClass(this, config, Layouts.string(layout()));
 	}
 
 	// support

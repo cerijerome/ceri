@@ -7,6 +7,7 @@ import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CException;
 import ceri.ffm.core.ErrNo;
 import ceri.ffm.type.IntType;
+import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
 
 public class FfmAssert {
@@ -18,17 +19,23 @@ public class FfmAssert {
 		return actual;
 	}
 	
-	public static void clong(IntType.CLong actual, Number expected) {
-		if (expected == null) Assert.isNull(actual);
-		Assert.equal(actual, new IntType.CLong(expected));
+	@SafeVarargs
+	public static <T> Pointer<T> pointers(Pointer<T> actual, T... expecteds) {
+		Assert.array(actual.getArray(expecteds.length, false), expecteds);
+		return actual;
 	}
 	
-	public static void culong(IntType.CUlong actual, Number expected) {
-		if (expected == null) Assert.isNull(actual);
-		Assert.equal(actual, new IntType.CUlong(expected));
+	public static <T> Pointer<T> pointer(Pointer<T> actual, T expected) {
+		Assert.equal(actual.get(), expected);
+		return actual;
 	}
 	
-	public static int result(int result, int expected, CErrNo errNo) {
+	public static <T extends IntType<T>> T equal(T actual, long expected) {
+		Assert.equal(actual.value(), expected);
+		return actual;
+	}
+	
+	public static <T> T result(T result, T expected, CErrNo errNo) {
 		Assert.equal(result, expected);
 		Assert.equal(ErrNo.get(), errNo.code);
 		return result;

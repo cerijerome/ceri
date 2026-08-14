@@ -107,7 +107,10 @@ public class Refine {
 		int value() default 0;
 
 		/** The size by registered type name. */
-		String type() default "";
+		String name() default "";
+
+		/** The size by canonical enum. */
+		Native.Canonical canon() default Native.Canonical.NONE;
 	}
 
 	/**
@@ -156,7 +159,7 @@ public class Refine {
 		 * Gets byte alignment, returning natural if unspecified.
 		 */
 		default long align() {
-			return align(Layouts.Align.NATURAL);
+			return align(Layouts.ALIGN_NATURAL);
 		}
 
 		/**
@@ -687,9 +690,9 @@ public class Refine {
 		element = Annotations.component(element);
 		var anno = Annotations.annotation(element, Size.class);
 		if (anno == null) return def;
-		int size = anno.value();
-		if (size > 0) return size;
-		if (!Strings.isEmpty(anno.type())) return Native.Size.lookup(anno.type());
+		if (anno.value() > 0) return anno.value();
+		if (!Strings.isEmpty(anno.name())) return Native.Size.lookup(anno.name());
+		if (!anno.canon().name().isEmpty()) return Native.Size.lookup(anno.canon());
 		return def;
 	}
 

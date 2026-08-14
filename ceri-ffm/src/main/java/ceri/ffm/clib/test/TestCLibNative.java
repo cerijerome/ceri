@@ -11,7 +11,9 @@ import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.data.Bytes;
 import ceri.common.function.Functions;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Testing;
 import ceri.common.text.Strings;
@@ -24,7 +26,7 @@ import ceri.ffm.clib.ffm.CSignal;
 import ceri.ffm.clib.ffm.CTermios;
 import ceri.ffm.clib.ffm.CUnistd;
 import ceri.ffm.core.ErrNo;
-import ceri.ffm.core.Library;
+import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.IntType.CLong;
 import ceri.ffm.type.IntType.CUlong;
 import ceri.ffm.type.Memory;
@@ -127,10 +129,20 @@ public class TestCLibNative implements CLib.Native {
 		}
 
 		/**
-		 * Provide vararg argument as a typed object.
+		 * Provide vararg argument as a typed value.
 		 */
 		public <T> T arg(int i) {
 			return Reflect.unchecked(args().get(i));
+		}
+
+		/**
+		 * Asserts control parameters.
+		 */
+		public Control verify(int fd, int request, Object...args) {
+			Assert.equal(fd().fd(), fd);
+			Assert.equal(request(), Maths.uint(request));
+			if (args.length > 0) Assert.ordered(args(), args);
+			return this;
 		}
 	}
 
@@ -187,12 +199,15 @@ public class TestCLibNative implements CLib.Native {
 		boolean map) {}
 
 	/**
-	 * A wrapper for repeatedly overriding the library in tests.
+	 * Returns a wrapper for repeatedly overriding the native library.
 	 */
-	public static Library.Ref<TestCLibNative> ref() {
-		return CLib.library.ref(TestCLibNative::of);
+	public static FfmTesting.Lib<TestCLibNative> lib() {
+		return FfmTesting.lib(CLib.library, TestCLibNative::of);
 	}
 
+	/**
+	 * Creates an instance of this test library.
+	 */
 	public static TestCLibNative of() {
 		return new TestCLibNative();
 	}
@@ -213,6 +228,10 @@ public class TestCLibNative implements CLib.Native {
 			raise, read, signal, sigset, tc, write);
 		Collectable.addAll(openFds, CUnistd.STDIN_FILENO, CUnistd.STDOUT_FILENO,
 			CUnistd.STDERR_FILENO);
+	}
+
+	public Fd fd(int fd) {
+		return allFds.get(fd);
 	}
 
 	// <unistd.h>
@@ -450,10 +469,6 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	// support
-
-	private Fd fd(int fd) {
-		return allFds.get(fd);
-	}
 
 	private void remove(int... fds) {
 		for (var fd : fds)

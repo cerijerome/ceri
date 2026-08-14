@@ -18,8 +18,7 @@ import ceri.common.math.Maths;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
-import ceri.ffm.core.Decoder;
-import ceri.ffm.core.Encoder;
+import ceri.ffm.core.Coder;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
 import ceri.ffm.core.Terminator;
@@ -157,14 +156,14 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		@Override
-		void encode(Encoder encoder, String value) {
+		void encode(Coder.Out encoder, String value) {
 			var buffer = buffer(value);
 			encoder.accept(encoder.in() ? (m, o, _) -> write(m, o, buffer) : null, null,
 				length(buffer));
 		}
 
 		@Override
-		String decode(Decoder decoder, long length) {
+		String decode(Coder.In decoder, long length) {
 			length = Math.min(length, layoutSize());
 			var memory = string.slice(decoder.memory(), decoder.offset(), length, nul);
 			if (Memory.isNull(memory)) return decodeNoVal(decoder, length);
@@ -175,12 +174,12 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		@Override
-		void encodeArray(Encoder encoder, String[] array, int index, int count, boolean nul) {
+		void encodeArray(Coder.Out encoder, String[] array, int index, int count, boolean nul) {
 			encodeDynamicArray(encoder, array, index, count, nul);
 		}
 
 		@Override
-		String[] decodeArray(Decoder decoder, long length, int count, boolean nul) {
+		String[] decodeArray(Coder.In decoder, long length, int count, boolean nul) {
 			return decodeDynamicArray(decoder, length, count, nul);
 		}
 
@@ -455,7 +454,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, charset(), Layouts.desc(layout()));
+		return ToString.forClass(this, charset(), Layouts.string(layout()));
 	}
 
 	// support

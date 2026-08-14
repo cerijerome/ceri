@@ -22,8 +22,6 @@ public class CTermios {
 	// Sizes
 	private static final String TCFLAG_T = "tcflag_t";
 	private static final String SPEED_T = "speed_t";
-	private static final int TCFLAG_T_SIZE;
-	private static final int SPEED_T_SIZE;
 	private static final int NCCS; // number of termios control chars
 	// Input flags
 	public static final int IGNBRK = 0x0001;
@@ -157,9 +155,10 @@ public class CTermios {
 	 * Terminal mode flags.
 	 */
 	@Unsigned
-	@Size(type = TCFLAG_T)
+	@Size(name = TCFLAG_T)
 	public static class tcflag_t extends IntType<tcflag_t> {
-		public static final Supporter<tcflag_t> $ = support(tcflag_t.class);
+		public static final Supporter<tcflag_t> $ =
+			support(Native.init(tcflag_t.class, CTermios.class));
 
 		public tcflag_t(Number value) {
 			super(value);
@@ -170,9 +169,10 @@ public class CTermios {
 	 * Terminal baud rates.
 	 */
 	@Unsigned
-	@Size(type = SPEED_T)
+	@Size(name = SPEED_T)
 	public static class speed_t extends IntType<speed_t> {
-		public static final Supporter<speed_t> $ = support(speed_t.class);
+		public static final Supporter<speed_t> $ =
+			support(Native.init(speed_t.class, CTermios.class));
 
 		public speed_t(Number value) {
 			super(value);
@@ -368,8 +368,8 @@ public class CTermios {
 
 	static {
 		if (Os.info().mac) {
-			TCFLAG_T_SIZE = Native.Canonical.LONG.size();
-			SPEED_T_SIZE = Native.Canonical.LONG.size();
+			Native.Size.register(TCFLAG_T, Native.Canonical.LONG.size());
+			Native.Size.register(SPEED_T, Native.Canonical.LONG.size());
 			NCCS = 20;
 			IXON = 0x0200;
 			IXOFF = 0x0400;
@@ -455,8 +455,8 @@ public class CTermios {
 			B3500000 = 3500000;
 			B4000000 = 4000000;
 		} else {
-			TCFLAG_T_SIZE = Integer.BYTES;
-			SPEED_T_SIZE = Integer.BYTES;
+			Native.Size.register(TCFLAG_T, Integer.BYTES);
+			Native.Size.register(SPEED_T, Integer.BYTES);
 			NCCS = 32;
 			IXON = 0x0400;
 			IXOFF = 0x1000;
@@ -542,7 +542,5 @@ public class CTermios {
 			B3500000 = 0x100e;
 			B4000000 = 0x100f;
 		}
-		Native.Size.register(TCFLAG_T, TCFLAG_T_SIZE);
-		Native.Size.register(SPEED_T, SPEED_T_SIZE);
 	}
 }

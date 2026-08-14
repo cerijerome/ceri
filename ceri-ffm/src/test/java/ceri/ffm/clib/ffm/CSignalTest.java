@@ -9,18 +9,17 @@ import ceri.ffm.clib.ffm.CSignal.sighandler_t;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
 import ceri.ffm.clib.test.TestCLibNative;
 import ceri.ffm.clib.test.TestCLibNative.Result;
-import ceri.ffm.core.Library;
 import ceri.ffm.test.FfmAssert;
 import ceri.ffm.test.FfmTesting;
 
 public class CSignalTest {
-	private final Library.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private final FfmTesting.Lib<TestCLibNative> lib = TestCLibNative.lib();
 	private final Captor.OfInt captor = Captor.ofInt();
 	private final sighandler_t handler = captor::accept;
 
 	@After
 	public void after() {
-		Closeables.close(ref);
+		Closeables.close(lib);
 	}
 
 	@Test
@@ -45,7 +44,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSignalWithErrors() throws CException {
-		ref.init().signal.autoResponses(Result.of(CSignal.Macro.SIG_IGN.pointer),
+		lib.init().signal.autoResponses(Result.of(CSignal.Macro.SIG_IGN.pointer),
 			Result.errno(CErrNo.EINVAL));
 		Assert.equal(CSignal.signalDefault(CSignal.SIGUSR1).macro(), CSignal.Macro.SIG_IGN);
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CSignal.signalIgnore(CSignal.SIGUSR1));
@@ -64,10 +63,10 @@ public class CSignalTest {
 
 	@Test
 	public void testRaiseWithErrors() throws CException {
-		ref.init().raise.autoResponses(null, CErrNo.EINVAL);
+		lib.init().raise.autoResponses(null, CErrNo.EINVAL);
 		CSignal.raise(CSignal.SIGUSR1);
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CSignal.raise(CSignal.SIGUSR2));
-		ref.lib().raise.assertValues(CSignal.SIGUSR1, CSignal.SIGUSR2);
+		lib.lib().raise.assertValues(CSignal.SIGUSR1, CSignal.SIGUSR2);
 	}
 
 	@Test
@@ -99,7 +98,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSigSetEmulated() throws CException {
-		ref.init();
+		lib.init();
 		var set = sigset_t.$.pointer();
 		CSignal.sigemptyset(set);
 		CSignal.sigaddset(set, CSignal.SIGUSR1);
@@ -114,7 +113,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSigSetEmulatedErrors() {
-		ref.init().sigset.autoResponses(CErrNo.EINVAL);
+		lib.init().sigset.autoResponses(CErrNo.EINVAL);
 		var set = sigset_t.$.pointer();
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CSignal.sigemptyset(set));
 		FfmAssert.cexception(CErrNo.EINVAL, () -> CSignal.sigaddset(set, CSignal.SIGUSR1));

@@ -796,6 +796,23 @@ public class Reflect {
 		return methodInterceptor(delegate, consumer, delegate.getClass().getInterfaces());
 	}
 
+	/**
+	 * Flattens object varargs into a single array. The array may be modified by this call.
+	 */
+	public static Object[] flattenVarArgs(Object[] args) {
+		if (args == null || args.length == 0 || !(Array.last(args) instanceof Object[] varArgs))
+			return args;
+		if (varArgs.length == 1) {
+			args[args.length - 1] = RawArray.get(varArgs, 0);
+			return args;
+		}
+		var flat = new Object[args.length - 1 + varArgs.length];
+		Array.copy(args, 0, flat, 0, args.length - 1);
+		for (int i = 0; i < varArgs.length; i++)
+			flat[args.length - 1 + i] = RawArray.get(varArgs, i);
+		return flat;
+	}
+
 	// support
 
 	private static StackTraceElement previousStackTraceElement(String callingMethodName,

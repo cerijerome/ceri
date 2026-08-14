@@ -9,8 +9,8 @@ import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
-import ceri.jna.util.JnaOs;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaOs;
 
 /**
  * Types and functions from {@code <sys/ioctl.h>}
@@ -83,7 +83,8 @@ public class CIoctl {
 	 */
 	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
 		var n = new CUlong(request);
-		return CLib.caller.verifyInt(() -> CLib.lib().ioctl(fd, n, objs), "ioctl:" + name, fd, request, objs);
+		return CLib.caller.verifyInt(() -> CLib.lib().ioctl(fd, n, objs), "ioctl:" + name, fd,
+			request, objs);
 	}
 
 	/**
