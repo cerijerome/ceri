@@ -24,6 +24,9 @@ import ceri.common.stream.LongStream;
 public abstract class DynamicArray<T> {
 	/** Default growth function. */
 	public static final Functions.IntBiOperator GROW_DEF = growX2(8);
+	/** Start with size 1 and double each time. */
+	public static final Functions.IntBiOperator GROW_BIN = growX2(1);
+	/** Expands only to the size required. */
 	public static final Functions.IntBiOperator GROW_EXACT = (_, s) -> s; // expands only to size
 	private final Functions.IntBiOperator growth;
 	public final TypedArray<T> typed;

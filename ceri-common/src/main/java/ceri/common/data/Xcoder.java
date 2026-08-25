@@ -104,11 +104,17 @@ public class Xcoder {
 		private final Class<?> typeCls;
 		private final Map<T, Long> values;
 		private final Map<Long, T> types;
+		private final Functions.Consumer<Set<T>> customizer;
 
 		protected Type(Map<Long, T> types) {
-			this.types = Immutable.wrap(types);
+			this(Immutable.wrap(types), null);
+		}
+
+		private Type(Map<Long, T> types, Functions.Consumer<Set<T>> customizer) {
+			this.types = types;
 			values = Immutable.invertMap(Maps::link, types);
 			typeCls = typeClass(types);
+			this.customizer = customizer;
 		}
 
 		/**
@@ -333,10 +339,10 @@ public class Xcoder {
 		}
 
 		/**
-		 * Creates the remainder instance. Provides sub-classes an opportunity to modify the decode
-		 * set.
+		 * Creates the remainder from decoded types, and allows a customizer to adjust the set.
 		 */
-		protected Rem<T> rem(Set<T> types, long diff) {
+		Rem<T> rem(Set<T> types, long diff) {
+			if (customizer != null) customizer.accept(types);
 			return new Rem<>(Immutable.wrap(types), diff);
 		}
 
@@ -355,7 +361,18 @@ public class Xcoder {
 	public static class Types<T> extends Type<T> {
 
 		protected Types(Map<Long, T> types) {
-			super(types);
+			this(Immutable.wrap(types), null);
+		}
+
+		private Types(Map<Long, T> types, Functions.Consumer<Set<T>> customizer) {
+			super(types, customizer);
+		}
+
+		/**
+		 * Allows custom modification of decoded types.
+		 */
+		public Types<T> custom(Functions.Consumer<Set<T>> customizer) {
+			return customizer == null ? this : new Types<>(super.types, customizer);
 		}
 
 		/**
@@ -513,7 +530,7 @@ public class Xcoder {
 				T zero = decode(0);
 				if (zero != null) set.add(zero);
 			}
-			return rem(set, value);
+			return super.rem(set, value);
 		}
 
 		/**

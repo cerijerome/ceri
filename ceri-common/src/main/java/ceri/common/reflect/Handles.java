@@ -79,6 +79,20 @@ public class Handles {
 	}
 
 	/**
+	 * Sets a value with the handle.
+	 */
+	public static void set(VarHandle handle, Object value) {
+		if (handle != null) handle.set(value);
+	}
+
+	/**
+	 * Sets a value with the handle.
+	 */
+	public static void set(VarHandle handle, Object arg, Object value) {
+		if (handle != null) handle.set(arg, value);
+	}
+
+	/**
 	 * Returns a var handle for field access.
 	 */
 	public static VarHandle handle(Class<?> cls, String fieldName) {
@@ -170,7 +184,7 @@ public class Handles {
 	 */
 	public static <E extends Exception, T> T invoke(ExceptionAdapter<? extends E> except,
 		MethodHandle handle, Object... args) throws E {
-		if (handle == null || except == null) return null;
+		if (except == null) return null;
 		return Reflect.unchecked(except.get(() -> invokeRaw(handle, args)));
 	}
 
@@ -178,6 +192,7 @@ public class Handles {
 	 * Invokes the method handle, avoiding invoke-with-arguments. Seems to help performance.
 	 */
 	public static Object invokeRaw(MethodHandle handle, Object[] args) throws Throwable {
+		if (handle == null || args == null) return null;
 		return switch (args.length) {
 			case 0 -> handle.invoke();
 			case 1 -> handle.invoke(args[0]);

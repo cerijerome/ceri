@@ -75,6 +75,19 @@ public class HandlesTest {
 	}
 
 	@Test
+	public void testSet() {
+		Handles.set(null, -1);
+		Handles.set(C.VI, 1);
+		Assert.equals(C.i, 1);
+		Handles.set(C.VI, -1);
+		Assert.equals(C.i, -1);
+		var c = new C();
+		Handles.set(null, c, -1);
+		Handles.set(C.VL, c, 111L);
+		Assert.equals(c.l, 111L);
+	}
+
+	@Test
 	public void testHandle() {
 		Assert.equal(Handles.handle(null), null);
 		Assert.equal(C.VI.get(), -1);

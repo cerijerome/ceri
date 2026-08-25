@@ -26,8 +26,9 @@ public class Os {
 	private static final Pattern X86_REGEX = Pattern.compile("^x86");
 	private static final Pattern ARM_REGEX = Pattern.compile("^(?:arm|aarch)");
 	private static final Pattern BIT64_REGEX = Pattern.compile("64$");
-	private static final Lazy.Value<RuntimeException, Info> info = Lazy.Value.of(
-		new Info(SystemVars.sys("os.name"), SystemVars.sys("os.arch"), SystemVars.sys("os.version")));
+	private static final Lazy.Value<RuntimeException, Info> info =
+		Lazy.Value.of(new Info(SystemVars.sys("os.name"), SystemVars.sys("os.arch"),
+			SystemVars.sys("os.version")));
 
 	private Os() {}
 

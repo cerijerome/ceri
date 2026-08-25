@@ -345,6 +345,13 @@ public class XcoderTest {
 		Assert.equal(I.xcs.hasAll(3, Set.of(I.b, I.d)), false);
 	}
 
+	@Test
+	public void testCustomize() {
+		assertRem(I.xcs.custom(null).decodeAllRem(0x8089), 0x08, I.b, I.d, I.e);
+		var custom = I.xcs.custom(types -> types.remove(I.b));
+		assertRem(custom.decodeAllRem(0x8089), 0x08, I.d, I.e);
+	}
+
 	@SafeVarargs
 	private static <T> void assertRem(Xcoder.Rem<T> rem, long diff, T... ts) {
 		Assert.ordered(rem.types(), ts);
