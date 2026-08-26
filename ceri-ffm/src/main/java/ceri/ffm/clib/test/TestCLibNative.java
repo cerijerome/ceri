@@ -17,6 +17,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Testing;
 import ceri.common.text.Strings;
+import ceri.common.util.Os;
 import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CFcntl;
 import ceri.ffm.clib.ffm.CLib;
@@ -25,13 +26,14 @@ import ceri.ffm.clib.ffm.CPoll;
 import ceri.ffm.clib.ffm.CSignal;
 import ceri.ffm.clib.ffm.CTermios;
 import ceri.ffm.clib.ffm.CUnistd;
-import ceri.ffm.core.ErrNo;
+import ceri.ffm.core.LastError;
 import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.IntType.CLong;
 import ceri.ffm.type.IntType.CUlong;
 import ceri.ffm.type.Memory;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
+import ceri.ffm.type.Route;
 
 /**
  * Emulates c library responses.
@@ -59,9 +61,11 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Function<Control, Result<Integer>> fcntl =
 		CallSync.function(null, Result.of(0));
 	public final CallSync.Function<Tc, Result<Integer>> tc = CallSync.function(null, Result.of(0));
-	public final CallSync.Function<Cf, Result<Integer>> cf = CallSync.function(null, Result.of(0));
+	public final CallSync.Function<Cf<?>, Result<Integer>> cf =
+		CallSync.function(null, Result.of(0));
 	public final CallSync.Function<Mmap, Result<MemorySegment>> mmap =
 		CallSync.function(null, Result.of(null));
+	public final CallSync.Supplier<CErrNo> general = CallSync.supplier(OK);
 	private final AtomicInteger nextFd = new AtomicInteger();
 	public final Set<Integer> openFds = Sets.concurrent();
 	public final Map<Integer, Fd> allFds = Maps.concurrent();
@@ -118,7 +122,22 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for poll calls.
 	 */
-	public record Poll(CPoll.pollfd[] pollFds, int timeout) {}
+	public record Poll(CPoll.pollfd[] pollFds, int timeout) {
+		public static Route<Pointer.OfInt> FD = CPoll.pollfd.$.route("+.fd");
+		public static Route<Pointer.OfShort> EVENTS = CPoll.pollfd.$.route("+.events");
+		
+		/**
+		 * Creates an instance, capturing fields marked as @Out.
+		 */
+		public static Poll of(Pointer<CPoll.pollfd> pointer, int nfds, int timeout) {
+			var pollFds = pointer.getArray(nfds, false);
+			for (int i = 0; i < pollFds.length; i++) {
+				pollFds[i].fd = FD.pointer(pointer, i).get();
+				pollFds[i].events = EVENTS.pointer(pointer, i).get();
+			}
+			return new Poll(pollFds, timeout);
+		}
+	}
 
 	/**
 	 * Args for fcntl and ioctl calls.
@@ -138,10 +157,11 @@ public class TestCLibNative implements CLib.Native {
 		/**
 		 * Asserts control parameters.
 		 */
-		public Control verify(int fd, int request, Object...args) {
+		public Control verify(int fd, int request, Object... args) {
 			Assert.equal(fd().fd(), fd);
 			Assert.equal(request(), Maths.uint(request));
-			if (args.length > 0) Assert.ordered(args(), args);
+			for (int i = 0; i < args.length; i++)
+				Assert.equal(arg(i), args[i]);
 			return this;
 		}
 	}
@@ -155,40 +175,58 @@ public class TestCLibNative implements CLib.Native {
 		}
 
 		/**
-		 * Provide vararg argument as a typed object.
+		 * Provides a vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
 			return Reflect.unchecked(args().get(i));
+		}
+
+		/**
+		 * Returns the vararg argument as an os-specific termios pointer.
+		 */
+		public <T extends CTermios.termios<T>> Pointer<T> termios(int i) {
+			return TestCLibNative.termios(arg(i));
+		}
+
+		/**
+		 * Asserts parameters.
+		 */
+		public Tc verify(String name, int fd, Object... args) {
+			Assert.equal(name(), name);
+			Assert.equal(fd().fd(), fd);
+			for (int i = 0; i < args.length; i++)
+				Assert.equal(arg(i), args[i]);
+			return this;
 		}
 	}
 
 	/**
 	 * Arguments for termios cf calls.
 	 */
-	public record Cf(String name, MemorySegment termios, List<Object> args) {
-		public static Cf of(String name, MemorySegment termios, Object... args) {
-			return new Cf(name, termios, List.of(args));
-		}
-
-		/**
-		 * Returns a copy of the Linux termios struct.
-		 */
-		public CTermios.Linux.termios termiosLinux() {
-			return CTermios.Linux.termios.$.get(termios);
-		}
-
-		/**
-		 * Returns a copy of the Mac termios struct.
-		 */
-		public CTermios.Mac.termios termiosMac() {
-			return CTermios.Mac.termios.$.get(termios);
+	public record Cf<T extends CTermios.termios<T>>(String name, Pointer<T> termios,
+		List<Object> args) {
+		public static <T extends CTermios.termios<T>> Cf<T> of(String name, MemorySegment memory,
+			Object... args) {
+			return new Cf<>(name, TestCLibNative.<T>termios(memory), List.of(args));
 		}
 
 		/**
 		 * Provide vararg argument as a typed object.
 		 */
-		public <T> T arg(int i) {
+		public <R> R arg(int i) {
 			return Reflect.unchecked(args().get(i));
+		}
+
+		/**
+		 * Asserts parameters.
+		 */
+		public Cf<T> verify(String name, Pointer<? extends CTermios.termios<?>> termios,
+			Object... args) {
+			Assert.equal(name(), name);
+			Assert.equal(termios(), termios);
+			for (int i = 0; i < args.length; i++)
+				Assert.equal(arg(i), args[i]);
+			return this;
 		}
 	}
 
@@ -225,7 +263,7 @@ public class TestCLibNative implements CLib.Native {
 		allFds.clear();
 		env.clear();
 		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, pagesize, mmap, open, pipe, poll,
-			raise, read, signal, sigset, tc, write);
+			raise, read, signal, sigset, tc, write, general);
 		Collectable.addAll(openFds, CUnistd.STDIN_FILENO, CUnistd.STDOUT_FILENO,
 			CUnistd.STDERR_FILENO);
 	}
@@ -335,13 +373,13 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int poll(Pointer<CPoll.pollfd> fds, int nfds, int timeout) {
-		var pollFds = fds.getArray(nfds, false);
-		var errNo = poll.apply(new Poll(pollFds, timeout));
+		var poll = Poll.of(fds, nfds, timeout);
+		var errNo = this.poll.apply(poll);
 		if (!ok(errNo)) return error(-1, errNo);
 		int count = 0;
-		for (var pollFd : pollFds)
+		for (var pollFd : poll.pollFds())
 			if (pollFd.revents != 0) count++;
-		fds.writeArray(pollFds, false);
+		fds.writeArray(poll.pollFds(), false);
 		return count;
 	}
 
@@ -465,6 +503,7 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public String strerror(int errnum) {
+		general.get();
 		return "Error message " + errnum;
 	}
 
@@ -502,6 +541,11 @@ public class TestCLibNative implements CLib.Native {
 		return Bytes.maskOfBits(signum - 1);
 	}
 
+	private static <T extends CTermios.termios<T>> Pointer<T> termios(MemorySegment memory) {
+		return Reflect.unchecked(Os.info().mac ? CTermios.Mac.termios.$.pointer(memory) :
+			CTermios.Linux.termios.$.pointer(memory));
+	}
+
 	private static boolean ok(Result<?> result) {
 		return ok(result.errNo());
 	}
@@ -519,7 +563,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	private static <T> T error(T result, CErrNo errNo) {
-		ErrNo.set(errNo.code);
+		LastError.set(errNo.code);
 		return result;
 	}
 }

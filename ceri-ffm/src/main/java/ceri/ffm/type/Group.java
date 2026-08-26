@@ -53,24 +53,10 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	}
 
 	/**
-	 * Updates a type from memory, or returns a new type from memory if immutable.
-	 */
-	public interface Updater<T> {
-		T apply(MemorySegment memory, long offset, T t);
-	}
-
-	/**
-	 * Writes type instance to memory.
-	 */
-	public interface Writer<T> {
-		void accept(MemorySegment memory, long offset, T t);
-	}
-
-	/**
 	 * Provides actions for a group member.
 	 */
 	private record Actions<T>(Functions.Operator<T> init, Functions.ObjIntFunction<T, T> flexInit,
-		Updater<T> update, Writer<T> write) {
+		Memory.Updater<T> update, Memory.Sync<T> write) {
 
 		/**
 		 * Initializes a type instance with optional flex array size (structs).
@@ -114,7 +100,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			private final TypeNode node;
 			private final VarHandle accessor;
 			private Support<?, ?, ?, ?> support;
-			private Actions<?> actions = null;
+			private Actions<?> actions;
 			private boolean flex = false;
 			MemoryLayout layout = null;
 
@@ -144,7 +130,8 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			}
 
 			private <T> Builder actions(Functions.Operator<T> init,
-				Functions.ObjIntFunction<T, T> flexInit, Updater<T> update, Writer<T> write) {
+				Functions.ObjIntFunction<T, T> flexInit, Memory.Updater<T> update,
+				Memory.Sync<T> write) {
 				actions = new Actions<>(init, flexInit, update, write);
 				return this;
 			}
@@ -184,12 +171,16 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			return support.typeDesc() + (flex ? "[]" : "") + ' ' + name();
 		}
 
+		PointerType.Raw pointer(MemorySegment memory, long offset) {
+			return support.pointer(Memory.slice(memory, offset + offset()));
+		}
+
 		T get(Group<?, ?> group) {
 			return Handles.get(accessor, group);
 		}
 
 		void set(Group<?, ?> group, T value) {
-			accessor.set(group, value);
+			Handles.set(accessor, group, value);
 		}
 
 		T val() {
@@ -223,6 +214,10 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 		long flexScale(int count) {
 			return ((SequenceLayout) layout).elementLayout().scale(offset(), count);
+		}
+
+		Support<?, ?, ?, ?> support() {
+			return support;
 		}
 	}
 
@@ -318,6 +313,10 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			return Reflect.unchecked(Lists.at(members(), index));
 		}
 
+		<R> Member<R> member(String name) {
+			return member(indexOf(name));
+		}
+
 		int indexOf(String name) {
 			return nameIndex.getOrDefault(name, INVALID);
 		}
@@ -326,8 +325,8 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	/**
 	 * Operational support for group types.
 	 */
-	public static abstract class Supporter<T extends Group<T, L>, L extends GroupLayout>
-		extends Support.Typed<T, L> {
+	public static abstract sealed class Supporter<T extends Group<T, L>, L extends GroupLayout>
+		extends Support.Typed<T, L> permits Union.Supporter, Struct.Supporter {
 		final Config<T, L> config;
 
 		Supporter(Config<T, L> config, L layout) {
@@ -348,6 +347,35 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		@Override
 		public T val() {
 			return config.constructor.get();
+		}
+
+		/**
+		 * Returns a typed group member pointer from the memory location of the group.
+		 */
+		public <P extends PointerType.Raw> P pointer(int index, MemorySegment memory) {
+			return pointer(index, memory, 0L);
+		}
+
+		/**
+		 * Returns a typed group member pointer from the memory location of the group.
+		 */
+		public <P extends PointerType.Raw> P pointer(int index, MemorySegment memory, long offset) {
+			return Group.pointer(config.member(index), memory, offset);
+		}
+
+		/**
+		 * Returns a typed group member pointer from the memory location of the group.
+		 */
+		public <P extends PointerType.Raw> P pointer(String name, MemorySegment memory) {
+			return pointer(name, memory, 0L);
+		}
+
+		/**
+		 * Returns a typed group member pointer from the memory location of the group.
+		 */
+		public <P extends PointerType.Raw> P pointer(String name, MemorySegment memory,
+			long offset) {
+			return Group.pointer(config.member(name), memory, offset);
 		}
 
 		@Override
@@ -376,7 +404,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		return members.size();
 	}
 
-	protected Group() {}
+	Group() {}
 
 	@Override
 	public int hashCode() {
@@ -418,7 +446,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	abstract Config<T, L> configFor(Class<T> cls);
 
 	String memberString(Transformer transformer, Group.Member<?> member) {
-		return member.desc() + " = " + transformer.apply(member.get(this)) + ';';
+		return member.desc() + " = " + transformer.apply(member.get(this)); // + ';';
 	}
 
 	T typedThis() {
@@ -454,14 +482,21 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	// support
 
+	private static <P extends PointerType.Raw> P pointer(Member<?> member, MemorySegment memory,
+		long offset) {
+		return member == null ? null : Reflect.unchecked(member.pointer(memory, offset));
+	}
+
 	private static Member.Builder setMember(Member.Builder member) {
 		return setMember(supports().from(member.node), member);
 	}
 
 	private static <U> Member.Builder setMember(Support<U, ?, ?, ?> support,
 		Member.Builder member) {
+		var direction = member.node.context().direction();
 		return member.layout(support.layout()).support(support).<U>actions(support::init, null,
-			support::update, support::write);
+			direction.in() ? support::update : Memory.Updater.ofNull(),
+			direction.out() ? support::write : Memory.Sync.ofNull());
 	}
 
 	private static Member.Builder setArrayMember(Member.Builder member, Object array) {
@@ -474,11 +509,16 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	private static <A> Member.Builder setFlexMember(Member.Builder member, int size) {
 		Support<?, A, ?, ?> support = Reflect.unchecked(supports().from(member.node.component()));
 		var layout = MemoryLayout.sequenceLayout(size, support.layout());
-		var nul = member.node.context().nul();
+		var context = member.node.context();
+		var direction = context.direction();
+		var nul = context.nul();
 		return member.flex(true).layout(layout).support(support).<A>actions(
 			t -> support.initArray(t, size), (t, n) -> flexInit(support, t, n),
-			(m, o, t) -> support.updateArray(m, o, t, nul),
-			(m, o, t) -> support.writeArray(m, o, t, 0, nul));
+			direction.in() ? (m, o, l, t) -> support.updateArray(m, o, l, t, nul) :
+				Memory.Updater.ofNull(),
+			direction.out() ?
+				(m, o, l, t) -> support.writeArray(m, o, l, t, 0, Integer.MAX_VALUE, nul) :
+				Memory.Sync.ofNull());
 	}
 
 	private static int flexDims(TypeNode node, Object array) {
@@ -508,7 +548,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	private static Field findField(Class<?> cls, Map<String, Field> classFields, String name) {
 		var field = classFields.remove(name);
 		if (field != null) return field;
-		throw Exceptions.illegalArg("@%s not found in %s: %s", FIELDS, Reflect.name(cls), name);
+		throw Exceptions.illegalArg("@%s not found on %s: %s", FIELDS, Reflect.name(cls), name);
 	}
 
 	private static Map<String, Field> classFields(Class<?> cls) {

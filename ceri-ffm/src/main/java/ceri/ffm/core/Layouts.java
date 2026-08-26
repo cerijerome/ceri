@@ -3,27 +3,17 @@ package ceri.ffm.core;
 import java.lang.foreign.AddressLayout;
 import java.lang.foreign.GroupLayout;
 import java.lang.foreign.MemoryLayout;
-import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.PaddingLayout;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SequenceLayout;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.UnionLayout;
 import java.lang.foreign.ValueLayout;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import ceri.common.array.Dimensions;
-import ceri.common.array.RawArray;
-import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
-import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.common.util.Validate;
@@ -238,7 +228,9 @@ public class Layouts {
 	 */
 	public static <L extends MemoryLayout> L set(L layout, String name, long align,
 		ByteOrder order) {
-		return order(align(name(layout, name), align), order);
+		layout = align(name(layout, name), align);
+		if (order == null || !(layout instanceof ValueLayout vlayout)) return layout;
+		return Reflect.unchecked(vlayout.withOrder(order));
 	}
 
 	/**
@@ -292,10 +284,9 @@ public class Layouts {
 	/**
 	 * Sets layout byte order if non-null and the layout is a value layout.
 	 */
-	public static <L extends MemoryLayout> L order(L layout, ByteOrder order) {
-		if (layout == null || order == null || !(layout instanceof ValueLayout vlayout)
-			|| Objects.equals(vlayout.order(), order)) return layout;
-		return Reflect.unchecked(vlayout.withOrder(order));
+	public static <L extends ValueLayout> L order(L layout, ByteOrder order) {
+		if (layout == null || order == null || Objects.equals(layout.order(), order)) return layout;
+		return Reflect.unchecked(layout.withOrder(order));
 	}
 
 	/**
@@ -327,33 +318,6 @@ public class Layouts {
 	}
 
 	/**
-	 * Creates a struct layout from member layouts, adding padding. Does not add trailing padding if
-	 * the last member is a flexible array.
-	 */
-	public static StructLayout paddedStruct(MemoryLayout... members) {
-		if (members == null) return null;
-		return paddedStruct(Arrays.asList(members));
-	}
-
-	/**
-	 * Creates a struct layout from member layouts, adding padding. Does not add trailing padding if
-	 * the last member is a flexible array.
-	 */
-	public static StructLayout paddedStruct(Iterable<? extends MemoryLayout> members) {
-		if (members == null) return null;
-		var layouts = Lists.<MemoryLayout>of();
-		long offset = 0L, align = 0L;
-		for (var layout : members) {
-			offset += addPadding(layouts, offset, layout.byteAlignment());
-			layouts.add(layout);
-			align = Math.max(align, layout.byteAlignment());
-			offset += layout.byteSize();
-		}
-		if (!isFlexArray(Lists.last(layouts))) addPadding(layouts, offset, align);
-		return struct(layouts);
-	}
-
-	/**
 	 * Creates a union layout from member layouts.
 	 */
 	public static UnionLayout union(Collection<? extends MemoryLayout> members) {
@@ -361,118 +325,10 @@ public class Layouts {
 		return MemoryLayout.unionLayout(members.toArray(MemoryLayout[]::new));
 	}
 
-	/**
-	 * Creates nested sequence layouts to match the dimensions.
-	 */
-	public static MemoryLayout array(MemoryLayout layout, Dimensions dims) {
-		if (layout == null) return null;
-		if (dims == null) dims = Dimensions.NONE;
-		for (int i = dims.count() - 1; i >= 0; i--)
-			layout = MemoryLayout.sequenceLayout(dims.dim(i), layout);
-		return layout;
-	}
-
-	/**
-	 * Creates nested sequence layouts to match the dimensions.
-	 */
-	public static MemoryLayout array(MemoryLayout layout, int... dims) {
-		if (layout == null || RawArray.isEmpty(dims)) return layout;
-		return array(layout, Dimensions.of(dims));
-	}
-
-	/**
-	 * Creates an 0-length flexible array member layout.
-	 */
-	public static SequenceLayout flexArray(MemoryLayout element) {
-		if (element == null) return null;
-		return MemoryLayout.sequenceLayout(0, element);
-	}
-
-	/**
-	 * Returns true if the member layout is an array of zero length.
-	 */
-	public static boolean isFlexArray(MemoryLayout member) {
-		return member != null && (member instanceof SequenceLayout seq) && seq.elementCount() == 0L;
-	}
-
-	/**
-	 * Returns true if the struct has a flexible array member.
-	 */
-	public static boolean hasFlexArray(StructLayout layout) {
-		return flexArrayIndex(layout) > 0;
-	}
-
-	/**
-	 * Returns the index of a flexible array member within the struct layout, or -1.
-	 */
-	public static int flexArrayIndex(StructLayout layout) {
-		if (layout == null) return -1;
-		var members = layout.memberLayouts();
-		for (int index = members.size() - 1; index > 0; index--) {
-			var last = Lists.at(members, index);
-			if (!(last instanceof PaddingLayout))
-				return (last instanceof SequenceLayout) ? index : -1;
-		}
-		return -1;
-	}
-
-	/**
-	 * Allocates the struct layout containing a flexible array member of given length.
-	 */
-	public static MemorySegment flexStructAlloc(SegmentAllocator allocator, StructLayout layout,
-		long length) {
-		if (allocator == null || layout == null) return null;
-		long size = flexStructSize(layout, length);
-		return allocator.allocate(size, layout.byteAlignment());
-	}
-
-	/**
-	 * Returns the struct layout size containing a flexible array member of given count.
-	 */
-	public static long flexStructSize(StructLayout layout, long length) {
-		int index = flexArrayIndex(layout);
-		if (index < 0) return size(layout);
-		var flexArray = (SequenceLayout) layout.memberLayouts().get(index);
-		var offset = layout.byteOffset(PathElement.groupElement(index));
-		var size = flexArray.elementLayout().scale(offset, length);
-		return Math.max(layout.byteSize(), size);
-	}
-
-	/**
-	 * Returns the flexible array count from its containing struct layout and size.
-	 */
-	public static long flexArrayCount(StructLayout layout, long size) {
-		int index = flexArrayIndex(layout);
-		if (index < 0) return 0;
-		var flexArray = (SequenceLayout) layout.memberLayouts().get(index);
-		var offset = layout.byteOffset(PathElement.groupElement(index));
-		return count(flexArray.elementLayout(), size - offset);
-	}
-
-	/**
-	 * Returns a var handle {@code (MemorySegment memory, long offset, int index)} to access an
-	 * element of a flexible array member. Adds the member offset to the given offset.
-	 */
-	public static VarHandle flexArrayVarHandle(StructLayout layout,
-		MemoryLayout.PathElement... paths) {
-		int index = flexArrayIndex(layout);
-		if (index < 0) return null;
-		var flexArray = (SequenceLayout) layout.memberLayouts().get(index);
-		long offset = layout.byteOffset(PathElement.groupElement(index));
-		var handle = flexArray.elementLayout().arrayElementVarHandle(paths);
-		return MethodHandles.filterCoordinates(handle, 1, Handles.Math.addExact(offset));
-	}
-
 	// support
 
 	private static <L extends ValueLayout> L canonical(Native.Canonical canonical) {
 		return Reflect.unchecked(Maps.getOrThrow(Native.LINKER.canonicalLayouts(), canonical.name));
-	}
-
-	private static long addPadding(List<MemoryLayout> layouts, long offset, long align) {
-		var padding = padding(offset, align);
-		if (padding != 0) layouts.add(MemoryLayout.paddingLayout(padding));
-		return padding;
 	}
 
 	private static String orderSymbol(MemoryLayout layout) {

@@ -20,15 +20,15 @@ import ceri.ffm.core.Native;
 /**
  * Operational support for types and arrays with fixed-size layouts.
  */
-public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryLayout>
-	implements Layouts.Provider<L> {
+public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends MemoryLayout>
+	implements Layouts.Provider<L> permits Primitive, Support.Typed {
 	public static final OfVoid VOID = new OfVoid(Layouts.BYTE);
 	private final L layout;
 
 	/**
 	 * Adapts an instance for arrays of the support type.
 	 */
-	public static class OfArray<T> extends Typed<T, SequenceLayout> {
+	public static final class OfArray<T> extends Typed<T, SequenceLayout> {
 		private final Config<T> config;
 		private final Class<T> type;
 
@@ -215,7 +215,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 			return new OfArray<>(config, layout);
 		}
 
-		private Support<?, T, ?, ?> elementSupport() {
+		Support<?, T, ?, ?> elementSupport() {
 			return config.support();
 		}
 	}
@@ -223,7 +223,7 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * A void implementation.
 	 */
-	public static class OfVoid extends Typed<Void, ValueLayout.OfByte> {
+	public static final class OfVoid extends Typed<Void, ValueLayout.OfByte> {
 		private OfVoid(ValueLayout.OfByte layout) {
 			super(layout);
 		}
@@ -272,8 +272,10 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	/**
 	 * Support for object types.
 	 */
-	public static abstract class Typed<T, L extends MemoryLayout>
-		extends Support<T, T[], Pointer<T>, L> {
+	public static abstract sealed class Typed<T, L extends MemoryLayout>
+		extends Support<T, T[], Pointer<T>, L> permits OfArray, OfVoid, Primitive.Box,
+		IntType.Supporter, Group.Supporter, Memory.Supporter, PointerType.Supporter,
+		Callback.Supporter, StringType.Supporter, BufferType.Supporter {
 
 		Typed(L layout) {
 			super(layout);
@@ -506,6 +508,20 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	}
 
 	/**
+	 * Start building a route for this type.
+	 */
+	public Route.Builder route() {
+		return Route.builder(this);
+	}
+
+	/**
+	 * Creates a route from the pattern, starting at this type, and with unverified end point type.
+	 */
+	public <R extends PointerType.Indexable<R, ?, ?>> Route<R> route(String pattern) {
+		return route().parse(pattern).as();
+	}
+
+	/**
 	 * Returns a default value for the type. Sub-fields are not initialized.
 	 */
 	public abstract T val();
@@ -560,6 +576,13 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 */
 	public P pointer(MemorySegment memory) {
 		return pointer(memory, false);
+	}
+
+	/**
+	 * Creates a typed pointer for the memory location.
+	 */
+	public P pointer(MemorySegment memory, long offset) {
+		return pointer(Memory.slice(memory, offset));
 	}
 
 	/**
@@ -1120,6 +1143,13 @@ public abstract class Support<T, A, P extends PointerType.Raw, L extends MemoryL
 	 */
 	P pointer(MemorySegment memory, boolean constant) {
 		return memory == null ? null : rawPointer(memory, constant);
+	}
+
+	/**
+	 * Creates a typed pointer for the memory location.
+	 */
+	P pointer(MemorySegment memory, long offset, boolean constant) {
+		return pointer(Memory.slice(memory, offset), constant);
 	}
 
 	/**

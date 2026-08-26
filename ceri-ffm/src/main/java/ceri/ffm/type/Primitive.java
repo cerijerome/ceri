@@ -13,8 +13,10 @@ import ceri.ffm.core.Native;
 /**
  * Operational support for primitives.
  */
-public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayout>
-	extends Support<T, A, P, L> {
+public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A>, //
+	L extends ValueLayout> extends Support<T, A, P, L>
+	permits Primitive.OfBool, Primitive.OfChar, Primitive.OfByte, Primitive.OfShort,
+	Primitive.OfInt, Primitive.OfLong, Primitive.OfFloat, Primitive.OfDouble {
 	public static final OfBool BOOL = new OfBool(Layouts.BOOL);
 	public static final OfChar CHAR = new OfChar(Layouts.CHAR);
 	public static final OfByte BYTE = new OfByte(Layouts.BYTE);
@@ -27,7 +29,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Operational support for boxed primitives.
 	 */
-	public static class Box<T, L extends ValueLayout> extends Support.Typed<T, L> {
+	public static final class Box<T, L extends ValueLayout> extends Support.Typed<T, L> {
 		public static final Box<Boolean, ValueLayout.OfBoolean> BOOL = new Box<>(Primitive.BOOL);
 		public static final Box<Character, ValueLayout.OfChar> CHAR = new Box<>(Primitive.CHAR);
 		public static final Box<Byte, ValueLayout.OfByte> BYTE = new Box<>(Primitive.BYTE);
@@ -84,7 +86,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added bool support.
 	 */
-	public static class OfBool
+	public static final class OfBool
 		extends Primitive<Boolean, boolean[], Pointer.OfBool, ValueLayout.OfBoolean> {
 
 		private OfBool(ValueLayout.OfBoolean layout) {
@@ -269,7 +271,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added char support.
 	 */
-	public static class OfChar
+	public static final class OfChar
 		extends Primitive<Character, char[], Pointer.OfChar, ValueLayout.OfChar> {
 		private static final Character VAL = '\0';
 
@@ -449,7 +451,8 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added byte support.
 	 */
-	public static class OfByte extends Primitive<Byte, byte[], Pointer.OfByte, ValueLayout.OfByte> {
+	public static final class OfByte
+		extends Primitive<Byte, byte[], Pointer.OfByte, ValueLayout.OfByte> {
 		private static final Byte VAL = 0;
 
 		private OfByte(ValueLayout.OfByte layout) {
@@ -662,7 +665,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added short support.
 	 */
-	public static class OfShort
+	public static final class OfShort
 		extends Primitive<Short, short[], Pointer.OfShort, ValueLayout.OfShort> {
 		private static final Short VAL = 0;
 
@@ -863,7 +866,8 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added int support.
 	 */
-	public static class OfInt extends Primitive<Integer, int[], Pointer.OfInt, ValueLayout.OfInt> {
+	public static final class OfInt
+		extends Primitive<Integer, int[], Pointer.OfInt, ValueLayout.OfInt> {
 		private static final Integer VAL = 0;
 
 		private OfInt(ValueLayout.OfInt layout) {
@@ -1048,7 +1052,8 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added long support.
 	 */
-	public static class OfLong extends Primitive<Long, long[], Pointer.OfLong, ValueLayout.OfLong> {
+	public static final class OfLong
+		extends Primitive<Long, long[], Pointer.OfLong, ValueLayout.OfLong> {
 		private static final Long VAL = 0L;
 
 		private OfLong(ValueLayout.OfLong layout) {
@@ -1219,7 +1224,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added float support.
 	 */
-	public static class OfFloat
+	public static final class OfFloat
 		extends Primitive<Float, float[], Pointer.OfFloat, ValueLayout.OfFloat> {
 		private static final Float VAL = 0f;
 
@@ -1392,7 +1397,7 @@ public abstract class Primitive<T, A, P extends Pointer.Raw, L extends ValueLayo
 	/**
 	 * Added double support.
 	 */
-	public static class OfDouble
+	public static final class OfDouble
 		extends Primitive<Double, double[], Pointer.OfDouble, ValueLayout.OfDouble> {
 		private static final Double VAL = 0.0;
 

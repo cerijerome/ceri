@@ -84,7 +84,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 	/**
 	 * Operational support with fixed-size layout.
 	 */
-	public static class Supporter<B extends Buffer> extends Support.Typed<B, SequenceLayout> {
+	public static final class Supporter<B extends Buffer> extends Support.Typed<B, SequenceLayout> {
 		private final BufferType<B, ?, ?, ?> buffer;
 		private final boolean nul;
 

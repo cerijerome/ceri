@@ -21,7 +21,8 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	/**
 	 * Operational support for struct types.
 	 */
-	public static class Supporter<T extends Struct<T>> extends Group.Supporter<T, StructLayout> {
+	public static final class Supporter<T extends Struct<T>>
+		extends Group.Supporter<T, StructLayout> {
 
 		private Supporter(Group.Config<T, StructLayout> config, StructLayout layout) {
 			super(config, layout);

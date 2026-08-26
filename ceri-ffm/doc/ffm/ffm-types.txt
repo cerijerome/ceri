@@ -35,7 +35,7 @@ struct, union:
 pointer (typed), primitive-pointer, pointer-type:
 - call:arg (by value)
   - layout = address
-  - in = allocate mem, write address to mem, pass mem
+  - in = pass mem
   - out = (not supported - address unchanged, contents changed)
   - in/out = (not supported - address unchanged, contents changed)
 - call:rtn (by value)
@@ -47,7 +47,20 @@ pointer (typed), primitive-pointer, pointer-type:
   - read = read address from mem at offset
   - write = write address to mem at offset
 
-func-pointer: TBD
+func-pointer:
+- call:arg (by value)
+  - layout = address
+  - in = create/lookup stub, pass mem
+  - out = (not supported)
+  - in/out = (not supported)
+- call:rtn (by value)
+  - layout = address
+  - out = reslice to size, create/lookup stub from mem
+- struct field
+  - layout = address
+  - new = instantiate pointer to null
+  - read = read address from mem at offset
+  - write = write address to mem at offset
 
 string (immutable): [charset, size, nul-term] // equivalent to array
 - call:arg (by ref)

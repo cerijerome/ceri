@@ -139,14 +139,14 @@ public class Refine {
 	 * Indicates a parameter should write its state for a method call.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.PARAMETER })
+	@Target({ ElementType.PARAMETER, ElementType.FIELD })
 	public @interface In {}
 
 	/**
 	 * Indicates a parameter should read its state after a method call.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.PARAMETER })
+	@Target({ ElementType.PARAMETER, ElementType.FIELD })
 	public @interface Out {}
 
 	/**

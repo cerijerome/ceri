@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.function.IntUnaryOperator;
 import ceri.common.collect.Enums;
-import ceri.common.collect.Maps;
 import ceri.common.data.Xcoder;
 import ceri.common.io.Paths;
 import ceri.common.reflect.Reflect;
@@ -52,15 +51,10 @@ public class CFcntl {
 		O_SYNC(Const.O_SYNC);
 
 		public static final int O_ACCMODE = 0x3; // mask
-		public static final Xcoder.Types<Open> xcoder = new Xcoder.Types<>(
-			Maps.convert(Maps::link, t -> (long) t.value, t -> t, Enums.of(Open.class))) {
-			@Override
-			protected Xcoder.Rem<Open> rem(Set<Open> types, long diff) {
-				if (types.contains(O_RDWR) || types.contains(O_WRONLY)) types.remove(O_RDONLY);
-				else types.add(O_RDONLY);
-				return super.rem(types, diff);
-			}
-		};
+		public static final Xcoder.Types<Open> xcoder = Xcoder.types(Open.class).custom(types -> {
+			if (types.contains(O_RDWR) || types.contains(O_WRONLY)) types.remove(O_RDONLY);
+			else types.add(O_RDONLY);
+		});
 		public final int value;
 
 		/**
@@ -100,32 +94,32 @@ public class CFcntl {
 	}
 
 	/**
-	 * Mode masks.
+	 * Mode masks from {@code <sys/stat.h>}
 	 */
 	public enum Mode {
-		xoth(0001),
-		woth(0002),
-		roth(0004),
-		rwxo(0007),
-		xgrp(0010),
-		wgrp(0020),
-		rgrp(0040),
-		rwxg(0070),
-		xusr(0100),
-		wusr(0200),
-		rusr(0400),
-		rwxu(0700),
-		svtx(01000),
-		sgid(02000),
-		suid(04000),
-		fifo(010000),
-		fchr(020000),
-		fdir(040000),
-		fblk(060000),
-		freg(0100000),
-		flnk(0120000),
-		fsock(0140000),
-		fmt(0170000);
+		S_IXOTH(0000001),
+		S_IWOTH(0000002),
+		S_IROTH(0000004),
+		S_IRWXO(0000007),
+		S_IXGRP(0000010),
+		S_IWGRP(0000020),
+		S_IRGRP(0000040),
+		S_IRWXG(0000070),
+		S_IXUSR(0000100),
+		S_IWUSR(0000200),
+		S_IRUSR(0000400),
+		S_IRWXU(0000700),
+		S_ISVTX(0001000),
+		S_ISGID(0002000),
+		S_ISUID(0004000),
+		S_IFIFO(0010000),
+		S_IFCHR(0020000),
+		S_IFDIR(0040000),
+		S_IFBLK(0060000),
+		S_IFREG(0100000),
+		S_IFLNK(0120000),
+		S_IFSOCK(0140000),
+		S_IFMT(0170000);
 
 		public static final Xcoder.Types<Mode> xcoder =
 			Xcoder.types(Enums.of(Mode.class).reversed(), t -> t.value);

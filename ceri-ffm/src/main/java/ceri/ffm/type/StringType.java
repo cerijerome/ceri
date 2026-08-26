@@ -65,7 +65,7 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 	/**
 	 * Operational string support with bounded size and optional nul-termination.
 	 */
-	public static class Supporter extends Support.Typed<String, SequenceLayout> {
+	public static final class Supporter extends Support.Typed<String, SequenceLayout> {
 		private final StringType string;
 		private final boolean nul;
 

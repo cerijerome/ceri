@@ -8,7 +8,7 @@ import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
 import ceri.ffm.core.Native;
 
-public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
+public final class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<T, ?>, T[]> {
 	/** Wildcard pointer support. */
 	public static final Supporter<Pointer<?>> $ = Reflect.unchecked(support(Support.VOID, true));
 
@@ -34,7 +34,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Constant void pointer.
 	 */
-	public static class OfVoid extends PointerType.Raw {
+	public static final class OfVoid extends PointerType.Raw {
 		public static final Supporter<OfVoid> $ = Supporter.of(OfVoid.class,
 			Native.Kind.PRIMITIVE_POINTER, Support.VOID, (m, _, _) -> new OfVoid(m), true);
 
@@ -63,7 +63,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive boolean pointer.
 	 */
-	public static class OfBool extends PointerType.Indexable<OfBool, Primitive.OfBool, boolean[]> {
+	public static final class OfBool
+		extends PointerType.Indexable<OfBool, Primitive.OfBool, boolean[]> {
 		public static final Supporter<OfBool> $ = support(Primitive.BOOL, false);
 
 		static Supporter<OfBool> support(Primitive.OfBool type, boolean constant) {
@@ -140,7 +141,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive char pointer.
 	 */
-	public static class OfChar extends PointerType.Indexable<OfChar, Primitive.OfChar, char[]> {
+	public static final class OfChar
+		extends PointerType.Indexable<OfChar, Primitive.OfChar, char[]> {
 		public static final Supporter<OfChar> $ = support(Primitive.CHAR, false);
 
 		static Supporter<OfChar> support(Primitive.OfChar type, boolean constant) {
@@ -217,7 +219,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive byte pointer.
 	 */
-	public static class OfByte extends PointerType.Indexable<OfByte, Primitive.OfByte, byte[]> {
+	public static final class OfByte
+		extends PointerType.Indexable<OfByte, Primitive.OfByte, byte[]> {
 		public static final Supporter<OfByte> $ = support(Primitive.BYTE, false);
 
 		static Supporter<OfByte> support(Primitive.OfByte type, boolean constant) {
@@ -310,7 +313,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive short pointer.
 	 */
-	public static class OfShort extends PointerType.Indexable<OfShort, Primitive.OfShort, short[]> {
+	public static final class OfShort
+		extends PointerType.Indexable<OfShort, Primitive.OfShort, short[]> {
 		public static final Supporter<OfShort> $ = support(Primitive.SHORT, false);
 
 		static Supporter<OfShort> support(Primitive.OfShort type, boolean constant) {
@@ -403,7 +407,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive int pointer.
 	 */
-	public static class OfInt extends PointerType.Indexable<OfInt, Primitive.OfInt, int[]> {
+	public static final class OfInt extends PointerType.Indexable<OfInt, Primitive.OfInt, int[]> {
 		public static final Supporter<OfInt> $ = support(Primitive.INT, false);
 
 		static Supporter<OfInt> support(Primitive.OfInt type, boolean constant) {
@@ -485,7 +489,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive long pointer.
 	 */
-	public static class OfLong extends PointerType.Indexable<OfLong, Primitive.OfLong, long[]> {
+	public static final class OfLong
+		extends PointerType.Indexable<OfLong, Primitive.OfLong, long[]> {
 		public static final Supporter<OfLong> $ = support(Primitive.LONG, false);
 
 		static Supporter<OfLong> support(Primitive.OfLong type, boolean constant) {
@@ -567,7 +572,8 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive float pointer.
 	 */
-	public static class OfFloat extends PointerType.Indexable<OfFloat, Primitive.OfFloat, float[]> {
+	public static final class OfFloat
+		extends PointerType.Indexable<OfFloat, Primitive.OfFloat, float[]> {
 		public static final Supporter<OfFloat> $ = support(Primitive.FLOAT, false);
 
 		static Supporter<OfFloat> support(Primitive.OfFloat type, boolean constant) {
@@ -649,7 +655,7 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Primitive double pointer.
 	 */
-	public static class OfDouble
+	public static final class OfDouble
 		extends PointerType.Indexable<OfDouble, Primitive.OfDouble, double[]> {
 		public static final Supporter<OfDouble> $ = support(Primitive.DOUBLE, false);
 
@@ -1002,20 +1008,22 @@ public class Pointer<T> extends PointerType.Indexable<Pointer<T>, Support.Typed<
 	/**
 	 * Reads the value from memory, applies the consumer, then writes the value back to memory.
 	 */
-	public <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer) throws E {
-		acceptAt(0, consumer);
+	public <E extends Exception> Pointer<T> accept(Excepts.Consumer<E, ? super T> consumer)
+		throws E {
+		return acceptAt(0, consumer);
 	}
 
 	/**
 	 * Reads the value from memory at pointer type index, applies the consumer, then writes the
 	 * value back to memory.
 	 */
-	public <E extends Exception> void acceptAt(int index, Excepts.Consumer<E, ? super T> consumer)
-		throws E {
-		if (consumer == null) return;
+	public <E extends Exception> Pointer<T> acceptAt(int index,
+		Excepts.Consumer<E, ? super T> consumer) throws E {
+		if (consumer == null) return this;
 		var t = getAt(index);
 		consumer.accept(t);
 		writeAt(index, t);
+		return this;
 	}
 
 	/**

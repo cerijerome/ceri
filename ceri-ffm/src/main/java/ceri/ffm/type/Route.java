@@ -4,114 +4,28 @@ import java.lang.foreign.AddressLayout;
 import java.lang.foreign.MemorySegment;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Regex;
+import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 
 /**
  * Validated type access path.
  */
-public sealed class Route<T, P extends PointerType.Raw>
-	permits Route.OfBool, Route.OfChar, Route.OfByte, Route.OfShort, Route.OfInt, Route.OfLong,
-	Route.OfFloat, Route.OfDouble, Route.Typed {
+public final class Route<P extends PointerType.Indexable<P, ?, ?>> {
+	private static final Pattern STEP_REGEX =
+		Regex.compile("\\G(\\*|\\[\\d*\\]|\\+\\d*|\\.\\d+|\\.%s)", Regex.Common.JAVA_NAME);
 	private final List<Element> elements;
 	private final Support<?, ?, ?, ?> root;
-	private final Support<T, ?, P, ?> support;
+	private final Support<?, ?, P, ?> support;
 	private final int indexes;
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfBool extends Route<Boolean, Pointer.OfBool> {
-		private OfBool(Support<?, ?, ?, ?> root, Primitive.OfBool support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfChar extends Route<Character, Pointer.OfChar> {
-		private OfChar(Support<?, ?, ?, ?> root, Primitive.OfChar support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfByte extends Route<Byte, Pointer.OfByte> {
-		private OfByte(Support<?, ?, ?, ?> root, Primitive.OfByte support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfShort extends Route<Short, Pointer.OfShort> {
-		private OfShort(Support<?, ?, ?, ?> root, Primitive.OfShort support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfInt extends Route<Integer, Pointer.OfInt> {
-		private OfInt(Support<?, ?, ?, ?> root, Primitive.OfInt support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfLong extends Route<Long, Pointer.OfLong> {
-		private OfLong(Support<?, ?, ?, ?> root, Primitive.OfLong support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfFloat extends Route<Float, Pointer.OfFloat> {
-		private OfFloat(Support<?, ?, ?, ?> root, Primitive.OfFloat support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with the primitive type.
-	 */
-	public static final class OfDouble extends Route<Double, Pointer.OfDouble> {
-		private OfDouble(Support<?, ?, ?, ?> root, Primitive.OfDouble support,
-			List<Element> elements, int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
-
-	/**
-	 * A route ending with an object type.
-	 */
-	public static final class Typed<T> extends Route<T, Pointer<T>> {
-		private Typed(Support<?, ?, ?, ?> root, Support.Typed<T, ?> support, List<Element> elements,
-			int indexes) {
-			super(root, support, elements, indexes);
-		}
-	}
 
 	/**
 	 * A routing element.
@@ -128,7 +42,7 @@ public sealed class Route<T, P extends PointerType.Raw>
 		/**
 		 * De-reference constructor.
 		 */
-		public static Deref of(AddressLayout layout) {
+		private static Deref of(AddressLayout layout) {
 			if (Objects.equals(layout, DEF.layout())) return DEF;
 			return new Deref(layout);
 		}
@@ -160,9 +74,9 @@ public sealed class Route<T, P extends PointerType.Raw>
 	}
 
 	/**
-	 * Keeps track of the memory segment, offset and open array indexes.
+	 * Keeps track of the memory segment, offset and open indexes.
 	 */
-	private static class State {
+	private static final class State {
 		private final int[] indexes;
 		private MemorySegment memory;
 		private long offset;
@@ -174,6 +88,8 @@ public sealed class Route<T, P extends PointerType.Raw>
 		}
 
 		private void deref(AddressLayout layout) {
+			if (Memory.isNull(memory))
+				throw new IllegalArgumentException("Unable to dereference a null pointer");
 			memory = memory.get(layout, offset);
 			offset = 0L;
 		}
@@ -191,15 +107,16 @@ public sealed class Route<T, P extends PointerType.Raw>
 			this.offset += offset;
 		}
 
-		private MemorySegment slice() {
-			return Memory.slice(memory, offset);
+		private MemorySegment resize(long length) {
+			if (Memory.size(memory) >= offset + length) return Memory.slice(memory, offset);
+			return Memory.resize(memory, offset, length); // only resize if smaller
 		}
 	}
 
 	/**
 	 * Builds a route by navigating types.
 	 */
-	public static class Builder {
+	public static final class Builder {
 		private final List<Element> elements = Lists.of();
 		private final Support<?, ?, ?, ?> root;
 		private Support<?, ?, ?, ?> support;
@@ -211,9 +128,27 @@ public sealed class Route<T, P extends PointerType.Raw>
 		}
 
 		/**
+		 * Parses the pattern into steps: {@code * [] [i] () (i) .i .name} for dereference, open
+		 * array index, array index i, open offset index, offset index i, field by index, and field
+		 * by name respectively.
+		 */
+		public Builder parse(String pattern) {
+			if (Strings.isEmpty(pattern)) return this;
+			var m = STEP_REGEX.matcher(pattern);
+			int last = 0;
+			while (m.find()) {
+				parseStep(m.group(1));
+				last = m.end();
+			}
+			if (last < pattern.length()) throw Exceptions.illegalArg("Invalid pattern from %d: %s",
+				last, pattern.substring(last));
+			return this;
+		}
+
+		/**
 		 * Appends an existing route. Fails if the route's root does not match the current type.
 		 */
-		public Builder add(Route<?, ?> route) {
+		public Builder add(Route<?> route) {
 			if (!support.equals(route.root)) throw Exceptions
 				.illegalArg("Route start type must match %s: %s", support, route.root);
 			for (var element : route.elements)
@@ -300,94 +235,25 @@ public sealed class Route<T, P extends PointerType.Raw>
 		}
 
 		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
+		 * Creates the route from current elements, with unverified end point type.
 		 */
-		public Route.OfBool asBool() {
-			if (!(support instanceof Primitive.OfBool p)) throw wrongType(boolean.class);
-			return new OfBool(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfChar asChar() {
-			if (!(support instanceof Primitive.OfChar p)) throw wrongType(char.class);
-			return new OfChar(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfByte asByte() {
-			if (!(support instanceof Primitive.OfByte p)) throw wrongType(byte.class);
-			return new OfByte(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfShort asShort() {
-			if (!(support instanceof Primitive.OfShort p)) throw wrongType(short.class);
-			return new OfShort(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfInt asInt() {
-			if (!(support instanceof Primitive.OfInt p)) throw wrongType(int.class);
-			return new OfInt(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfLong asLong() {
-			if (!(support instanceof Primitive.OfLong p)) throw wrongType(long.class);
-			return new OfLong(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfFloat asFloat() {
-			if (!(support instanceof Primitive.OfFloat p)) throw wrongType(float.class);
-			return new OfFloat(root, p, reduce(elements), indexes);
-		}
-
-		/**
-		 * Creates the route from current elements, whose end point must match the primitive type.
-		 */
-		public Route.OfDouble asDouble() {
-			if (!(support instanceof Primitive.OfDouble p)) throw wrongType(double.class);
-			return new OfDouble(root, p, reduce(elements), indexes);
+		public <P extends PointerType.Indexable<P, ?, ?>> Route<P> as() {
+			return new Route<>(root, Reflect.unchecked(support), reduce(elements), indexes);
 		}
 
 		/**
 		 * Creates the route from current elements, whose end point must be of the given type.
 		 */
-		public <T> Route.Typed<T> as(Class<T> cls) {
-			cls = Reflect.unchecked(Reflect.boxed(cls));
-			if (support.type() != cls || !(support instanceof Support.Typed)) throw wrongType(cls);
-			return new Typed<>(root, Reflect.unchecked(support), reduce(elements), indexes);
+		public <P extends PointerType.Indexable<P, ?, ?>> Route<P> as(Class<?> cls) {
+			if (support.type() != cls) throw wrongType(cls);
+			return new Route<>(root, Reflect.unchecked(support), reduce(elements), indexes);
 		}
 
 		/**
 		 * Appends an existing route. Fails if the route's root does not match the current type.
 		 */
-		public <R extends Route<?, ?>> R as(R route) {
-			add(route);
-			return Reflect.unchecked(switch (route) {
-				case OfBool _ -> asBool();
-				case OfChar _ -> asChar();
-				case OfByte _ -> asByte();
-				case OfShort _ -> asShort();
-				case OfInt _ -> asInt();
-				case OfLong _ -> asLong();
-				case OfFloat _ -> asFloat();
-				case OfDouble _ -> asDouble();
-				default -> as(support.type());
-			});
+		public <P extends PointerType.Indexable<P, ?, ?>> Route<P> as(Route<P> route) {
+			return add(route).as();
 		}
 
 		private RuntimeException wrongType(Class<?> cls) {
@@ -399,23 +265,28 @@ public sealed class Route<T, P extends PointerType.Raw>
 			elements.add(element);
 			return this;
 		}
-	}
 
-	// TODO:
-	// - limit index to pointers?
-	// - check for null pointers
-	// - combine routes (builder from route, add route to builder)
-	// - extend group to get/read/write fields from pointer
-	// - build route from string representation
+		private Builder parseStep(String step) {
+			int n = step.length();
+			return switch (step.charAt(0)) {
+				case '*' -> deref();
+				case '[' -> n == 2 ? array() : array(Integer.parseInt(step.substring(1, n - 1)));
+				case '+' -> n == 1 ? index() : index(Integer.parseInt(step.substring(1)));
+				default -> Maths.within(step.charAt(1), '0', '9') ?
+					field(Integer.parseInt(step.substring(1))) : field(step.substring(1));
+			};
+		}
+	}
 
 	/**
 	 * Start building a route with the given type as root.
 	 */
 	public static Builder builder(Support<?, ?, ?, ?> support) {
+		if (support == null) return null;
 		return new Builder(support);
 	}
 
-	private Route(Support<?, ?, ?, ?> root, Support<T, ?, P, ?> support, List<Element> elements,
+	private Route(Support<?, ?, ?, ?> root, Support<?, ?, P, ?> support, List<Element> elements,
 		int indexes) {
 		this.root = root;
 		this.elements = elements;
@@ -438,12 +309,26 @@ public sealed class Route<T, P extends PointerType.Raw>
 	}
 
 	/**
+	 * Extends the route using the pattern, with unverified end point type.
+	 */
+	public <R extends PointerType.Indexable<R, ?, ?>> Route<R> sub(String pattern) {
+		return sub().parse(pattern).as();
+	}
+
+	/**
+	 * Extends with the given route.
+	 */
+	public <R extends PointerType.Indexable<R, ?, ?>> Route<R> sub(Route<R> route) {
+		return sub().as(route);
+	}
+
+	/**
 	 * Returns the memory segment for the end of the route. The route starts at the provided memory
 	 * segment offset, with given indexes applied as open indexes in order. Missing indexes are
 	 * applied as 0.
 	 */
 	public MemorySegment memory(MemorySegment memory, long offset, int... indexes) {
-		return state(memory, offset, indexes).slice();
+		return state(memory, offset, indexes).resize(support.layoutSize());
 	}
 
 	/**

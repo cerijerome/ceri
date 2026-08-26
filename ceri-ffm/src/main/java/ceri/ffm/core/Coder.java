@@ -14,6 +14,8 @@ import ceri.ffm.type.Memory;
  */
 public class Coder {
 
+	private Coder() {}
+
 	/**
 	 * Dynamically decodes types from memory.
 	 */

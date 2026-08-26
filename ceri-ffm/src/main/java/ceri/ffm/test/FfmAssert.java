@@ -5,7 +5,7 @@ import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CException;
-import ceri.ffm.core.ErrNo;
+import ceri.ffm.core.LastError;
 import ceri.ffm.type.IntType;
 import ceri.ffm.type.Pointer;
 import ceri.ffm.type.Primitive;
@@ -37,7 +37,7 @@ public class FfmAssert {
 	
 	public static <T> T result(T result, T expected, CErrNo errNo) {
 		Assert.equal(result, expected);
-		Assert.equal(ErrNo.get(), errNo.code);
+		Assert.equal(LastError.get(), errNo.code);
 		return result;
 	}
 	

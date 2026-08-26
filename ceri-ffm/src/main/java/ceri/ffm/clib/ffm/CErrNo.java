@@ -17,6 +17,7 @@ import ceri.ffm.reflect.CAnnotations.CUndefined;
  * Error codes from {@code <errno.h>}.
  */
 @CInclude("errno.h")
+@CType(valueField = "code")
 public enum CErrNo {
 	/** Signifies an undefined code */
 	@CUndefined

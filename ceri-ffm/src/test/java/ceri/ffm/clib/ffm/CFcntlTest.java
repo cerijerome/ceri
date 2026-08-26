@@ -46,9 +46,10 @@ public class CFcntlTest {
 
 	@Test
 	public void testModeMasks() {
-		Assert.unordered(CFcntl.Mode.of(0666).modes(), CFcntl.Mode.woth, CFcntl.Mode.roth,
-			CFcntl.Mode.wgrp, CFcntl.Mode.rgrp, CFcntl.Mode.wusr, CFcntl.Mode.rusr);
-		Assert.equal(CFcntl.Mode.of(CFcntl.Mode.rwxo, CFcntl.Mode.rwxg, CFcntl.Mode.rwxu).value(),
+		Assert.unordered(CFcntl.Mode.of(0666).modes(), CFcntl.Mode.S_IWOTH, CFcntl.Mode.S_IROTH,
+			CFcntl.Mode.S_IWGRP, CFcntl.Mode.S_IRGRP, CFcntl.Mode.S_IWUSR, CFcntl.Mode.S_IRUSR);
+		Assert.equal(
+			CFcntl.Mode.of(CFcntl.Mode.S_IRWXO, CFcntl.Mode.S_IRWXG, CFcntl.Mode.S_IRWXU).value(),
 			0777);
 		Assert.string(CFcntl.Mode.of(0456), "0456");
 	}

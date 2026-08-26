@@ -2,6 +2,7 @@ package ceri.ffm.core;
 
 import java.lang.foreign.MemorySegment;
 import java.nio.Buffer;
+import ceri.common.array.RawArray;
 import ceri.common.collect.Maps;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.except.Exceptions;
@@ -112,7 +113,8 @@ public class Caller<E extends Exception, T> {
 		public static String typedPointer(Transformer.Context context,
 			PointerType.Indexable<?, ?, ?> pointer) {
 			var array = pointer.getArray(1, false);
-			return context.apply(pointer.memory()) + context.apply(array);
+			return context.apply(pointer.memory())
+				+ (RawArray.isEmpty(array) ? "" : context.apply(array));
 		}
 
 		/**
@@ -161,7 +163,7 @@ public class Caller<E extends Exception, T> {
 		 */
 		public void verify(CErrNo... allowedErrNos) {
 			int code = errNo();
-			if (code == ErrNo.OK) return;
+			if (code == LastError.OK) return;
 			for (var allowedErrNo : allowedErrNos)
 				if (code == allowedErrNo.code) return;
 			fail(code);
@@ -186,7 +188,7 @@ public class Caller<E extends Exception, T> {
 		 * Returns the last error code.
 		 */
 		public int errNo() {
-			return ErrNo.get();
+			return LastError.get();
 		}
 	}
 

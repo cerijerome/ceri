@@ -3,8 +3,6 @@ package ceri.jna.clib;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
-import ceri.common.collect.Enums;
-import ceri.common.collect.Maps;
 import ceri.common.data.Field;
 import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
@@ -46,15 +44,10 @@ public interface FileDescriptor extends Connector {
 		CLOEXEC(CFcntl.O_CLOEXEC),
 		SYNC(CFcntl.O_SYNC);
 
-		public static final Xcoder.Types<Open> xcoder = new Xcoder.Types<>(
-			Maps.convert(Maps::link, t -> (long) t.value, t -> t, Enums.of(Open.class))) {
-			@Override
-			protected Xcoder.Rem<Open> rem(Set<Open> types, long diff) {
-				if (types.contains(RDWR) || types.contains(WRONLY)) types.remove(RDONLY);
-				else types.add(RDONLY);
-				return super.rem(types, diff);
-			}
-		};
+		public static final Xcoder.Types<Open> xcoder = Xcoder.types(Open.class).custom(types -> {
+			if (types.contains(RDWR) || types.contains(WRONLY)) types.remove(RDONLY);
+			else types.add(RDONLY);
+		});
 		public final int value;
 
 		public static int encode(Open... flags) {

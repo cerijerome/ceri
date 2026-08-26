@@ -42,7 +42,7 @@ import ceri.ffm.type.Supports;
 /**
  * Encapsulation of native upcalls and downcalls.
  */
-public class Call {
+public final class Call {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final MethodHandles.Lookup LOOKUP = Handles.privateLookup(Call.class);
 	private static final MethodHandle LOCAL_CALLBACK = Handles.staticMethod(LOOKUP, Call.class,
@@ -97,7 +97,7 @@ public class Call {
 	/**
 	 * Call configuration.
 	 */
-	public static class Config {
+	public static final class Config {
 		private final Method method;
 		private final Native.Adapter<?, ?> rtn;
 		private final List<Native.Adapter<?, ?>> args;
@@ -254,7 +254,7 @@ public class Call {
 			int index = 0;
 			nativeArgs[index++] = pointer;
 			if (groupReturn) nativeArgs[index++] = allocator;
-			if (errNo) nativeArgs[index++] = ErrNo.capture(allocator);
+			if (errNo) nativeArgs[index++] = LastError.capture(allocator);
 			for (var adaptedArg : adaptedArgs)
 				nativeArgs[index++] = adaptedArg.value();
 			return nativeArgs;
@@ -265,7 +265,7 @@ public class Call {
 		}
 
 		private void resolveArgs(List<Native.Adapted<?>> adaptedArgs, Object[] nativeArgs) {
-			if (errNo) ErrNo.save((MemorySegment) nativeArgs[errNoIndex()]);
+			if (errNo) LastError.save((MemorySegment) nativeArgs[errNoIndex()]);
 			for (var adaptedArg : adaptedArgs)
 				adaptedArg.resolve();
 		}
@@ -316,7 +316,7 @@ public class Call {
 	/**
 	 * Encapsulates a native downcall.
 	 */
-	public static class Down {
+	public static final class Down {
 		private final Config config;
 		private final MemorySegment pointer;
 
@@ -357,7 +357,7 @@ public class Call {
 	/**
 	 * Encapsulates a local callback.
 	 */
-	public static class Up implements Functions.Closeable {
+	public static final class Up implements Functions.Closeable {
 		private final Config config;
 		private final Callback callback;
 		private final MemorySegment pointer;
@@ -554,7 +554,7 @@ public class Call {
 		if (count == 0) return NO_OPTIONS;
 		var options = new Linker.Option[count];
 		if (varArg >= 0) options[--count] = Linker.Option.firstVariadicArg(varArg);
-		if (errNo) options[--count] = ErrNo.OPTION;
+		if (errNo) options[--count] = LastError.OPTION;
 		return options;
 	}
 

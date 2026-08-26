@@ -21,7 +21,8 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 	/**
 	 * Operational support for union types.
 	 */
-	public static class Supporter<T extends Union<T>> extends Group.Supporter<T, UnionLayout> {
+	public static final class Supporter<T extends Union<T>>
+		extends Group.Supporter<T, UnionLayout> {
 
 		private Supporter(Group.Config<T, UnionLayout> config, UnionLayout layout) {
 			super(config, layout);

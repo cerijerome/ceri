@@ -6,8 +6,11 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.text.Strings;
-import ceri.ffm.core.ErrNo;
+import ceri.ffm.core.LastError;
 
+/**
+ * A checked exception for errors originating in c and related handler code.  
+ */
 @SuppressWarnings("serial")
 public class CException extends IOException {
 	public static final ExceptionAdapter<CException> ADAPTER =
@@ -15,6 +18,9 @@ public class CException extends IOException {
 	public static final int GENERAL_ERROR_CODE = CErrNo.EINVAL.code;
 	public final int code;
 
+	/**
+	 * A runtime wrapper exception.
+	 */
 	public static class Runtime extends RuntimeException {
 		public final int code;
 
@@ -54,8 +60,8 @@ public class CException extends IOException {
 	 * Throws a detailed exception if last error code is set.
 	 */
 	public static void lastError() throws CException {
-		int code = ErrNo.get();
-		if (code != ErrNo.OK) throw full(code, "");
+		int code = LastError.get();
+		if (code != LastError.OK) throw full(code, "");
 	}
 
 	/**
@@ -103,11 +109,14 @@ public class CException extends IOException {
 		var b = new StringBuilder("[").append(code).append(']');
 		int n = b.length();
 		var errNo = CErrNo.from(code);
-		var errMsg = ErrNo.message(code);
+		var errMsg = LastError.message(code);
 		var message = Strings.format(format, args);
-		if (errNo.defined()) b.append(' ').append(errNo.name());
-		if (Strings.nonEmpty(errMsg)) b.append(' ').append(errMsg);
-		if (Strings.nonEmpty(message)) b.append(n < b.length() ? "; " : " ").append(message);
+		if (errNo.defined())
+			b.append(' ').append(errNo.name());
+		if (Strings.nonEmpty(errMsg))
+			b.append(' ').append(errMsg);
+		if (Strings.nonEmpty(message))
+			b.append(n < b.length() ? "; " : " ").append(message);
 		return b.toString();
 	}
 }

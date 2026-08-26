@@ -39,9 +39,9 @@ public class CMman {
 	public static MemorySegment mmap(MemorySegment addr, long len, int prot, int flags, int fd,
 		int offset) throws CException {
 		return CLib.caller.callType(c -> {
-			var map = c.lib().mmap(addr, new size_t(len), prot, flags, fd, offset);
-			if (Objects.equals(map, MAP_FAILED)) c.verify();
-			return map;
+			var mapped = c.lib().mmap(addr, new size_t(len), prot, flags, fd, offset);
+			if (Objects.equals(mapped, MAP_FAILED)) c.verify();
+			return mapped;
 		}, "mmap", addr, len, prot, flags, offset);
 	}
 

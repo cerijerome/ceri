@@ -5,6 +5,8 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SymbolLookup;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Generics;
@@ -14,6 +16,7 @@ import ceri.common.reflect.Reflect;
  * Native basics.
  */
 public class Native {
+	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final Map<Class<?>, Class<?>> PROMOTIONS = promotions();
 	/** The native linker. */
 	public static final Linker LINKER = Linker.nativeLinker();
@@ -196,30 +199,16 @@ public class Native {
 			return Maps.getOrThrow(sizes, name);
 		}
 
-		public static int canonical(String name) {
-			var layout = LINKER.canonicalLayouts().get(name);
-			if (layout == null) return UNSPECIFIED;
-			return register(name, (int) layout.byteSize());
-		}
-
 		/**
 		 * Registers a size by name. Fails if the size is already registered.
 		 */
 		public static int register(String name, int size) {
-			Maps.put(Maps.Put.unique, sizes, name, size);
+			var previous = sizes.put(name, size);
+			if (previous != null) logger.warn("%s overwritten: %d -> %d", name, previous, size);
 			return size;
 		}
 	}
 
-	/**
-	 * Make sure classes are initialized before returning the value.
-	 */
-	public static <T> T init(T value, Class<?>...classes) {
-		for (var cls : classes)
-			Reflect.init(cls);
-		return value;
-	}
-	
 	/**
 	 * Modifies the given type to mirror c type promotion, such as with variadic args.
 	 */

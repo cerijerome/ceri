@@ -289,7 +289,6 @@ public class CAnnotations {
 		 * For manual creation of a c type.
 		 */
 		record Value(FfmOs[] os, String name, String valueField, Attr... attrs) {
-
 			private static final String VALUE_FIELD = "value";
 			/** Equivalent to the undefined annotation. */
 			public static final Value UNDEFINED = new Value(null, "", "");

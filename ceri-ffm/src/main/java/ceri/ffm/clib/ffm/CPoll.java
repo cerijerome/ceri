@@ -4,8 +4,10 @@ import java.lang.foreign.Arena;
 import ceri.common.math.Maths;
 import ceri.common.util.Validate;
 import ceri.ffm.reflect.CAnnotations.CInclude;
+import ceri.ffm.reflect.Refine.Out;
 import ceri.ffm.type.Group.Fields;
 import ceri.ffm.type.Pointer;
+import ceri.ffm.type.Route;
 import ceri.ffm.type.Struct;
 
 /**
@@ -35,17 +37,19 @@ public class CPoll {
 	public static class pollfd extends Struct<pollfd> {
 		/** Operational support for the type. */
 		public static final Supporter<pollfd> $ = support(pollfd.class);
+		/** Access to the field with open array index. */
+		public static final Route<Pointer.OfShort> REVENTS = $.route("+.revents");
 		/** File descriptor to be polled. */
-		public int fd;
+		public @Out int fd;
 		/** Events of interest. */
-		public short events;
+		public @Out short events;
 		/** Events that occurred. */
 		public short revents;
 	}
 
 	/**
-	 * Examines file descriptors for I/O readiness, or occurred events. Timeout is in milliseconds;
-	 * a timeout of -1 blocks until an event occurs. Returns the number of descriptors with returned
+	 * Examines file descriptors for I/O readiness or occurred events. Timeout is in milliseconds; a
+	 * timeout of -1 blocks until an event occurs. Returns the number of descriptors with returned
 	 * events.
 	 */
 	public static int poll(int timeoutMs, pollfd... pollFds) throws CException {
@@ -55,19 +59,14 @@ public class CPoll {
 				pollFd.revents = 0;
 			var pointer = pollfd.$.pointerOfArray(arena, pollFds, false);
 			int n = poll(pointer, pollFds.length, timeoutMs);
-			if (n > 0) pointer.readArray(pollFds, false); // TODO: optimize read for revents only
-			// if (n > 0) Struct.read(fds, "revents");
+			if (n > 0) pointer.readAll(pollFds);
 			return n;
 		}
 	}
 
-	// TODO:
-	// - mechanism to update a single group field by name/index to/from memory
-	// - read/write pollfd.revents
-
 	/**
-	 * Examines file descriptors for I/O readiness, or occurred events. Timeout is in milliseconds;
-	 * a timeout of -1 blocks until an event occurs. Returns the number of descriptors with returned
+	 * Examines file descriptors for I/O readiness or occurred events. Timeout is in milliseconds; a
+	 * timeout of -1 blocks until an event occurs. Returns the number of descriptors with returned
 	 * events.
 	 */
 	public static int poll(Pointer<pollfd> fds, int timeoutMs) throws CException {
@@ -75,14 +74,13 @@ public class CPoll {
 	}
 
 	/**
-	 * Examines file descriptors for I/O readiness, or occurred events. Timeout is in milliseconds;
-	 * a timeout of -1 blocks until an event occurs. Returns the number of descriptors with returned
+	 * Examines file descriptors for I/O readiness or occurred events. Timeout is in milliseconds; a
+	 * timeout of -1 blocks until an event occurs. Returns the number of descriptors with returned
 	 * events.
 	 */
 	public static int poll(Pointer<pollfd> fds, int nfds, int timeoutMs) throws CException {
 		int count = (int) Maths.limit(nfds, 0, fds.count());
-		int n = CLib.caller.verifyInt(lib -> lib.poll(fds, count, timeoutMs), -1, "poll", fds,
-			count, timeoutMs);
-		return n;
+		return CLib.caller.verifyInt(lib -> lib.poll(fds, count, timeoutMs), -1, "poll", fds, count,
+			timeoutMs);
 	}
 }

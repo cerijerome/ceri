@@ -73,7 +73,7 @@ public class CMmanTest {
 	}
 
 	@Test
-	public void testFields() throws Exception {
+	public void testOsCoverage() throws Exception {
 		FfmTesting.testForEachOs(CMman.class);
 	}
 

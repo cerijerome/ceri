@@ -31,7 +31,8 @@ public abstract class PointerType {
 	/**
 	 * Operational support for pointers.
 	 */
-	public static class Supporter<P extends PointerType> extends Support.Typed<P, AddressLayout> {
+	public static final class Supporter<P extends PointerType>
+		extends Support.Typed<P, AddressLayout> {
 		private final Config<P, ?> config;
 
 		record Config<P extends PointerType, S extends Support<?, ?, ?, ?>>(Class<P> type,
@@ -133,7 +134,10 @@ public abstract class PointerType {
 			memory.set(layout(), offset, value.memory());
 		}
 
-		private Support<?, ?, ?, ?> support() {
+		/**
+		 * Returns the pointer type support.
+		 */
+		Support<?, ?, ?, ?> support() {
 			return config.support();
 		}
 	}
@@ -141,7 +145,7 @@ public abstract class PointerType {
 	/**
 	 * Extends pointer type to allow casting.
 	 */
-	public static abstract class Raw extends PointerType {
+	public static abstract sealed class Raw extends PointerType permits Pointer.OfVoid, Indexable {
 		/** Raw pointer operational support. */
 		public static final Supporter<Raw> $ = Supporter.of(Raw.class,
 			Native.Kind.PRIMITIVE_POINTER, Support.VOID, (m, _, _) -> Pointer.ofVoid(m), true);
@@ -319,8 +323,10 @@ public abstract class PointerType {
 	/**
 	 * Adds arithmetic, type array access, and const memory functionality.
 	 */
-	public static abstract class Indexable<P extends Indexable<P, T, A>, //
-		T extends Support<?, A, ?, ?>, A> extends Raw {
+	public static abstract sealed class Indexable<P extends Indexable<P, T, A>, //
+		T extends Support<?, A, ?, ?>, A> extends Raw
+		permits Pointer.OfBool, Pointer.OfChar, Pointer.OfByte, Pointer.OfShort, Pointer.OfInt,
+		Pointer.OfLong, Pointer.OfFloat, Pointer.OfDouble, Pointer {
 		private final T type;
 		private final boolean constant;
 

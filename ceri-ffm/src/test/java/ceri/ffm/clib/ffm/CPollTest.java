@@ -42,7 +42,7 @@ public class CPollTest {
 	public void testPollEmulated() throws CException {
 		lib.init().poll.autoResponse(p -> {
 			for (var pollFd : p.pollFds())
-				pollFd.revents = CPoll.POLLOUT;
+				pollFd.revents = pollFd.events;
 		}, null);
 		var pollFds = pollfd.$.initArray(3);
 		pollFds[0].fd = 1;
@@ -50,10 +50,15 @@ public class CPollTest {
 		pollFds[1].fd = 2;
 		pollFds[1].events = CPoll.POLLPRI;
 		pollFds[2].fd = 3;
-		pollFds[2].events = (short) CPoll.POLLIN;
+		pollFds[2].events = CPoll.POLLIN;
 		Assert.equal(CPoll.poll(0), 0);
 		Assert.equal(CPoll.poll(0, pollFds), 3);
+		Assert.equals(pollFds[0].revents, CPoll.POLLIN | CPoll.POLLOUT);
+		Assert.equals(pollFds[1].revents, CPoll.POLLPRI);
+		Assert.equals(pollFds[2].revents, CPoll.POLLIN);
 		Assert.equal(CPoll.poll(0, pollFds[0], pollFds[2]), 2);
+		Assert.equals(pollFds[0].revents, CPoll.POLLIN | CPoll.POLLOUT);
+		Assert.equals(pollFds[2].revents, CPoll.POLLIN);
 	}
 
 	@Test

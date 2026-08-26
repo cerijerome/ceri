@@ -20,6 +20,7 @@ public class CIoctlTest {
 
 	@After
 	public void after() {
+		if (fd != -1) CUnistd.closeSilently(fd);
 		Closeables.close(testLib);
 		lib = null;
 		fd = -1;

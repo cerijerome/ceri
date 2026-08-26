@@ -8,6 +8,7 @@ import java.lang.foreign.SegmentAllocator;
 import java.nio.ByteOrder;
 import java.util.Objects;
 import ceri.common.math.Maths;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Native;
@@ -25,6 +26,9 @@ public class Memory {
 	 * Consumer for a memory segment.
 	 */
 	public interface Consumer {
+		/** A no-op instance. */
+		Consumer NULL = (_, _, _) -> {};
+		
 		/**
 		 * Consumes a memory segment.
 		 */
@@ -46,9 +50,13 @@ public class Memory {
 	}
 
 	/**
-	 * Updater for a memory segment and value.
+	 * Synchronizes memory and value contents, returning the resulting value. Can be used for
+	 * synchronizing immutable value instances.
 	 */
 	public interface Updater<T> {
+		/** A no-op instance. */
+		Updater<?> NULL = (_, _, _, t) -> t;
+		
 		/**
 		 * Consumes a memory segment.
 		 */
@@ -67,12 +75,54 @@ public class Memory {
 		 * Applies a memory segment from offset up to given length to a value.
 		 */
 		T apply(MemorySegment memory, long offset, long length, T t);
+		
+		/**
+		 * Returns a no-op instance.
+		 */
+		static <T> Updater<T> ofNull() {
+			return Reflect.unchecked(NULL);
+		}
+	}
+
+	/**
+	 * Synchronizes memory and value contents. Can be used for reading value contents from memory,
+	 * and writing value contents to memory.
+	 */
+	public interface Sync<T> {
+		/** A no-op instance. */
+		Sync<?> NULL = (_, _, _, _) -> {};
+		
+		/**
+		 * Synchronizes a memory segment slice and value contents.
+		 */
+		default void accept(MemorySegment memory, T t) {
+			accept(memory, 0L, t);
+		}
+
+		/**
+		 * Synchronizes a memory segment slice and value contents.
+		 */
+		default void accept(MemorySegment memory, long offset, T t) {
+			accept(memory, offset, Long.MAX_VALUE, t);
+		}
+
+		/**
+		 * Synchronizes a memory segment slice and value contents.
+		 */
+		void accept(MemorySegment memory, long offset, long length, T t);
+		
+		/**
+		 * Returns a no-op instance.
+		 */
+		static <T> Sync<T> ofNull() {
+			return Reflect.unchecked(NULL);
+		}
 	}
 
 	/**
 	 * Operational support for segments.
 	 */
-	public static class Supporter extends Support.Typed<MemorySegment, AddressLayout> {
+	public static final class Supporter extends Support.Typed<MemorySegment, AddressLayout> {
 
 		Supporter(AddressLayout layout) {
 			super(layout);
@@ -151,19 +201,28 @@ public class Memory {
 	 * Provides an alternative string descriptor for the address.
 	 */
 	public static String addressString(MemorySegment memory) {
-		if (memory == null) return Strings.NULL;
-		var heapBase = memory.heapBase().orElse(null);
-		if (heapBase == null) return "@" + Long.toHexString(memory.address());
-		return String.format("#%x:%02x", System.identityHashCode(heapBase), memory.address());
+		return addressString(memory, 0L);
 	}
-	
+
+	/**
+	 * Provides an alternative string descriptor for the address with offset.
+	 */
+	public static String addressString(MemorySegment memory, long offset) {
+		if (memory == null) return Strings.NULL;
+		offset = Math.max(0L, offset);
+		var heapBase = memory.heapBase().orElse(null);
+		if (heapBase == null) return "@" + Long.toHexString(memory.address() + offset);
+		return String.format("#%x:%02x", System.identityHashCode(heapBase),
+			memory.address() + offset);
+	}
+
 	/**
 	 * Returns the address of the segment; 0 if null.
 	 */
 	public static long address(MemorySegment memory) {
 		return memory == null ? 0L : memory.address();
 	}
-	
+
 	/**
 	 * Returns true if the segment is null or a native null pointer.
 	 */
@@ -221,7 +280,7 @@ public class Memory {
 		return offset >= 0L && offset <= memory.byteSize() && length >= 0L
 			&& length <= memory.byteSize() - offset;
 	}
-	
+
 	/**
 	 * Returns a view of the memory segment.
 	 */
@@ -293,7 +352,7 @@ public class Memory {
 	public static MemorySegment resize(MemorySegment memory, MemoryLayout layout) {
 		return resize(memory, 0L, layout, 1L);
 	}
-	
+
 	/**
 	 * Resizes the segment if native, otherwise slices the segment within bounds. Based on layout
 	 * index offset and length. Fails if the alignment constraint is not met.

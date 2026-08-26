@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+# Find all header files; output saved as h-files* ignored by git
+#------------------------------------------------------------------------------
+set -e
+
+sudo find / -type f 2>/dev/null | grep '\.'h$

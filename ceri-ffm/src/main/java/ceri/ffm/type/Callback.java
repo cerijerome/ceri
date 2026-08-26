@@ -76,7 +76,7 @@ public interface Callback extends Functions.Closeable {
 	/**
 	 * Operational support for callback types.
 	 */
-	class Supporter<C extends Callback> extends Support.Typed<C, AddressLayout> {
+	final class Supporter<C extends Callback> extends Support.Typed<C, AddressLayout> {
 		private final Class<C> cls;
 		private volatile Call.Up noOpCall = null;
 
@@ -157,7 +157,7 @@ public interface Callback extends Functions.Closeable {
 	/**
 	 * Cached callback and function pointer mappings.
 	 */
-	class Cache {
+	final class Cache {
 		private static final Map<Class<? extends Callback>, Call.Config> configs = Maps.of();
 		private static final Map<Class<? extends Callback>, Call.Up> noOpCalls = Maps.of();
 		private static final Map<Callback, Call.Up> callbacks = Maps.of();

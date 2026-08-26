@@ -13,7 +13,7 @@ import ceri.ffm.clib.ffm.CString;
 /**
  * Support for capturing last error codes.
  */
-public class ErrNo {
+public class LastError {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final StructLayout CAPTURE_STATE_LAYOUT = Linker.Option.captureStateLayout();
 	private static final String FIELD = "errno";
@@ -22,9 +22,9 @@ public class ErrNo {
 	public static final Linker.Option OPTION = Linker.Option.captureCallState(FIELD);
 	private static final String OK_MESSAGE = "OK";
 	public static final int OK = 0;
-	private static final ThreadLocal<Integer> errNo = ThreadLocal.withInitial(() -> OK);
+	private static final ThreadLocal<Integer> errno = ThreadLocal.withInitial(() -> OK);
 
-	private ErrNo() {}
+	private LastError() {}
 
 	/**
 	 * Creates an error code capture argument.
@@ -46,14 +46,14 @@ public class ErrNo {
 	 * Returns the error code currently saved to thread-local.
 	 */
 	public static int get() {
-		return errNo.get();
+		return errno.get();
 	}
 
 	/**
 	 * Save the error code to thread-local.
 	 */
 	public static void set(int errno) {
-		errNo.set(errno);
+		LastError.errno.set(errno);
 	}
 
 	/**

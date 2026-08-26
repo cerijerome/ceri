@@ -181,7 +181,7 @@ Layout Paths
   - can provide offset, or VarHandle value access
 - open path = selects multiple layouts
   - adds coordinates to the var/method handles
-- PathElement: path accessor logic
+- PathElement: path accessor logic from starting layout
   - dereferenceElement = access a target layout from an address layout
   - groupElement = access a group element by index or name
   - sequenceElement = index or open-path access to sequence layout element

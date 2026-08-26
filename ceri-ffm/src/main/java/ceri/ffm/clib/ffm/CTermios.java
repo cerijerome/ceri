@@ -1,6 +1,7 @@
 package ceri.ffm.clib.ffm;
 
 import java.lang.foreign.SegmentAllocator;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.Os;
 import ceri.ffm.core.Native;
 import ceri.ffm.reflect.CAnnotations.CInclude;
@@ -20,8 +21,8 @@ import ceri.ffm.util.FfmOs;
 @CInclude("termios.h")
 public class CTermios {
 	// Sizes
-	private static final String TCFLAG_T = "tcflag_t";
-	private static final String SPEED_T = "speed_t";
+	public static final String TCFLAG_T = "tcflag_t";
+	public static final String SPEED_T = "speed_t";
 	private static final int NCCS; // number of termios control chars
 	// Input flags
 	public static final int IGNBRK = 0x0001;
@@ -151,14 +152,22 @@ public class CTermios {
 
 	private CTermios() {}
 
+	static {
+		Reflect.init(tcflag_t.class);
+		Reflect.init(speed_t.class);
+	}
+
 	/**
 	 * Terminal mode flags.
 	 */
 	@Unsigned
 	@Size(name = TCFLAG_T)
 	public static class tcflag_t extends IntType<tcflag_t> {
-		public static final Supporter<tcflag_t> $ =
-			support(Native.init(tcflag_t.class, CTermios.class));
+		static {
+			Native.Size.register(TCFLAG_T,
+				Os.info().mac ? Native.Canonical.LONG.size() : Integer.BYTES);
+		}
+		public static final Supporter<tcflag_t> $ = support(tcflag_t.class);
 
 		public tcflag_t(Number value) {
 			super(value);
@@ -171,8 +180,11 @@ public class CTermios {
 	@Unsigned
 	@Size(name = SPEED_T)
 	public static class speed_t extends IntType<speed_t> {
-		public static final Supporter<speed_t> $ =
-			support(Native.init(speed_t.class, CTermios.class));
+		static {
+			Native.Size.register(SPEED_T,
+				Os.info().mac ? Native.Canonical.LONG.size() : Integer.BYTES);
+		}
+		public static final Supporter<speed_t> $ = support(speed_t.class);
 
 		public speed_t(Number value) {
 			super(value);
@@ -368,8 +380,6 @@ public class CTermios {
 
 	static {
 		if (Os.info().mac) {
-			Native.Size.register(TCFLAG_T, Native.Canonical.LONG.size());
-			Native.Size.register(SPEED_T, Native.Canonical.LONG.size());
 			NCCS = 20;
 			IXON = 0x0200;
 			IXOFF = 0x0400;
@@ -455,8 +465,6 @@ public class CTermios {
 			B3500000 = 3500000;
 			B4000000 = 4000000;
 		} else {
-			Native.Size.register(TCFLAG_T, Integer.BYTES);
-			Native.Size.register(SPEED_T, Integer.BYTES);
 			NCCS = 32;
 			IXON = 0x0400;
 			IXOFF = 0x1000;

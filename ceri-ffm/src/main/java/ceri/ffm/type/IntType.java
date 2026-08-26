@@ -112,7 +112,8 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	/**
 	 * Support for int type operations.
 	 */
-	public static class Supporter<T extends IntType<T>> extends Support.Typed<T, ValueLayout> {
+	public static final class Supporter<T extends IntType<T>>
+		extends Support.Typed<T, ValueLayout> {
 		private final Config<T> config;
 		private final Support.Typed<? extends Number, ? extends ValueLayout> boxed;
 
@@ -452,7 +453,8 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	}
 
 	private static Spec specFor(Class<?> cls) {
-		var context = Refine.context(cls);
+		// Initialize the class in case it registers native size
+		var context = Refine.context(cls);//Reflect.init(cls));
 		int size = context.size(0);
 		if (size <= 0) throw Exceptions.illegalArg("%s must specify @%s > 0: %d",
 			Reflect.simple(cls), Reflect.simple(Refine.Size.class), size);

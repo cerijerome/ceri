@@ -1,0 +1,545 @@
+package ceri.ffm.reflect;
+
+import java.io.PrintStream;
+import java.lang.reflect.AccessFlag;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Sets;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.except.Exceptions;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
+import ceri.common.io.IoStream;
+import ceri.common.io.Paths;
+import ceri.common.io.Resource;
+import ceri.common.math.Maths;
+import ceri.common.reflect.ClassReloader;
+import ceri.common.reflect.Reflect;
+import ceri.common.text.Chars;
+import ceri.common.text.Strings;
+import ceri.common.text.Text;
+import ceri.common.time.Dates;
+import ceri.common.util.Basics;
+import ceri.common.util.Os;
+import ceri.ffm.core.Caller;
+import ceri.ffm.type.IntType;
+import ceri.ffm.type.Struct;
+import ceri.ffm.type.Supports;
+import ceri.ffm.type.Union;
+import ceri.ffm.util.FfmOs;
+
+/**
+ * Generates c code to compile and run on a target system, in order to print symbol values and
+ * definitions. Useful to verify constant values for FFM code.
+ */
+public class CSymbolGen {
+	private static final String PLACEHOLDER = "//$$PLACEHOLDER$$";
+	private static final String TEMPLATE = "symbols-template.c";
+	private static final String LOCATION_DEF = "src/test/c/";
+	private static final String FILENAME_DEF = "symbols";
+	private static final String C_EXT = ".c";
+	private static final List<Class<?>> TYPE_IGNORE_FIELDS = List.of(Enum.class, Record.class);
+	private static final List<AccessFlag> TYPE_ACCESS_FLAGS =
+		List.of(AccessFlag.PUBLIC, AccessFlag.STATIC);
+	private static final List<AccessFlag> FIELD_ACCESS_FLAGS =
+		List.of(AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.FINAL);
+	private static final List<Class<?>> FIELD_TYPES =
+		List.of(Number.class, long.class, int.class, short.class, byte.class);
+	private final String template;
+	private final FfmOs os;
+	/** Provides filters to change default behavior. */
+	public final Overrides overrides = new Overrides();
+	/** Allows includes to be added. */
+	public final Includes includes = new Includes();
+	/** Allows macros to be added. */
+	public final Macros macros = new Macros();
+	/** Allows lines to be added directly. */
+	public final Lines lines = new Lines();
+	private PrintStream out = System.out;
+
+	/**
+	 * Automatic generation of c code based on annotations.
+	 */
+	public static class Auto {
+
+		private Auto() {}
+
+		/**
+		 * Generate based on the class annotations.
+		 */
+		public static void gen(Class<?> cls) {
+			gen(cls, null);
+		}
+
+		/**
+		 * Generate based on the class annotations, with pre-process configurator.
+		 */
+		public static <E extends Exception> void gen(Class<?> cls,
+			Excepts.BiConsumer<E, FfmOs, CSymbolGen> configurator) throws E {
+			gen(CAnnotations.cgen(cls), cls, configurator);
+		}
+
+		private static <E extends Exception> void gen(CAnnotations.CGen.Value cgen, Class<?> cls,
+			Excepts.BiConsumer<E, FfmOs, CSymbolGen> configurator) throws E {
+			var location = location(cgen, cls);
+			for (var os : cgen.os())
+				os.accept(_ -> genOs(os, cgen, location, configurator));
+		}
+
+		private static <E extends Exception> void genOs(FfmOs os, CAnnotations.CGen.Value cgen,
+			Path location, Excepts.BiConsumer<E, FfmOs, CSymbolGen> configurator) throws E {
+			var file = Paths.changeName(location, os::file);
+			var reloader = ClassReloader.ofNested(cgen.classes());
+			var targets = Stream.of(cgen.target()).map(c -> reloader.forName(c, false)).toList();
+			var gen = CSymbolGen.of();
+			if (configurator != null) configurator.accept(os, gen);
+			gen.add(targets).generateFile(file);
+		}
+	}
+
+	/**
+	 * Matching rules based on OS and type.
+	 */
+	public static class Matcher<T, R> {
+		private final R undefined;
+		private final List<Match<T, R>> matchers = Lists.of();
+
+		private record Match<T, R>(Functions.BiPredicate<? super T, FfmOs> predicate,
+			Functions.BiFunction<? super T, FfmOs, R> supplier) {}
+
+		private Matcher(R undefined) {
+			this.undefined = undefined;
+		}
+
+		/**
+		 * Add a match with undefined response.
+		 */
+		public void add(Functions.BiPredicate<? super T, FfmOs> predicate) {
+			add(predicate, undefined);
+		}
+
+		/**
+		 * Add a match with fixed response.
+		 */
+		public void add(Functions.BiPredicate<? super T, FfmOs> predicate, R value) {
+			add(predicate, (_, _) -> value);
+		}
+
+		/**
+		 * Add a match with dynamic response.
+		 */
+		public void add(Functions.BiPredicate<? super T, FfmOs> predicate,
+			Functions.BiFunction<? super T, FfmOs, R> supplier) {
+			matchers.add(new Match<>(predicate, supplier));
+		}
+
+		private R match(T t, FfmOs os) {
+			for (var matcher : matchers) {
+				if (!matcher.predicate().test(t, os)) continue;
+				var value = matcher.supplier().apply(t, os);
+				if (value != null) return value;
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * Overrides annotations or default handling of types and fields, including enums.
+	 */
+	public static class Overrides {
+		public final Matcher<Class<?>, CAnnotations.CInclude.Value> includes =
+			new Matcher<>(CAnnotations.CInclude.Value.NONE);
+		public final Matcher<Class<?>, CAnnotations.CType.Value> classes =
+			new Matcher<>(CAnnotations.CType.Value.UNDEFINED);
+		public final Matcher<Field, CAnnotations.CType.Value> fields =
+			new Matcher<>(CAnnotations.CType.Value.UNDEFINED);
+		public final Matcher<Enum<?>, CAnnotations.CType.Value> enums =
+			new Matcher<>(CAnnotations.CType.Value.UNDEFINED);
+
+		private Set<String> includes(Class<?> cls, FfmOs os) {
+			return Basics.def(includes.match(cls, os), () -> CAnnotations.cincludes(cls))
+				.includes(os);
+		}
+
+		private CAnnotations.CType.Value ctype(Class<?> cls, FfmOs os) {
+			return Basics.def(classes.match(cls, os), () -> CAnnotations.ctype(cls, os));
+		}
+
+		private CAnnotations.CType.Value ctype(Field field, FfmOs os) {
+			return Basics.def(fields.match(field, os), () -> CAnnotations.ctype(field, os));
+		}
+
+		private CAnnotations.CType.Value ctype(Enum<?> en, FfmOs os) {
+			return Basics.def(enums.match(en, os), () -> CAnnotations.ctype(en, os));
+		}
+	}
+
+	/**
+	 * Collects includes.
+	 */
+	public class Includes {
+		private static final List<String> TEMPLATE_INCLUDES = List.of("stdio.h", "string.h");
+		private final Set<String> includes = Sets.link();
+
+		private Includes() {
+			add(TEMPLATE_INCLUDES);
+		}
+
+		/**
+		 * Add include lines.
+		 */
+		public CSymbolGen add(String... includes) {
+			return add(Arrays.asList(includes));
+		}
+
+		/**
+		 * Add include lines.
+		 */
+		public CSymbolGen add(Collection<String> includes) {
+			this.includes.addAll(includes);
+			return CSymbolGen.this;
+		}
+
+		private String generate() {
+			var lines = new Lines();
+			for (var include : includes)
+				lines.add("#include <%s>", include);
+			return lines.generate(false);
+		}
+	}
+
+	/**
+	 * Generate template macros.
+	 */
+	public class Macros {
+
+		private Macros() {}
+
+		/**
+		 * Macro to display a symbol value, which may be undefined.
+		 */
+		public CSymbolGen sym(String name, Object value) {
+			return lines.add("CERI_SYM(%s);%s", name, comment(value));
+		}
+
+		/**
+		 * Macro to display an integer symbol value; will fail to build if undefined.
+		 */
+		public CSymbolGen symi(String name, Object value) {
+			return lines.add("CERI_SYMI(%s);%s", name, comment(value));
+		}
+
+		/**
+		 * Macro to display and verify an integer symbol value; will fail to build if undefined.
+		 */
+		public CSymbolGen vsymi(String name, Object value) {
+			return lines.add("CERI_VSYMI(%s,%s);", name, value);
+		}
+
+		/**
+		 * Macro to display a type size; will fail to build if undefined.
+		 */
+		public CSymbolGen size(String type) {
+			return lines.add("CERI_SIZE(%s);", type);
+		}
+
+		/**
+		 * Macro to display a type field size in bytes; will fail to build if undefined.
+		 */
+		public CSymbolGen fsize(String type, String field) {
+			return lines.add("CERI_FSIZE(%s,%s);", type, field);
+		}
+
+		/**
+		 * Macro to display and verify a type size; will fail to build if undefined.
+		 */
+		public CSymbolGen vsize(String type, int size) {
+			return lines.add("CERI_VSIZE(%s,%s);", type, size);
+		}
+
+		private String comment(Object value) {
+			if (value == null) return "";
+			return String.format("/* " + Caller.Transform.COMPACT.apply(value) + " */");
+		}
+	}
+
+	/**
+	 * Generate lines.
+	 */
+	public class Lines {
+		private final List<String> lines = Lists.of();
+
+		private Lines() {}
+
+		/**
+		 * Add a new line.
+		 */
+		public CSymbolGen add(String format, Object... args) {
+			lines.add(Strings.format(format, args));
+			return CSymbolGen.this;
+		}
+
+		/**
+		 * Add a preprocessor #if defined construct.
+		 */
+		public <E extends Exception> CSymbolGen addIfDef(String defined, Excepts.Runnable<E> runIf)
+			throws E {
+			return addIfDef(defined, runIf, null);
+		}
+
+		/**
+		 * Add a preprocessor #if defined/#else construct.
+		 */
+		public <E extends Exception> CSymbolGen addIfDef(String defined, Excepts.Runnable<E> runIf,
+			Excepts.Runnable<E> runElse) throws E {
+			var condition = (defined == null ? null : "defined(" + defined + ")");
+			return addIf(condition, runIf, runElse);
+		}
+
+		/**
+		 * Add a preprocessor #if construct.
+		 */
+		public <E extends Exception> CSymbolGen addIf(String condition, Excepts.Runnable<E> runIf)
+			throws E {
+			return addIf(condition, runIf, null);
+		}
+
+		/**
+		 * Add a preprocessor #if/#else construct.
+		 */
+		public <E extends Exception> CSymbolGen addIf(String condition, Excepts.Runnable<E> runIf,
+			Excepts.Runnable<E> runElse) throws E {
+			if (condition != null) add("#if " + condition);
+			runIf.run();
+			if (condition != null && runElse != null) add("#else");
+			if (runElse != null) runElse.run();
+			if (condition != null) add("#endif");
+			return CSymbolGen.this;
+		}
+
+		/**
+		 * Add a printf line; special (non-escaped) chars are allowed.
+		 */
+		public CSymbolGen printf(String format, Object... args) {
+			return add("printf(\"%s\");", Chars.escape(Strings.format(format, args)));
+		}
+
+		/**
+		 * Append content to the last line.
+		 */
+		public CSymbolGen append(String format, Object... args) {
+			var line = lines.isEmpty() ? "" : lines.removeLast();
+			return add(line + Strings.format(format, args));
+		}
+
+		/**
+		 * Append comment to the last line.
+		 */
+		public CSymbolGen appendComment(String format, Object... args) {
+			return append(" /* " + Strings.format(format, args) + " */");
+		}
+
+		private String generate(boolean indent) {
+			var b = new StringBuilder();
+			for (var line : lines) {
+				if (indent && !line.startsWith("#")) b.append('\t');
+				b.append(line).append('\n');
+			}
+			return b.toString();
+		}
+	}
+
+	/**
+	 * Create a generator instance.
+	 */
+	public static CSymbolGen of() {
+		return new CSymbolGen(FfmOs.current());
+	}
+
+	private CSymbolGen(FfmOs os) {
+		this.template =
+			ExceptionAdapter.shouldNotThrow.get(() -> Resource.string(getClass(), TEMPLATE));
+		this.os = os;
+	}
+
+	/**
+	 * Change the generation output stream
+	 */
+	public CSymbolGen out(PrintStream out) {
+		if (out == null) out = IoStream.nullPrint();
+		this.out = out;
+		return this;
+	}
+
+	/**
+	 * Extract c fields and types from the classes.
+	 */
+	public CSymbolGen add(Class<?>... classes) {
+		return add(Arrays.asList(classes));
+	}
+
+	/**
+	 * Extract c fields and types from the classes.
+	 */
+	public CSymbolGen add(Iterable<? extends Class<?>> classes) {
+		for (var cls : classes) {
+			var ctype = overrides.ctype(cls, os);
+			if (ctype.undefined()) continue;
+			lines.add("").lines.printf("\n");
+			addType(cls, ctype);
+		}
+		return this;
+	}
+
+	/**
+	 * Generate c code and save to the file.
+	 */
+	public String generateFile(Path file) {
+		return ExceptionAdapter.runtimeIo.get(() -> {
+			var filename = Paths.nameWithoutExt(file);
+			var gen = generate(filename);
+			Files.writeString(file, gen);
+			out.println(gen);
+			out.println("Generated file: " + file);
+			out.println();
+			return gen;
+		});
+	}
+
+	/**
+	 * Generate c code.
+	 */
+	public String generate() {
+		var gen = generate(FILENAME_DEF);
+		out.println(gen);
+		return gen;
+	}
+
+	private String generate(String filename) {
+		return header(filename, os) + includes.generate()
+			+ template.replace(PLACEHOLDER, lines.generate(true));
+	}
+
+	private void addType(Class<?> cls, CAnnotations.CType.Value ctype) {
+		includes.add(overrides.includes(cls, os));
+		if (!Reflect.assignableFromAny(cls, TYPE_IGNORE_FIELDS)) addFields(cls);
+		if (addSpecialType(cls, ctype)) return;
+		addNestedTypes(cls);
+	}
+
+	private void addNestedTypes(Class<?> outer) {
+		for (var cls : outer.getDeclaredClasses()) {
+			if (!cls.accessFlags().containsAll(TYPE_ACCESS_FLAGS)) continue;
+			var ctype = overrides.ctype(cls, os);
+			if (ctype.undefined()) continue;
+			addType(cls, ctype);
+		}
+	}
+
+	private int addFields(Class<?> cls) {
+		int count = 0;
+		for (var field : cls.getDeclaredFields()) {
+			if (!field.accessFlags().containsAll(FIELD_ACCESS_FLAGS)) continue;
+			if (!Reflect.assignableFromAny(field.getType(), FIELD_TYPES)) continue;
+			if (count++ == 0) printType(cls);
+			var ctype = overrides.ctype(field, os);
+			if (ctype.undefined()) lines.add("// Ignore: %s = %s", field.getName(),
+				Reflect.publicFieldValue(null, field));
+			else addField(field, ctype);
+		}
+		return count;
+	}
+
+	private void addField(Field field, CAnnotations.CType.Value ctype) {
+		var fieldName = field.getName();
+		var name = ctype.name(fieldName);
+		var value = Reflect.publicFieldValue(null, field);
+		macros.vsymi(name, longValue(value, ctype.signed()));
+		if (!fieldName.equals(name)) lines.appendComment(fieldName);
+	}
+
+	private boolean addSpecialType(Class<?> cls, CAnnotations.CType.Value ctype) {
+		if (Struct.class.isAssignableFrom(cls)) addType(cls, "struct", ctype);
+		else if (Union.class.isAssignableFrom(cls)) addType(cls, "union", ctype);
+		else if (Enum.class.isAssignableFrom(cls))
+			addEnums(Reflect.unchecked(cls), ctype.valueField());
+		else if (IntType.class.isAssignableFrom(cls)) addType(cls, "", ctype);
+		else return false;
+		return true;
+	}
+
+	private void addEnums(Class<? extends Enum<?>> cls, String valueField) {
+		printType(cls);
+		for (var en : cls.getEnumConstants()) {
+			var ctype = overrides.ctype(en, os);
+			if (ctype.undefined())
+				lines.add("// Ignore: %s = %s", en.name(), Reflect.publicValue(en, valueField));
+			else addEnum(en, valueField, ctype);
+		}
+	}
+
+	private void addEnum(Enum<?> en, String valueField, CAnnotations.CType.Value ctype) {
+		var enName = en.name();
+		var name = ctype.name(enName);
+		var value = Reflect.publicValue(en, valueField);
+		if (value == null) throw Exceptions.illegalArg("%s.%s.%s not found",
+			en.getClass().getSimpleName(), en, valueField);
+		macros.vsymi(name, longValue(value, ctype.signed()));
+		if (!enName.equals(name)) lines.appendComment(enName);
+	}
+
+	private void addType(Class<?> cls, String prefix, CAnnotations.CType.Value ctype) {
+		if (cls.accessFlags().contains(AccessFlag.ABSTRACT)) return;
+		printType(cls);
+		var clsName = cls.getSimpleName();
+		var name = ctype.name(clsName);
+		var decl = ctype.typedef() || prefix.isEmpty() ? name : prefix + " " + name;
+		macros.vsize(decl, typeSize(cls));
+		if (!clsName.equals(name)) lines.appendComment(clsName);
+	}
+
+	private void printType(Class<?> cls) {
+		lines.printf("// %s\n", Reflect.name(cls));
+	}
+
+	private static Object longValue(Object value, boolean signed) {
+		return switch (value) {
+			case Byte b -> (long) (signed ? b : Maths.ubyte(b));
+			case Short s -> (long) (signed ? s : Maths.ushort(s));
+			case Integer i -> (signed ? i : Maths.uint(i));
+			case Number n -> n.longValue();
+			case null, default -> throw new IllegalArgumentException(
+				"Unsupported field value: " + value);
+		};
+	}
+
+	private static int typeSize(Class<?> cls) {
+		return Supports.of().from(cls).layoutSize();
+	}
+
+	private static Path location(CAnnotations.CGen.Value cgen, Class<?> cls) {
+		var location = cgen.location(LOCATION_DEF);
+		if (location.endsWith("/")) location += Text.camelToHyphenated(cls.getSimpleName());
+		if (!location.endsWith(C_EXT)) location += C_EXT;
+		return Path.of(location);
+	}
+
+	private static String header(String filename, FfmOs os) {
+		return String.format("""
+			/*
+			 * Generated for %s by %s (%s) %s
+			 *
+			 * Build:  gcc %s.c -o %s; chmod a+x ./%s
+			 *   Run:  ./%s
+			 */
+			""", os, Reflect.name(CSymbolGen.class), Os.value(), Dates.nowSec(), filename, filename,
+			filename, filename);
+	}
+}

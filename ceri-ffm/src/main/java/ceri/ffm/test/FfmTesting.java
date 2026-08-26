@@ -45,7 +45,7 @@ public class FfmTesting {
 		}
 
 		/**
-		 * Re-initializes the library override. 
+		 * Re-initializes the library override.
 		 */
 		public T init() {
 			return repeater.init();
@@ -65,7 +65,7 @@ public class FfmTesting {
 	}
 
 	/**
-	 * Generation of test values.
+	 * Utility to generate test values.
 	 */
 	public static class Gen {
 		private Gen() {}
@@ -202,6 +202,78 @@ public class FfmTesting {
 	}
 
 	/**
+	 * Identifier snapshot for a method call, with current OS, thread and stack trace.
+	 */
+	public static class Identifier {
+		private static final int BACK = 2;
+		private final Class<?> cls;
+		private final String descriptor;
+		private final FfmOs ffmOs;
+		private final Thread thread;
+		private final StackTraceElement[] elements;
+		private static int stackSize = 5;
+
+		/**
+		 * Sets the default stack size, to use when -1 is specified.
+		 */
+		public static void stack(int size) {
+			stackSize = size;
+		}
+
+		private Identifier(String format, Object... args) {
+			var caller = Reflect.previousCaller(BACK);
+			cls = caller.cls();
+			descriptor = Strings.isEmpty(format) ? caller.method : Strings.format(format, args);
+			ffmOs = FfmOs.current();
+			thread = Thread.currentThread();
+			elements = thread.getStackTrace();
+		}
+
+		/**
+		 * Prints this identifier.
+		 */
+		public void print() {
+			print(0);
+		}
+
+		/**
+		 * Prints this identifier and a limited stack trace.
+		 */
+		public void print(int stack) {
+			FfmTesting.out(this);
+			printStack(stack);
+		}
+
+		/**
+		 * Prints this identifier as a title.
+		 */
+		public void title() {
+			title(0);
+		}
+
+		/**
+		 * Prints this identifier as a title, and prints a limited stack trace.
+		 */
+		public void title(int stack) {
+			FfmTesting.title(toString());
+			printStack(stack);
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s.%s%s:%s:%s", Reflect.name(cls), descriptor,
+				Reflect.hashId(cls), ffmOs, thread.threadId());
+		}
+
+		private void printStack(int count) {
+			if (count < 0) count = stackSize;
+			count = Math.min(count, elements.length - BACK - 1);
+			for (int i = 0; i < count; i++)
+				FfmTesting.out("- " + elements[BACK + 1 + i]);
+		}
+	}
+
+	/**
 	 * Returns a wrapper for repeatedly overriding a native library.
 	 */
 	public static <T> Lib<T> lib(Library<? super T> library, Functions.Supplier<T> constructor) {
@@ -276,10 +348,25 @@ public class FfmTesting {
 	}
 
 	/**
+	 * Creates an identifier for the caller method.
+	 */
+	public static Identifier identifier() {
+		return new Identifier("");
+	}
+
+	/**
+	 * Creates an identifier for the caller, with custom descriptor.
+	 */
+	public static Identifier identifier(String format, Object... args) {
+		return new Identifier(format, args);
+	}
+
+	/**
 	 * Prints the caller method as a title.
 	 */
 	public static void title() {
-		title(Reflect.previousMethodName(1));
+		var caller = Reflect.previousCaller(1);
+		title(caller.cls + "." + caller.method);
 	}
 
 	/**
