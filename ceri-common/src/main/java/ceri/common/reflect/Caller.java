@@ -37,7 +37,7 @@ public class Caller {
 
 	public Class<?> cls() {
 		try {
-			return Class.forName(fullCls);
+			return Class.forName(fullCls, false, getClass().getClassLoader());
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}

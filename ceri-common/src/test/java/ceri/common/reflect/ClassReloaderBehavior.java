@@ -6,6 +6,12 @@ import ceri.common.test.Assert;
 public class ClassReloaderBehavior {
 
 	@Test
+	public void shouldProvideStringRepresentation() {
+		var cl = ClassReloader.ofNested(Nested.class);
+		Assert.match(cl, ".*\\$Nested,.*Nested\\$Nested2\\]");
+	}
+
+	@Test
 	public void shouldDelegateLoading() throws ClassNotFoundException {
 		var cl = ClassReloader.of();
 		cl.loadClass(String.class.getName());

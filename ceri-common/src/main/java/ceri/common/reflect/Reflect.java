@@ -445,8 +445,7 @@ public class Reflect {
 	 * Initialize a class if not already initialized.
 	 */
 	public static <T> Class<T> init(Class<T> cls) {
-		if (cls != null) ExceptionAdapter.runtime
-			.run(() -> Class.forName(cls.getName(), true, cls.getClassLoader()));
+		if (cls != null) forName(cls.getName(), true, cls.getClassLoader());
 		return cls;
 	}
 

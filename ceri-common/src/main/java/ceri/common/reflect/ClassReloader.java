@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import ceri.common.collect.Collectable;
 import ceri.common.collect.Lists;
@@ -106,5 +107,10 @@ public class ClassReloader extends ClassLoader {
 	 */
 	public <T> Class<T> forName(Class<T> cls, boolean init) {
 		return Reflect.unchecked(forName(cls.getName(), init));
+	}
+
+	@Override
+	public String toString() {
+		return new TreeSet<>(classes.keySet()).toString();
 	}
 }
