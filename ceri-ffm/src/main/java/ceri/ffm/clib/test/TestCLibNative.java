@@ -170,6 +170,15 @@ public class TestCLibNative implements CLib.Native {
 			/**
 			 * Returns true if the mask contains the signal.
 			 */
+			public boolean has(CSignal... signals) {
+				for (var signal : signals)
+					if (!has(signal.value)) return false;
+				return true;
+			}
+
+			/**
+			 * Returns true if the mask contains the signal.
+			 */
 			public boolean has(int signum) {
 				return (mask() & mask(signum)) != 0L;
 			}

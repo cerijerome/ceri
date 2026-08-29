@@ -23,6 +23,9 @@ import ceri.common.test.Testing;
 	ceri.ffm.clib.ffm.CTermiosTest.class, //
 	ceri.ffm.clib.ffm.CTimeTest.class, //
 	ceri.ffm.clib.ffm.CUnistdTest.class, //
+	// clib.test
+	ceri.ffm.clib.test.CLibVerifierBehavior.class, //
+	ceri.ffm.clib.test.TestCLibNativeBehavior.class, //
 	// core
 	ceri.ffm.core.DecoderBehavior.class, //
 	ceri.ffm.core.LastErrorTest.class, //

@@ -39,6 +39,11 @@ public class CPollTest {
 	}
 
 	@Test
+	public void testNullPoll() throws CException {
+		Assert.equal(CPoll.poll(null, 0, 0), 0);
+	}
+
+	@Test
 	public void testPollEmulated() throws CException {
 		lib.init().poll.autoResponse(p -> {
 			for (var pollFd : p.pollFds())
@@ -56,9 +61,10 @@ public class CPollTest {
 		Assert.equals(pollFds[0].revents, CPoll.POLLIN | CPoll.POLLOUT);
 		Assert.equals(pollFds[1].revents, CPoll.POLLPRI);
 		Assert.equals(pollFds[2].revents, CPoll.POLLIN);
-		Assert.equal(CPoll.poll(0, pollFds[0], pollFds[2]), 2);
+		Assert.equal(CPoll.poll(1, pollFds[0], pollFds[2]), 2);
 		Assert.equals(pollFds[0].revents, CPoll.POLLIN | CPoll.POLLOUT);
 		Assert.equals(pollFds[2].revents, CPoll.POLLIN);
+		Assert.equal(lib.lib().poll.lastValue().timeout().totalMillis(), 1L);
 	}
 
 	@Test
@@ -69,4 +75,36 @@ public class CPollTest {
 		Assert.equal(CPoll.poll(pointer, 0), 0);
 		FfmAssert.cexception(CErrNo.EFAULT, () -> CPoll.poll(pointer, 0));
 	}
+
+	@Test
+	public void testPpollEmulated() throws CException {
+		lib.init().poll.autoResponse(p -> {
+			for (var pollFd : p.pollFds())
+				pollFd.revents = pollFd.events;
+		}, null);
+		var pollFds = pollfd.$.initArray(3);
+		pollFds[0].fd = 1;
+		pollFds[0].events = CPoll.POLLIN | CPoll.POLLOUT;
+		pollFds[1].fd = 2;
+		pollFds[1].events = CPoll.POLLPRI;
+		pollFds[2].fd = 3;
+		pollFds[2].events = CPoll.POLLIN;
+		Assert.equal(CPoll.Linux.ppoll(0, new CPoll.pollfd[0]), 0);
+		Assert.equal(CPoll.Linux.ppoll(1, pollFds, CSignal.SIGABRT), 3);
+		Assert.equals(pollFds[0].revents, CPoll.POLLIN | CPoll.POLLOUT);
+		Assert.equals(pollFds[1].revents, CPoll.POLLPRI);
+		Assert.equals(pollFds[2].revents, CPoll.POLLIN);
+		var last = lib.lib().poll.lastValue();
+		Assert.equal(last.timeout().totalMillis(), 1L);
+		Assert.equal(last.sigmask().has(CSignal.SIGABRT), true);
+		Assert.equal(last.sigmask().has(CSignal.SIGUSR1), false);
+	}
+
+	@Test
+	public void testNullPpoll() throws CException {
+		lib.init();
+		Assert.equal(CPoll.Linux.ppoll(null, null, null), 0);
+		Assert.equal(CPoll.Linux.ppoll(-1, pollfd.$.initArray(1)), 0);
+	}
+
 }

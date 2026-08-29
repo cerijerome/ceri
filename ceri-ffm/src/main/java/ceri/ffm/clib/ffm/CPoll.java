@@ -60,7 +60,7 @@ public class CPoll {
 			for (var pollFd : pollFds)
 				pollFd.revents = 0;
 			var pointer = pollfd.$.pointerOfArray(arena, pollFds, false);
-			int n = poll(pointer, pollFds.length, timeoutMs);
+			int n = poll(pointer, timeoutMs);
 			if (n > 0) pointer.readAll(pollFds);
 			return n;
 		}
@@ -107,7 +107,7 @@ public class CPoll {
 				var pointer = pollfd.$.pointerOfArray(arena, pollFds, false);
 				var tmo = timeout(arena, timeoutMs);
 				var sigset = Array.isEmpty(signals) ? null : CSignal.sigset(arena, signals);
-				int n = ppoll(pointer, pollFds.length, tmo, sigset);
+				int n = ppoll(pointer, tmo, sigset);
 				if (n > 0) pointer.readAll(pollFds);
 				return n;
 			}
