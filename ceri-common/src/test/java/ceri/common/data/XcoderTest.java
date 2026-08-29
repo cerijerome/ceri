@@ -170,7 +170,14 @@ public class XcoderTest {
 		assertRem(I.xc.decodeRem(3), 0, I.c);
 		assertRem(I.xc.decodeRem(5), 4, I.b);
 		Assert.equal(I.xc.decodeRem(15).first(), I.b);
-		Assert.string(I.xc.decodeRem(15), "[b]+14|0xe");
+	}
+
+	@Test
+	public void testDecodeRemString() {
+		Assert.string(I.xc.decodeRem(15), "b+0xe");
+		Assert.string(I.xcs.decodeAllRem(0x8081), "b|d|e");
+		Assert.string(I.xcs.decodeAllRem(0x8085), "b|d|e+4");
+		Assert.string(I.xcs.decodeAllRem(0x8095), "b|d|e+0x14");
 	}
 
 	@Test
@@ -354,9 +361,8 @@ public class XcoderTest {
 
 	@SafeVarargs
 	private static <T> void assertRem(Xcoder.Rem<T> rem, long diff, T... ts) {
-		Assert.ordered(rem.types(), ts);
+		Assert.rem(rem, diff, ts);
 		Assert.equal(rem.first(), Array.at(ts, 0));
-		Assert.equal(rem.diff(), diff);
 		Assert.equal(rem.diffInt(), (int) diff);
 		Assert.equal(rem.isExact(), diff == 0L);
 		Assert.equal(rem.isEmpty(), Array.isEmpty(ts) && diff == 0L);

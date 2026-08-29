@@ -39,7 +39,7 @@ public class ResourceBehavior {
 	public void shouldProvideResourceRelativeToRoot() throws IOException {
 		try (var r = Resource.root(String.class)) {
 			var names = PathList.of(r.path()).names();
-			Assert.equal(names.contains("java"), true);
+			Assert.containsAll(names, "java");
 		}
 	}
 
@@ -60,16 +60,14 @@ public class ResourceBehavior {
 	public void shouldAccessJar() throws IOException {
 		Assert.thrown(() -> Resource.of(Test.class, "\0"));
 		try (var r = Resource.of(Test.class, "runner")) {
-			var names = PathList.of(r.path()).names();
-			Assert.equal(names.contains("Runner.class"), true);
+			Assert.containsAll(PathList.of(r.path()).names(), "Runner.class");
 		}
 	}
 
 	@Test
 	public void shouldAccessModule() throws IOException {
 		try (var r = Resource.of(String.class, "ref")) {
-			var names = PathList.of(r.path()).names();
-			Assert.equal(names.contains("Finalizer.class"), true);
+			Assert.containsAll(PathList.of(r.path()).names(), "Finalizer.class");
 		}
 	}
 

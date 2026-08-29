@@ -33,6 +33,7 @@ import ceri.common.data.ByteReader;
 import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.data.TypeValue;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.Buffers;
@@ -878,6 +879,18 @@ public class Assert {
 	}
 
 	/**
+	 * Fails if the collection does not contain all the given elements.
+	 */
+	@SafeVarargs
+	public static <C extends Collection<T>, T> C containsAll(C collection, T... expecteds) {
+		notNull(collection);
+		for (var expected : expecteds)
+			if (!collection.contains(expected)) throw expected(collection, expected,
+				"Collection must contain all of " + Array.toString(expecteds));
+		return collection;
+	}
+
+	/**
 	 * Fails if the iterator allows mutation.
 	 */
 	public static <T> void immutable(Iterator<T> actual) {
@@ -920,6 +933,16 @@ public class Assert {
 		immutable(actual.keySet());
 		immutable(actual.values());
 		return actual;
+	}
+
+	/**
+	 * Fails if the transcoder result does match the difference and types.
+	 */
+	@SafeVarargs
+	public static <T> Xcoder.Rem<T> rem(Xcoder.Rem<T> rem, long diff, T... ts) {
+		Assert.unordered(rem.types(), ts);
+		Assert.equal(rem.diff(), diff);
+		return rem;
 	}
 
 	// streams

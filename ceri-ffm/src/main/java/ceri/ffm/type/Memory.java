@@ -25,6 +25,7 @@ public class Memory {
 	/**
 	 * Consumer for a memory segment.
 	 */
+	@FunctionalInterface
 	public interface Consumer {
 		/** A no-op instance. */
 		Consumer NULL = (_, _, _) -> {};
@@ -50,9 +51,38 @@ public class Memory {
 	}
 
 	/**
+	 * Function that provides a value from a memory location.
+	 */
+	@FunctionalInterface
+	public interface Function<T> {
+		/** A no-op instance. */
+		Function<?> NULL = (_, _, _) -> null;
+		
+		/**
+		 * Returns a value from the memory segment.
+		 */
+		default T apply(MemorySegment memory) {
+			return apply(memory, 0L);
+		}
+		
+		/**
+		 * Returns a value from the memory segment offset.
+		 */
+		default T apply(MemorySegment memory, long offset) {
+			return apply(memory, offset, Long.MAX_VALUE);
+		}
+		
+		/**
+		 * Returns a value from the memory segment offset up to given length.
+		 */
+		T apply(MemorySegment memory, long offset, long length);
+	}
+	
+	/**
 	 * Synchronizes memory and value contents, returning the resulting value. Can be used for
 	 * synchronizing immutable value instances.
 	 */
+	@FunctionalInterface
 	public interface Updater<T> {
 		/** A no-op instance. */
 		Updater<?> NULL = (_, _, _, t) -> t;
@@ -88,6 +118,7 @@ public class Memory {
 	 * Synchronizes memory and value contents. Can be used for reading value contents from memory,
 	 * and writing value contents to memory.
 	 */
+	@FunctionalInterface
 	public interface Sync<T> {
 		/** A no-op instance. */
 		Sync<?> NULL = (_, _, _, _) -> {};

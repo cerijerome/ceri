@@ -10,6 +10,7 @@ import ceri.common.collect.Collectable;
 import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.data.Bytes;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
@@ -17,6 +18,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Testing;
 import ceri.common.text.Strings;
+import ceri.common.time.TimeSpec;
 import ceri.common.util.Os;
 import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CFcntl;
@@ -25,6 +27,7 @@ import ceri.ffm.clib.ffm.CMman;
 import ceri.ffm.clib.ffm.CPoll;
 import ceri.ffm.clib.ffm.CSignal;
 import ceri.ffm.clib.ffm.CTermios;
+import ceri.ffm.clib.ffm.CTime;
 import ceri.ffm.clib.ffm.CUnistd;
 import ceri.ffm.core.LastError;
 import ceri.ffm.test.FfmTesting;
@@ -32,6 +35,7 @@ import ceri.ffm.type.IntType.CLong;
 import ceri.ffm.type.IntType.CUlong;
 import ceri.ffm.type.Memory;
 import ceri.ffm.type.Pointer;
+import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.Route;
 
@@ -52,7 +56,7 @@ public class TestCLibNative implements CLib.Native {
 		CallSync.function(null, Result.of(0L));
 	public final CallSync.Supplier<Integer> pagesize = CallSync.supplier(0x1000); // 4k
 	public final CallSync.Function<Signal, Result<MemorySegment>> signal =
-		CallSync.function(null, Result.of(CSignal.Macro.SIG_DFL.pointer));
+		CallSync.function(null, Result.of(CSignal.Macro.SIG_DFL.pointer()));
 	public final CallSync.Function<Integer, CErrNo> raise = CallSync.function(null, OK);
 	public final CallSync.Function<SigSet, CErrNo> sigset = CallSync.function(null, OK);
 	public final CallSync.Function<Poll, CErrNo> poll = CallSync.function(null, OK);
@@ -75,16 +79,26 @@ public class TestCLibNative implements CLib.Native {
 	 * A result with value and/or error.
 	 */
 	public record Result<T>(T value, CErrNo errNo) {
+		/** An instance with empty bytes array and no error. */
 		public static final Result<byte[]> NO_BYTES = bytes();
 
+		/**
+		 * Returns an instance with the value and no error.
+		 */
 		public static <T> Result<T> of(T value) {
 			return new Result<>(value, null);
 		}
 
+		/**
+		 * Returns an instance with a byte array and no error.
+		 */
 		public static Result<byte[]> bytes(int... bytes) {
 			return of(Array.BYTE.of(bytes));
 		}
 
+		/**
+		 * Returns an instance with no value and an error.
+		 */
 		public static <T> Result<T> errno(CErrNo errNo) {
 			return new Result<>(null, errNo);
 		}
@@ -94,6 +108,9 @@ public class TestCLibNative implements CLib.Native {
 	 * File descriptor open context.
 	 */
 	public record Fd(int fd, String path, int flags, int mode, Reflect.ThreadElement origin) {
+		/**
+		 * Creates an instance with auto-filled origin.
+		 */
 		public static Fd of(int fd, String path, int flags, int mode) {
 			return new Fd(fd, path, flags, mode, Testing.findTest());
 		}
@@ -112,30 +129,106 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for signal calls.
 	 */
-	public record Signal(int signum, MemorySegment handler) {}
+	public record Signal(int signum, MemorySegment handler) {
+		/** Transcoder for signals as bit fields. */
+		public static final Xcoder.Types<CSignal> xcoder =
+			Xcoder.types(CSignal.class, s -> 1L << (s.value - 1));
+	}
 
 	/**
 	 * Arguments for signal set calls.
 	 */
-	public record SigSet(CSignal.sigset_t sigset, int signum, boolean modify) {}
+	public record SigSet(Mask mask, int signum, Action action) {
+		/**
+		 * Action to be taken on the set.
+		 */
+		public enum Action {
+			empty,
+			add,
+			del,
+			has
+		}
+
+		/**
+		 * Signal mask.
+		 */
+		public record Mask(long mask) {
+			/**
+			 * Adds a signal to the mask.
+			 */
+			public Mask add(int signum) {
+				return new Mask(mask() | mask(signum));
+			}
+
+			/**
+			 * Removes a signal from the mask.
+			 */
+			public Mask del(int signum) {
+				return new Mask(mask() & ~mask(signum));
+			}
+
+			/**
+			 * Returns true if the mask contains the signal.
+			 */
+			public boolean has(int signum) {
+				return (mask() & mask(signum)) != 0L;
+			}
+
+			private static long mask(int signum) {
+				return signum > 0 ? 1L << (signum - 1) : 0L;
+			}
+		}
+
+		/**
+		 * Extracts a signal mask from the set pointer.
+		 */
+		public static Mask mask(Pointer<CSignal.sigset_t> pointer) {
+			if (PointerType.isNull(pointer)) return null;
+			return new Mask(Bytes.fromMsb(pointer.get().bytes));
+		}
+
+		/**
+		 * Writes the mask to the set pointer.
+		 */
+		public static int write(Mask mask, Pointer<CSignal.sigset_t> pointer) {
+			if (PointerType.isNull(pointer)) return 0;
+			var struct = pointer.get();
+			Bytes.writeMsb(mask.mask(), struct.bytes);
+			pointer.write(struct);
+			return 0;
+		}
+	}
 
 	/**
-	 * Arguments for poll calls.
+	 * Arguments for poll and ppoll calls.
 	 */
-	public record Poll(CPoll.pollfd[] pollFds, int timeout) {
+	public record Poll(CPoll.pollfd[] pollFds, TimeSpec timeout, SigSet.Mask sigmask) {
 		public static Route<Pointer.OfInt> FD = CPoll.pollfd.$.route("+.fd");
 		public static Route<Pointer.OfShort> EVENTS = CPoll.pollfd.$.route("+.events");
-		
+
 		/**
-		 * Creates an instance, capturing fields marked as @Out.
+		 * Creates an instance from poll arguments.
 		 */
-		public static Poll of(Pointer<CPoll.pollfd> pointer, int nfds, int timeout) {
+		public static Poll of(Pointer<CPoll.pollfd> pointer, int nfds, int timeoutMs) {
+			return new Poll(pollFds(pointer, nfds), TimeSpec.fromMillis(timeoutMs), null);
+		}
+
+		/**
+		 * Creates an instance from ppoll arguments.
+		 */
+		public static Poll of(Pointer<CPoll.pollfd> pointer, int nfds, Pointer<CTime.timespec> tmo,
+			Pointer<CSignal.sigset_t> sigmask) {
+			var timeout = PointerType.isNull(tmo) ? null : tmo.get().get();
+			return new Poll(pollFds(pointer, nfds), timeout, SigSet.mask(sigmask));
+		}
+
+		private static CPoll.pollfd[] pollFds(Pointer<CPoll.pollfd> pointer, int nfds) {
 			var pollFds = pointer.getArray(nfds, false);
-			for (int i = 0; i < pollFds.length; i++) {
+			for (int i = 0; i < pollFds.length; i++) { // Capture @Out fields
 				pollFds[i].fd = FD.pointer(pointer, i).get();
 				pollFds[i].events = EVENTS.pointer(pointer, i).get();
 			}
-			return new Poll(pollFds, timeout);
+			return pollFds;
 		}
 	}
 
@@ -339,7 +432,7 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public MemorySegment signal(int signum, MemorySegment handler) {
-		return result(signal.apply(new Signal(signum, handler)), CSignal.Macro.SIG_ERR.pointer);
+		return result(signal.apply(new Signal(signum, handler)), CSignal.Macro.SIG_ERR.pointer());
 	}
 
 	@Override
@@ -349,38 +442,35 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int sigemptyset(Pointer<CSignal.sigset_t> set) {
-		return applySigSet(set, 0, (_, _) -> 0L);
+		return sigset(set, 0, SigSet.Action.del, _ -> SigSet.write(new SigSet.Mask(0L), set));
 	}
 
 	@Override
 	public int sigaddset(Pointer<CSignal.sigset_t> set, int signum) {
-		return applySigSet(set, signum, (v, s) -> v | s);
+		return sigset(set, signum, SigSet.Action.add, mask -> SigSet.write(mask.add(signum), set));
 	}
 
 	@Override
 	public int sigdelset(Pointer<CSignal.sigset_t> set, int signum) {
-		return applySigSet(set, signum, (v, s) -> v & ~s);
+		return sigset(set, signum, SigSet.Action.del, mask -> SigSet.write(mask.del(signum), set));
 	}
 
 	@Override
 	public int sigismember(Pointer<CSignal.sigset_t> set, int signum) {
-		var errNo = sigset.apply(new SigSet(set.get(), signum, false));
-		if (!ok(errNo)) return error(-1, errNo);
-		return (Bytes.fromMsb(set.get().bytes) & sigSetVal(signum)) == 0 ? 0 : 1;
+		return sigset(set, signum, SigSet.Action.has, mask -> mask.has(signum) ? 1 : 0);
 	}
 
 	// <poll.h>
 
 	@Override
 	public int poll(Pointer<CPoll.pollfd> fds, int nfds, int timeout) {
-		var poll = Poll.of(fds, nfds, timeout);
-		var errNo = this.poll.apply(poll);
-		if (!ok(errNo)) return error(-1, errNo);
-		int count = 0;
-		for (var pollFd : poll.pollFds())
-			if (pollFd.revents != 0) count++;
-		fds.writeArray(poll.pollFds(), false);
-		return count;
+		return poll(fds, Poll.of(fds, nfds, timeout));
+	}
+
+	@Override
+	public int ppoll(Pointer<CPoll.pollfd> fds, int nfds, Pointer<CTime.timespec> tmo,
+		Pointer<CSignal.sigset_t> sigmask) {
+		return poll(fds, Poll.of(fds, nfds, tmo, sigmask));
 	}
 
 	// <fcntl.h>
@@ -525,20 +615,22 @@ public class TestCLibNative implements CLib.Native {
 		return error(error, CErrNo.EBADF);
 	}
 
-	private int applySigSet(Pointer<CSignal.sigset_t> set, int signum,
-		Functions.LongBiOperator operator) {
-		var struct = set.get();
-		var errNo = sigset.apply(new SigSet(struct, signum, true));
+	private int sigset(Pointer<CSignal.sigset_t> set, int signum, SigSet.Action action,
+		Functions.ToIntFunction<SigSet.Mask> function) {
+		var mask = SigSet.mask(set);
+		var errNo = sigset.apply(new SigSet(mask, signum, action));
 		if (!ok(errNo)) return error(-1, errNo);
-		var value = Bytes.fromMsb(struct.bytes);
-		value = operator.applyAsLong(value, sigSetVal(signum));
-		Bytes.writeMsb(value, struct.bytes);
-		set.write(struct);
-		return 0;
+		return function.applyAsInt(mask);
 	}
 
-	private static long sigSetVal(int signum) {
-		return Bytes.maskOfBits(signum - 1);
+	private int poll(Pointer<CPoll.pollfd> fds, Poll poll) {
+		var errNo = this.poll.apply(poll);
+		if (!ok(errNo)) return error(-1, errNo);
+		int count = 0;
+		for (var pollFd : poll.pollFds())
+			if (pollFd.revents != 0) count++;
+		fds.writeArray(poll.pollFds(), false);
+		return count;
 	}
 
 	private static <T extends CTermios.termios<T>> Pointer<T> termios(MemorySegment memory) {

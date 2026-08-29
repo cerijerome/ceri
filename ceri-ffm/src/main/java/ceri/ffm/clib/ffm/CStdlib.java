@@ -6,9 +6,9 @@ import ceri.ffm.reflect.CAnnotations.CInclude;
  * Types and functions from {@code <stdlib.h>}
  */
 @CInclude("stdlib.h")
-public class CStdLib {
+public class CStdlib {
 
-	private CStdLib() {}
+	private CStdlib() {}
 
 	/**
 	 * Change or add an environment variable.

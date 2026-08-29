@@ -219,29 +219,40 @@ public class Transformer implements Functions.Function<Object, String> {
 		/**
 		 * Applies the string format to sub-types.
 		 */
-		public Builder format(Class<?> cls, String format) {
-			return add(Transform.format(format).with(cls));
+		public Builder format(String format, Class<?>... classes) {
+			for (var cls : classes)
+				add(Transform.format(format).with(cls));
+			return this;
 		}
 
 		/**
 		 * Applies a string format to sub-type values based on the value itself.
 		 */
-		public <T> Builder formats(Class<T> cls, Functions.Function<? super T, String> formats) {
-			return add(Transform.formats(formats).with(cls));
+		@SafeVarargs
+		public final <T> Builder formats(Functions.Function<T, String> formats,
+			Class<? extends T>... classes) {
+			for (var cls : classes)
+				add(Transform.formats(formats).with(cls));
+			return this;
 		}
 
 		/**
 		 * Applies the transform to sub-types.
 		 */
-		public <T> Builder add(Class<T> cls, Transform<? super T, ?> transform) {
-			return add(Transform.cast(cls).then(transform));
+		@SafeVarargs
+		public final <T> Builder add(Transform<T, ?> transform, Class<? extends T>... classes) {
+			for (var cls : classes)
+				add(Transform.cast(cls).then(transform));
+			return this;
 		}
 
 		/**
 		 * Applies the function to sub-types.
 		 */
-		public <T> Builder add(Class<T> cls, Functions.Function<? super T, ?> function) {
-			return add(cls, Transform.of(function));
+		@SafeVarargs
+		public final <T> Builder add(Functions.Function<T, ?> function,
+			Class<? extends T>... classes) {
+			return add(Transform.of(function), classes);
 		}
 
 		/**

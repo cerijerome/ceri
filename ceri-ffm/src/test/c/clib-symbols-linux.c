@@ -1,5 +1,5 @@
 /*
- * Generated for linux by CSymbolGen (Mac OS X; aarch64; 26.5.2) 2026-08-25T23:33:20
+ * Generated for linux by CSymbolGen (Mac OS X; aarch64; 26.5.2) 2026-08-27T18:18:48
  *
  * Build:  gcc clib-symbols-linux.c -o clib-symbols-linux; chmod a+x ./clib-symbols-linux
  *   Run:  ./clib-symbols-linux
@@ -441,8 +441,6 @@ int main(int argc, char *argv[]) {
 	CERI_VSYMI(SIGWINCH,28);
 	CERI_VSYMI(SIGIO,29);
 	CERI_VSYMI(SIGSYS,31);
-	printf("// CSignal.sigset_t\n");
-	CERI_VSIZE(sigset_t,128);
 	
 	printf("\n");
 	printf("// CUnistd\n");

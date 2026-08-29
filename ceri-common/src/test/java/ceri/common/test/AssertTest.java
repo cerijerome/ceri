@@ -359,6 +359,16 @@ public class AssertTest {
 	}
 
 	@Test
+	public void testContainsAll() {
+		Assert.containsAll(Set.of());
+		Assert.containsAll(Set.of(1, -1));
+		Assert.containsAll(Set.of(1, -1), -1);
+		Assert.containsAll(Set.of(1, -1), -1, 1);
+		Assert.assertion(() -> Assert.containsAll(null));
+		Assert.assertion(() -> Assert.containsAll(Set.of(1, -1), -1, 0));
+	}
+
+	@Test
 	public void testImmutableIterator() {
 		Assert.immutable(List.of(1).iterator());
 		Assert.assertion(() -> Assert.immutable(Lists.ofAll(1).iterator()));

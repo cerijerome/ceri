@@ -5,6 +5,7 @@ import ceri.common.util.Os;
 import ceri.ffm.clib.ffm.CPoll.pollfd;
 import ceri.ffm.clib.ffm.CSignal.sigset_t;
 import ceri.ffm.clib.ffm.CTermios.speed_t;
+import ceri.ffm.clib.ffm.CTime.timespec;
 import ceri.ffm.clib.ffm.CUnistd.size_t;
 import ceri.ffm.clib.ffm.CUnistd.ssize_t;
 import ceri.ffm.core.Caller;
@@ -79,6 +80,11 @@ public class CLib {
 
 		// int poll(struct pollfd *__fds, nfds_t __nfds, int __timeout);
 		int poll(Pointer<pollfd> fds, int nfds, int timeout);
+
+		// int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec * tmo_p,
+		// const sigset_t * sigmask);
+		int ppoll(Pointer<pollfd> fds, int nfds, Pointer<timespec> tmo_p,
+			Pointer<sigset_t> sigmask);
 
 		// <fcntl.h>
 

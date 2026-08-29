@@ -18,7 +18,7 @@ import ceri.common.test.Testing;
 	ceri.ffm.clib.ffm.CMmanTest.class, //
 	ceri.ffm.clib.ffm.CPollTest.class, //
 	ceri.ffm.clib.ffm.CSignalTest.class, //
-	ceri.ffm.clib.ffm.CStdLibTest.class, //
+	ceri.ffm.clib.ffm.CStdlibTest.class, //
 	ceri.ffm.clib.ffm.CStringTest.class, //
 	ceri.ffm.clib.ffm.CTermiosTest.class, //
 	ceri.ffm.clib.ffm.CTimeTest.class, //
@@ -26,6 +26,9 @@ import ceri.common.test.Testing;
 	// core
 	ceri.ffm.core.DecoderBehavior.class, //
 	ceri.ffm.core.LastErrorTest.class, //
+	// reflect
+	ceri.ffm.reflect.CAnnotationsTest.class, //
+	ceri.ffm.reflect.CSymbolGenBehavior.class, //
 	// type
 	ceri.ffm.type.IntTypeBehavior.class, //
 	ceri.ffm.type.TerminatorBehavior.class, //

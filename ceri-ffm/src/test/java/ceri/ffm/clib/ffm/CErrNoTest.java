@@ -1,7 +1,6 @@
 package ceri.ffm.clib.ffm;
 
 import org.junit.Test;
-import ceri.common.data.TypeValue;
 import ceri.common.test.Assert;
 import ceri.ffm.test.FfmTesting;
 
@@ -30,9 +29,12 @@ public class CErrNoTest {
 	}
 
 	@Test
-	public void testTypeValue() {
-		Assert.equal(CErrNo.value(3), TypeValue.of(3, CErrNo.ESRCH, null));
-		Assert.equal(CErrNo.value(-999), TypeValue.of(-999, CErrNo.UNDEFINED, null));
+	public void testValue() {
+		Assert.equal(new CErrNo.Value(-1).errNo(), CErrNo.UNDEFINED);
+		Assert.equal(new CErrNo.Value(CErrNo.EBADF.code).errNo(), CErrNo.EBADF);
+		Assert.string(new CErrNo.Value(-1), "-1");
+		Assert.string(new CErrNo.Value(99999), "99999");
+		Assert.string(new CErrNo.Value(CErrNo.EBADF.code), "EBADF");
 	}
 
 	@Test

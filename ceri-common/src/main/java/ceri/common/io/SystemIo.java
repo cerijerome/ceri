@@ -15,6 +15,9 @@ public class SystemIo implements Functions.Closeable {
 	/** The original stream. */
 	public final PrintStream err;
 
+	/**
+	 * Returns a new instance.
+	 */
 	public static SystemIo of() {
 		return new SystemIo();
 	}
@@ -25,26 +28,44 @@ public class SystemIo implements Functions.Closeable {
 		err = System.err;
 	}
 
+	/**
+	 * Overrides stdin.
+	 */
 	public void in(InputStream in) {
 		System.setIn(in);
 	}
 
+	/**
+	 * Returns the current stdin.
+	 */
 	public InputStream in() {
 		return System.in;
 	}
 
+	/**
+	 * Overrides stdout.
+	 */
 	public void out(PrintStream out) {
 		System.setOut(out);
 	}
 
+	/**
+	 * Returns the current stdout.
+	 */
 	public PrintStream out() {
 		return System.out;
 	}
 
+	/**
+	 * Overrides stderr.
+	 */
 	public void err(PrintStream err) {
 		System.setErr(err);
 	}
 
+	/**
+	 * Returns the current stderr.
+	 */
 	public PrintStream err() {
 		return System.err;
 	}

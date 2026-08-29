@@ -9,7 +9,7 @@ import ceri.common.text.Strings;
 import ceri.ffm.core.LastError;
 
 /**
- * A checked exception for errors originating in c and related handler code.  
+ * A checked exception for errors originating in c and related handler code.
  */
 @SuppressWarnings("serial")
 public class CException extends IOException {
@@ -111,12 +111,9 @@ public class CException extends IOException {
 		var errNo = CErrNo.from(code);
 		var errMsg = LastError.message(code);
 		var message = Strings.format(format, args);
-		if (errNo.defined())
-			b.append(' ').append(errNo.name());
-		if (Strings.nonEmpty(errMsg))
-			b.append(' ').append(errMsg);
-		if (Strings.nonEmpty(message))
-			b.append(n < b.length() ? "; " : " ").append(message);
+		if (errNo.defined()) b.append(' ').append(errNo);
+		if (Strings.nonEmpty(errMsg)) b.append(' ').append(errMsg);
+		if (Strings.nonEmpty(message)) b.append(n < b.length() ? "; " : " ").append(message);
 		return b.toString();
 	}
 }

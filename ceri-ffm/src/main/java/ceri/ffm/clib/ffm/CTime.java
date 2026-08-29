@@ -21,28 +21,34 @@ public class CTime {
 	 */
 	@Fields({ "tv_sec", "tv_usec" })
 	public static class timeval extends Struct<timeval> {
+		public static final Supporter<timeval> $ = support(timeval.class);
 		public CLong tv_sec; // time_t
 		public CLong tv_usec; // suseconds_t
 
-		public timeval time(TimeSpec t) {
+		/**
+		 * Applies the given time to this instance.
+		 */
+		public timeval set(TimeSpec t) {
+			if (t == null) return this;
 			t = t.normalize();
 			tv_sec = new CLong(t.seconds());
 			tv_usec = new CLong(t.micros());
 			return this;
 		}
 
-		public TimeSpec time() {
+		/**
+		 * Gets the time from this instance.
+		 */
+		public TimeSpec get() {
 			return TimeSpec.ofMicros(tv_sec.value(), tv_usec.value());
 		}
 	}
 
+	/**
+	 * Returns a new time instance with the current time of day.
+	 */
 	public static timeval gettimeofday() {
-		return gettimeofday(new timeval());
-	}
-
-	public static timeval gettimeofday(timeval time) {
-		if (time != null) time.time(TimeSpec.now());
-		return time;
+		return new timeval().set(TimeSpec.now());
 	}
 
 	/* <time.h> */
@@ -52,21 +58,25 @@ public class CTime {
 	 */
 	@Fields({ "tv_sec", "tv_nsec" })
 	public static class timespec extends Struct<timespec> {
+		public static final Supporter<timespec> $ = support(timespec.class);
 		public CLong tv_sec; // time_t
 		public CLong tv_nsec; // usually long / long long
 
-		public static timespec of(TimeSpec time) {
-			return time == null ? null : new timespec().time(time);
-		}
-
-		public timespec time(TimeSpec t) {
+		/**
+		 * Applies the given time to this instance.
+		 */
+		public timespec set(TimeSpec t) {
+			if (t == null) return this;
 			t = t.normalize();
 			tv_sec = new CLong(t.seconds());
 			tv_nsec = new CLong(t.nanos());
 			return this;
 		}
 
-		public TimeSpec time() {
+		/**
+		 * Gets the time from this instance.
+		 */
+		public TimeSpec get() {
 			return new TimeSpec(tv_sec.value(), tv_nsec.value());
 		}
 	}

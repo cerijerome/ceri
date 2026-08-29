@@ -14,6 +14,7 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.text.Format;
+import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 
@@ -63,7 +64,8 @@ public class Xcoder {
 
 		@Override
 		public String toString() {
-			return types() + "+" + Format.udecHex(diff());
+			var s = Joiner.OR.join(types());
+			return isExact() ? s : s + "+" + Format.udecOrHex(diff());
 		}
 	}
 

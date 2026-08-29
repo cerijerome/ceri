@@ -591,6 +591,13 @@ public abstract class PointerType {
 	}
 
 	/**
+	 * Returns true if the pointer is null, or its memory is null or address 0.
+	 */
+	public static boolean isNull(PointerType pointer) {
+		return pointer == null || pointer.isNull();
+	}
+	
+	/**
 	 * Creates a support instance for the custom type.
 	 */
 	static <P extends PointerType> Supporter<P> support(Class<P> cls) {

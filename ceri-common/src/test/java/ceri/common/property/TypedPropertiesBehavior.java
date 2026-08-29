@@ -86,7 +86,7 @@ public class TypedPropertiesBehavior {
 	@Test
 	public void shouldNotReturnBlankValues() {
 		var p = TypedProperties.from(properties);
-		Assert.equal(p.children().contains("n"), true);
+		Assert.containsAll(p.children(), "n");
 		Assert.equal(p.get("n"), null);
 		Assert.equal(p.get("n.n"), null);
 	}

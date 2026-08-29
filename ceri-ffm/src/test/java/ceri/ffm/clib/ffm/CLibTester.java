@@ -5,7 +5,6 @@ import java.util.Arrays;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.FileTestHelper;
 import ceri.ffm.clib.ffm.CSignal.sighandler_t;
-import ceri.ffm.clib.ffm.CSignal.sigset_t;
 import ceri.ffm.test.FfmTesting;
 
 public class CLibTester {
@@ -13,7 +12,7 @@ public class CLibTester {
 
 	public static void main(String[] args) throws Exception {
 		runCUnistd();
-		runCStdLib();
+		runCStdlib();
 		runCSignal();
 		FfmTesting.title("Methods");
 		CLib.library.methods().values().forEach(System.out::println);
@@ -26,8 +25,8 @@ public class CLibTester {
 		runPipe();
 	}
 
-	private static void runCStdLib() throws CException {
-		FfmTesting.title("CStdLib");
+	private static void runCStdlib() throws CException {
+		FfmTesting.title("CStdlib");
 		runEnv();
 	}
 
@@ -66,53 +65,51 @@ public class CLibTester {
 
 	private static void runEnv() throws CException {
 		var key = "CERI_TEST";
-		System.out.printf("null = %s%n", CStdLib.getenv(null));
-		System.out.printf("\"\" = %s%n", CStdLib.getenv(""));
-		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
-		CStdLib.setenv(key, "hello1", false);
-		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
-		CStdLib.setenv(key, "hello2", true);
-		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
-		CStdLib.setenv(key, "hello3", false);
-		System.out.printf("\"%s\" = %s%n", key, CStdLib.getenv(key));
+		System.out.printf("null = %s%n", CStdlib.getenv(null));
+		System.out.printf("\"\" = %s%n", CStdlib.getenv(""));
+		System.out.printf("\"%s\" = %s%n", key, CStdlib.getenv(key));
+		CStdlib.setenv(key, "hello1", false);
+		System.out.printf("\"%s\" = %s%n", key, CStdlib.getenv(key));
+		CStdlib.setenv(key, "hello2", true);
+		System.out.printf("\"%s\" = %s%n", key, CStdlib.getenv(key));
+		CStdlib.setenv(key, "hello3", false);
+		System.out.printf("\"%s\" = %s%n", key, CStdlib.getenv(key));
 		try {
-			CStdLib.setenv(key, "hello4", true);
+			CStdlib.setenv(key, "hello4", true);
 		} catch (Exception e) {
 			System.out.println("Expected: " + e.getMessage());
 		}
 	}
 
 	private static void runSignal() throws CException {
-		int signum = CSignal.SIGUSR1;
+		var signum = CSignal.SIGUSR1;
 		try (sighandler_t sh1 = i -> System.out.println("sh1=" + i);
 			sighandler_t sh2 = i -> System.out.println("sh2=" + i)) {
-			var previous = CSignal.signal(signum, sh1);
-			CSignal.raise(signum);
-			previous = CSignal.signal(signum, sh2);
-			previous.invoke(signum);
-			CSignal.raise(signum);
-			previous = CSignal.signalDefault(signum);
-			previous.invoke(signum);
-			previous = CSignal.signalIgnore(signum);
-			previous.invoke(signum);
-			CSignal.raise(signum);
-			previous = CSignal.signal(signum, sh1);
-			previous.invoke(signum);
-			CSignal.raise(signum);
+			var previous = signum.set(sh1);
+			signum.raise();
+			previous = signum.set(sh2);
+			signum.invoke(previous);
+			signum.raise();
+			previous = signum.setDefault();
+			signum.invoke(previous);
+			previous = signum.setIgnore();
+			signum.invoke(previous);
+			signum.raise();
+			previous = signum.set(sh1);
+			signum.invoke(previous);
+			signum.raise();
+			signum.setDefault();
 		}
 	}
 
 	private static void runSigSet() throws CException {
-		int signum1 = CSignal.SIGUSR1;
-		int signum2 = CSignal.SIGUSR2;
-		var set = sigset_t.$.pointer();
-		CSignal.sigemptyset(set);
-		CSignal.sigaddset(set, signum1);
-		CSignal.sigaddset(set, signum2);
-		System.out.printf("sigadd 1 2 => %s %s%n", CSignal.sigismember(set, signum1),
-			CSignal.sigismember(set, signum2));
-		CSignal.sigdelset(set, signum2);
-		System.out.printf("sigdel - 2 => %s %s%n", CSignal.sigismember(set, signum1),
-			CSignal.sigismember(set, signum2));
+		var signum1 = CSignal.SIGUSR1;
+		var signum2 = CSignal.SIGUSR2;
+		var set = CSignal.sigset();
+		signum1.add(set);
+		signum2.add(set);
+		System.out.printf("sigadd 1 2 => %s %s%n", signum1.isMember(set), signum2.isMember(set));
+		signum2.delete(set);
+		System.out.printf("sigdel - 2 => %s %s%n", signum1.isMember(set), signum2.isMember(set));
 	}
 }

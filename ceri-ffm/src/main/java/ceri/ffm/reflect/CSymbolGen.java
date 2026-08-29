@@ -266,7 +266,7 @@ public class CSymbolGen {
 
 		private String comment(Object value) {
 			if (value == null) return "";
-			return String.format("/* " + Caller.Transform.COMPACT.apply(value) + " */");
+			return String.format(" /* " + Caller.Transform.COMPACT.apply(value) + " */");
 		}
 	}
 

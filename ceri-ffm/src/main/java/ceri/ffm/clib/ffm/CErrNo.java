@@ -3,11 +3,9 @@ package ceri.ffm.clib.ffm;
 import static ceri.ffm.util.FfmOs.linux;
 import static ceri.ffm.util.FfmOs.mac;
 import java.util.Set;
-import ceri.common.data.TypeValue;
 import ceri.common.data.Xcoder;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
-import ceri.common.util.Basics;
 import ceri.common.util.Os;
 import ceri.ffm.reflect.CAnnotations.CInclude;
 import ceri.ffm.reflect.CAnnotations.CType;
@@ -377,6 +375,24 @@ public enum CErrNo {
 	public final int code;
 
 	/**
+	 * Holds a standard or non-standard error code.
+	 */
+	public record Value(int value) {
+		/**
+		 * Returns the standard type if known.
+		 */
+		public CErrNo errNo() {
+			return from(value());
+		}
+
+		@Override
+		public final String toString() {
+			var errNo = errNo();
+			return String.valueOf(errNo.defined() ? errNo : value());
+		}
+	}
+
+	/**
 	 * Returns an immutable set of error codes, ignoring undefined codes.
 	 */
 	public static Set<Integer> codes(int... errorCodes) {
@@ -391,24 +407,17 @@ public enum CErrNo {
 	}
 
 	/**
-	 * Finds the value from the exception error code.
+	 * Finds the error type from the exception error code, or undefined.
 	 */
 	public static CErrNo from(CException e) {
 		return from(e.code);
 	}
 
 	/**
-	 * Returns a matching type, or undefined type if no match.
+	 * Returns the error type for the code, or undefined.
 	 */
 	public static CErrNo from(int code) {
-		return Basics.def(xcoder.decode(code), UNDEFINED);
-	}
-
-	/**
-	 * Returns a value with type and code. Type will be the undefined type if no code matches.
-	 */
-	public static TypeValue<CErrNo> value(int code) {
-		return TypeValue.of(code, from(code), null);
+		return xcoder.decode(code, UNDEFINED);
 	}
 
 	private CErrNo(int code) {
@@ -443,118 +452,118 @@ public enum CErrNo {
 	}
 
 	private static class Const {
-		public static final int UNDEFINED = -1;
-		public static final int EAGAIN;
-		public static final int EWOULDBLOCK;
-		public static final int EDEADLK; // (EDEADLOCK)
-		public static final int ENAMETOOLONG;
-		public static final int ENOLCK;
-		public static final int ENOSYS;
-		public static final int ENOTEMPTY;
-		public static final int ELOOP;
-		public static final int ENOMSG;
-		public static final int EIDRM;
-		public static final int ECHRNG;
-		public static final int EL2NSYNC;
-		public static final int EL3HLT;
-		public static final int EL3RST;
-		public static final int ELNRNG;
-		public static final int EUNATCH;
-		public static final int ENOCSI;
-		public static final int EL2HLT;
-		public static final int EBADE;
-		public static final int EBADR;
-		public static final int EXFULL;
-		public static final int ENOANO;
-		public static final int EBADRQC;
-		public static final int EBADSLT;
-		public static final int EBFONT;
-		public static final int ENOSTR;
-		public static final int ENODATA;
-		public static final int ETIME;
-		public static final int ENOSR;
-		public static final int ENONET;
-		public static final int ENOPKG;
-		public static final int EREMOTE;
-		public static final int ENOLINK;
-		public static final int EADV;
-		public static final int ESRMNT;
-		public static final int ECOMM;
-		public static final int EPROTO;
-		public static final int EMULTIHOP;
-		public static final int EDOTDOT;
-		public static final int EBADMSG;
-		public static final int EOVERFLOW;
-		public static final int ENOTUNIQ;
-		public static final int EBADFD;
-		public static final int EREMCHG;
-		public static final int ELIBACC;
-		public static final int ELIBBAD;
-		public static final int ELIBSCN;
-		public static final int ELIBMAX;
-		public static final int ELIBEXEC;
-		public static final int EILSEQ;
-		public static final int ERESTART;
-		public static final int ESTRPIPE;
-		public static final int EUSERS;
-		public static final int ENOTSOCK;
-		public static final int EDESTADDRREQ;
-		public static final int EMSGSIZE;
-		public static final int EPROTOTYPE;
-		public static final int ENOPROTOOPT;
-		public static final int EPROTONOSUPPORT;
-		public static final int ESOCKTNOSUPPORT;
-		public static final int EOPNOTSUPP;
-		public static final int ENOTSUP;
-		public static final int EPFNOSUPPORT;
-		public static final int EAFNOSUPPORT;
-		public static final int EADDRINUSE;
-		public static final int EADDRNOTAVAIL;
-		public static final int ENETDOWN;
-		public static final int ENETUNREACH;
-		public static final int ENETRESET;
-		public static final int ECONNABORTED;
-		public static final int ECONNRESET;
-		public static final int ENOBUFS;
-		public static final int EISCONN;
-		public static final int ENOTCONN;
-		public static final int ESHUTDOWN;
-		public static final int ETOOMANYREFS;
-		public static final int ETIMEDOUT;
-		public static final int ECONNREFUSED;
-		public static final int EHOSTDOWN;
-		public static final int EHOSTUNREACH;
-		public static final int EALREADY;
-		public static final int EINPROGRESS;
-		public static final int ESTALE;
-		public static final int EUCLEAN;
-		public static final int ENOTNAM;
-		public static final int ENAVAIL;
-		public static final int EISNAM;
-		public static final int EREMOTEIO;
-		public static final int EDQUOT;
-		public static final int ENOMEDIUM;
-		public static final int EMEDIUMTYPE;
-		public static final int ECANCELED;
-		public static final int ENOKEY;
-		public static final int EKEYEXPIRED;
-		public static final int EKEYREVOKED;
-		public static final int EKEYREJECTED;
-		public static final int EOWNERDEAD;
-		public static final int ENOTRECOVERABLE;
-		public static final int ERFKILL;
-		public static final int EHWPOISON;
+		private static final int UNDEFINED = -1;
+		private static final int EAGAIN;
+		private static final int EWOULDBLOCK;
+		private static final int EDEADLK; // (EDEADLOCK)
+		private static final int ENAMETOOLONG;
+		private static final int ENOLCK;
+		private static final int ENOSYS;
+		private static final int ENOTEMPTY;
+		private static final int ELOOP;
+		private static final int ENOMSG;
+		private static final int EIDRM;
+		private static final int ECHRNG;
+		private static final int EL2NSYNC;
+		private static final int EL3HLT;
+		private static final int EL3RST;
+		private static final int ELNRNG;
+		private static final int EUNATCH;
+		private static final int ENOCSI;
+		private static final int EL2HLT;
+		private static final int EBADE;
+		private static final int EBADR;
+		private static final int EXFULL;
+		private static final int ENOANO;
+		private static final int EBADRQC;
+		private static final int EBADSLT;
+		private static final int EBFONT;
+		private static final int ENOSTR;
+		private static final int ENODATA;
+		private static final int ETIME;
+		private static final int ENOSR;
+		private static final int ENONET;
+		private static final int ENOPKG;
+		private static final int EREMOTE;
+		private static final int ENOLINK;
+		private static final int EADV;
+		private static final int ESRMNT;
+		private static final int ECOMM;
+		private static final int EPROTO;
+		private static final int EMULTIHOP;
+		private static final int EDOTDOT;
+		private static final int EBADMSG;
+		private static final int EOVERFLOW;
+		private static final int ENOTUNIQ;
+		private static final int EBADFD;
+		private static final int EREMCHG;
+		private static final int ELIBACC;
+		private static final int ELIBBAD;
+		private static final int ELIBSCN;
+		private static final int ELIBMAX;
+		private static final int ELIBEXEC;
+		private static final int EILSEQ;
+		private static final int ERESTART;
+		private static final int ESTRPIPE;
+		private static final int EUSERS;
+		private static final int ENOTSOCK;
+		private static final int EDESTADDRREQ;
+		private static final int EMSGSIZE;
+		private static final int EPROTOTYPE;
+		private static final int ENOPROTOOPT;
+		private static final int EPROTONOSUPPORT;
+		private static final int ESOCKTNOSUPPORT;
+		private static final int EOPNOTSUPP;
+		private static final int ENOTSUP;
+		private static final int EPFNOSUPPORT;
+		private static final int EAFNOSUPPORT;
+		private static final int EADDRINUSE;
+		private static final int EADDRNOTAVAIL;
+		private static final int ENETDOWN;
+		private static final int ENETUNREACH;
+		private static final int ENETRESET;
+		private static final int ECONNABORTED;
+		private static final int ECONNRESET;
+		private static final int ENOBUFS;
+		private static final int EISCONN;
+		private static final int ENOTCONN;
+		private static final int ESHUTDOWN;
+		private static final int ETOOMANYREFS;
+		private static final int ETIMEDOUT;
+		private static final int ECONNREFUSED;
+		private static final int EHOSTDOWN;
+		private static final int EHOSTUNREACH;
+		private static final int EALREADY;
+		private static final int EINPROGRESS;
+		private static final int ESTALE;
+		private static final int EUCLEAN;
+		private static final int ENOTNAM;
+		private static final int ENAVAIL;
+		private static final int EISNAM;
+		private static final int EREMOTEIO;
+		private static final int EDQUOT;
+		private static final int ENOMEDIUM;
+		private static final int EMEDIUMTYPE;
+		private static final int ECANCELED;
+		private static final int ENOKEY;
+		private static final int EKEYEXPIRED;
+		private static final int EKEYREVOKED;
+		private static final int EKEYREJECTED;
+		private static final int EOWNERDEAD;
+		private static final int ENOTRECOVERABLE;
+		private static final int ERFKILL;
+		private static final int EHWPOISON;
 		// Mac only
-		public static final int EAUTH;
-		public static final int EBADRPC;
-		public static final int EFTYPE;
-		public static final int ENEEDAUTH;
-		public static final int ENOATTR;
-		public static final int EPROCLIM;
-		public static final int EPROCUNAVAIL;
-		public static final int EPROGMISMATCH;
-		public static final int EPROGUNAVAIL;
-		public static final int ERPCMISMATCH;
+		private static final int EAUTH;
+		private static final int EBADRPC;
+		private static final int EFTYPE;
+		private static final int ENEEDAUTH;
+		private static final int ENOATTR;
+		private static final int EPROCLIM;
+		private static final int EPROCUNAVAIL;
+		private static final int EPROGMISMATCH;
+		private static final int EPROGUNAVAIL;
+		private static final int ERPCMISMATCH;
 
 		static {
 			if (Os.info().mac) {

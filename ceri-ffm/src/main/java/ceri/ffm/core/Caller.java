@@ -9,6 +9,7 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.Buffers;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
@@ -89,6 +90,14 @@ public class Caller<E extends Exception, T> {
 		public static Transformer FULL = fullTransformer();
 
 		private Transform() {}
+
+		/**
+		 * Shows integer in decimal, and hex if outside a simple decimal range.
+		 */
+		public static String integer(Number number) {
+			if (Maths.within(number.longValue(), -1, 9)) return String.valueOf(number);
+			return String.format("%1$d|0x%1$x", number);
+		}
 
 		/**
 		 * Shows escaped and quoted char sequences.
@@ -371,12 +380,13 @@ public class Caller<E extends Exception, T> {
 
 	private static Transformer fullTransformer() {
 		return Transformer.builder() //
-			.add(CharSequence.class, (_, c) -> Transform.chars(c, -1)) //
-			.add(Buffer.class, Transform::buffer) //
-			.add(MemorySegment.class, (_, m) -> Memory.string(m)) //
-			.add(PointerType.Indexable.class, Transform::typedPointer) //
-			.add(PointerType.class, Transform::pointer) //
-			.add(Callback.class, c -> Callback.toString(c)) //
+			.add(Transform::integer, Byte.class, Short.class, Integer.class, Long.class) //
+			.add((_, c) -> Transform.chars(c, -1), CharSequence.class) //
+			.add(Transform::buffer, Buffer.class) //
+			.add((_, m) -> Memory.string(m), MemorySegment.class) //
+			.add(Transform::typedPointer, PointerType.Indexable.class) //
+			.add(Transform::pointer, PointerType.class) //
+			.add(c -> Callback.toString(c), Callback.class) //
 			.build();
 	}
 
@@ -384,13 +394,14 @@ public class Caller<E extends Exception, T> {
 		return Transformer.builder() //
 			.iterables(Transformer.joiner(Joiner.ARRAY, sequenceSize)) //
 			.maps(Transformer.joiner(Joiner.LIST, sequenceSize), "=") //
-			.add(CharSequence.class, (_, c) -> Transform.chars(c, stringSize)) //
-			.add(Buffer.class, Transform::buffer) //
-			.add(MemorySegment.class, (_, m) -> Memory.string(m)) //
-			.add(PointerType.Indexable.class, Transform::typedPointer) //
-			.add(PointerType.class, Transform::pointer) //
-			.add(Callback.class, c -> Callback.toString(c)) //
-			.add(Group.class, Transform::group) //
+			.add(Transform::integer, Byte.class, Short.class, Integer.class, Long.class) //
+			.add((_, c) -> Transform.chars(c, stringSize), CharSequence.class) //
+			.add(Transform::buffer, Buffer.class) //
+			.add((_, m) -> Memory.string(m), MemorySegment.class) //
+			.add(Transform::typedPointer, PointerType.Indexable.class) //
+			.add(Transform::pointer, PointerType.class) //
+			.add(c -> Callback.toString(c), Callback.class) //
+			.add(Transform::group, Group.class) //
 			.build();
 	}
 }

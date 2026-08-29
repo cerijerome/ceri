@@ -92,17 +92,17 @@ public class TransformerBehavior {
 
 	@Test
 	public void shouldFormatTypes() {
-		assertTransform(b().format(Integer.class, "0x%x").build(), ints,
+		assertTransform(b().format("0x%x", Integer.class).build(), ints,
 			"[[0xffffffff, 0x1], null, [], [0x0]]");
-		assertTransform(b().formats(Integer.class, i -> i < 0 ? "%03d" : "%02d").build(), ints,
+		assertTransform(b().formats(i -> i < 0 ? "%03d" : "%02d", Integer.class).build(), ints,
 			"[[-01, 01], null, [], [00]]");
 	}
 
 	@Test
 	public void shouldAddTransforms() {
-		assertTransform(b().levels(2).add(Integer.class, (c, i) -> c.apply(i + 1)).build(), 1,
+		assertTransform(b().levels(2).add((c, i) -> c.apply(i + 1), Integer.class).build(), 1,
 			"..");
-		assertTransform(b().add(Integer.class, i -> i + 1).build(), ints,
+		assertTransform(b().add(i -> i + 1, Integer.class).build(), ints,
 			"[[0, 2], null, [], [1]]");
 	}
 

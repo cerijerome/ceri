@@ -32,26 +32,21 @@ public class CFcntlTest {
 
 	@Test
 	public void testOpenFlagDecode() {
-		Assert.unordered(CFcntl.Open.xcoder.decodeAll(0), CFcntl.Open.O_RDONLY);
-		Assert.unordered(CFcntl.Open.xcoder.decodeAll(1), CFcntl.Open.O_WRONLY);
-		Assert.unordered(CFcntl.Open.xcoder.decodeAll(2), CFcntl.Open.O_RDWR);
-		Assert.unordered(CFcntl.Open.xcoder.decodeAll(3), CFcntl.Open.O_WRONLY, CFcntl.Open.O_RDWR);
-	}
-
-	@Test
-	public void testOpenFlagValue() {
-		Assert.equal(CFcntl.Open.of(CFcntl.Open.O_RDONLY).value(), 0);
-		Assert.unordered(CFcntl.Open.of(CFcntl.Open.O_RDONLY).flags(), CFcntl.Open.O_RDONLY);
+		Assert.rem(CFcntl.Open.mask(0).flags(), 0L, CFcntl.Open.O_RDONLY);
+		Assert.rem(CFcntl.Open.mask(1).flags(), 0L, CFcntl.Open.O_WRONLY);
+		Assert.rem(CFcntl.Open.mask(2).flags(), 0L, CFcntl.Open.O_RDWR);
+		Assert.rem(CFcntl.Open.mask(3).flags(), 0L, CFcntl.Open.O_WRONLY, CFcntl.Open.O_RDWR);
+		Assert.equals(CFcntl.Open.mask().mask(), 0);
+		Assert.equals(CFcntl.Open.mask(CFcntl.Open.O_WRONLY, CFcntl.Open.O_RDWR).mask(), 3);
 	}
 
 	@Test
 	public void testModeMasks() {
-		Assert.unordered(CFcntl.Mode.of(0666).modes(), CFcntl.Mode.S_IWOTH, CFcntl.Mode.S_IROTH,
+		Assert.rem(CFcntl.Mode.mask(0666).flags(), 0L, CFcntl.Mode.S_IWOTH, CFcntl.Mode.S_IROTH,
 			CFcntl.Mode.S_IWGRP, CFcntl.Mode.S_IRGRP, CFcntl.Mode.S_IWUSR, CFcntl.Mode.S_IRUSR);
 		Assert.equal(
-			CFcntl.Mode.of(CFcntl.Mode.S_IRWXO, CFcntl.Mode.S_IRWXG, CFcntl.Mode.S_IRWXU).value(),
+			CFcntl.Mode.mask(CFcntl.Mode.S_IRWXO, CFcntl.Mode.S_IRWXG, CFcntl.Mode.S_IRWXU).mask(),
 			0777);
-		Assert.string(CFcntl.Mode.of(0456), "0456");
 	}
 
 	@Test
@@ -96,24 +91,10 @@ public class CFcntlTest {
 	}
 
 	@Test
-	public void testFcntlApplyFd() throws IOException {
-		initFile();
-		CFcntl.applyFd(fd, f -> f); // no change
-		CFcntl.applyFd(fd, f -> f | CFcntl.FD_CLOEXEC);
-	}
-
-	@Test
 	public void testFcntlFl() throws IOException {
 		initFile();
 		int flags = CFcntl.getFl(fd);
 		CFcntl.setFl(fd, flags);
-	}
-
-	@Test
-	public void testFcntlApplyFl() throws IOException {
-		initFile();
-		CFcntl.applyFl(fd, f -> f);
-		CFcntl.applyFl(fd, f -> f | CFcntl.Open.O_NONBLOCK.value);
 	}
 
 	@Test

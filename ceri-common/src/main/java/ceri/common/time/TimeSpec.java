@@ -158,17 +158,24 @@ public record TimeSpec(long seconds, long nanos) {
 	}
 
 	/**
-	 * Normalizes nanoseconds to be within 1 second, and adjusts seconds with the difference.
+	 * Normalizes nanoseconds to be within 1 second, adjusts seconds with the difference, and making
+	 * sure values are both non-negative or non-positive.
 	 */
 	public TimeSpec normalize() {
-		long sec = Math.floorDiv(nanos(), Dates.SEC_NANOS);
-		if (sec == 0) return this;
-		return new TimeSpec(Math.addExact(seconds, sec),
-			Math.floorMod(nanos(), Dates.SEC_NANOS));
+		long seconds = Math.addExact(seconds(), nanos() / Dates.SEC_NANOS);
+		long nanos = nanos() % Dates.SEC_NANOS;
+		if (seconds == 0L || nanos == 0L || (Long.signum(seconds) == Long.signum(nanos)))
+			return create(seconds, nanos);
+		if (seconds > 0L) return create(seconds - 1, Dates.SEC_NANOS + nanos);
+		return create(seconds + 1, nanos - Dates.SEC_NANOS);
 	}
 
 	@Override
 	public String toString() {
 		return seconds() + "s+" + nanos() + "ns";
+	}
+
+	private TimeSpec create(long seconds, long nanos) {
+		return (seconds == seconds() && nanos == nanos()) ? this : new TimeSpec(seconds, nanos);
 	}
 }
