@@ -32,6 +32,8 @@ import ceri.common.test.Testing;
 	// reflect
 	ceri.ffm.reflect.CAnnotationsTest.class, //
 	ceri.ffm.reflect.CSymbolGenBehavior.class, //
+	ceri.ffm.reflect.RefineBehavior.class, //
+	ceri.ffm.reflect.TypeNodeBehavior.class, //
 	// type
 	ceri.ffm.type.IntTypeBehavior.class, //
 	ceri.ffm.type.TerminatorBehavior.class, //

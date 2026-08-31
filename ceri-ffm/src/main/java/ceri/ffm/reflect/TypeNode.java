@@ -56,14 +56,6 @@ public class TypeNode {
 	}
 
 	/**
-	 * Returns the node with context replaced.
-	 */
-	public TypeNode with(Refine.Context context) {
-		if (context == null || context().equals(context)) return this;
-		return new TypeNode(node, context);
-	}
-
-	/**
 	 * Returns true if the generic type can be treated as void.
 	 */
 	public boolean isVoid() {

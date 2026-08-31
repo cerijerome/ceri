@@ -30,6 +30,8 @@ public class Refine {
 	public static final int NUL_MAX_DEF = 0x100;
 	public static final int UNSPECIFIED = -1;
 
+	private Refine() {}
+	
 	/**
 	 * Method marker to capture last error number.
 	 */
@@ -152,7 +154,7 @@ public class Refine {
 	/**
 	 * Provides contextual configuration for type declarations.
 	 */
-	public interface Context {
+	public sealed interface Context permits Annotated, Custom {
 		Context DEFAULT = new Custom(Map.of());
 
 		/**
@@ -165,9 +167,7 @@ public class Refine {
 		/**
 		 * Gets byte alignment, returning default if unspecified.
 		 */
-		default Long align(Long def) {
-			return def;
-		}
+		Long align(Long def);
 
 		/**
 		 * Gets byte order, returning native if unspecified.
@@ -179,9 +179,7 @@ public class Refine {
 		/**
 		 * Gets byte order, returning default if unspecified.
 		 */
-		default ByteOrder order(ByteOrder def) {
-			return def;
-		}
+		ByteOrder order(ByteOrder def);
 
 		/**
 		 * Gets nul-termination directive, returning false if unspecified.
@@ -193,9 +191,7 @@ public class Refine {
 		/**
 		 * Gets nul-termination directive, returning default if unspecified.
 		 */
-		default Boolean nul(Boolean def) {
-			return def;
-		}
+		Boolean nul(Boolean def);
 
 		/**
 		 * Gets constant directive, returning false if unspecified.
@@ -207,9 +203,7 @@ public class Refine {
 		/**
 		 * Gets constant directive, returning default if unspecified.
 		 */
-		default Boolean constant(Boolean def) {
-			return def;
-		}
+		Boolean constant(Boolean def);
 
 		/**
 		 * Gets unsigned directive, returning null if unspecified.
@@ -221,9 +215,7 @@ public class Refine {
 		/**
 		 * Gets unsigned directive, returning false if unspecified.
 		 */
-		default Boolean unsigned(Boolean def) {
-			return def;
-		}
+		Boolean unsigned(Boolean def);
 
 		/**
 		 * Gets size, returning zero if unspecified.
@@ -235,9 +227,7 @@ public class Refine {
 		/**
 		 * Gets size, returning default if unspecified.
 		 */
-		default Integer size(Integer def) {
-			return def;
-		}
+		Integer size(Integer def);
 
 		/**
 		 * Gets multi-array dimensions, returning none if unspecified.
@@ -249,9 +239,7 @@ public class Refine {
 		/**
 		 * Gets multi-array dimensions, returning default if unspecified.
 		 */
-		default Dimensions dims(Dimensions def) {
-			return def;
-		}
+		Dimensions dims(Dimensions def);
 
 		/**
 		 * Get fixed dimensions of given count, taking into account nul-termination.
@@ -271,9 +259,7 @@ public class Refine {
 		/**
 		 * Gets charset, returning default if unspecified.
 		 */
-		default Charset chars(Charset def) {
-			return def;
-		}
+		Charset chars(Charset def);
 
 		/**
 		 * Gets direction, returning duplex if unspecified.
@@ -285,9 +271,7 @@ public class Refine {
 		/**
 		 * Gets direction, returning default if unspecified.
 		 */
-		default Direction direction(Direction def) {
-			return def;
-		}
+		Direction direction(Direction def);
 	}
 
 	/**
@@ -390,7 +374,7 @@ public class Refine {
 	/**
 	 * Customizable refinements.
 	 */
-	private static class Custom implements Context {
+	private static final class Custom implements Context {
 		private final Map<Value, Object> values;
 
 		private Custom(Map<Value, Object> values) {
@@ -472,7 +456,7 @@ public class Refine {
 		/**
 		 * Override alignment.
 		 */
-		public Customizer align(long align) {
+		public Customizer align(Long align) {
 			return put(Value.align, align);
 		}
 
@@ -627,6 +611,7 @@ public class Refine {
 	 * Creates a new context using annotations.
 	 */
 	public static Annotated context(AnnotatedElement element) {
+		if (element == null) element = Annotations.NULL;
 		return new Annotated(element);
 	}
 
@@ -652,7 +637,7 @@ public class Refine {
 		element = Annotations.component(element);
 		boolean packed = Annotations.has(element, Packed.class);
 		Long align = Annotations.value(element, Align.class, Align::value);
-		if (packed && align != null)
+		if (packed && align != 1L)
 			throw Exceptions.illegalArg("Only one of @%s and @%s may be specified: %s",
 				Reflect.name(Align.class), Reflect.name(Packed.class), element);
 		if (packed) return 1L;
@@ -692,7 +677,7 @@ public class Refine {
 		if (anno == null) return def;
 		if (anno.value() > 0) return anno.value();
 		if (!Strings.isEmpty(anno.name())) return Native.Size.lookup(anno.name());
-		if (!anno.canon().name().isEmpty()) return Native.Size.lookup(anno.canon());
+		if (!Strings.isEmpty(anno.canon().name)) return Native.Size.lookup(anno.canon());
 		return def;
 	}
 
