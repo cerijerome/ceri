@@ -137,6 +137,13 @@ public class Layouts {
 	}
 
 	/**
+	 * Looks up a canonical layout by name. Returns null if not found.
+	 */
+	public static <L extends MemoryLayout> L canonical(String name) {
+		return Reflect.unchecked(Native.LINKER.canonicalLayouts().get(name));
+	}
+
+	/**
 	 * Returns the byte size of the layout, or 0 if null.
 	 */
 	public static long size(MemoryLayout layout) {

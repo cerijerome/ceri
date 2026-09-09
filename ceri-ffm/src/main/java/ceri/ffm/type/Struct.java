@@ -55,7 +55,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		 * Initializes struct members, with given flexible array size.
 		 */
 		public T init(T struct, int flexSize) {
-			if (struct == null) struct = val();
+			if (struct == null) struct = def();
 			for (var member : config.members())
 				member.init(struct, flexSize);
 			return struct;
@@ -66,10 +66,10 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		 */
 		public long size(T struct) {
 			if (struct == null) return 0L;
-			if (!config.flex()) return layoutSize();
-			var last = Lists.last(config.members());
-			int flexSize = RawArray.length(last.get(struct));
-			return Math.max(layoutSize(), last.flexScale(flexSize));
+			var flex = config.flexMember();
+			if (flex == null) return layoutSize();
+			int count = RawArray.length(flex.get(struct));
+			return Math.max(layoutSize(), flex.scale(count));
 		}
 
 		/**
@@ -200,7 +200,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 
 		@Override
 		T rawGet(MemorySegment memory, long offset, long length) {
-			var struct = val();
+			var struct = def();
 			rawRead(memory, offset, length, struct);
 			return struct;
 		}
@@ -218,9 +218,9 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 		}
 
 		private long flexSize(int flexSize) {
-			var last = Lists.last(config.members());
-			if (!last.flex()) return layoutSize();
-			return Math.max(layoutSize(), last.flexScale(flexSize));
+			var flex = config.flexMember();
+			if (flex == null) return layoutSize();
+			return Math.max(layoutSize(), flex.scale(flexSize));
 		}
 
 		private int[] indexes(String... names) {
@@ -252,8 +252,12 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 
 		@Override
 		StructLayout layout() {
-			if (!Group.flex(members)) addPadding(layouts, offset, align);
+			if (!flex()) addPadding(layouts, offset, align);
 			return Layouts.struct(layouts);
+		}
+		
+		private boolean flex() {
+			return !members.isEmpty() && Lists.last(members).flex();
 		}
 	}
 

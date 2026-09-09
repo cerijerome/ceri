@@ -63,7 +63,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 			/**
 			 * Returns an initialized array; empty if nul-termination is configured.
 			 */
-			public T val() {
+			public T def() {
 				return support().initArray(nul() ? 0 : count());
 			}
 
@@ -111,8 +111,8 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		}
 
 		@Override
-		public boolean immutable() {
-			return false;
+		public boolean mutable() {
+			return true;
 		}
 
 		@Override
@@ -123,11 +123,6 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		@Override
 		public Class<T> type() {
 			return type;
-		}
-
-		@Override
-		public T val() {
-			return config.val();
 		}
 
 		@Override
@@ -165,6 +160,11 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 			if (obj == this) return true;
 			return (obj instanceof OfArray d) && Objects.equals(config, d.config)
 				&& layout().byteAlignment() == d.layout().byteAlignment();
+		}
+
+		@Override
+		T def() {
+			return config.def();
 		}
 
 		@Override
@@ -256,13 +256,13 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		}
 
 		@Override
-		public Void val() {
+		Void def() {
 			return null;
 		}
 
 		@Override
 		Void rawGet(MemorySegment memory, long offset, long length) {
-			return val();
+			return def();
 		}
 
 		@Override
@@ -442,8 +442,8 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	/**
 	 * Returns true if the type is immutable.
 	 */
-	public boolean immutable() {
-		return true;
+	public boolean mutable() {
+		return false;
 	}
 
 	/**
@@ -510,26 +510,21 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	/**
 	 * Start building a route for this type.
 	 */
-	public Route.Builder route() {
+	public Route.Builder<T> route() {
 		return Route.builder(this);
 	}
 
 	/**
 	 * Creates a route from the pattern, starting at this type, and with unverified end point type.
 	 */
-	public <R extends PointerType.Indexable<R, ?, ?>> Route<R> route(String pattern) {
+	public <R extends PointerType.Indexable<R, ?, ?>> Route<T, R> route(String pattern) {
 		return route().parse(pattern).as();
 	}
 
 	/**
-	 * Returns a default value for the type. Sub-fields are not initialized.
+	 * Returns a default instance.
 	 */
-	public abstract T val();
-
-	/**
-	 * Initializes a default instance and any sub-fields.
-	 */
-	public T init() {
+	public T val() {
 		return init(null);
 	}
 
@@ -537,7 +532,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 * Initializes the given value and any sub-fields. Returns a default value if null.
 	 */
 	public T init(T value) {
-		return value != null ? value : val();
+		return value != null ? value : def();
 	}
 
 	/**
@@ -637,7 +632,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		if (Memory.isNull(memory)) return null;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = length(memory, offset, length);
-		return count(length) < 1 ? init() : rawGet(memory, offset, length);
+		return count(length) < 1 ? val() : rawGet(memory, offset, length);
 	}
 
 	/**
@@ -658,7 +653,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 * Updates the value or returns a new value from memory.
 	 */
 	public T update(MemorySegment memory, long offset, long length, T value) {
-		if (immutable() || value == null) return get(memory, offset, length);
+		if (!mutable() || value == null) return get(memory, offset, length);
 		read(memory, offset, length, value);
 		return value;
 	}
@@ -681,7 +676,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 * Updates the value from memory. Returns false if unable to read.
 	 */
 	public boolean read(MemorySegment memory, long offset, long length, T value) {
-		if (immutable() || memory == null || value == null) return false;
+		if (!mutable() || memory == null || value == null) return false;
 		offset = Maths.limit(offset, 0L, memory.byteSize());
 		length = length(memory, offset, length);
 		if (count(length) < 1) return false;
@@ -740,7 +735,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		int length = RawArray.length(array);
 		for (int i = 0; i < length; i++) {
 			var value = RawArray.get(array, i);
-			if (value == null) RawArray.set(array, i, init());
+			if (value == null) RawArray.set(array, i, val());
 		}
 		return array;
 	}
@@ -1134,6 +1129,14 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 
 	// overrides
 
+	/**
+	 * Returns a default value for the type. Sub-fields are not initialized.
+	 */
+	abstract T def();
+
+	/**
+	 * Returns true if this is equal to the given support.
+	 */
 	boolean equalTo(Support<?, ?, ?, ?> support) {
 		return type().equals(support.type()) && layout().equals(support.layout());
 	}
@@ -1179,7 +1182,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 * Copies memory to array without performing bound checks.
 	 */
 	void rawReadArray(MemorySegment memory, long offset, A array, int index, int count) {
-		if (immutable()) rawReadArrayImmutable(memory, offset, array, index, count);
+		if (!mutable()) rawReadArrayImmutable(memory, offset, array, index, count);
 		else for (int i = 0; i < count; i++) {
 			var value = RawArray.<T>get(array, index);
 			long length = length(memory, offset);
@@ -1197,7 +1200,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		int n = readArray(memory, offset, array, 0, false);
 		int count = RawArray.length(array);
 		for (int i = n; i < count; i++)
-			RawArray.set(array, i, init());
+			RawArray.set(array, i, val());
 		return n;
 	}
 
@@ -1217,7 +1220,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 */
 	void encode(Coder.Out encoder, T value) {
 		encoder.accept(encoder.in() ? (m, o, l) -> write(m, o, l, value) : null,
-			encoder.out() && !immutable() ? (m, o, l) -> read(m, o, l, value) : null, layoutSize());
+			encoder.out() && mutable() ? (m, o, l) -> read(m, o, l, value) : null, layoutSize());
 	}
 
 	/**
@@ -1257,7 +1260,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 */
 	T decodeNoVal(Coder.In decoder, long length) {
 		decoder.inc(length);
-		return val();
+		return def();
 	}
 
 	/**

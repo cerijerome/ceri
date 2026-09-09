@@ -95,6 +95,27 @@ public final class Call {
 	}
 
 	/**
+	 * Configuration only used for callbacks.
+	 */
+	private record Back(MethodType nativeType, MethodType localType, MethodHandle localHandle) {
+		private MethodHandle noOpHandle(Config config) {
+			return bind(NO_OP_CALLBACK, config, localType());
+		}
+
+		private MethodHandle downHandle(Down down) {
+			return bind(LOCAL_CALLBACK, down, localType());
+		}
+
+		private MethodHandle upHandle(Up up) {
+			return bind(NATIVE_CALLBACK, up, nativeType());
+		}
+
+		private Object invokeLocal(Object[] localArgs) throws Throwable {
+			return Handles.invokeRaw(localHandle(), localArgs);
+		}
+	}
+
+	/**
 	 * Call configuration.
 	 */
 	public static final class Config {
@@ -104,12 +125,10 @@ public final class Call {
 		private final boolean groupReturn;
 		private final int varArg; // -1 for non-vararg and root vararg config
 		private final boolean errNo;
-		private final MethodType localMethodType;
-		private final MethodHandle localHandle;
 		private final FunctionDescriptor nativeFuncDesc;
-		private final MethodType nativeMethodType;
 		private final MethodHandle nativeHandle;
 		private final Map<List<Class<?>>, Config> varArgConfigs; // only for vararg root config
+		private volatile Back back = null; // only for callbacks
 
 		private Config(Builder builder) {
 			method = builder.method;
@@ -118,10 +137,7 @@ public final class Call {
 			args = Immutable.wrap(builder.args);
 			varArg = builder.varArg;
 			errNo = builder.errNo;
-			localMethodType = localMethodType(); // local types
-			localHandle = Handles.method(method); // class + local types
 			nativeFuncDesc = nativeFuncDesc(); // -> up+down
-			nativeMethodType = nativeMethodType(); // -> up
 			nativeHandle = Native.LINKER.downcallHandle(nativeFuncDesc, options(varArg, errNo));
 			varArgConfigs = (args.size() < method.getParameterCount()) ? Maps.concurrent() : null;
 		}
@@ -179,22 +195,27 @@ public final class Call {
 
 		// support
 
+		private Back back() {
+			var back = this.back;
+			if (back == null) {
+				back = new Back(nativeMethodType(), localMethodType(), Handles.method(method));
+				this.back = back;
+			}
+			return back;
+		}
+
 		private Callback noOpCallback() {
-			var handle = NO_OP_CALLBACK.bindTo(this).asVarargsCollector(Object[].class)
-				.asType(localMethodType);
+			var handle = back().noOpHandle(this);
 			return Reflect.unchecked(Handles.proxy(method.getDeclaringClass(), handle));
 		}
 
 		private Callback callback(MemorySegment pointer) {
-			var downcall = down(pointer);
-			var downHandle = LOCAL_CALLBACK.bindTo(downcall).asVarargsCollector(Object[].class)
-				.asType(localMethodType);
+			var downHandle = back().downHandle(down(pointer));
 			return Reflect.unchecked(Handles.proxy(method.getDeclaringClass(), downHandle));
 		}
 
 		private MemorySegment pointer(Up upcall) {
-			var upHandle = NATIVE_CALLBACK.bindTo(upcall).asVarargsCollector(Object[].class)
-				.asType(nativeMethodType);
+			var upHandle = back().upHandle(upcall);
 			return Native.LINKER.upcallStub(upHandle, nativeFuncDesc, upcall.arena,
 				options(varArg, false));
 		}
@@ -203,7 +224,7 @@ public final class Call {
 			Object[] nativeArgs) {
 			try {
 				var localArgs = localArgs(callback, nativeArgs);
-				var localRtn = Handles.invokeRaw(localHandle, localArgs);
+				var localRtn = back().invokeLocal(localArgs);
 				return rtn.toNative(allocator, Reflect.unchecked(localRtn)).value();
 			} catch (Throwable t) {
 				logger.catching(t);
@@ -457,6 +478,10 @@ public final class Call {
 		return config.rtn.nativeDef();
 	}
 
+	private static MethodHandle bind(MethodHandle handle, Object bind, MethodType methodType) {
+		return handle.bindTo(bind).asVarargsCollector(Object[].class).asType(methodType);
+	}
+
 	private static void addArgs(Builder b, Method method) {
 		var params = method.getParameters();
 		int paramCount = params.length;
@@ -492,10 +517,6 @@ public final class Call {
 
 	private static Native.Adapter<?, ?> adapter(TypeNode node) {
 		var support = Supports.of().from(node);
-		return adapter(node, support);
-	}
-
-	private static Native.Adapter<?, ?> adapter(TypeNode node, Support<?, ?, ?, ?> support) {
 		if (support.isArray()) return byRef(node, support);
 		return switch (support.kind()) {
 			case PRIMITIVE, BOXED, MEMORY -> direct(node, support);

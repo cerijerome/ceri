@@ -212,8 +212,9 @@ public class TestCLibNative implements CLib.Native {
 	 * Arguments for poll and ppoll calls.
 	 */
 	public record Poll(CPoll.pollfd[] pollFds, TimeSpec timeout, SigSet.Mask sigmask) {
-		public static Route<Pointer.OfInt> FD = CPoll.pollfd.$.route("+.fd");
-		public static Route<Pointer.OfShort> EVENTS = CPoll.pollfd.$.route("+.events");
+		public static Route<CPoll.pollfd, Pointer.OfInt> FD = CPoll.pollfd.$.route("+.fd");
+		public static Route<CPoll.pollfd, Pointer.OfShort> EVENTS =
+			CPoll.pollfd.$.route("+.events");
 
 		/**
 		 * Creates an instance from poll arguments.

@@ -46,7 +46,7 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 
 		@Override
 		T rawGet(MemorySegment memory, long offset, long length) {
-			var union = val();
+			var union = def();
 			rawRead(memory, offset, length, union);
 			return union;
 		}
@@ -230,7 +230,7 @@ public class Union<T extends Union<T>> extends Group<T, UnionLayout> {
 		for (int i = 0; i < config.members().size(); i++) {
 			var member = config.member(i);
 			var current = member.get(this);
-			if (current == null || Objects.deepEquals(current, member.val())) continue;
+			if (current == null || Objects.deepEquals(current, member.def())) continue;
 			active(i);
 			return Reflect.unchecked(member);
 		}

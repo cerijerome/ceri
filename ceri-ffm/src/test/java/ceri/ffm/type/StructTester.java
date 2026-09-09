@@ -95,7 +95,7 @@ public class StructTester {
 		FfmTesting.title("New T1, alloc");
 		FfmTesting.bin(m);
 
-		t1 = T1.$.init();
+		t1 = T1.$.val();
 		m = T1.$.alloc(t1);
 		FfmTesting.title("Init T1, alloc");
 		FfmTesting.bin(m);

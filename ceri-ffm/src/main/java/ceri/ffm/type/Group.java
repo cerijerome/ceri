@@ -21,6 +21,7 @@ import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
+import ceri.common.io.Direction;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
@@ -30,8 +31,8 @@ import ceri.common.text.Text;
 import ceri.common.text.ToString;
 import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
-import ceri.ffm.core.Caller;
 import ceri.ffm.core.Layouts;
+import ceri.ffm.core.Formats;
 import ceri.ffm.reflect.TypeNode;
 
 /**
@@ -45,6 +46,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	/**
 	 * Group fields in order. All fields must be named in subclasses, not just the added fields.
+	 * This is required as class field order is undefined in the language specification.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
@@ -53,56 +55,24 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	}
 
 	/**
-	 * Provides actions for a group member.
-	 */
-	private record Actions<T>(Functions.Operator<T> init, Functions.ObjIntFunction<T, T> flexInit,
-		Memory.Updater<T> update, Memory.Sync<T> write) {
-
-		/**
-		 * Initializes a type instance with optional flex array size (structs).
-		 */
-		private T init(T t, int flexSize) {
-			if (flexInit() == null || flexSize < 0) return init().apply(t);
-			return flexInit().apply(t, flexSize);
-		}
-
-		/**
-		 * Updates a type instance from memory.
-		 */
-		private T update(MemorySegment memory, long offset, T t) {
-			if (t == null) t = init(null, -1);
-			return update().apply(memory, offset, t);
-		}
-
-		/**
-		 * Writes a type instance to memory.
-		 */
-		private void write(MemorySegment memory, long offset, T t) {
-			if (t == null) t = init(null, -1);
-			write().accept(memory, offset, t);
-		}
-	}
-
-	/**
 	 * Member configuration.
 	 */
-	public static class Member<T> {
+	public abstract static class Member<T> {
 		private final String name;
 		private final long offset;
 		private final MemoryLayout layout;
 		private final VarHandle accessor;
-		private final Support<?, ?, ?, ?> support;
-		private final Actions<T> actions;
-		private final boolean flex;
+		private final Support<?, ?, ?, ?> support; // for element if flex array
+		private final Direction direction;
 
 		static class Builder {
 			private final String name;
 			private final TypeNode node;
 			private final VarHandle accessor;
 			private Support<?, ?, ?, ?> support;
-			private Actions<?> actions;
-			private boolean flex = false;
-			MemoryLayout layout = null;
+			private Direction direction;
+			private Boolean flexNul;
+			MemoryLayout layout;
 
 			private Builder(Field field) {
 				this.name = field.getName();
@@ -111,11 +81,13 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			}
 
 			Member<?> build(long offset) {
-				return new Member<>(name, offset, layout, accessor, support, actions, flex);
+				return flexNul == null ?
+					new NonFlex<>(name, offset, layout, accessor, support, direction) :
+					new Flex<>(name, offset, layout, accessor, support, direction, flexNul);
 			}
 
-			private Builder flex(boolean flex) {
-				this.flex = flex;
+			private Builder flex(boolean nul) {
+				this.flexNul = nul;
 				return this;
 			}
 
@@ -129,23 +101,20 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 				return this;
 			}
 
-			private <T> Builder actions(Functions.Operator<T> init,
-				Functions.ObjIntFunction<T, T> flexInit, Memory.Updater<T> update,
-				Memory.Sync<T> write) {
-				actions = new Actions<>(init, flexInit, update, write);
+			private Builder direction(Direction direction) {
+				this.direction = direction;
 				return this;
 			}
 		}
 
 		private Member(String name, long offset, MemoryLayout layout, VarHandle accessor,
-			Support<?, ?, ?, ?> support, Actions<T> actions, boolean flex) {
+			Support<?, ?, ?, ?> support, Direction direction) {
 			this.name = name;
 			this.offset = offset;
 			this.layout = layout;
 			this.accessor = accessor;
 			this.support = support;
-			this.actions = actions;
-			this.flex = flex;
+			this.direction = direction;
 		}
 
 		/**
@@ -162,62 +131,194 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			return offset;
 		}
 
+		/**
+		 * Returns true if this member is a flex array.
+		 */
+		public abstract boolean flex();
+
 		@Override
 		public String toString() {
 			return String.format("0x%02x %s %s", offset(), desc(), Layouts.string(layout));
 		}
 
-		String desc() {
-			return support.typeDesc() + (flex ? "[]" : "") + ' ' + name();
-		}
+		/**
+		 * Returns a string descriptor of the type.
+		 */
+		abstract String desc();
 
+		/**
+		 * Returns a type pointer for the memory location. This is the element type for flex arrays.
+		 */
 		PointerType.Raw pointer(MemorySegment memory, long offset) {
 			return support.pointer(Memory.slice(memory, offset + offset()));
 		}
 
+		/**
+		 * Gets the member value from the group.
+		 */
 		T get(Group<?, ?> group) {
 			return Handles.get(accessor, group);
 		}
 
+		/**
+		 * Sets the member value in the group.
+		 */
 		void set(Group<?, ?> group, T value) {
 			Handles.set(accessor, group, value);
 		}
 
-		T val() {
-			return actions.init(null, INVALID);
+		/**
+		 * Returns a default member value.
+		 */
+		T def() {
+			return initValue(null, INVALID);
 		}
 
+		/**
+		 * Initialize the group member.
+		 */
 		void init(Group<?, ?> group) {
 			init(group, INVALID);
 		}
 
+		/**
+		 * Initialize the group member, with flex array size if applicable.
+		 */
 		void init(Group<?, ?> group, int flexSize) {
 			var current = get(group);
-			var updated = actions.init(current, flexSize);
+			var updated = initValue(current, flexSize);
 			if (current != updated) set(group, updated);
 		}
 
+		/**
+		 * Read the group member value from memory.
+		 */
 		void read(Group<?, ?> group, MemorySegment memory, long offset) {
+			if (!direction.in()) return;
 			var current = get(group);
-			var updated = actions.update(memory, offset + offset(), current);
+			var updated = updateValue(memory, offset + offset(), current);
 			if (updated != null && updated != current) set(group, updated);
 		}
 
+		/**
+		 * Write the group member value to memory.
+		 */
 		void write(Group<?, ?> group, MemorySegment memory, long offset) {
+			if (!direction.out()) return;
 			var current = get(group);
-			actions.write(memory, offset + offset(), current);
+			writeValue(memory, offset + offset(), current);
 		}
 
-		boolean flex() {
-			return flex;
+		/**
+		 * Returns the member type support. For flex arrays, this is the element type support.
+		 */
+		abstract Support<?, ?, ?, ?> support();
+
+		/**
+		 * Initializes the member value, with flex array size if appropriate.
+		 */
+		abstract T initValue(T value, int flexSize);
+
+		/**
+		 * Updates and returns the member value from memory.
+		 */
+		abstract T updateValue(MemorySegment memory, long offset, T value);
+
+		/**
+		 * Writes the member value to memory.
+		 */
+		abstract void writeValue(MemorySegment memory, long offset, T value);
+	}
+
+	public static class NonFlex<T> extends Member<T> {
+
+		private NonFlex(String name, long offset, MemoryLayout layout, VarHandle accessor,
+			Support<?, ?, ?, ?> support, Direction direction) {
+			super(name, offset, layout, accessor, support, direction);
 		}
 
-		long flexScale(int count) {
-			return ((SequenceLayout) layout).elementLayout().scale(offset(), count);
+		@Override
+		public boolean flex() {
+			return false;
 		}
 
-		Support<?, ?, ?, ?> support() {
-			return support;
+		@Override
+		String desc() {
+			return support().typeDesc() + ' ' + name();
+		}
+
+		@Override
+		Support<T, ?, ?, ?> support() {
+			return Reflect.unchecked(super.support);
+		}
+
+		@Override
+		T initValue(T value, int flexSize) {
+			return support().init(value);
+		}
+
+		@Override
+		T updateValue(MemorySegment memory, long offset, T value) {
+			return support().update(memory, offset, value);
+		}
+
+		@Override
+		void writeValue(MemorySegment memory, long offset, T value) {
+			support().write(memory, offset, value);
+		}
+	}
+
+	public static class Flex<T> extends Member<T> {
+		private final boolean nul;
+
+		private Flex(String name, long offset, MemoryLayout layout, VarHandle accessor,
+			Support<?, ?, ?, ?> support, Direction direction, Boolean nul) {
+			super(name, offset, layout, accessor, support, direction);
+			this.nul = nul;
+		}
+
+		@Override
+		public boolean flex() {
+			return true;
+		}
+
+		@Override
+		String desc() {
+			return support().typeDesc() + "[] " + name();
+		}
+
+		long scale(int count) {
+			return layout().elementLayout().scale(offset(), count);
+		}
+
+		@Override
+		Support<?, T, ?, ?> support() {
+			return Reflect.unchecked(super.support);
+		}
+
+		@Override
+		T initValue(T value, int flexSize) {
+			if (value == null || flexSize < 0) return support().initArray(value, initCount());
+			if (RawArray.length(value) != flexSize) return support().initArray(flexSize);
+			return support().initArray(value);
+		}
+
+		@Override
+		T updateValue(MemorySegment memory, long offset, T value) {
+			return support().updateArray(memory, offset, value, nul);
+		}
+
+		@Override
+		void writeValue(MemorySegment memory, long offset, T value) {
+			support().writeArray(memory, offset, value, 0, nul);
+		}
+
+		private int initCount() {
+			return (int) layout().elementCount();
+		}
+
+		private SequenceLayout layout() {
+			return Reflect.unchecked(super.layout);
 		}
 	}
 
@@ -266,10 +367,10 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 				verifyClassFields(type, classFields);
 			}
 
-			private Member.Builder populate(Member.Builder member, boolean flex) {
+			private Member.Builder populate(Member.Builder member, boolean allowFlex) {
 				if (!member.node.isArray()) return setMember(member);
 				var array = Handles.get(member.accessor, instance());
-				if (!flex) return setArrayMember(member, array);
+				if (!allowFlex) return setArrayMember(member, array);
 				int flexDims = flexDims(member.node, array);
 				if (flexDims == INVALID) return setArrayMember(member, array);
 				return setFlexMember(member, flexDims);
@@ -297,6 +398,13 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			return members;
 		}
 
+		/**
+		 * Returns true if the last member is a flex array.
+		 */
+		public boolean flex() {
+			return flexMember() != null;
+		}
+
 		Class<T> type() {
 			return type;
 		}
@@ -305,8 +413,9 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			return layout;
 		}
 
-		boolean flex() {
-			return Group.flex(members());
+		<R> Flex<R> flexMember() {
+			var last = Lists.last(members);
+			return (last == null || !last.flex()) ? null : Reflect.unchecked(last);
 		}
 
 		<R> Member<R> member(int index) {
@@ -334,19 +443,21 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			this.config = config;
 		}
 
+		/**
+		 * Returns true if the last member is a flex array.
+		 */
+		public boolean flex() {
+			return config.flex();
+		}
+
 		@Override
-		public boolean immutable() {
-			return false;
+		public boolean mutable() {
+			return true;
 		}
 
 		@Override
 		public Class<T> type() {
 			return config.type;
-		}
-
-		@Override
-		public T val() {
-			return config.constructor.get();
 		}
 
 		/**
@@ -364,6 +475,13 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		}
 
 		/**
+		 * Returns a typed group member pointer from the group pointer.
+		 */
+		public <P extends PointerType.Raw> P pointer(int index, Pointer<T> pointer) {
+			return pointer(index, PointerType.memory(pointer));
+		}
+
+		/**
 		 * Returns a typed group member pointer from the memory location of the group.
 		 */
 		public <P extends PointerType.Raw> P pointer(String name, MemorySegment memory) {
@@ -378,9 +496,16 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 			return Group.pointer(config.member(name), memory, offset);
 		}
 
+		/**
+		 * Returns a typed group member pointer from the group pointer.
+		 */
+		public <P extends PointerType.Raw> P pointer(String name, Pointer<T> pointer) {
+			return pointer(name, PointerType.memory(pointer));
+		}
+
 		@Override
 		public T init(T group) {
-			if (group == null) group = val();
+			if (group == null) group = def();
 			for (var member : config.members())
 				member.init(group);
 			return group;
@@ -390,6 +515,11 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		public final String toString() {
 			return ToString.ofName(Reflect.simple(type()), Layouts.string(layout()))
 				.childrens(config.members()).toString();
+		}
+
+		@Override
+		T def() {
+			return config.constructor.get();
 		}
 	}
 
@@ -419,7 +549,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	@Override
 	public String toString() {
-		return toString(Caller.Transform.FULL);
+		return toString(Formats.VERBOSE);
 	}
 
 	// shared
@@ -472,10 +602,6 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		return values;
 	}
 
-	static boolean flex(List<Member<?>> members) {
-		return !members.isEmpty() && Lists.last(members).flex;
-	}
-
 	static Supports supports() {
 		return Supports.fixed();
 	}
@@ -493,10 +619,8 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	private static <U> Member.Builder setMember(Support<U, ?, ?, ?> support,
 		Member.Builder member) {
-		var direction = member.node.context().direction();
-		return member.layout(support.layout()).support(support).<U>actions(support::init, null,
-			direction.in() ? support::update : Memory.Updater.ofNull(),
-			direction.out() ? support::write : Memory.Sync.ofNull());
+		var context = member.node.context();
+		return member.layout(support.layout()).direction(context.direction()).support(support);
 	}
 
 	private static Member.Builder setArrayMember(Member.Builder member, Object array) {
@@ -508,28 +632,16 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 
 	private static <A> Member.Builder setFlexMember(Member.Builder member, int size) {
 		Support<?, A, ?, ?> support = Reflect.unchecked(supports().from(member.node.component()));
-		var layout = MemoryLayout.sequenceLayout(size, support.layout());
 		var context = member.node.context();
-		var direction = context.direction();
-		var nul = context.nul();
-		return member.flex(true).layout(layout).support(support).<A>actions(
-			t -> support.initArray(t, size), (t, n) -> flexInit(support, t, n),
-			direction.in() ? (m, o, l, t) -> support.updateArray(m, o, l, t, nul) :
-				Memory.Updater.ofNull(),
-			direction.out() ?
-				(m, o, l, t) -> support.writeArray(m, o, l, t, 0, Integer.MAX_VALUE, nul) :
-				Memory.Sync.ofNull());
+		var layout = MemoryLayout.sequenceLayout(size, support.layout());
+		return member.layout(layout).direction(context.direction()).support(support)
+			.flex(context.nul());
 	}
 
 	private static int flexDims(TypeNode node, Object array) {
 		if (node.typed().array().dimensions() != 1) return INVALID;
 		int dims = (array != null) ? RawArray.length(array) : node.context().dims().dim(0);
 		return dims <= 1 ? dims : INVALID;
-	}
-
-	private static <A> A flexInit(Support<?, A, ?, ?> support, A array, int flexSize) {
-		if (array == null || RawArray.length(array) != flexSize) return support.initArray(flexSize);
-		return support.initArray(array);
 	}
 
 	private static Map<String, Integer> nameIndex(List<Member<?>> members) {

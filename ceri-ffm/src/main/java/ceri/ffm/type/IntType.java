@@ -193,11 +193,6 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 			return boxed == this.boxed ? this : new Supporter<>(config, boxed);
 		}
 
-		@Override
-		public T val() {
-			return of(boxed.val());
-		}
-
 		/**
 		 * Allocates memory and writes the value to the memory.
 		 */
@@ -283,6 +278,11 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 		public final int writeAll(MemorySegment memory, long offset, long length, boolean nul,
 			Number... array) {
 			return writeArray(memory, offset, length, ofAll(array), 0, Integer.MAX_VALUE, nul);
+		}
+
+		@Override
+		T def() {
+			return of(boxed.def());
 		}
 
 		@Override

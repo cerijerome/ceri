@@ -68,8 +68,8 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		}
 
 		@Override
-		public T val() {
-			return primitive.val();
+		T def() {
+			return primitive.def();
 		}
 
 		@Override
@@ -118,11 +118,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		public OfBool order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new OfBool(layout);
-		}
-
-		@Override
-		public Boolean val() {
-			return Boolean.FALSE;
 		}
 
 		/**
@@ -229,6 +224,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		}
 
 		@Override
+		Boolean def() {
+			return Boolean.FALSE;
+		}
+
+		@Override
 		Pointer.OfBool rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfBool(memory, this, constant);
 		}
@@ -304,11 +304,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		public OfChar order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new OfChar(layout);
-		}
-
-		@Override
-		public Character val() {
-			return VAL;
 		}
 
 		/**
@@ -428,6 +423,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		// overrides
 
 		@Override
+		Character def() {
+			return VAL;
+		}
+
+		@Override
 		Pointer.OfChar rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfChar(memory, this, constant);
 		}
@@ -498,11 +498,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		 */
 		public PointerType.Supporter<Pointer.OfByte> asPointer(boolean constant) {
 			return Pointer.OfByte.support(this, constant);
-		}
-
-		@Override
-		public Byte val() {
-			return VAL;
 		}
 
 		/**
@@ -642,6 +637,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		// overrides
 
 		@Override
+		Byte def() {
+			return VAL;
+		}
+
+		@Override
 		Pointer.OfByte rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfByte(memory, this, constant);
 		}
@@ -698,11 +698,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		public OfShort order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new OfShort(layout);
-		}
-
-		@Override
-		public Short val() {
-			return VAL;
 		}
 
 		/**
@@ -843,6 +838,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		// overrides
 
 		@Override
+		Short def() {
+			return VAL;
+		}
+
+		@Override
 		Pointer.OfShort rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfShort(memory, this, constant);
 		}
@@ -913,11 +913,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		 */
 		public PointerType.Supporter<Pointer.OfInt> asPointer(boolean constant) {
 			return Pointer.OfInt.support(this, constant);
-		}
-
-		@Override
-		public Integer val() {
-			return VAL;
 		}
 
 		/**
@@ -1029,6 +1024,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		// overrides
 
 		@Override
+		Integer def() {
+			return VAL;
+		}
+
+		@Override
 		Pointer.OfInt rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfInt(memory, this, constant);
 		}
@@ -1085,11 +1085,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		public OfLong order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new OfLong(layout);
-		}
-
-		@Override
-		public Long val() {
-			return VAL;
 		}
 
 		/**
@@ -1201,6 +1196,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		// overrides
 
 		@Override
+		Long def() {
+			return VAL;
+		}
+
+		@Override
 		Pointer.OfLong rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfLong(memory, this, constant);
 		}
@@ -1257,11 +1257,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		public OfFloat order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new OfFloat(layout);
-		}
-
-		@Override
-		public Float val() {
-			return VAL;
 		}
 
 		/**
@@ -1374,6 +1369,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		// overrides
 
 		@Override
+		Float def() {
+			return VAL;
+		}
+
+		@Override
 		Pointer.OfFloat rawPointer(MemorySegment memory, boolean constant) {
 			return new Pointer.OfFloat(memory, this, constant);
 		}
@@ -1430,11 +1430,6 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		public OfDouble order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new OfDouble(layout);
-		}
-
-		@Override
-		public Double val() {
-			return VAL;
 		}
 
 		/**
@@ -1545,6 +1540,11 @@ public abstract sealed class Primitive<T, A, P extends Pointer.Indexable<P, ?, A
 		}
 
 		// overrides
+
+		@Override
+		Double def() {
+			return VAL;
+		}
 
 		@Override
 		Pointer.OfDouble rawPointer(MemorySegment memory, boolean constant) {

@@ -111,14 +111,8 @@ public interface Callback extends Functions.Closeable {
 			return layout == layout() ? this : new Supporter<>(cls, layout);
 		}
 
-		@SuppressWarnings("resource")
-		@Override
-		public C val() {
-			return Reflect.unchecked(noOpCall().callback());
-		}
-
 		public C callback(MemorySegment pointer) {
-			if (Memory.isNull(pointer)) return val();
+			if (Memory.isNull(pointer)) return def();
 			return Callback.callback(cls, pointer);
 		}
 
@@ -131,6 +125,12 @@ public interface Callback extends Functions.Closeable {
 		@Override
 		public String typeDesc() {
 			return cls.getSimpleName() + "*";
+		}
+
+		@SuppressWarnings("resource")
+		@Override
+		C def() {
+			return Reflect.unchecked(noOpCall().callback());
 		}
 
 		@Override

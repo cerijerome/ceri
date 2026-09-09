@@ -28,7 +28,7 @@ import ceri.common.text.Text;
 import ceri.common.time.Dates;
 import ceri.common.util.Basics;
 import ceri.common.util.Os;
-import ceri.ffm.core.Caller;
+import ceri.ffm.core.Formats;
 import ceri.ffm.type.IntType;
 import ceri.ffm.type.Struct;
 import ceri.ffm.type.Supports;
@@ -266,7 +266,7 @@ public class CSymbolGen {
 
 		private String comment(Object value) {
 			if (value == null) return "";
-			return String.format(" /* " + Caller.Transform.COMPACT.apply(value) + " */");
+			return String.format(" /* " + Formats.compact(value) + " */");
 		}
 	}
 

@@ -38,7 +38,7 @@ public class UnionTester {
 		FfmTesting.out(U0.$);
 		FfmTesting.out(S0.$);
 
-		S1 s = S1.$.init();
+		S1 s = S1.$.val();
 		s.u0.l = 0xfedcba9876543210L;
 		FfmTesting.out(s);
 

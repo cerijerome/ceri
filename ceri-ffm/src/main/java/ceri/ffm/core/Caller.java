@@ -1,27 +1,15 @@
 package ceri.ffm.core;
 
-import java.lang.foreign.MemorySegment;
-import java.nio.Buffer;
-import ceri.common.array.RawArray;
-import ceri.common.collect.Maps;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.io.Buffers;
-import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.common.text.Transformer;
 import ceri.ffm.clib.ffm.CErrNo;
 import ceri.ffm.clib.ffm.CException;
-import ceri.ffm.type.BufferType;
-import ceri.ffm.type.Callback;
-import ceri.ffm.type.Group;
-import ceri.ffm.type.Memory;
-import ceri.ffm.type.PointerType;
 
 /**
  * Utility to call native methods and check status codes.
@@ -51,95 +39,18 @@ public class Caller<E extends Exception, T> {
 		 */
 		String accept(String name, Object... args);
 
-		default Object raw(Object obj) {
-			return new Raw(obj);
-		}
-
 		default Object fmt(String format, Object... args) {
-			return new Format(format, args);
-		}
-	}
-
-	/**
-	 * Wrapper to prevent application of transforms.
-	 */
-	private record Raw(Object obj) {
-		@Override
-		public String toString() {
-			return String.valueOf(obj);
+			return new Formatted(format, args);
 		}
 	}
 
 	/**
 	 * Formatting wrapper to prevent application of transforms.
 	 */
-	private record Format(String format, Object... args) {
+	private record Formatted(String format, Object... args) {
 		@Override
 		public String toString() {
 			return Strings.format(format, args);
-		}
-	}
-
-	/**
-	 * Transformation of arguments to strings.
-	 */
-	public static class Transform {
-		/** Compact transforms for a single line. */
-		public static Transformer COMPACT = compactTransformer(16, 5);
-		/** Longer transforms with multiple lines. */
-		public static Transformer FULL = fullTransformer();
-
-		private Transform() {}
-
-		/**
-		 * Shows integer in decimal, and hex if outside a simple decimal range.
-		 */
-		public static String integer(Number number) {
-			if (Maths.within(number.longValue(), -1, 9)) return String.valueOf(number);
-			return String.format("%1$d|0x%1$x", number);
-		}
-
-		/**
-		 * Shows escaped and quoted char sequences.
-		 */
-		public static String chars(CharSequence chars, int limit) {
-			if (limit < 0 || chars.length() <= limit) return "\"" + Chars.escape(chars) + "\"";
-			return "\"" + Chars.escape(chars.subSequence(0, Math.max(0, limit - 1))) + "..\"";
-		}
-
-		/**
-		 * Shows struct and union member values as a map.
-		 */
-		public static String group(Transformer.Context context, Group<?, ?> group) {
-			var map = Maps.<Raw, Object>link();
-			Group.forEachMember(group, (m, t) -> map.put(new Raw(m.name()), t));
-			return context.apply(map);
-		}
-
-		/**
-		 * Shows typed pointer memory location and type instance.
-		 */
-		public static String typedPointer(Transformer.Context context,
-			PointerType.Indexable<?, ?, ?> pointer) {
-			var array = pointer.getArray(1, false);
-			return context.apply(pointer.memory())
-				+ (RawArray.isEmpty(array) ? "" : context.apply(array));
-		}
-
-		/**
-		 * Shows untyped pointer memory location.
-		 */
-		public static String pointer(Transformer.Context context, PointerType pointer) {
-			return context.apply(pointer.memory());
-		}
-
-		/**
-		 * Shows buffer content array.
-		 */
-		public static String buffer(Transformer.Context context, Buffer buffer) {
-			var buffers = BufferType.from(buffer).buffers();
-			var array = Buffers.apply(buffer, buffers::get);
-			return context.apply(array);
 		}
 	}
 
@@ -213,7 +124,7 @@ public class Caller<E extends Exception, T> {
 	 */
 	public static <E extends Exception, T> Caller<E, T> of(ToException<E> exceptionFn,
 		int generalErrorCode, Functions.Supplier<T> lib) {
-		return of(Transform.COMPACT, exceptionFn, generalErrorCode, lib);
+		return of(Formats.COMPACT, exceptionFn, generalErrorCode, lib);
 	}
 
 	/**
@@ -376,32 +287,5 @@ public class Caller<E extends Exception, T> {
 	private String failMessage(String name, Object... args) {
 		args = Reflect.flattenVarArgs(args);
 		return name + Joiner.PARAM.joinAll(transformer, args) + " failed";
-	}
-
-	private static Transformer fullTransformer() {
-		return Transformer.builder() //
-			.add(Transform::integer, Byte.class, Short.class, Integer.class, Long.class) //
-			.add((_, c) -> Transform.chars(c, -1), CharSequence.class) //
-			.add(Transform::buffer, Buffer.class) //
-			.add((_, m) -> Memory.string(m), MemorySegment.class) //
-			.add(Transform::typedPointer, PointerType.Indexable.class) //
-			.add(Transform::pointer, PointerType.class) //
-			.add(c -> Callback.toString(c), Callback.class) //
-			.build();
-	}
-
-	private static Transformer compactTransformer(int stringSize, int sequenceSize) {
-		return Transformer.builder() //
-			.iterables(Transformer.joiner(Joiner.ARRAY, sequenceSize)) //
-			.maps(Transformer.joiner(Joiner.LIST, sequenceSize), "=") //
-			.add(Transform::integer, Byte.class, Short.class, Integer.class, Long.class) //
-			.add((_, c) -> Transform.chars(c, stringSize), CharSequence.class) //
-			.add(Transform::buffer, Buffer.class) //
-			.add((_, m) -> Memory.string(m), MemorySegment.class) //
-			.add(Transform::typedPointer, PointerType.Indexable.class) //
-			.add(Transform::pointer, PointerType.class) //
-			.add(c -> Callback.toString(c), Callback.class) //
-			.add(Transform::group, Group.class) //
-			.build();
 	}
 }

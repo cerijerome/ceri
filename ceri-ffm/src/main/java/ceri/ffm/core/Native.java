@@ -26,7 +26,7 @@ public class Native {
 	private Native() {}
 
 	/**
-	 * Supported types.
+	 * Supported types (12 + arrays).
 	 */
 	public enum Kind {
 		/** No type. */
@@ -41,17 +41,17 @@ public class Native {
 		STRUCT,
 		/** Union types. */
 		UNION,
-		/** Minimally-processed memory segments. */
+		/** Direct memory segments. */
 		MEMORY,
-		/** Generic type, wrapped memory segments. */
+		/** Wrapped memory segments of supported generic types. */
 		POINTER,
-		/** Primitive type, wrapped memory segments. */
+		/** Wrapped memory segments of primitive types. */
 		PRIMITIVE_POINTER,
 		/** Opaque wrapped memory segments. */
 		POINTER_TYPE,
 		/** Function pointers. */
 		CALLBACK,
-		/** String type. */
+		/** Strings. */
 		STRING,
 		/** Primitive buffer types. */
 		BUFFER;

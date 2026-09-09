@@ -170,11 +170,6 @@ public class Memory {
 		}
 
 		@Override
-		public MemorySegment val() {
-			return MemorySegment.NULL;
-		}
-
-		@Override
 		public Supporter align(long align) {
 			var layout = Layouts.align(layout(), align);
 			return layout == layout() ? this : new Supporter(layout);
@@ -184,6 +179,11 @@ public class Memory {
 		public Supporter order(ByteOrder order) {
 			var layout = Layouts.order(layout(), order);
 			return layout == layout() ? this : new Supporter(layout);
+		}
+
+		@Override
+		MemorySegment def() {
+			return MemorySegment.NULL;
 		}
 
 		@Override

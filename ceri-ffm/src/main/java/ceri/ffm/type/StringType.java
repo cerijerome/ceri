@@ -117,11 +117,6 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		@Override
-		public String val() {
-			return "";
-		}
-
-		@Override
 		public Supporter align(long align) {
 			return create(string.align(align), align);
 		}
@@ -144,6 +139,11 @@ public class StringType implements Layouts.Provider<ValueLayout> {
 		}
 
 		// shared
+
+		@Override
+		String def() {
+			return "";
+		}
 
 		@Override
 		String rawGet(MemorySegment memory, long offset, long length) {

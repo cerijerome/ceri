@@ -40,7 +40,7 @@ public class CPoll {
 		/** Operational support for the type. */
 		public static final Supporter<pollfd> $ = support(pollfd.class);
 		/** Access to the field with open array index. */
-		public static final Route<Pointer.OfShort> REVENTS = $.route("+.revents");
+		public static final Route<pollfd, Pointer.OfShort> REVENTS = $.route("+.revents");
 		/** File descriptor to be polled. */
 		public @Out int fd;
 		/** Events of interest. */

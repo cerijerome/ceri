@@ -91,11 +91,6 @@ public abstract class PointerType {
 		}
 
 		@Override
-		public P val() {
-			return of(MemorySegment.NULL);
-		}
-
-		@Override
 		public Supporter<P> align(long align) {
 			var layout = Layouts.align(layout(), align);
 			return layout == layout() ? this : new Supporter<>(config, layout);
@@ -122,6 +117,11 @@ public abstract class PointerType {
 			if (obj == this) return true;
 			return (obj instanceof Supporter<?> s) && equalTo(s) && isConst() == s.isConst()
 				&& Objects.equals(support(), s.support());
+		}
+
+		@Override
+		P def() {
+			return of(MemorySegment.NULL);
 		}
 
 		@Override

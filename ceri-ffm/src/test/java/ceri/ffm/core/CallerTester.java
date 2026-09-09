@@ -43,8 +43,8 @@ public class CallerTester {
 			Primitive.BOOL.allocAll(true, false, true), //
 			Pointer.of(Pointer.ofByte(-1)), //
 		};
-		print(Caller.Transform.FULL, values);
-		print(Caller.Transform.COMPACT, values);
+		print(Formats.VERBOSE, values);
+		print(Formats.COMPACT, values);
 	}
 
 	private static void print(Transformer transformer, Object[] values) {

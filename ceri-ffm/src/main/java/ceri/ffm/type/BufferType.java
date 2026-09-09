@@ -131,18 +131,13 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		public boolean immutable() {
-			return false;
+		public boolean mutable() {
+			return true;
 		}
 
 		@Override
 		public boolean partial() {
 			return true;
-		}
-
-		@Override
-		public B val() {
-			return buffer.nullVal();
 		}
 
 		@Override
@@ -174,6 +169,11 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		// shared
+
+		@Override
+		B def() {
+			return buffer.nullVal();
+		}
 
 		@Override
 		B rawGet(MemorySegment memory, long offset, long length) {

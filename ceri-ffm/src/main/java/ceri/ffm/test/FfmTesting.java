@@ -19,9 +19,9 @@ import ceri.common.test.BinaryPrinter;
 import ceri.common.test.Testing;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
-import ceri.ffm.core.Caller;
 import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Library;
+import ceri.ffm.core.Formats;
 import ceri.ffm.type.Memory;
 import ceri.ffm.type.PointerType;
 import ceri.ffm.type.Primitive;
@@ -344,7 +344,7 @@ public class FfmTesting {
 	 * Prints the object as an argument.
 	 */
 	public static void arg(Object arg) {
-		P.message(Caller.Transform.COMPACT.apply(arg));
+		P.message(Formats.compact(arg));
 	}
 
 	/**

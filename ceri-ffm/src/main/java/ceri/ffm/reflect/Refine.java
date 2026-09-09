@@ -637,7 +637,7 @@ public class Refine {
 		element = Annotations.component(element);
 		boolean packed = Annotations.has(element, Packed.class);
 		Long align = Annotations.value(element, Align.class, Align::value);
-		if (packed && align != 1L)
+		if (packed && (align != null && align != 1L))
 			throw Exceptions.illegalArg("Only one of @%s and @%s may be specified: %s",
 				Reflect.name(Align.class), Reflect.name(Packed.class), element);
 		if (packed) return 1L;

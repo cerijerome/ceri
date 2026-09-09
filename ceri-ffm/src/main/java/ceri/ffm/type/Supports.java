@@ -127,6 +127,7 @@ public class Supports {
 		if (cls == null) return nullCls(node, context);
 		var support = cache.get(cls);
 		if (support != null) return refine(support, context);
+		// only pointer, string, buffer remain
 		if (cls == Pointer.class) return pointer(node);
 		if (cls == String.class) return string(node, context);
 		return buffer(node, Reflect.unchecked(cls), context);
@@ -209,10 +210,8 @@ public class Supports {
 			Primitive.FLOAT, Primitive.DOUBLE, Primitive.Box.BOOL, Primitive.Box.CHAR,
 			Primitive.Box.BYTE, Primitive.Box.SHORT, Primitive.Box.INT, Primitive.Box.LONG,
 			Primitive.Box.FLOAT, Primitive.Box.DOUBLE, Memory.$, PointerType.Raw.$,
-			Pointer.OfVoid.$,
-			// Pointer.OfBool.$, Pointer.OfChar.$,
-			Pointer.OfByte.$, // Pointer.OfShort.$,
-			Pointer.OfInt.$ // Pointer.OfLong.$, Pointer.OfFloat.$, Pointer.OfDouble.$
-		);
+			Pointer.OfVoid.$, Pointer.OfBool.$, Pointer.OfChar.$, Pointer.OfByte.$,
+			Pointer.OfShort.$, Pointer.OfInt.$, Pointer.OfLong.$, Pointer.OfFloat.$,
+			Pointer.OfDouble.$);
 	}
 }
