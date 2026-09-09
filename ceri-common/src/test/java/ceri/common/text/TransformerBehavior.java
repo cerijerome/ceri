@@ -91,6 +91,14 @@ public class TransformerBehavior {
 	}
 
 	@Test
+	public void shouldIgnoreRawValues() {
+		var t = Transformer.builder().format("'%s'", Object.class).build();
+		assertTransform(t, "test", "'test'");
+		assertTransform(t, Transformer.raw(null), "null");
+		assertTransform(t, Transformer.raw("test"), "test");
+	}
+
+	@Test
 	public void shouldFormatTypes() {
 		assertTransform(b().format("0x%x", Integer.class).build(), ints,
 			"[[0xffffffff, 0x1], null, [], [0x0]]");

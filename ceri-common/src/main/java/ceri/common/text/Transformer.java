@@ -28,6 +28,11 @@ public class Transformer implements Functions.Function<Object, String> {
 	private final int levels;
 
 	/**
+	 * Wrapper to prevent application of transforms.
+	 */
+	private record Raw(Object obj) {}
+
+	/**
 	 * A transforming context that keeps track of state.
 	 */
 	public interface Context extends Functions.Function<Object, String> {
@@ -279,6 +284,13 @@ public class Transformer implements Functions.Function<Object, String> {
 	}
 
 	/**
+	 * Wraps an object to prevent formatting.
+	 */
+	public static Object raw(Object obj) {
+		return new Raw(obj);
+	}
+
+	/**
 	 * Returns a new builder.
 	 */
 	public static Builder builder() {
@@ -310,6 +322,7 @@ public class Transformer implements Functions.Function<Object, String> {
 
 	private Object transform(Context context, Object arg) {
 		if (arg == null) return nullSupplier.get();
+		if (arg instanceof Raw raw) return String.valueOf(raw.obj()); 
 		for (var transform : transforms) {
 			var result = transform.apply(context, arg);
 			if (result != null) return result;
