@@ -4,7 +4,7 @@ import static ceri.common.text.AnsiEscape.csi;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import ceri.common.stream.Stream;
 import ceri.common.text.AnsiEscape.Sgr;
 import ceri.common.time.TimeSupplier;
 
@@ -391,7 +391,7 @@ public class ColorTubes {
 	 * Create tube values with given colors int rows starting at the top.
 	 */
 	private static int[] lines(String... lines) {
-		int[] tubes = new int[Stream.of(lines).mapToInt(String::length).max().orElse(0)];
+		int[] tubes = new int[Stream.of(lines).mapToInt(String::length).max(0)];
 		for (int r = 0; r < lines.length; r++) {
 			for (int c = 0; c < tubes.length; c++) {
 				var color = Color.map.get(lines[r].charAt(c));

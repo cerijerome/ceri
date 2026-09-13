@@ -9,12 +9,11 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.stream.IntStream;
-import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
 
 public class StringBuildersTest {
 	private static final String nullString = null;
-	private static final IntStream<RuntimeException> nullIntStream = null;
+	private static final IntStream.Rt nullIntStream = null;
 	private static final PrimitiveIterator.OfInt nullIntIterator = null;
 	private static final int _1B = 'A';
 	private static final int _2B = 0xa9; // copyright: UTF16=00a9, UTF8=c2+a9
@@ -79,17 +78,17 @@ public class StringBuildersTest {
 
 	@Test
 	public void testAppendCodePointStream() {
-		Assert.equal(StringBuilders.append(null, Streams.ints(0)), null);
+		Assert.equal(StringBuilders.append(null, IntStream.of(0)), null);
 		Assert.string(StringBuilders.append(b(), nullIntStream), "");
-		Assert.string(StringBuilders.append(b(), Streams.ints(0, _1B, _2B, _3B, _4B)),
+		Assert.string(StringBuilders.append(b(), IntStream.of(0, _1B, _2B, _3B, _4B)),
 			"\0A\u00a9\u2103\ud835\udc00");
 	}
 
 	@Test
 	public void testAppendCodePointIterator() {
-		Assert.equal(StringBuilders.append(null, Streams.ints(0).iterator()), null);
+		Assert.equal(StringBuilders.append(null, IntStream.of(0).iterator()), null);
 		Assert.string(StringBuilders.append(b(), nullIntIterator), "");
-		Assert.string(StringBuilders.append(b(), Streams.ints(0, _1B, _2B, _3B, _4B).iterator()),
+		Assert.string(StringBuilders.append(b(), IntStream.of(0, _1B, _2B, _3B, _4B).iterator()),
 			"\0A\u00a9\u2103\ud835\udc00");
 	}
 

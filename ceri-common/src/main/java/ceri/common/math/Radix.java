@@ -7,7 +7,7 @@ import ceri.common.collect.Enums;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 import ceri.common.util.Validate;
 
@@ -36,7 +36,7 @@ public enum Radix {
 	 */
 	public record Prefix(Radix radix, String prefix) {
 		public static final Prefix NULL = new Prefix(Radix.NULL, "");
-		private static final int MAX = Streams.from(MAP.keySet()).mapToInt(String::length).max(0);
+		private static final int MAX = Stream.from(MAP.keySet()).mapToInt(String::length).max(0);
 
 		/**
 		 * Tries to find radix prefix at start of string. Must have at least one char after the

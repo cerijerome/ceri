@@ -17,7 +17,7 @@ import ceri.common.collect.Sets;
 import ceri.common.except.Exceptions;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.ffm.util.FfmOs;
 
 /**
@@ -116,7 +116,7 @@ public class CAnnotations {
 			 * Returns the set of combined target and support classes.
 			 */
 			public Set<Class<?>> classes() {
-				return Streams.of(target, reload).flatMap(Streams::of).toSet();
+				return Stream.ofAll(target, reload).flatMap(Stream::of).toSet();
 			}
 
 			/**

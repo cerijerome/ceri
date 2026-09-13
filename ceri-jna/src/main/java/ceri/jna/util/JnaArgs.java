@@ -15,7 +15,7 @@ import ceri.common.collect.Iterators;
 import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
@@ -91,8 +91,7 @@ public class JnaArgs {
 	 * Memory to compact string.
 	 */
 	public static String string(PointerType p) {
-		return String.format("%s(%s)", Reflect.nestedName(p.getClass()),
-			string(p.getPointer()));
+		return String.format("%s(%s)", Reflect.nestedName(p.getClass()), string(p.getPointer()));
 	}
 
 	/**
@@ -107,8 +106,8 @@ public class JnaArgs {
 	 * Byte buffer to compact string.
 	 */
 	public static String string(ByteBuffer b) {
-		return String.format("%s(p=%d,l=%d,c=%d)", Reflect.nestedName(b.getClass()),
-			b.position(), b.limit(), b.capacity());
+		return String.format("%s(p=%d,l=%d,c=%d)", Reflect.nestedName(b.getClass()), b.position(),
+			b.limit(), b.capacity());
 	}
 
 	/**
@@ -216,7 +215,7 @@ public class JnaArgs {
 	}
 
 	private String iterableString(Iterable<?> iterable) {
-		return arrayString(Streams.from(iterable).toArray());
+		return arrayString(Stream.from(iterable).toArray());
 	}
 
 	private String arrayString(Object array) {

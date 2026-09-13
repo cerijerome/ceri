@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -24,6 +23,7 @@ import ceri.common.io.Paths;
 import ceri.common.io.Resource;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.Stream;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.common.text.Text;
@@ -31,9 +31,9 @@ import ceri.common.time.Dates;
 import ceri.common.util.Basics;
 import ceri.common.util.Os;
 import ceri.jna.type.IntType;
+import ceri.jna.util.Jna;
 import ceri.jna.util.JnaArgs;
 import ceri.jna.util.JnaOs;
-import ceri.jna.util.Jna;
 
 /**
  * Generates c code to compile and run on a target system, in order to print symbol values and

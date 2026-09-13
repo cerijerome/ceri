@@ -7,7 +7,7 @@ import ceri.common.array.Array;
 import ceri.common.data.Field;
 import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.util.Validate;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -127,10 +127,11 @@ public class I2cDev {
 			Set.of(I2C_FUNC_SMBUS_READ_BLOCK_DATA, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
 		public static final Set<i2c_func> I2C_FUNC_SMBUS_I2C_BLOCK =
 			Set.of(I2C_FUNC_SMBUS_READ_I2C_BLOCK, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
-		public static final Set<i2c_func> I2C_FUNC_SMBUS_EMUL =
-			Streams.of(Set.of(I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_PROC_CALL, I2C_FUNC_SMBUS_PEC),
+		public static final Set<i2c_func> I2C_FUNC_SMBUS_EMUL = Stream
+			.ofAll(Set.of(I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_PROC_CALL, I2C_FUNC_SMBUS_PEC),
 				I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA, I2C_FUNC_SMBUS_WORD_DATA,
-				I2C_FUNC_SMBUS_BLOCK_DATA, I2C_FUNC_SMBUS_I2C_BLOCK).expand(t -> t).toSet();
+				I2C_FUNC_SMBUS_BLOCK_DATA, I2C_FUNC_SMBUS_I2C_BLOCK)
+			.expand(t -> t).toSet();
 		public final int value;
 
 		public static final Xcoder.Types<i2c_func> xcoder = Xcoder.types(i2c_func.class);

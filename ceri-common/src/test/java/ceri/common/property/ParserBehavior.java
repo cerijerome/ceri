@@ -7,15 +7,15 @@ import ceri.common.collect.Sets;
 import ceri.common.data.Bytes;
 import ceri.common.function.Excepts;
 import ceri.common.log.Level;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class ParserBehavior {
 	private static final Excepts.Function<RuntimeException, Integer, List<Integer>> BIT_LIST =
-		i -> Streams.ints(Bytes.bits(i)).boxed().toList();
+		i -> IntStream.of(Bytes.bits(i)).boxed().toList();
 	private static final Excepts.Function<RuntimeException, Integer, Integer[]> BIT_ARRAY =
-		i -> Streams.ints(Bytes.bits(i)).boxed().toArray(Integer.class);
+		i -> IntStream.of(Bytes.bits(i)).boxed().toArray(Integer.class);
 
 	@Test
 	public void shouldAllowNullValue() {

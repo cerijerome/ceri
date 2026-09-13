@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.Map;
 import ceri.common.array.Array;
 import ceri.common.collect.Maps;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 
 /**
  * Utility for creating text frames in monospace fonts. Characters signify vertical, horizontal,
@@ -224,6 +224,6 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 	}
 
 	private static int maxLen(String... strings) {
-		return Streams.of(strings).mapToInt(String::length).max(0);
+		return Stream.of(strings).mapToInt(String::length).max(0);
 	}
 }

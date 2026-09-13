@@ -13,10 +13,11 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.LongStream;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
-import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Formats;
+import ceri.ffm.core.Layouts;
 import ceri.ffm.reflect.Refine.Out;
 import ceri.ffm.reflect.Refine.Size;
 import ceri.ffm.type.Group.Fields;
@@ -57,25 +58,33 @@ public final class Route<T, P extends PointerType.Indexable<P, ?, ?>> {
 	public static void main(String[] args) {
 		var pa = A.$.pointerOfArray(3);
 		var a = A.$.initArray(3);
+		var times = Lists.<Long>of();
 		// System.out.println(Caller.Transform.FULL.apply(a));
-		for (int i = 0; i < a.length; i++) {
-			A.B_I.pointer(pa, i).write(i + 1);
-			for (int j = 0; j < 3; j++) {
-				for (int k = 0; k < 4; k++) {
-					A.BB_II.pointer(pa, i, j, k).write(i * 100 + j * 10 + k);
+		for (int r = 0; r < 50; r++) {
+			for (int i = 0; i < a.length; i++) {
+				A.B_I.pointer(pa, i).write(i + 1);
+				for (int j = 0; j < 3; j++) {
+					for (int k = 0; k < 4; k++) {
+						A.BB_II.pointer(pa, i, j, k).write(i * 100 + j * 10 + k);
+					}
 				}
 			}
-		}
-		for (int i = 0; i < a.length; i++) {
-			A.B_I.sync(a, pa, i).read();
-			for (int j = 0; j < 3; j++) {
-				for (int k = 0; k < 4; k++) {
-					A.BB_II.sync(a, pa, i, j, k).read();
+			var t0 = System.nanoTime();
+			for (int i = 0; i < a.length; i++) {
+				A.B_I.sync(a, pa, i).read();
+				for (int j = 0; j < 3; j++) {
+					for (int k = 0; k < 4; k++) {
+						A.BB_II.sync(a, pa, i, j, k).read();
+					}
 				}
 			}
+			var t1 = System.nanoTime();
+			times.add(t1 - t0);
+			if (r < 5) times.clear();
+			// System.out.println(Formats.verbose(a));
 		}
-		System.out.println(Formats.verbose(a));
-		A.BB_II.sync(a, pa, 1, 3, 0).read();
+		times.forEach(t -> System.out.println((t + 500) / 1000 + "us"));
+		System.out.println(((long) LongStream.from(times).average() / 1000) + "us average");
 	}
 
 	/**

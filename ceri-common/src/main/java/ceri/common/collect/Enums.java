@@ -14,7 +14,6 @@ import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 
 /**
@@ -204,14 +203,14 @@ public class Enums {
 	 */
 	public static <E extends Exception, T> T find(Class<T> cls,
 		Excepts.Predicate<? extends E, ? super T> filter, T def) throws E {
-		return Stream.<E, T>from(of(cls)).filter(filter).next(def);
+		return stream(cls).filterEx(filter).next(def);
 	}
 
 	/**
 	 * Returns a stream of enum types in natural order.
 	 */
-	public static <T extends Enum<T>> Stream<RuntimeException, T> stream(Class<T> cls) {
-		return Streams.from(of(cls));
+	public static <T> Stream.Rt<T> stream(Class<T> cls) {
+		return Stream.from(of(cls));
 	}
 
 	/**
@@ -254,7 +253,7 @@ public class Enums {
 	}
 
 	private static Integer prefixLen(List<? extends Enum<?>> enums) {
-		int min = Streams.from(enums).mapToInt(e -> e.name().length()).min(0);
+		int min = Stream.from(enums).mapToInt(e -> e.name().length()).min(0);
 		int i = commonPrefixLen(min, enums);
 		if (i == min) i--;
 		var name = enums.get(0).name();

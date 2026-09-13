@@ -10,8 +10,8 @@ import java.util.Set;
 import ceri.common.array.Array;
 import ceri.common.collect.Sets;
 import ceri.common.function.Excepts;
+import ceri.common.stream.Stream;
 import ceri.common.stream.Collect;
-import ceri.common.stream.Streams;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
@@ -184,7 +184,7 @@ public class TypedProperties {
 	 * Returns all the integer ids that are children of the given key, as an immutable sorted set.
 	 */
 	public Set<Integer> childIds(String... keyParts) {
-		return Streams.from(children(keyParts)).filter(BY_ID).map(Integer::parseInt)
+		return Stream.from(children(keyParts)).filter(BY_ID).map(Integer::parseInt)
 			.collect(Collect.set(Sets::tree));
 	}
 

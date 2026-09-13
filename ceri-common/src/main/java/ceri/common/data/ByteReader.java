@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import ceri.common.array.Array;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
-import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
 
 /**
@@ -334,7 +333,7 @@ public interface ByteReader {
 	/**
 	 * Provides unsigned bytes as a stream, starting at offset, for given length.
 	 */
-	default IntStream<RuntimeException> ustream(int length) {
-		return Streams.slice(0, length).map(_ -> readUbyte());
+	default IntStream.Rt ustream(int length) {
+		return IntStream.slice(0, length).map(_ -> readUbyte());
 	}
 }

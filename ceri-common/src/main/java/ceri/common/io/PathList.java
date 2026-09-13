@@ -1,6 +1,8 @@
 package ceri.common.io;
 
 import java.io.IOException;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -13,7 +15,6 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functional;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 
 /**
@@ -120,8 +121,8 @@ public class PathList {
 	/**
 	 * Returns a stream of the filtered paths.
 	 */
-	public Stream<RuntimeException, Path> stream() throws IOException {
-		return Streams.from(list());
+	public Stream.Rt<Path> stream() throws IOException {
+		return Stream.from(list());
 	}
 
 	// support
@@ -138,7 +139,7 @@ public class PathList {
 	private Excepts.Predicate<IOException, Path> pattern(String format, Object... args) {
 		return Paths.Filter.pattern(Paths.fs(dir), format, args);
 	}
-	
+
 	private PathList modify(Excepts.Operator<IOException, Path> modifier) {
 		this.modifier = combine(this.modifier, modifier);
 		return this;
@@ -156,9 +157,14 @@ public class PathList {
 	}
 
 	private void consumeChildren(Excepts.Consumer<IOException, Path> consumer) throws IOException {
-		try (var stream = Files.newDirectoryStream(dir)) {
-			Stream.<IOException, Path>from(stream).forEach(consumer);
+		try (var dirs = Files.newDirectoryStream(dir)) {
+			stream(dirs).forEach(consumer);
 		}
+	}
+
+	private <T> Stream<IOException, T> stream(DirectoryStream<T> dirs) {
+		return Stream.from(dirs,
+			e -> (e instanceof DirectoryIteratorException die) ? die.getCause() : null);
 	}
 
 	private Path apply(Path path) throws IOException {

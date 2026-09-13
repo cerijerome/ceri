@@ -20,7 +20,8 @@ import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Stream;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.Strings;
 import ceri.common.text.Table;
@@ -760,7 +761,7 @@ public class Sudoku {
 	/* group support */
 
 	private Set<IntProvider> changedGroups() {
-		var changedGroups = Streams.from(changedIndexes).expand(this::groups).add(Sets.id());
+		var changedGroups = Stream.from(changedIndexes).expand(this::groups).add(Sets.id());
 		changedIndexes.clear();
 		return changedGroups;
 	}
@@ -876,7 +877,7 @@ public class Sudoku {
 	/* printing */
 
 	public void print(PrintStream out, Table frame) {
-		int w = Math.max(Streams.ints(masks).map(m -> numbers(m)).max(1), 3);
+		int w = Math.max(IntStream.of(masks).map(m -> numbers(m)).max(1), 3);
 		frame.print(out, (r, c, cell) -> {
 			if (r < size && c < size) cell.lines(nums(masks[index(r, c)], w));
 		}, this::format);

@@ -1,8 +1,8 @@
 package ceri.common.data;
 
 import ceri.common.array.Array;
+import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
-import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
 
 /**
@@ -105,7 +105,7 @@ public interface LongReader {
 	/**
 	 * Provides longs as a stream, starting at offset, for given length.
 	 */
-	default LongStream<RuntimeException> stream(int length) {
-		return Streams.slice(0, length).mapToLong(_ -> readLong());
+	default LongStream.Rt stream(int length) {
+		return IntStream.slice(0, length).mapToLong(_ -> readLong());
 	}
 }

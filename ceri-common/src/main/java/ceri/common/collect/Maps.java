@@ -644,7 +644,7 @@ public class Maps {
 	/**
 	 * Returns a stream of map values for entries that match the predicate.
 	 */
-	public static <E extends Exception, K, V> Stream<E, V>
+	public static <E extends Exception, K, V> Stream.Ex<E, V>
 		values(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
 		return Maps.<E, K, V>entries(predicate, map).map(Map.Entry::getValue);
 	}
@@ -652,16 +652,16 @@ public class Maps {
 	/**
 	 * Returns a stream of map values for entries that match the predicate.
 	 */
-	public static <E extends Exception, K, V> Stream<E, Map.Entry<K, V>>
+	public static <E extends Exception, K, V> Stream.Ex<E, Map.Entry<K, V>>
 		entries(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
-		return Maps.<E, K, V>stream(map).filter(Filter.entry(predicate));
+		return stream(map).filterEx(Filter.entry(predicate));
 	}
 
 	/**
 	 * Returns a stream of map entries.
 	 */
-	public static <E extends Exception, K, V> Stream<E, Map.Entry<K, V>> stream(Map<K, V> map) {
-		if (isEmpty(map)) return Stream.empty();
+	public static <K, V> Stream.Rt<Map.Entry<K, V>> stream(Map<K, V> map) {
+		if (isEmpty(map)) return Stream.Rt.empty();
 		return Stream.from(map.entrySet());
 	}
 

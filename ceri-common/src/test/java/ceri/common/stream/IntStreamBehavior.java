@@ -36,7 +36,8 @@ public class IntStreamBehavior {
 	public void testFromIterator() {
 		Assert.stream(IntStream.from((PrimitiveIterator.OfInt) null));
 		Assert.stream(IntStream.from(Iterators.nullInt));
-		Assert.stream(IntStream.from(java.util.stream.IntStream.of(-1, 0, 1).iterator()), -1, 0, 1);
+		Assert.stream(IntStream.from(java.util.stream.IntStream.of(-1, 0, 1).iterator()), -1, 0,
+			1);
 	}
 
 	@Test
@@ -68,42 +69,42 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldBoxElements() throws Exception {
-		Assert.stream(IntStream.empty().boxed());
+		Assert.stream(IntStream.Rt.EMPTY.boxed());
 		Assert.stream(testStream().boxed().map(String::valueOf), "-1", "0", "1", "0");
 	}
 
 	@Test
 	public void shouldProvideUnsignedElements() throws Exception {
-		Assert.stream(IntStream.empty().unsigned());
+		Assert.stream(IntStream.Rt.EMPTY.unsigned());
 		Assert.array(testStream().unsigned().toArray(), 0xffffffffL, 0L, 1L, 0L);
 	}
 
 	@Test
 	public void shouldMapElements() throws Exception {
-		Assert.stream(IntStream.empty().map(null));
-		Assert.stream(IntStream.empty().map(_ -> Assert.fail()));
+		Assert.stream(IntStream.Rt.EMPTY.map(null));
+		Assert.stream(IntStream.Rt.EMPTY.map(_ -> Assert.fail()));
 		Assert.stream(testStream().map(null));
 		Assert.stream(testStream().map(i -> i + 1), 0, 1, 2, 1);
 	}
 
 	@Test
 	public void shouldMapElementsToDouble() throws Exception {
-		Assert.stream(IntStream.empty().mapToDouble(null));
+		Assert.stream(IntStream.Rt.EMPTY.mapToDouble(null));
 		Assert.stream(testStream().mapToDouble(i -> i), -1.0, 0.0, 1.0, 0.0);
 	}
 
 	@Test
 	public void shouldFlatMapElements() throws Exception {
-		Assert.stream(IntStream.empty().flatMap(null));
-		Assert.stream(IntStream.empty().flatMap(_ -> Assert.fail()));
+		Assert.stream(IntStream.Rt.EMPTY.flatMap(null));
+		Assert.stream(IntStream.Rt.EMPTY.flatMap(_ -> Assert.fail()));
 		Assert.stream(testStream().flatMap(null));
-		Assert.stream(testStream().flatMap(i -> IntStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2, -1,
-			1);
+		Assert.stream(testStream().flatMap(i -> IntStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2,
+			-1, 1);
 	}
 
 	@Test
 	public void shouldLimitElements() throws Exception {
-		Assert.stream(IntStream.empty().limit(3));
+		Assert.stream(IntStream.Rt.EMPTY.limit(3));
 		Assert.stream(testStream().limit(0));
 		Assert.stream(testStream().limit(2), -1, 0);
 		Assert.stream(testStream().limit(5), -1, 0, 1, 0);
@@ -111,20 +112,20 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldProvideDistinctElements() throws Exception {
-		Assert.stream(IntStream.empty().distinct());
+		Assert.stream(IntStream.Rt.EMPTY.distinct());
 		Assert.stream(testStream().distinct(), -1, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideSortedElements() throws Exception {
-		Assert.stream(IntStream.empty().sorted());
+		Assert.stream(IntStream.Rt.EMPTY.sorted());
 		Assert.stream(testStream().sorted(), -1, 0, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideNextElement() throws Exception {
-		Assert.equal(IntStream.empty().next(), null);
-		Assert.equal(IntStream.empty().next(3), 3);
+		Assert.equal(IntStream.Rt.EMPTY.next(), null);
+		Assert.equal(IntStream.Rt.EMPTY.next(3), 3);
 		var stream = testStream();
 		Assert.equal(stream.next(3), -1);
 		Assert.equal(stream.next(), 0);
@@ -142,7 +143,8 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() throws Exception {
-		Assert.equal(IntStream.empty().isEmpty(), true);
+		Assert.equal(IntStream.Rt.EMPTY.isEmpty(), true);
+		Assert.equal(IntStream.Ex.empty().isEmpty(), true);
 		var stream = IntStream.of(1);
 		Assert.equal(stream.isEmpty(), false);
 		Assert.equal(stream.isEmpty(), true);
@@ -151,20 +153,20 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldDetermineCount() throws Exception {
-		Assert.equal(IntStream.empty().count(), 0L);
+		Assert.equal(IntStream.Rt.EMPTY.count(), 0L);
 		Assert.equal(testStream().count(), 4L);
 	}
 
 	@Test
 	public void shouldProvideIterator() throws Exception {
-		Assert.iterator(IntStream.empty().iterator());
+		Assert.iterator(IntStream.Rt.EMPTY.iterator());
 		Assert.iterator(testStream().iterator(), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
-		IntStream.empty().forEach(captor::accept);
+		IntStream.Rt.EMPTY.forEach(captor::accept);
 		captor.verify();
 		testStream().forEach(captor::accept);
 		captor.verify(-1, 0, 1, 0);
@@ -172,7 +174,7 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldCollectElements() throws Exception {
-		IntStream.empty().collect(Captor::of, Captor::accept).verify();
+		IntStream.Rt.EMPTY.collect(Captor::of, Captor::accept).verify();
 		Assert.equal(testStream().collect(null), null);
 		Assert.equal(testStream().collect(null, (_, _) -> {}), null);
 		Assert.equal(testStream().collect(() -> null, (_, _) -> {}), null);
@@ -182,13 +184,13 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldDetermineMin() throws Exception {
-		Assert.equal(IntStream.empty().min(0), 0);
+		Assert.equal(IntStream.Rt.EMPTY.min(0), 0);
 		Assert.equal(testStream().min(0), -1);
 	}
 
 	@Test
 	public void shouldDetermineMax() throws Exception {
-		Assert.equal(IntStream.empty().max(0), 0);
+		Assert.equal(IntStream.Rt.EMPTY.max(0), 0);
 		Assert.equal(testStream().max(0), 1);
 	}
 
@@ -206,8 +208,8 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldReduceElements() throws Exception {
-		Assert.equal(IntStream.empty().reduce((_, _) -> 0), null);
-		Assert.equal(IntStream.empty().reduce((_, _) -> 0, 3), 3);
+		Assert.equal(IntStream.Rt.EMPTY.reduce((_, _) -> 0), null);
+		Assert.equal(IntStream.Ex.empty().reduce((_, _) -> 0, 3), 3);
 		Assert.equal(testStream().reduce(null), null);
 		Assert.equal(testStream().reduce(null, 3), 3);
 		Assert.equal(testStream().filter(i -> i > 1).reduce((_, _) -> 0), null);
@@ -215,12 +217,12 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldUseReducers() {
-		Assert.equal(Streams.ints(7, 14).reduce(Reduce.Ints.and()), 6);
-		Assert.equal(Streams.ints(7, 14).reduce(Reduce.Ints.or()), 15);
-		Assert.equal(Streams.ints(7, 14).reduce(Reduce.Ints.xor()), 9);
+		Assert.equal(IntStream.of(7, 14).reduce(Reduce.Ints.and()), 6);
+		Assert.equal(IntStream.of(7, 14).reduce(Reduce.Ints.or()), 15);
+		Assert.equal(IntStream.of(7, 14).reduce(Reduce.Ints.xor()), 9);
 	}
 
-	private static IntStream<RuntimeException> testStream() {
+	private static IntStream.Rt testStream() {
 		return IntStream.of(-1, 0, 1, 0);
 	}
 }

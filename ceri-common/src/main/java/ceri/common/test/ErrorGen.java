@@ -9,7 +9,7 @@ import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 
 /**
  * Utility for generating errors during tests.
@@ -60,7 +60,7 @@ public class ErrorGen {
 		if (errors.length == 0) clear();
 		else {
 			var sequential = Functional.sequentialSupplier(errors);
-			var name = Streams.of(errors).map(e -> name(e)).collect(JOINER);
+			var name = Stream.of(errors).map(e -> name(e)).collect(JOINER);
 			setErrorFn(sequential, name);
 		}
 	}
@@ -74,7 +74,7 @@ public class ErrorGen {
 		if (errorFns.length == 0) clear();
 		else {
 			var sequential = Functional.sequentialSupplier(errorFns);
-			var name = Streams.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
+			var name = Stream.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
 			setErrorFn(() -> Functional.apply(Functions.Supplier::get, sequential.get()), name);
 		}
 	}

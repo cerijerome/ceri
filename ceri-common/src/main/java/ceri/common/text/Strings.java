@@ -13,7 +13,6 @@ import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.IntStream;
-import ceri.common.stream.Streams;
 import ceri.common.util.Hasher;
 
 /**
@@ -104,7 +103,7 @@ public class Strings {
 	 * Creates a string from code points.
 	 */
 	public static String of(int... codePoints) {
-		return of(Streams.ints(codePoints));
+		return of(IntStream.of(codePoints));
 	}
 
 	/**
@@ -362,8 +361,8 @@ public class Strings {
 	 */
 	public static boolean equalsAt(CharSequence s, int soffset, CharSequence other, int ooffset) {
 		if (s == null || other == null) return s == other;
-		return Array.applyBiSlice(length(s), soffset, 0, length(other), ooffset,
-			Integer.MAX_VALUE, (so, _, oo, ol) -> regionMatches(s, so, other, oo, ol));
+		return Array.applyBiSlice(length(s), soffset, 0, length(other), ooffset, Integer.MAX_VALUE,
+			(so, _, oo, ol) -> regionMatches(s, so, other, oo, ol));
 	}
 
 	/**
@@ -379,8 +378,8 @@ public class Strings {
 	public static boolean equalsAt(boolean matchCase, String s, int soffset, String other,
 		int ooffset) {
 		if (s == null || other == null) return s == other;
-		return Array.applyBiSlice(length(s), soffset, 0, length(other), ooffset,
-			Integer.MAX_VALUE, (so, _, oo, ol) -> s.regionMatches(!matchCase, so, other, oo, ol));
+		return Array.applyBiSlice(length(s), soffset, 0, length(other), ooffset, Integer.MAX_VALUE,
+			(so, _, oo, ol) -> s.regionMatches(!matchCase, so, other, oo, ol));
 	}
 
 	/**

@@ -240,8 +240,8 @@ public class NonMatch {
 		/**
 		 * Stream results.
 		 */
-		public Stream<RuntimeException, Result> results() {
-			return Stream.ofSupplier(c -> {
+		public Stream.Rt<Result> results() {
+			return Stream.Rt.ofSupplier(c -> {
 				if (!find()) return false;
 				c.accept(toResult(text));
 				return true;

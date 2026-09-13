@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
@@ -75,7 +75,7 @@ public class PropertyTest {
 		var file = helper.path("test.properties");
 		Property.store(properties, file);
 		try (var stream = Files.lines(file)) {
-			var lines = Streams.from(stream).filter(line -> !line.startsWith("#")).toList();
+			var lines = Stream.from(stream).filter(line -> !line.startsWith("#")).toList();
 			Assert.unordered(lines, "a.b.c=abc", "a.b=ab");
 		}
 	}

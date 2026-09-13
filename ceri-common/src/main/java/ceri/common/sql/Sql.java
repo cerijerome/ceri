@@ -141,8 +141,8 @@ public class Sql {
 		}
 	}
 
-	public static Stream<SQLException, ResultSet> stream(ResultSet rs) {
-		return Stream.ofSupplier(c -> {
+	public static Stream.Ex<SQLException, ResultSet> stream(ResultSet rs) {
+		return Stream.Ex.ofSupplier(c -> {
 			if (!rs.next()) return false;
 			c.accept(rs);
 			return true;

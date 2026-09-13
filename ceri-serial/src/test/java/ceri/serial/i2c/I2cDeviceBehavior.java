@@ -10,7 +10,7 @@ import org.junit.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.test.Assert;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
@@ -62,7 +62,7 @@ public class I2cDeviceBehavior {
 	public void shouldScanFor7BitAddresses() throws IOException {
 		var lib = initI2c();
 		var exists = Set.of(0x2a, 0x3b, 0x4c);
-		var existAddrs = Streams.from(exists).map(I2cAddress::of).toSet();
+		var existAddrs = Stream.from(exists).map(I2cAddress::of).toSet();
 		autoError(lib.ioctlI2cInt, 0, i -> i.request() == 0x704 || exists.contains(i.value()),
 			"Address does not exist");
 		Assert.unordered(i2c.scan7Bit(), existAddrs);

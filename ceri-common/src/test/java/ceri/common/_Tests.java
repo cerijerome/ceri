@@ -214,7 +214,6 @@ import ceri.common.test.Testing;
 	ceri.common.stream.LongStreamBehavior.class, //
 	ceri.common.stream.ReduceTest.class, //
 	ceri.common.stream.StreamBehavior.class, //
-	ceri.common.stream.StreamsTest.class, //
 	// svg
 	ceri.common.svg.EllipseBehavior.class, //
 	ceri.common.svg.EllipticalArcBehavior.class, //

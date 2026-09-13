@@ -10,7 +10,6 @@ import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.util.Validate;
 
@@ -111,24 +110,24 @@ public interface IntProvider extends Iterable<Integer> {
 		/**
 		 * Provides unsigned ints as a stream.
 		 */
-		public IntStream<RuntimeException> stream() {
+		public IntStream.Rt stream() {
 			return stream(remaining());
 		}
 
 		@Override
-		public IntStream<RuntimeException> stream(int length) {
+		public IntStream.Rt stream(int length) {
 			return provider.stream(inc(length), length);
 		}
 
 		/**
 		 * Provides unsigned ints as a stream.
 		 */
-		public LongStream<RuntimeException> ustream() {
+		public LongStream.Rt ustream() {
 			return ustream(remaining());
 		}
 
 		@Override
-		public LongStream<RuntimeException> ustream(int length) {
+		public LongStream.Rt ustream(int length) {
 			return provider.ustream(inc(length), length);
 		}
 
@@ -370,31 +369,31 @@ public interface IntProvider extends Iterable<Integer> {
 	/**
 	 * Provides signed ints from index as a stream.
 	 */
-	default IntStream<RuntimeException> stream(int index) {
+	default IntStream.Rt stream(int index) {
 		return stream(index, length() - index);
 	}
 
 	/**
 	 * Provides signed ints from index as a stream.
 	 */
-	default IntStream<RuntimeException> stream(int index, int length) {
+	default IntStream.Rt stream(int index, int length) {
 		Validate.slice(length(), index, length);
-		return Streams.slice(index, length).map(i -> getInt(i));
+		return IntStream.slice(index, length).map(i -> getInt(i));
 	}
 
 	/**
 	 * Provides unsigned ints from index as a stream.
 	 */
-	default LongStream<RuntimeException> ustream(int index) {
+	default LongStream.Rt ustream(int index) {
 		return ustream(index, length() - index);
 	}
 
 	/**
 	 * Provides unsigned ints from index as a stream.
 	 */
-	default LongStream<RuntimeException> ustream(int index, int length) {
+	default LongStream.Rt ustream(int index, int length) {
 		Validate.slice(length(), index, length);
-		return Streams.slice(index, length).mapToLong(i -> getUint(i));
+		return IntStream.slice(index, length).mapToLong(i -> getUint(i));
 	}
 
 	/**

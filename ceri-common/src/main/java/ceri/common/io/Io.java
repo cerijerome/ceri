@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import ceri.common.concurrent.Concurrent;
@@ -270,14 +271,16 @@ public class Io {
 	/**
 	 * Returns a stream of lines lazily read from input stream.
 	 */
-	public static Stream<IOException, String> lines(InputStream in) {
+	public static Stream.Ex<IOException, String> lines(InputStream in) {
 		return lines(in, StandardCharsets.UTF_8);
 	}
 
 	/**
-	 * Returns a stream of lines lazily read from input stream.
+	 * Returns a stream of lines lazily read from input stream. Any thrown UncheckedIOException is
+	 * unpacked to its IOException and thrown.
 	 */
-	public static Stream<IOException, String> lines(InputStream in, Charset charset) {
-		return Stream.from(new BufferedReader(new InputStreamReader(in, charset)).lines());
+	public static Stream.Ex<IOException, String> lines(InputStream in, Charset charset) {
+		return Stream.from(new BufferedReader(new InputStreamReader(in, charset)).lines(),
+			e -> (e instanceof UncheckedIOException uio) ? uio.getCause() : null);
 	}
 }

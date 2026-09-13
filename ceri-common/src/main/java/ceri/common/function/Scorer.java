@@ -8,9 +8,9 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Collect;
 import ceri.common.stream.DoubleStream;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Collect;
 
 /**
  * Provides a score value for a typed object.
@@ -89,7 +89,7 @@ public interface Scorer<T> {
 			}
 
 			private static <T> Map<T, Double> normalize(Map<T, Double> map) {
-				double sum = Math.abs(Streams.from(map.values()).mapToDouble(d -> d).sum());
+				double sum = Math.abs(Stream.from(map.values()).mapToDouble(d -> d).sum());
 				if (sum == 0.0) return Immutable.map(map);
 				return Immutable.adaptMap(k -> k, v -> v / sum, map);
 			}
@@ -172,7 +172,7 @@ public interface Scorer<T> {
 	 * Returns sorted score results.
 	 */
 	static <T> List<Result<T>> results(Scorer<? super T> scorer, Iterable<T> ts) {
-		return Streams.from(ts).map(t -> result(scorer, t)).collect(Collect.sortedList());
+		return Stream.from(ts).map(t -> result(scorer, t)).collect(Collect.sortedList());
 	}
 
 	/**
@@ -260,11 +260,11 @@ public interface Scorer<T> {
 
 	private static <T> DoubleStream<RuntimeException> stream(Scorer<? super T> scorer,
 		Iterable<T> ts) {
-		return Streams.from(ts).mapToDouble(t -> score(scorer, t));
+		return Stream.from(ts).mapToDouble(t -> score(scorer, t));
 	}
 
 	private static <T> DoubleStream<RuntimeException>
 		stream(Iterable<? extends Scorer<? super T>> scorers, T t) {
-		return Streams.from(scorers).mapToDouble(s -> score(s, t));
+		return Stream.from(scorers).mapToDouble(s -> score(s, t));
 	}
 }

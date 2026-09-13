@@ -531,7 +531,7 @@ public abstract class DynamicArray<T> {
 		/**
 		 * Returns a stream of the array.
 		 */
-		public IntStream<RuntimeException> stream() {
+		public IntStream.Rt stream() {
 			return IntStream.of(array(), 0, index());
 		}
 	}
@@ -588,7 +588,7 @@ public abstract class DynamicArray<T> {
 		/**
 		 * Returns a stream of the array.
 		 */
-		public LongStream<RuntimeException> stream() {
+		public LongStream.Rt stream() {
 			return LongStream.of(array(), 0, index());
 		}
 	}
@@ -682,7 +682,7 @@ public abstract class DynamicArray<T> {
 		/**
 		 * Returns a stream of the array.
 		 */
-		public DoubleStream<RuntimeException> stream() {
+		public DoubleStream.Rt stream() {
 			return DoubleStream.of(array(), 0, index());
 		}
 	}

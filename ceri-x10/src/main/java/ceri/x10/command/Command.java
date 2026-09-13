@@ -10,7 +10,7 @@ import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.property.Parser;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Joiner;
 import ceri.common.text.Regex;
 import ceri.common.util.Basics;
@@ -212,7 +212,7 @@ public abstract class Command {
 	}
 
 	public Set<Address> addresses() {
-		return Streams.from(units).map(unit -> Address.of(house, unit)).toSet();
+		return Stream.from(units).map(unit -> Address.of(house, unit)).toSet();
 	}
 
 	public FunctionType type() {

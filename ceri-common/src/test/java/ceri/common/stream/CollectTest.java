@@ -16,8 +16,8 @@ public class CollectTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		Assert.privateConstructor(Collect.class, Collect.Ints.class, Collect.Longs.class,
-			Collect.Doubles.class);
+		Assert.privateConstructor(Collect.class, Collect.Ints.class,
+			Collect.Longs.class, Collect.Doubles.class);
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class CollectTest {
 
 	@Test
 	public void testClassArray() {
-		Assert.array(Streams.of(String.class, int.class).collect(Collect.classArray()),
+		Assert.array(Stream.ofAll(String.class, int.class).collect(Collect.classArray()),
 			String.class, int.class);
 	}
 
@@ -50,10 +50,10 @@ public class CollectTest {
 
 	@Test
 	public void testMap() {
-		Assert.map(testStream().collect(Collect.map(String::valueOf)), "-1", -1, "null", null, "1",
-			1);
-		Assert.map(testStream().collect(Collect.map(wmap, String::valueOf)), "-1", -1, "null", null,
+		Assert.map(testStream().collect(Collect.map(String::valueOf)), "-1", -1, "null", null,
 			"1", 1);
+		Assert.map(testStream().collect(Collect.map(wmap, String::valueOf)), "-1", -1, "null",
+			null, "1", 1);
 	}
 
 	@Test
@@ -62,11 +62,11 @@ public class CollectTest {
 			"null", Sets.ofAll((Integer) null), "1", Sets.ofAll(1));
 	}
 
-	private static Stream<RuntimeException, Integer> stream(Integer... values) {
-		return Streams.of(values);
+	private static Stream.Rt<Integer> stream(Integer... values) {
+		return Stream.of(values);
 	}
 
-	private static Stream<RuntimeException, Integer> testStream() {
+	private static Stream.Rt<Integer> testStream() {
 		return stream(-1, null, 1);
 	}
 }

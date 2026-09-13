@@ -3,7 +3,7 @@ package ceri.common.color;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 
@@ -391,12 +391,12 @@ public class ColorsTest {
 
 	@Test
 	public void testArgbList() {
-		Assert.ordered(Colors.argbList(Streams.ints(0, 0x12345678)), 0, 0x12345678);
+		Assert.ordered(Colors.argbList(IntStream.of(0, 0x12345678)), 0, 0x12345678);
 	}
 
 	@Test
 	public void testColorList() {
-		Assert.ordered(Colors.colorList(Streams.ints(0, 0x12345678)), Colors.clear,
+		Assert.ordered(Colors.colorList(IntStream.of(0, 0x12345678)), Colors.clear,
 			Colors.color(0x12345678));
 	}
 

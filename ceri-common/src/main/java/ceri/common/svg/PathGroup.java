@@ -10,7 +10,7 @@ import ceri.common.collect.Immutable;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.ToString;
 
 /**
@@ -43,22 +43,22 @@ public class PathGroup implements Path<PathGroup> {
 	public PathGroup reverse() {
 		var list = new ArrayList<>(paths);
 		Collections.reverse(list);
-		return of(Streams.from(list).map(Path::reverse).toList());
+		return of(Stream.from(list).map(Path::reverse).toList());
 	}
 
 	@Override
 	public PathGroup reflect(Line2d line) {
-		return of(Streams.from(paths).map(path -> path.reflect(line)).toList());
+		return of(Stream.from(paths).map(path -> path.reflect(line)).toList());
 	}
 
 	@Override
 	public PathGroup scale(Ratio2d scale) {
-		return of(Streams.from(paths).map(path -> path.scale(scale)).toList());
+		return of(Stream.from(paths).map(path -> path.scale(scale)).toList());
 	}
 
 	@Override
 	public PathGroup translate(Point2d offset) {
-		return of(Streams.from(paths).map(path -> path.translate(offset)).toList());
+		return of(Stream.from(paths).map(path -> path.translate(offset)).toList());
 	}
 
 	@Override

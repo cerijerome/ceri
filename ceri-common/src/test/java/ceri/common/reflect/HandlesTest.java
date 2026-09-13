@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Throws;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 
 public class HandlesTest {
@@ -39,7 +39,7 @@ public class HandlesTest {
 		}
 
 		public long a(int... ints) {
-			return l - Streams.ints(ints).sum();
+			return l - IntStream.of(ints).sum();
 		}
 
 		public static int s(int i) {

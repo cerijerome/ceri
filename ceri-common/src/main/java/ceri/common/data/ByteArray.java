@@ -357,7 +357,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		@Override
-		public IntStream<RuntimeException> ustream(int length) {
+		public IntStream.Rt ustream(int length) {
 			return mutable.ustream(readInc(length), length);
 		}
 

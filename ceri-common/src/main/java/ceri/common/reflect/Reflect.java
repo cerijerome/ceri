@@ -30,7 +30,6 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
@@ -697,8 +696,8 @@ public class Reflect {
 	/**
 	 * Provide the static fields of given type for a class.
 	 */
-	public static <T> Stream<RuntimeException, T> staticFields(Class<?> source, Class<T> type) {
-		return Streams.of(source.getDeclaredFields()).map(f -> publicFieldValue(null, f))
+	public static <T> Stream.Rt<T> staticFields(Class<?> source, Class<T> type) {
+		return Stream.of(source.getDeclaredFields()).map(f -> publicFieldValue(null, f))
 			.instances(type);
 	}
 
@@ -732,7 +731,7 @@ public class Reflect {
 	 */
 	public static boolean stackHasPackage(String pkg) {
 		if (pkg == null) return false;
-		return Streams.of(Thread.currentThread().getStackTrace())
+		return Stream.of(Thread.currentThread().getStackTrace())
 			.map(StackTraceElement::getClassName).anyMatch(s -> s.startsWith(pkg));
 	}
 

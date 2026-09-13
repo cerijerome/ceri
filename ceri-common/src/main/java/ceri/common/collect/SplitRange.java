@@ -8,7 +8,7 @@ import ceri.common.data.IntProvider;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.ToString;
 
 /**
@@ -157,7 +157,7 @@ public class SplitRange {
 	 */
 	public static <T> SplitRange from(Functions.ToIntFunction<? super T> lengthFn,
 		Iterable<T> ts) {
-		return from(Streams.from(ts).mapToInt(lengthFn).toArray());
+		return from(Stream.from(ts).mapToInt(lengthFn).toArray());
 	}
 
 	/**

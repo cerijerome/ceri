@@ -4,7 +4,6 @@ import ceri.common.array.Array;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
-import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
 
 /**
@@ -158,14 +157,14 @@ public interface IntReader {
 	/**
 	 * Provides ints as a stream, starting at offset, for given length.
 	 */
-	default IntStream<RuntimeException> stream(int length) {
-		return Streams.slice(0, length).map(_ -> readInt());
+	default IntStream.Rt stream(int length) {
+		return IntStream.slice(0, length).map(_ -> readInt());
 	}
 
 	/**
 	 * Provides unsigned ints as a stream, starting at offset, for given length.
 	 */
-	default LongStream<RuntimeException> ustream(int length) {
-		return Streams.slice(0, length).mapToLong(_ -> readUint());
+	default LongStream.Rt ustream(int length) {
+		return IntStream.slice(0, length).mapToLong(_ -> readUint());
 	}
 }

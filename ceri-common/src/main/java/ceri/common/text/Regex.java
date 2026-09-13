@@ -10,8 +10,8 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
 
 /**
@@ -160,19 +160,19 @@ public class Regex {
 		/**
 		 * Provides the indexed group from match, or null if invalid.
 		 */
-		public static <E extends Exception, T> Excepts.Function<E, T, String> matchGroup(
-			Pattern pattern, int index) {
+		public static <E extends Exception, T> Excepts.Function<E, T, String>
+			matchGroup(Pattern pattern, int index) {
 			return t -> Regex.matchGroup(pattern, Strings.safe(t), index);
 		}
-		
+
 		/**
 		 * Provides the indexed group from find, or null if invalid.
 		 */
-		public static <E extends Exception, T> Excepts.Function<E, T, String> findGroup(
-			Pattern pattern, int index) {
+		public static <E extends Exception, T> Excepts.Function<E, T, String>
+			findGroup(Pattern pattern, int index) {
 			return t -> Regex.findGroup(pattern, Strings.safe(t), index);
 		}
-		
+
 		/**
 		 * Provides the indexed group from the matcher, or null if invalid.
 		 */
@@ -228,19 +228,9 @@ public class Regex {
 		/**
 		 * Splits the string as a stream.
 		 */
-		public static Stream<RuntimeException, String> stream(Pattern p, CharSequence s) {
-			return stream(p, s, null);
-		}
-
-		/**
-		 * Splits the string as a stream, with item modifier.
-		 */
-		public static <E extends Exception> Stream<E, String> stream(Pattern p, CharSequence s,
-			Excepts.Function<? extends E, ? super String, ? extends String> modifier) {
-			if (p == null || Strings.isEmpty(s)) return Stream.empty();
-			var stream = Stream.<E, String>from(p.splitAsStream(s));
-			if (modifier != null) stream = stream.map(modifier);
-			return stream;
+		public static Stream.Rt<String> stream(Pattern p, CharSequence s) {
+			if (p == null || Strings.isEmpty(s)) return Stream.Rt.empty();
+			return Stream.from(p.splitAsStream(s));
 		}
 
 		/**
@@ -302,8 +292,8 @@ public class Regex {
 		/**
 		 * Splits the char sequence into a stream.
 		 */
-		public Stream<RuntimeException, String> stream(CharSequence s) {
-			return stream(pattern, s, modifier);
+		public Stream.Rt<String> stream(CharSequence s) {
+			return stream(pattern, s).map(modifier);
 		}
 
 		/**
@@ -578,7 +568,7 @@ public class Regex {
 	 * Returns a stream that provides the matcher on each successful find, with the intention of
 	 * extracting information from the matcher with stream mapping.
 	 */
-	public static Stream<RuntimeException, Matcher> finds(Pattern pattern, CharSequence s) {
+	public static Stream.Rt<Matcher> finds(Pattern pattern, CharSequence s) {
 		return finds(matcher(pattern, s));
 	}
 
@@ -586,9 +576,9 @@ public class Regex {
 	 * Returns a stream that provides the matcher on each successful find. More efficient than
 	 * providing results, but not suitable for generating a collection for future processing.
 	 */
-	public static Stream<RuntimeException, Matcher> finds(Matcher m) {
-		if (m == null) return Stream.empty();
-		return Stream.ofSupplier(c -> {
+	public static Stream.Rt<Matcher> finds(Matcher m) {
+		if (m == null) return Stream.Rt.empty();
+		return Stream.Rt.ofSupplier(c -> {
 			if (!m.find()) return false;
 			c.accept(m);
 			return true;
@@ -598,15 +588,14 @@ public class Regex {
 	/**
 	 * Returns a stream that provides the group on each successful find. Groups may be null.
 	 */
-	public static Stream<RuntimeException, String> finds(Pattern pattern, CharSequence s,
-		int group) {
+	public static Stream.Rt<String> finds(Pattern pattern, CharSequence s, int group) {
 		return finds(matcher(pattern, s), group);
 	}
 
 	/**
 	 * Returns a stream that provides the group on each successful find. Groups may be null.
 	 */
-	public static Stream<RuntimeException, String> finds(Matcher matcher, int group) {
+	public static Stream.Rt<String> finds(Matcher matcher, int group) {
 		return finds(matcher).map(m -> group(m, group));
 	}
 
@@ -621,25 +610,25 @@ public class Regex {
 	/**
 	 * Returns groups from 1 of the first find, or empty stream if no match.
 	 */
-	public static Stream<RuntimeException, String> matchGroups(Pattern pattern, CharSequence s) {
-		return groups(match(pattern , s));
+	public static Stream.Rt<String> matchGroups(Pattern pattern, CharSequence s) {
+		return groups(match(pattern, s));
 	}
 
 	/**
 	 * Returns groups from 1 of the first find, or empty stream if no match.
 	 */
-	public static Stream<RuntimeException, String> findGroups(Pattern pattern, CharSequence s) {
-		return groups(find(pattern , s));
+	public static Stream.Rt<String> findGroups(Pattern pattern, CharSequence s) {
+		return groups(find(pattern, s));
 	}
 
 	/**
 	 * Returns groups from 1 of the given matcher as a stream, or empty stream if no match.
 	 */
-	public static Stream<RuntimeException, String> groups(Matcher m) {
-		if (!hasMatch(m)) return Stream.empty();
+	public static Stream.Rt<String> groups(Matcher m) {
+		if (!hasMatch(m)) return Stream.Rt.empty();
 		int count = m.groupCount();
-		if (count <= 0) return Stream.empty();
-		return Streams.slice(1, count).mapToObj(m::group);
+		if (count <= 0) return Stream.Rt.empty();
+		return IntStream.slice(1, count).mapToObj(m::group);
 	}
 
 	/**

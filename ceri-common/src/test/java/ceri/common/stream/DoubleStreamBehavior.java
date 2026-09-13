@@ -19,10 +19,10 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void testSegment() throws Exception {
-		Assert.stream(Streams.segment(0));
-		Assert.stream(Streams.segment(1), 0.0);
-		Assert.stream(Streams.segment(2), 0.0, 1.0);
-		Assert.stream(Streams.segment(3), 0.0, 0.5, 1.0);
+		Assert.stream(DoubleStream.segment(0));
+		Assert.stream(DoubleStream.segment(1), 0.0);
+		Assert.stream(DoubleStream.segment(2), 0.0, 1.0);
+		Assert.stream(DoubleStream.segment(3), 0.0, 0.5, 1.0);
 	}
 
 	@Test
@@ -36,8 +36,8 @@ public class DoubleStreamBehavior {
 	public void testFromIterator() {
 		Assert.stream(DoubleStream.from((PrimitiveIterator.OfDouble) null));
 		Assert.stream(DoubleStream.from(Iterators.nullDouble));
-		Assert.stream(DoubleStream.from(java.util.stream.DoubleStream.of(-1, 0, 1).iterator()), -1.0,
-			0.0, 1.0);
+		Assert.stream(DoubleStream.from(java.util.stream.DoubleStream.of(-1, 0, 1).iterator()),
+			-1.0, 0.0, 1.0);
 	}
 
 	@Test
@@ -69,42 +69,42 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldBoxElements() throws Exception {
-		Assert.stream(DoubleStream.empty().boxed());
+		Assert.stream(DoubleStream.Rt.EMPTY.boxed());
 		Assert.stream(testStream().boxed().map(String::valueOf), "-1.0", "0.0", "1.0", "0.0");
 	}
 
 	@Test
 	public void shouldMapElements() throws Exception {
-		Assert.stream(DoubleStream.empty().map(null));
-		Assert.stream(DoubleStream.empty().map(_ -> Assert.fail()));
+		Assert.stream(DoubleStream.Rt.EMPTY.map(null));
+		Assert.stream(DoubleStream.Rt.EMPTY.map(_ -> Assert.fail()));
 		Assert.stream(testStream().map(null));
 		Assert.stream(testStream().map(i -> i + 1), 0, 1, 2, 1);
 	}
 
 	@Test
 	public void shouldMapElementsToInt() throws Exception {
-		Assert.stream(DoubleStream.empty().mapToInt(null));
+		Assert.stream(DoubleStream.Rt.EMPTY.mapToInt(null));
 		Assert.stream(testStream().mapToInt(d -> (int) d), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldMapElementsToLong() throws Exception {
-		Assert.stream(DoubleStream.empty().mapToLong(null));
+		Assert.stream(DoubleStream.Rt.EMPTY.mapToLong(null));
 		Assert.stream(testStream().mapToLong(d -> (long) d), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldFlatMapElements() throws Exception {
-		Assert.stream(DoubleStream.empty().flatMap(null));
-		Assert.stream(DoubleStream.empty().flatMap(_ -> Assert.fail()));
+		Assert.stream(DoubleStream.Rt.EMPTY.flatMap(null));
+		Assert.stream(DoubleStream.Rt.EMPTY.flatMap(_ -> Assert.fail()));
 		Assert.stream(testStream().flatMap(null));
-		Assert.stream(testStream().flatMap(i -> DoubleStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2,
-			-1, 1);
+		Assert.stream(testStream().flatMap(i -> DoubleStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0,
+			2, -1, 1);
 	}
 
 	@Test
 	public void shouldLimitElements() throws Exception {
-		Assert.stream(DoubleStream.empty().limit(3));
+		Assert.stream(DoubleStream.Rt.EMPTY.limit(3));
 		Assert.stream(testStream().limit(0));
 		Assert.stream(testStream().limit(2), -1, 0);
 		Assert.stream(testStream().limit(5), -1, 0, 1, 0);
@@ -112,20 +112,20 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldProvideDistinctElements() throws Exception {
-		Assert.stream(DoubleStream.empty().distinct());
+		Assert.stream(DoubleStream.Rt.EMPTY.distinct());
 		Assert.stream(testStream().distinct(), -1, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideSortedElements() throws Exception {
-		Assert.stream(DoubleStream.empty().sorted());
+		Assert.stream(DoubleStream.Rt.EMPTY.sorted());
 		Assert.stream(testStream().sorted(), -1, 0, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideNextElement() throws Exception {
-		Assert.equal(DoubleStream.empty().next(), null);
-		Assert.equal(DoubleStream.empty().next(3), 3.0);
+		Assert.equal(DoubleStream.Rt.EMPTY.next(), null);
+		Assert.equal(DoubleStream.Rt.EMPTY.next(3), 3.0);
 		var stream = testStream();
 		Assert.equal(stream.next(3), -1.0);
 		Assert.equal(stream.next(), 0.0);
@@ -143,7 +143,7 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() throws Exception {
-		Assert.equal(DoubleStream.empty().isEmpty(), true);
+		Assert.equal(DoubleStream.Rt.EMPTY.isEmpty(), true);
 		var stream = DoubleStream.of(1);
 		Assert.equal(stream.isEmpty(), false);
 		Assert.equal(stream.isEmpty(), true);
@@ -152,20 +152,20 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldDetermineCount() throws Exception {
-		Assert.equal(DoubleStream.empty().count(), 0L);
+		Assert.equal(DoubleStream.Rt.EMPTY.count(), 0L);
 		Assert.equal(testStream().count(), 4L);
 	}
 
 	@Test
 	public void shouldProvideIterator() throws Exception {
-		Assert.iterator(DoubleStream.empty().iterator());
+		Assert.iterator(DoubleStream.Rt.EMPTY.iterator());
 		Assert.iterator(testStream().iterator(), -1.0, 0.0, 1.0, 0.0);
 	}
 
 	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
-		DoubleStream.empty().forEach(captor::accept);
+		DoubleStream.Rt.EMPTY.forEach(captor::accept);
 		captor.verify();
 		testStream().forEach(captor::accept);
 		captor.verify(-1.0, 0.0, 1.0, 0.0);
@@ -173,7 +173,7 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldCollectElements() throws Exception {
-		DoubleStream.empty().collect(Captor::of, Captor::accept).verify();
+		DoubleStream.Rt.EMPTY.collect(Captor::of, Captor::accept).verify();
 		Assert.equal(testStream().collect(null), null);
 		Assert.equal(testStream().collect(null, (_, _) -> {}), null);
 		Assert.equal(testStream().collect(() -> null, (_, _) -> {}), null);
@@ -183,13 +183,13 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldDetermineMin() throws Exception {
-		Assert.equal(DoubleStream.empty().min(0), 0.0);
+		Assert.equal(DoubleStream.Rt.EMPTY.min(0), 0.0);
 		Assert.equal(testStream().min(0), -1.0);
 	}
 
 	@Test
 	public void shouldDetermineMax() throws Exception {
-		Assert.equal(DoubleStream.empty().max(0), 0.0);
+		Assert.equal(DoubleStream.Rt.EMPTY.max(0), 0.0);
 		Assert.equal(testStream().max(0), 1.0);
 	}
 
@@ -207,15 +207,15 @@ public class DoubleStreamBehavior {
 
 	@Test
 	public void shouldReduceElements() throws Exception {
-		Assert.equal(DoubleStream.empty().reduce((_, _) -> 0), null);
-		Assert.equal(DoubleStream.empty().reduce((_, _) -> 0, 3), 3.0);
+		Assert.equal(DoubleStream.Rt.EMPTY.reduce((_, _) -> 0), null);
+		Assert.equal(DoubleStream.Ex.empty().reduce((_, _) -> 0, 3), 3.0);
 		Assert.equal(testStream().reduce(null), null);
 		Assert.equal(testStream().reduce(null, 3), 3.0);
 		Assert.equal(testStream().filter(i -> i > 1).reduce((_, _) -> 0), null);
 		Assert.equal(testStream().filter(i -> i > 1).reduce((_, _) -> 0, 3), 3.0);
 	}
 
-	private static DoubleStream<RuntimeException> testStream() {
+	private static DoubleStream.Rt testStream() {
 		return DoubleStream.of(-1, 0, 1, 0);
 	}
 }

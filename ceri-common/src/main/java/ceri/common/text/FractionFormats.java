@@ -7,7 +7,8 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.math.Fraction;
 import ceri.common.stream.Collect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Stream;
 import ceri.common.util.Validate;
 
 /**
@@ -116,7 +117,8 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return Streams.slice(0, 10).map(Superscript::toChar).collect(Collect.Ints.chars);
+			return IntStream.slice(0, 10).map(Superscript::toChar)
+				.collect(Collect.Ints.chars);
 		}
 
 	}
@@ -143,7 +145,8 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return Streams.slice(0, 10).map(Subscript::toChar).collect(Collect.Ints.chars);
+			return IntStream.slice(0, 10).map(Subscript::toChar)
+				.collect(Collect.Ints.chars);
 		}
 	}
 
@@ -185,7 +188,7 @@ public class FractionFormats {
 		}
 
 		private static String expandables() {
-			return Streams.from(EXPANSIONS.keySet()).mapToInt(c -> (int) c)
+			return Stream.from(EXPANSIONS.keySet()).mapToInt(c -> (int) c)
 				.collect(Collect.Ints.chars);
 		}
 

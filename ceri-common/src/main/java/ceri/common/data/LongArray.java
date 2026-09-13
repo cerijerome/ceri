@@ -308,7 +308,7 @@ public abstract class LongArray implements LongProvider {
 		}
 
 		@Override
-		public LongStream<RuntimeException> stream(int length) {
+		public LongStream.Rt stream(int length) {
 			return mutable.stream(readInc(length), length);
 		}
 

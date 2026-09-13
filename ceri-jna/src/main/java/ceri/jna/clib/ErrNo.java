@@ -2,10 +2,10 @@ package ceri.jna.clib;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
 import ceri.common.data.TypeValue;
 import ceri.common.data.Xcoder;
+import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 import ceri.jna.clib.jna.CErrNo;

@@ -28,7 +28,7 @@ import ceri.common.io.Io;
 import ceri.common.io.LineReader;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.Chars;
 import ceri.common.text.Regex;
@@ -722,8 +722,8 @@ public class ManualTester implements Functions.Closeable {
 	}
 
 	private void executeInput(String line) throws Exception {
-		var inputs =
-			Streams.of(COMMAND_SPLIT_REGEX.split(Strings.trim(line))).map(Chars::unescape).toList();
+		var inputs = Stream.of(COMMAND_SPLIT_REGEX.split(Strings.trim(line)))
+			.map(Chars::unescape).toList();
 		for (int i = 0; i < inputs.size(); i++)
 			executeInput(inputs, i);
 		addToHistory(line);

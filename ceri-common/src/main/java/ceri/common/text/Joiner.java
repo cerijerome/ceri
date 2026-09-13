@@ -42,6 +42,8 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	/** Colon separator without prefix or suffix. */
 	public static final Joiner SLASH = of("/");
 	/** Space separator without prefix or suffix. */
+	public static final Joiner DASH = of("-");
+	/** Space separator without prefix or suffix. */
 	public static final Joiner SPACE = of(" ");
 	/** Native line joiner. */
 	public static final Joiner EOL = of(Strings.EOL);

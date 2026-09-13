@@ -192,7 +192,7 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Streams all indexes within the ranges. The indexes must not be modified while the stream is
 	 * active.
 	 */
-	public IntStream<RuntimeException> stream() {
+	public IntStream.Rt stream() {
 		return IntStream.from(iterator());
 	}
 

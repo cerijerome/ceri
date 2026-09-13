@@ -10,13 +10,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functions;
 import ceri.common.io.Paths;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 
 /**
@@ -176,7 +175,7 @@ public class FileTestHelper implements Functions.Closeable {
 	 * Creates an array of paths relative to the helper root dir from unix format.
 	 */
 	public Path[] paths(String... paths) {
-		return Stream.of(paths).map(this::path).toArray(Path[]::new);
+		return Stream.of(paths).map(this::path).toArray(Path.class);
 	}
 
 	/**
@@ -211,7 +210,7 @@ public class FileTestHelper implements Functions.Closeable {
 	 * Assert paths relative to file helper.
 	 */
 	public void assertPaths(Collection<Path> actual, String... paths) {
-		var expected = Streams.of(paths).map(this::path).collect(Collectors.toList());
+		var expected = Stream.of(paths).map(this::path).collect(Collectors.toList());
 		Assert.unordered(actual, expected);
 	}
 

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.function.Excepts;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.test.Assert;
 import ceri.common.util.Truth;
 
@@ -53,24 +53,24 @@ public class JoinerBehavior {
 		var j0 = b.max(0).build();
 		var j1 = b.max(1).build();
 		var j2 = b.max(2).build();
-		Assert.string(Streams.of().collect(j0), "[]");
-		Assert.string(Streams.of().collect(j1), "[]");
-		Assert.string(Streams.of().collect(j2), "[]");
-		Assert.string(Streams.of("a").collect(j0), "[](1)");
-		Assert.string(Streams.of("a").collect(j1), "[a]");
-		Assert.string(Streams.of("a").collect(j2), "[a]");
-		Assert.string(Streams.of("a", "b").collect(j0), "[](2)");
-		Assert.string(Streams.of("a", "b").collect(j1), "[...](2)");
-		Assert.string(Streams.of("a", "b").collect(j2), "[a:b]");
-		Assert.string(Streams.of("a", "b", "c").collect(j0), "[](3)");
-		Assert.string(Streams.of("a", "b", "c").collect(j1), "[...](3)");
-		Assert.string(Streams.of("a", "b", "c").collect(j2), "[a:...](3)");
+		Assert.string(Stream.ofAll().collect(j0), "[]");
+		Assert.string(Stream.ofAll().collect(j1), "[]");
+		Assert.string(Stream.ofAll().collect(j2), "[]");
+		Assert.string(Stream.ofAll("a").collect(j0), "[](1)");
+		Assert.string(Stream.ofAll("a").collect(j1), "[a]");
+		Assert.string(Stream.ofAll("a").collect(j2), "[a]");
+		Assert.string(Stream.ofAll("a", "b").collect(j0), "[](2)");
+		Assert.string(Stream.ofAll("a", "b").collect(j1), "[...](2)");
+		Assert.string(Stream.ofAll("a", "b").collect(j2), "[a:b]");
+		Assert.string(Stream.ofAll("a", "b", "c").collect(j0), "[](3)");
+		Assert.string(Stream.ofAll("a", "b", "c").collect(j1), "[...](3)");
+		Assert.string(Stream.ofAll("a", "b", "c").collect(j2), "[a:...](3)");
 	}
 
 	@Test
 	public void shouldHandleZeroMax() {
 		var joiner = Joiner.ARRAY.edit().separator(":").max(0).build();
-		Assert.string(Streams.of("a", "b").collect(joiner), "[](2)");
+		Assert.string(Stream.ofAll("a", "b").collect(joiner), "[](2)");
 	}
 
 	@Test

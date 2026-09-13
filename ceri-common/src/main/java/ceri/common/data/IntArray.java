@@ -309,12 +309,12 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		@Override
-		public IntStream<RuntimeException> stream(int length) {
+		public IntStream.Rt stream(int length) {
 			return mutable.stream(readInc(length), length);
 		}
 
 		@Override
-		public LongStream<RuntimeException> ustream(int length) {
+		public LongStream.Rt ustream(int length) {
 			return mutable.ustream(readInc(length), length);
 		}
 

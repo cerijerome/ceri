@@ -10,9 +10,8 @@ import java.util.Set;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Collect;
 import ceri.common.text.Parse;
 import ceri.common.text.ToString;
 
@@ -130,8 +129,8 @@ public class Node<T> {
 	Node(Builder<T> builder) {
 		name = builder.name;
 		value = builder.value;
-		children = Streams.from(builder.children).<Node<?>>map(Builder::build).toList();
-		lookup = Streams.from(children).filter(Node::isNamed)
+		children = Stream.from(builder.children).<Node<?>>map(Builder::build).toList();
+		lookup = Stream.from(children).filter(Node::isNamed)
 			.collect(Collect.map(() -> Maps.tree(), t -> t.name, t -> t));
 	}
 
@@ -222,13 +221,13 @@ public class Node<T> {
 		return ToString.ofClass(this, name, value).childrens(children).toString();
 	}
 
-	private Stream<RuntimeException, String> namedPathStream() {
-		return Streams.merge(Streams.of(name),
+	private Stream.Rt<String> namedPathStream() {
+		return Stream.merge(Stream.ofAll(name),
 			namedChildPathStream().map(p -> Separator.DOT.join(name, p)));
 	}
 
-	private Stream<RuntimeException, String> namedChildPathStream() {
-		return Streams.from(lookup.values()).flatMap(n -> n.namedPathStream());
+	private Stream.Rt<String> namedChildPathStream() {
+		return Stream.from(lookup.values()).flatMap(n -> n.namedPathStream());
 	}
 
 	private Node<?> child(int[] indexes, int i) {

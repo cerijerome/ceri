@@ -19,7 +19,6 @@ import ceri.common.stream.DoubleStream;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Parse;
 import ceri.common.text.Regex;
 import ceri.common.util.Basics;
@@ -284,16 +283,15 @@ public class Parser {
 		 * Returns the values as a stream, which is empty if the value collection is null. Null
 		 * values in the collection are retained.
 		 */
-		default Stream<RuntimeException, T> stream() {
-			return apply(Streams::from, Stream.empty());
+		default Stream.Rt<T> stream() {
+			return apply(Stream::from, Stream.Rt.empty());
 		}
 
 		/**
 		 * Transforms as each value for an int stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default IntStream<RuntimeException>
-			intStream(Functions.ToIntFunction<? super T> constructor) {
+		default IntStream.Rt intStream(Functions.ToIntFunction<? super T> constructor) {
 			return stream().nonNull().mapToInt(constructor);
 		}
 
@@ -301,8 +299,7 @@ public class Parser {
 		 * Transforms as each value for a long stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default LongStream<RuntimeException>
-			longStream(Functions.ToLongFunction<? super T> constructor) {
+		default LongStream.Rt longStream(Functions.ToLongFunction<? super T> constructor) {
 			return stream().nonNull().mapToLong(constructor);
 		}
 
@@ -310,7 +307,7 @@ public class Parser {
 		 * Transforms as each value for a double stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default DoubleStream<RuntimeException>
+		default DoubleStream.Rt
 			doubleStream(Functions.ToDoubleFunction<? super T> constructor) {
 			return stream().nonNull().mapToDouble(constructor);
 		}
@@ -716,7 +713,7 @@ public class Parser {
 		 * Decodes as each value for an int stream, which is empty if the value collection is null.
 		 * Null values in the collection are dropped.
 		 */
-		default IntStream<RuntimeException> intStream() {
+		default IntStream.Rt intStream() {
 			return intStream(DINT::apply);
 		}
 
@@ -724,7 +721,7 @@ public class Parser {
 		 * Transforms as each value for a long stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default LongStream<RuntimeException> longStream() {
+		default LongStream.Rt longStream() {
 			return longStream(DLONG::apply);
 		}
 
@@ -732,7 +729,7 @@ public class Parser {
 		 * Transforms as each value for a double stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default DoubleStream<RuntimeException> doubleStream() {
+		default DoubleStream.Rt doubleStream() {
 			return doubleStream(DOUBLE::apply);
 		}
 

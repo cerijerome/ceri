@@ -6,11 +6,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.array.Array;
 import ceri.common.collect.Iterables;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
@@ -137,7 +136,7 @@ public class BytesTest {
 	@Test
 	public void testToByteArray() {
 		Assert.array(Bytes.bytes(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
-		Assert.array(Bytes.bytes(Streams.ints(-1, 0, 127, 128)), -1, 0, 127, 128);
+		Assert.array(Bytes.bytes(IntStream.of(-1, 0, 127, 128)), -1, 0, 127, 128);
 	}
 
 	@Test
@@ -363,10 +362,10 @@ public class BytesTest {
 	public void testBits() {
 		Assert.array(Bytes.bits(0));
 		Assert.array(Bytes.bits(0x80402010), 4, 13, 22, 31);
-		Assert.array(Bytes.bits(-1), IntStream.range(0, 32).toArray());
+		Assert.array(Bytes.bits(-1), IntStream.slice(0, 32).toArray());
 		Assert.array(Bytes.bits(0L));
 		Assert.array(Bytes.bits(0x8000400020001000L), 12, 29, 46, 63);
-		Assert.array(Bytes.bits(-1L), IntStream.range(0, 64).toArray());
+		Assert.array(Bytes.bits(-1L), IntStream.slice(0, 64).toArray());
 	}
 
 	@Test

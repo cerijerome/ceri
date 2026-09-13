@@ -16,7 +16,7 @@ import ceri.common.test.Assert;
 import ceri.common.text.Joiner;
 
 public class StreamBehavior {
-	private static final Stream<RuntimeException, Integer> empty = Stream.empty();
+	private static final Stream.Rt<Integer> empty = Stream.Rt.empty();
 	private static final List<Integer> nullList = null;
 	private static final List<Integer> emptyList = Immutable.list();
 	private static final List<Integer> list = Immutable.listOf(-1, null, 1);
@@ -34,19 +34,19 @@ public class StreamBehavior {
 	private static final Functions.ToDoubleFunction<Integer> doubleFn = i -> i == null ? 0 : -i;
 	private static final Functions.Function<Integer, Iterable<Integer>> expandFn =
 		i -> i == null ? null : Lists.ofAll(-i, null, i);
-	private static final Functions.Function<Integer, Stream<RuntimeException, Integer>> flatFn =
-		i -> i == null ? null : Streams.of(-i, null, i);
+	private static final Functions.Function<Integer, Stream.Rt<Integer>> flatFn =
+		i -> i == null ? null : Stream.ofAll(-i, null, i);
 
 	private static Integer[] array() {
 		return list.toArray(Integer[]::new);
 	}
 
-	private static Stream<RuntimeException, Integer> testStream() {
+	private static Stream.Rt<Integer> testStream() {
 		return Stream.ofAll(-1, null, 1, 0);
 	}
 
-	private static Stream<IOException, Integer> ioStream() {
-		return Stream.<IOException, Integer>ofAll(-1, null, 1).filter(i -> {
+	private static Stream.Ex<IOException, Integer> ioStream() {
+		return Stream.ofAll(-1, null, 1).filterEx(i -> {
 			if (i == null) throw new IOException();
 			return true;
 		});
@@ -54,8 +54,10 @@ public class StreamBehavior {
 
 	@Test
 	public void testEmpty() throws Exception {
-		Assert.stream(empty);
-		Assert.same(empty, Stream.empty());
+		Assert.stream(Stream.Rt.empty());
+		Assert.stream(Stream.Ex.empty());
+		Assert.same(Stream.Rt.empty(), Stream.Rt.empty());
+		Assert.same(Stream.Ex.empty(), Stream.Ex.empty());
 	}
 
 	@Test
@@ -84,6 +86,17 @@ public class StreamBehavior {
 		Assert.stream(Stream.from(list.spliterator()), -1, null, 1);
 	}
 
+	@Test
+	public void testUnmap() {
+		var map = Immutable.mapOf(Maps::link, -1, "B", null, "A", 1, null);
+		Assert.stream(Stream.Rt.unmap(null, map));
+		Assert.stream(Stream.Rt.unmap((k, v) -> "" + k + v, null));
+		Assert.stream(Stream.Rt.unmap((k, v) -> "" + k + v, map), "-1B", "nullA", "1null");
+		Assert.stream(Stream.Ex.unmap(null, map));
+		Assert.stream(Stream.Ex.unmap((k, v) -> "" + k + v, null));
+		Assert.stream(Stream.Ex.unmap((k, v) -> "" + k + v, map), "-1B", "nullA", "1null");
+	}
+	
 	@Test
 	public void shouldFilterElements() throws Exception {
 		Assert.stream(empty.filter(null));
@@ -220,20 +233,20 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldProvideDistinctElements() throws Exception {
-		Assert.stream(Stream.empty().distinct());
+		Assert.stream(Stream.Rt.empty().distinct());
 		Assert.stream(Stream.ofAll(1, 0, null, 0, -1, null).distinct(), 1, 0, null, -1);
 	}
 
 	@Test
 	public void shouldProvideSortedElements() throws Exception {
-		Assert.stream(Stream.empty().sorted((_, _) -> 0));
+		Assert.stream(Stream.Rt.empty().sorted((_, _) -> 0));
 		Assert.stream(testStream().sorted(Compares.of()), null, -1, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideNextElement() throws Exception {
-		Assert.equal(Stream.empty().next(), null);
-		Assert.equal(Stream.empty().next(3), 3);
+		Assert.equal(Stream.Rt.empty().next(), null);
+		Assert.equal(Stream.Rt.empty().next(3), 3);
 		var stream = testStream();
 		Assert.equal(stream.next(3), -1);
 		Assert.equal(stream.next(), null);
@@ -251,7 +264,8 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() throws Exception {
-		Assert.equal(Stream.empty().isEmpty(), true);
+		Assert.equal(Stream.Rt.empty().isEmpty(), true);
+		Assert.equal(Stream.Ex.empty().isEmpty(), true);
 		var stream = Stream.ofAll(1);
 		Assert.equal(stream.isEmpty(), false);
 		Assert.equal(stream.isEmpty(), true);
@@ -260,19 +274,19 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldDetermineCount() throws Exception {
-		Assert.equal(Stream.empty().count(), 0L);
+		Assert.equal(Stream.Rt.empty().count(), 0L);
 		Assert.equal(testStream().count(), 4L);
 	}
 
 	@Test
 	public void shouldProvideIterator() {
-		Assert.ordered(Stream.empty().iterable());
+		Assert.ordered(Stream.Rt.empty().iterable());
 		Assert.ordered(testStream().iterable(), -1, null, 1, 0);
 	}
 
 	@Test
 	public void shouldAddToCollection() throws Exception {
-		Assert.unordered(Stream.empty().add(Sets.of()));
+		Assert.unordered(Stream.Rt.empty().add(Sets.of()));
 		Assert.equal(testStream().add(nullList), null);
 		Assert.unordered(testStream().add(Sets.of()), -1, 0, null, 1);
 	}
@@ -296,8 +310,8 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldCollectToArray() throws Exception {
-		Assert.array(Stream.empty().toArray());
-		Assert.array(Stream.empty().toArray(Object.class));
+		Assert.array(Stream.Rt.empty().toArray());
+		Assert.array(Stream.Rt.empty().toArray(Object.class));
 		Assert.array(testStream().toArray(), -1, null, 1, 0);
 		Assert.equal(testStream().toArray(null), null);
 		Assert.array(testStream().toArray(Integer.class), -1, null, 1, 0);
@@ -305,28 +319,28 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldCollectToSet() throws Exception {
-		Assert.unordered(Stream.empty().toSet());
+		Assert.unordered(Stream.Rt.empty().toSet());
 		Assert.unordered(testStream().toSet(), -1, 0, null, 1);
 		Assert.unordered(Stream.ofAll(1, 0, null, 0, -1, null).toSet(), 1, 0, null, -1);
 	}
 
 	@Test
 	public void shouldCollectToList() throws Exception {
-		Assert.ordered(Stream.empty().toList());
+		Assert.ordered(Stream.Rt.empty().toList());
 		Assert.ordered(testStream().toList(), -1, null, 1, 0);
 		Assert.ordered(Stream.ofAll(1, 0, null, 0, -1, null).toList(), 1, 0, null, 0, -1, null);
 	}
 
 	@Test
 	public void shouldCollectToMap() throws Exception {
-		Assert.map(Stream.empty().toMap(t -> t));
+		Assert.map(Stream.Rt.empty().toMap(t -> t));
 		Assert.map(testStream().toMap(i -> i), -1, -1, 0, 0, null, null, 1, 1);
 		Assert.map(testStream().toMap(i -> i, _ -> 0), -1, 0, 0, 0, null, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldCollectWithCollector() throws Exception {
-		Assert.equal(Stream.empty().collect(Joiner.OR), "");
+		Assert.equal(Stream.Rt.empty().collect(Joiner.OR), "");
 		Assert.equal(testStream().collect((Collector<Integer, ?, ?>) null), null);
 		Assert.equal(testStream().collect(Joiner.OR), "-1|null|1|0");
 	}
@@ -344,8 +358,8 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldReduceElements() throws Exception {
-		Assert.equal(Stream.empty().reduce((_, _) -> 1), null);
-		Assert.equal(Stream.empty().reduce((_, _) -> 1, 3), 3);
+		Assert.equal(Stream.Rt.empty().reduce((_, _) -> 1), null);
+		Assert.equal(Stream.Ex.empty().reduce((_, _) -> 1, 3), 3);
 		Assert.equal(testStream().reduce(null), null);
 		Assert.equal(testStream().reduce(null, 1), 1);
 		Assert.equal(testStream().reduce((i, _) -> i), -1);

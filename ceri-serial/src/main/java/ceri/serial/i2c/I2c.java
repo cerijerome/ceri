@@ -10,7 +10,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.Array;
 import ceri.common.data.Bytes;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.Jna;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
@@ -73,7 +73,7 @@ public interface I2c {
 	 * Scan 7-bit address range for existing devices.
 	 */
 	default Set<I2cAddress> scan7Bit() {
-		return Streams.slice(SCAN_7BIT_MIN, SCAN_7BIT_MAX - SCAN_7BIT_MIN + 1)
+		return IntStream.slice(SCAN_7BIT_MIN, SCAN_7BIT_MAX - SCAN_7BIT_MIN + 1)
 			.mapToObj(i -> I2cAddress.of7Bit(i)).filter(this::exists).toSet();
 	}
 

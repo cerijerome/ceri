@@ -6,8 +6,8 @@ import ceri.common.collect.Iterators;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
+import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.util.Validate;
 
@@ -100,12 +100,12 @@ public interface LongProvider extends Iterable<Long> {
 		/**
 		 * Provides longs as a stream.
 		 */
-		public LongStream<RuntimeException> stream() {
+		public LongStream.Rt stream() {
 			return stream(remaining());
 		}
 
 		@Override
-		public LongStream<RuntimeException> stream(int length) {
+		public LongStream.Rt stream(int length) {
 			return provider.stream(inc(length), length);
 		}
 
@@ -281,16 +281,16 @@ public interface LongProvider extends Iterable<Long> {
 	/**
 	 * Provides signed longs from index as a stream.
 	 */
-	default LongStream<RuntimeException> stream(int index) {
+	default LongStream.Rt stream(int index) {
 		return stream(index, length() - index);
 	}
 
 	/**
 	 * Provides signed longs from index as a stream.
 	 */
-	default LongStream<RuntimeException> stream(int index, int length) {
+	default LongStream.Rt stream(int index, int length) {
 		Validate.slice(length(), index, length);
-		return Streams.slice(index, length).mapToLong(i -> getLong(i));
+		return IntStream.slice(index, length).mapToLong(i -> getLong(i));
 	}
 
 	/**

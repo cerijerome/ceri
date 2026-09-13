@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Set;
 import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Stream;
 import ceri.common.time.TimeSpec;
 import ceri.common.util.Os;
 import ceri.jna.clib.jna.CPoll;
@@ -161,7 +162,7 @@ public class Poll implements Iterable<Poll.Fd> {
 
 	private Poll(CPoll.pollfd[] pollfds) {
 		this.pollfds = pollfds;
-		fds = Streams.slice(0, pollfds.length).mapToObj(Fd::new).toList();
+		fds = IntStream.slice(0, pollfds.length).mapToObj(Fd::new).toList();
 	}
 
 	/**
@@ -198,14 +199,14 @@ public class Poll implements Iterable<Poll.Fd> {
 	 * Combines responses from all fds.
 	 */
 	public Set<Event> responses() {
-		return Streams.from(fds()).expand(Fd::responses).toSet();
+		return Stream.from(fds()).expand(Fd::responses).toSet();
 	}
 
 	/**
 	 * Combines errors from all fds.
 	 */
 	public Set<Error> errors() {
-		return Streams.from(fds()).expand(Fd::errors).toSet();
+		return Stream.from(fds()).expand(Fd::errors).toSet();
 	}
 
 	/**

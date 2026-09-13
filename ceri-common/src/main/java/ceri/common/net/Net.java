@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 
 public class Net {
 	private static final Pattern LOCALHOST_REGEX =
@@ -131,33 +130,30 @@ public class Net {
 		return broadcast(ifaceAddresses(iface));
 	}
 
-	private static Inet4Address broadcast(Stream<RuntimeException, InterfaceAddress> stream) {
+	private static Inet4Address broadcast(Stream.Rt<InterfaceAddress> stream) {
 		return stream.map(InterfaceAddress::getBroadcast).instances(Inet4Address.class).next();
 	}
 
-	private static Stream<RuntimeException, InetAddress> inetAddresses() throws SocketException {
+	private static Stream.Rt<InetAddress> inetAddresses() throws SocketException {
 		return networkInterfaces().map(NetworkInterface::inetAddresses).flatMap(Stream::from);
 	}
 
-	private static Stream<RuntimeException, InterfaceAddress> ifaceAddresses()
-		throws SocketException {
+	private static Stream.Rt<InterfaceAddress> ifaceAddresses() throws SocketException {
 		return networkInterfaces().map(NetworkInterface::getInterfaceAddresses)
 			.flatMap(Stream::from);
 	}
 
-	private static Stream<RuntimeException, InetAddress> inetAddresses(NetworkInterface iface) {
-		if (iface == null) return Stream.empty();
+	private static Stream.Rt<InetAddress> inetAddresses(NetworkInterface iface) {
+		if (iface == null) return Stream.Rt.empty();
 		return Stream.from(iface.inetAddresses());
 	}
 
-	private static Stream<RuntimeException, InterfaceAddress>
-		ifaceAddresses(NetworkInterface iface) {
-		if (iface == null) return Stream.empty();
+	private static Stream.Rt<InterfaceAddress> ifaceAddresses(NetworkInterface iface) {
+		if (iface == null) return Stream.Rt.empty();
 		return Stream.from(iface.getInterfaceAddresses());
 	}
 
-	private static Stream<RuntimeException, NetworkInterface> networkInterfaces()
-		throws SocketException {
-		return Streams.from(NetworkInterface.networkInterfaces());
+	private static Stream.Rt<NetworkInterface> networkInterfaces() throws SocketException {
+		return Stream.from(NetworkInterface.networkInterfaces());
 	}
 }

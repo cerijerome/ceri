@@ -1,7 +1,7 @@
 package ceri.common.math;
 
-import java.util.stream.Stream;
 import ceri.common.function.Functions;
+import ceri.common.stream.Stream;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
@@ -553,7 +553,7 @@ public class Matrix {
 	}
 
 	private static int maxColumns(double[][] values) {
-		return Stream.of(values).mapToInt(row -> row.length).max().orElse(0);
+		return Stream.of(values).mapToInt(row -> row.length).max(0);
 	}
 
 	private static double sqr(double x) {

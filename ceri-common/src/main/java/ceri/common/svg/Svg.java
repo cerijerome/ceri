@@ -2,7 +2,7 @@ package ceri.common.svg;
 
 import java.util.Arrays;
 import java.util.Collection;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
@@ -89,7 +89,8 @@ public class Svg {
 	 * Combines paths to get an end position.
 	 */
 	public static Position combinedEnd(Collection<Path<?>> paths) {
-		return Streams.from(paths).map(Path::end).reduce(Position::combine, Position.RELATIVE_ZERO);
+		return Stream.from(paths).map(Path::end).reduce(Position::combine,
+			Position.RELATIVE_ZERO);
 	}
 
 	/**
@@ -103,6 +104,6 @@ public class Svg {
 	 * Combines paths to a string.
 	 */
 	public static String combinedPath(Collection<Path<?>> paths) {
-		return Streams.from(paths).map(Path::d).collect(Joiner.SPACE);
+		return Stream.from(paths).map(Path::d).collect(Joiner.SPACE);
 	}
 }

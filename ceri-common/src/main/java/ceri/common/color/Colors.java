@@ -13,7 +13,7 @@ import ceri.common.math.Bound;
 import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Format;
 import ceri.common.text.Regex;
 import ceri.common.util.Validate;
@@ -616,85 +616,80 @@ public class Colors {
 	/**
 	 * Collect argb int stream as a color array.
 	 */
-	public static Color[] colors(IntStream<RuntimeException> argbStream) {
+	public static Color[] colors(IntStream.Rt argbStream) {
 		return argbStream.mapToObj(Colors::color).toArray(Color.class);
 	}
 
 	/**
 	 * Collect argb int stream as a list.
 	 */
-	public static List<Integer> argbList(IntStream<RuntimeException> argbStream) {
+	public static List<Integer> argbList(IntStream.Rt argbStream) {
 		return argbStream.boxed().toList();
 	}
 
 	/**
 	 * Collect argb int stream as a color list.
 	 */
-	public static List<Color> colorList(IntStream<RuntimeException> argbStream) {
+	public static List<Color> colorList(IntStream.Rt argbStream) {
 		return argbStream.mapToObj(Colors::color).toList();
 	}
 
 	/**
 	 * Create a stream of opaque argb ints from rgb ints.
 	 */
-	public static IntStream<RuntimeException> rgbStream(int... rgbs) {
-		return Streams.ints(rgbs).map(Colors::argb);
+	public static IntStream.Rt rgbStream(int... rgbs) {
+		return IntStream.of(rgbs).map(Colors::argb);
 	}
 
 	/**
 	 * Create a stream of argb ints from colors.
 	 */
-	public static IntStream<RuntimeException> stream(Color... colors) {
-		return Streams.of(colors).mapToInt(Colors::argb);
+	public static IntStream.Rt stream(Color... colors) {
+		return Stream.of(colors).mapToInt(Colors::argb);
 	}
 
 	/**
 	 * Create a stream of argb ints from preset name or hex strings. Throws an exception if unable
 	 * to parse the text.
 	 */
-	public static IntStream<RuntimeException> stream(String... strings) {
-		return Streams.of(strings).mapToInt(Colors::validArgb);
+	public static IntStream.Rt stream(String... strings) {
+		return Stream.of(strings).mapToInt(Colors::validArgb);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading in steps.
 	 */
-	public static IntStream<RuntimeException> fadeStream(Color min, Color max, int steps,
-		Bias bias) {
+	public static IntStream.Rt fadeStream(Color min, Color max, int steps, Bias bias) {
 		return fadeStream(argb(min), argb(max), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading in steps.
 	 */
-	public static IntStream<RuntimeException> fadeStream(int minArgb, int maxArgb, int steps,
-		Bias bias) {
-		return Streams.slice(1, steps)
+	public static IntStream.Rt fadeStream(int minArgb, int maxArgb, int steps, Bias bias) {
+		return IntStream.slice(1, steps)
 			.map(i -> scaleArgb(minArgb, maxArgb, bias.bias((double) i / steps)));
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream<RuntimeException> fadeHsbStream(Color min, Color max, int steps,
-		Bias bias) {
+	public static IntStream.Rt fadeHsbStream(Color min, Color max, int steps, Bias bias) {
 		return fadeHsbStream(argb(min), argb(max), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream<RuntimeException> fadeHsbStream(int minArgb, int maxArgb, int steps,
-		Bias bias) {
+	public static IntStream.Rt fadeHsbStream(int minArgb, int maxArgb, int steps, Bias bias) {
 		return fadeHsbStream(Hsb.from(minArgb), Hsb.from(maxArgb), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream<RuntimeException> fadeHsbStream(Hsb min, Hsb max, int steps,
-		Bias bias) {
-		return Streams.slice(1, steps)
+	public static IntStream.Rt fadeHsbStream(Hsb min, Hsb max, int steps, Bias bias) {
+		return IntStream.slice(1, steps)
 			.mapToObj(i -> scaleNormHsb(min, max, bias.bias((double) i / steps)))
 			.mapToInt(Hsb::argb);
 	}
@@ -702,23 +697,23 @@ public class Colors {
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream<RuntimeException> rotateHueStream(Color color, int steps, Bias bias) {
+	public static IntStream.Rt rotateHueStream(Color color, int steps, Bias bias) {
 		return rotateHueStream(argb(color), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream<RuntimeException> rotateHueStream(int argb, int steps, Bias bias) {
+	public static IntStream.Rt rotateHueStream(int argb, int steps, Bias bias) {
 		return rotateHueStream(Hsb.from(argb), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream<RuntimeException> rotateHueStream(Hsb hsb, int steps, Bias bias) {
-		return Streams.slice(1, steps).mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps)))
-			.mapToInt(Hsb::argb);
+	public static IntStream.Rt rotateHueStream(Hsb hsb, int steps, Bias bias) {
+		return IntStream.slice(1, steps)
+			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps))).mapToInt(Hsb::argb);
 	}
 
 	// support methods

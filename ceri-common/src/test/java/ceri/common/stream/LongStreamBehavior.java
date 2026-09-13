@@ -68,40 +68,40 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldBoxElements() throws Exception {
-		Assert.stream(LongStream.empty().boxed());
+		Assert.stream(LongStream.Rt.EMPTY.boxed());
 		Assert.stream(testStream().boxed().map(String::valueOf), "-1", "0", "1", "0");
 	}
 
 	@Test
 	public void shouldCastElementsToInt() throws Exception {
-		Assert.stream(LongStream.empty().ints());
+		Assert.stream(LongStream.Rt.EMPTY.ints());
 		Assert.stream(testStream().ints(), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldMapElements() throws Exception {
-		Assert.stream(LongStream.empty().map(null));
-		Assert.stream(LongStream.empty().map(_ -> Assert.fail()));
+		Assert.stream(LongStream.Rt.EMPTY.map(null));
+		Assert.stream(LongStream.Rt.EMPTY.map(_ -> Assert.fail()));
 		Assert.stream(testStream().map(null));
 		Assert.stream(testStream().map(i -> i + 1), 0, 1, 2, 1);
 	}
 
 	@Test
 	public void shouldMapElementsToInt() throws Exception {
-		Assert.stream(LongStream.empty().mapToInt(null));
+		Assert.stream(LongStream.Rt.EMPTY.mapToInt(null));
 		Assert.stream(testStream().mapToInt(i -> (int) i), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldMapElementsToDouble() throws Exception {
-		Assert.stream(LongStream.empty().mapToDouble(null));
+		Assert.stream(LongStream.Rt.EMPTY.mapToDouble(null));
 		Assert.stream(testStream().mapToDouble(i -> i), -1.0, 0.0, 1.0, 0.0);
 	}
 
 	@Test
 	public void shouldFlatMapElements() throws Exception {
-		Assert.stream(LongStream.empty().flatMap(null));
-		Assert.stream(LongStream.empty().flatMap(_ -> Assert.fail()));
+		Assert.stream(LongStream.Rt.EMPTY.flatMap(null));
+		Assert.stream(LongStream.Rt.EMPTY.flatMap(_ -> Assert.fail()));
 		Assert.stream(testStream().flatMap(null));
 		Assert.stream(testStream().flatMap(i -> LongStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2, -1,
 			1);
@@ -109,7 +109,7 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldLimitElements() throws Exception {
-		Assert.stream(LongStream.empty().limit(3));
+		Assert.stream(LongStream.Rt.EMPTY.limit(3));
 		Assert.stream(testStream().limit(0));
 		Assert.stream(testStream().limit(2), -1, 0);
 		Assert.stream(testStream().limit(5), -1, 0, 1, 0);
@@ -117,20 +117,20 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldProvideDistinctElements() throws Exception {
-		Assert.stream(LongStream.empty().distinct());
+		Assert.stream(LongStream.Rt.EMPTY.distinct());
 		Assert.stream(testStream().distinct(), -1, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideSortedElements() throws Exception {
-		Assert.stream(LongStream.empty().sorted());
+		Assert.stream(LongStream.Rt.EMPTY.sorted());
 		Assert.stream(testStream().sorted(), -1, 0, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideNextElement() throws Exception {
-		Assert.equal(LongStream.empty().next(), null);
-		Assert.equal(LongStream.empty().next(3), 3L);
+		Assert.equal(LongStream.Rt.EMPTY.next(), null);
+		Assert.equal(LongStream.Rt.EMPTY.next(3), 3L);
 		var stream = testStream();
 		Assert.equal(stream.next(3), -1L);
 		Assert.equal(stream.next(), 0L);
@@ -148,7 +148,7 @@ public class LongStreamBehavior {
 	
 	@Test
 	public void shouldDetermineIfEmpty() throws Exception {
-		Assert.equal(LongStream.empty().isEmpty(), true);
+		Assert.equal(LongStream.Rt.EMPTY.isEmpty(), true);
 		var stream = LongStream.of(1);
 		Assert.equal(stream.isEmpty(), false);
 		Assert.equal(stream.isEmpty(), true);
@@ -157,20 +157,20 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldDetermineCount() throws Exception {
-		Assert.equal(LongStream.empty().count(), 0L);
+		Assert.equal(LongStream.Rt.EMPTY.count(), 0L);
 		Assert.equal(testStream().count(), 4L);
 	}
 
 	@Test
 	public void shouldProvideIterator() throws Exception {
-		Assert.iterator(LongStream.empty().iterator());
+		Assert.iterator(LongStream.Rt.EMPTY.iterator());
 		Assert.iterator(testStream().iterator(), -1L, 0L, 1L, 0L);
 	}
 
 	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
-		LongStream.empty().forEach(captor::accept);
+		LongStream.Rt.EMPTY.forEach(captor::accept);
 		captor.verify();
 		testStream().forEach(captor::accept);
 		captor.verify(-1L, 0L, 1L, 0L);
@@ -178,7 +178,7 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldCollectElements() throws Exception {
-		LongStream.empty().collect(Captor::of, Captor::accept).verify();
+		LongStream.Rt.EMPTY.collect(Captor::of, Captor::accept).verify();
 		Assert.equal(testStream().collect(null), null);
 		Assert.equal(testStream().collect(null, (_, _) -> {}), null);
 		Assert.equal(testStream().collect(() -> null, (_, _) -> {}), null);
@@ -188,13 +188,13 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldDetermineMin() throws Exception {
-		Assert.equal(LongStream.empty().min(0L), 0L);
+		Assert.equal(LongStream.Rt.EMPTY.min(0L), 0L);
 		Assert.equal(testStream().min(0L), -1L);
 	}
 
 	@Test
 	public void shouldDetermineMax() throws Exception {
-		Assert.equal(LongStream.empty().max(0L), 0L);
+		Assert.equal(LongStream.Rt.EMPTY.max(0L), 0L);
 		Assert.equal(testStream().max(0L), 1L);
 	}
 
@@ -212,8 +212,8 @@ public class LongStreamBehavior {
 
 	@Test
 	public void shouldReduceElements() throws Exception {
-		Assert.equal(LongStream.empty().reduce((_, _) -> 0L), null);
-		Assert.equal(LongStream.empty().reduce((_, _) -> 0L, 3), 3L);
+		Assert.equal(LongStream.Rt.EMPTY.reduce((_, _) -> 0L), null);
+		Assert.equal(LongStream.Ex.empty().reduce((_, _) -> 0L, 3), 3L);
 		Assert.equal(testStream().reduce(null), null);
 		Assert.equal(testStream().reduce(null, 3), 3L);
 		Assert.equal(testStream().filter(i -> i > 1L).reduce((_, _) -> 0L), null);

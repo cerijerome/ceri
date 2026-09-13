@@ -6,7 +6,8 @@ import java.util.Map;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Stream;
 import ceri.common.text.Splitter;
 
 /**
@@ -21,7 +22,7 @@ public class Columns {
 	 * should not have spaces.
 	 */
 	public static Columns fromFixedWidthHeader(String header) {
-		return Streams.from(Splitter.of(header).extractToCompletion(Splitter.Extractor.bySpaces()))
+		return Stream.from(Splitter.of(header).extractToCompletion(Splitter.Extractor.bySpaces()))
 			.nonNull().collect(Columns::builder, (b, ex) -> b.add(ex), Columns.Builder::build);
 	}
 
@@ -29,7 +30,7 @@ public class Columns {
 	 * Creates an instance that uses the same extractor for all columns, including headers.
 	 */
 	public static Columns fromHeader(String header, Splitter.Extractor extractor) {
-		return Streams.from(Splitter.of(header).extractToCompletion(extractor)).nonNull().collect(
+		return Stream.from(Splitter.of(header).extractToCompletion(extractor)).nonNull().collect(
 			Columns::builder, (b, ex) -> b.add(ex.text(), extractor), Columns.Builder::build);
 	}
 
@@ -40,7 +41,7 @@ public class Columns {
 		Builder() {}
 
 		public Builder add(int... widths) {
-			Streams.ints(widths).mapToObj(Splitter.Extractor::byWidth).forEach(this::add);
+			IntStream.of(widths).mapToObj(Splitter.Extractor::byWidth).forEach(this::add);
 			return this;
 		}
 
@@ -80,7 +81,7 @@ public class Columns {
 	 * Extract values from a line.
 	 */
 	public List<String> parse(String line) {
-		return Streams.from(Splitter.of(line).extractAll(extractors)).map(Splitter.Extraction::text)
+		return Stream.from(Splitter.of(line).extractAll(extractors)).map(Splitter.Extraction::text)
 			.toList();
 	}
 

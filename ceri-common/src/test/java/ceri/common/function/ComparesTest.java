@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collect.Lists;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.test.Assert;
 
 public class ComparesTest {
@@ -53,7 +53,7 @@ public class ComparesTest {
 	@Test
 	public void testApply() throws Exception {
 		Assert.equal(Compares.apply(null), null);
-		Assert.stream(Compares.apply(Streams.of(-1, null, 1, 0)::sorted), null, -1, 0, 1);
+		Assert.stream(Compares.apply(Stream.ofAll(-1, null, 1, 0)::sorted), null, -1, 0, 1);
 	}
 
 	@Test

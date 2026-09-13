@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.property.Parser;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 
 public class Dsv {
 	private static final Pattern UNQUOTE_REGEX = Pattern.compile("^\\s*\"(.*?)\"?\\s*$");
@@ -44,12 +44,12 @@ public class Dsv {
 
 		public String encode(String[]... lines) {
 			if (lines == null) return null;
-			return Streams.of(lines).map(this::encodeLine).nonNull().collect(JOIN_LINES);
+			return Stream.of(lines).map(this::encodeLine).nonNull().collect(JOIN_LINES);
 		}
 
 		public String encode(List<List<String>> lines) {
 			if (lines == null) return null;
-			return Streams.from(lines).map(this::encodeLine).nonNull().collect(JOIN_LINES);
+			return Stream.from(lines).map(this::encodeLine).nonNull().collect(JOIN_LINES);
 		}
 
 		public String encodeLine(String... values) {
@@ -60,7 +60,7 @@ public class Dsv {
 		public String encodeLine(List<String> values) {
 			if (values == null) return null;
 			if (values.isEmpty()) return "";
-			return Streams.from(values).map(this::encodeValue).nonNull()
+			return Stream.from(values).map(this::encodeValue).nonNull()
 				.collect(Collectors.joining(delimiterStr));
 		}
 
@@ -74,7 +74,7 @@ public class Dsv {
 		public List<List<String>> decode(String document) {
 			if (document == null) return null;
 			if (document.isEmpty()) return List.of();
-			return Streams.of(NEW_LINE_REGEX.split(document)).map(this::decodeLine).nonNull()
+			return Stream.of(NEW_LINE_REGEX.split(document)).map(this::decodeLine).nonNull()
 				.toList();
 		}
 

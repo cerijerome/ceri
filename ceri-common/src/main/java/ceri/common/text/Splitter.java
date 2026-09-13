@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
 import ceri.common.util.Validate;
 
 /**
@@ -83,7 +83,7 @@ public class Splitter {
 		 * end.
 		 */
 		static List<Extractor> byWidths(int... counts) {
-			return Streams.ints(counts).mapToObj(Extractor::byWidth).toList();
+			return IntStream.of(counts).mapToObj(Extractor::byWidth).toList();
 		}
 
 		/**

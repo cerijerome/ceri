@@ -13,7 +13,6 @@ import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.util.Validate;
@@ -168,12 +167,12 @@ public interface ByteProvider extends Iterable<Integer> {
 		/**
 		 * Provides remaining unsigned bytes as a stream.
 		 */
-		public IntStream<RuntimeException> ustream() {
+		public IntStream.Rt ustream() {
 			return ustream(remaining());
 		}
 
 		@Override
-		public IntStream<RuntimeException> ustream(int length) {
+		public IntStream.Rt ustream(int length) {
 			return provider.ustream(inc(length), length);
 		}
 
@@ -622,16 +621,16 @@ public interface ByteProvider extends Iterable<Integer> {
 	/**
 	 * Provides unsigned bytes from index as a stream.
 	 */
-	default IntStream<RuntimeException> ustream(int index) {
+	default IntStream.Rt ustream(int index) {
 		return ustream(index, length() - index);
 	}
 
 	/**
 	 * Provides unsigned bytes from index as a stream.
 	 */
-	default IntStream<RuntimeException> ustream(int index, int length) {
+	default IntStream.Rt ustream(int index, int length) {
 		Validate.slice(length(), index, length);
-		return Streams.slice(index, length).map(i -> getUbyte(i));
+		return IntStream.slice(index, length).map(i -> getUbyte(i));
 	}
 
 	/**

@@ -19,7 +19,6 @@ import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Format;
 import ceri.common.util.Basics;
 import ceri.common.util.Validate;
@@ -224,36 +223,36 @@ public class Bytes {
 	/**
 	 * Stream array as unsigned bytes.
 	 */
-	public static IntStream<RuntimeException> ustream(int... array) {
-		return Streams.slice(0, array.length).map(i -> Maths.ubyte(array[i]));
+	public static IntStream.Rt ustream(int... array) {
+		return IntStream.slice(0, array.length).map(i -> Maths.ubyte(array[i]));
 	}
 
 	/**
 	 * Stream array as unsigned bytes.
 	 */
-	public static IntStream<RuntimeException> ustream(byte[] array) {
+	public static IntStream.Rt ustream(byte[] array) {
 		return ustream(array, 0);
 	}
 
 	/**
 	 * Stream array as unsigned bytes.
 	 */
-	public static IntStream<RuntimeException> ustream(byte[] array, int offset) {
+	public static IntStream.Rt ustream(byte[] array, int offset) {
 		return ustream(array, offset, array.length - offset);
 	}
 
 	/**
 	 * Stream array as unsigned bytes.
 	 */
-	public static IntStream<RuntimeException> ustream(byte[] array, int offset, int len) {
-		return Streams.slice(offset, len).map(i -> Maths.ubyte(array[i]));
+	public static IntStream.Rt ustream(byte[] array, int offset, int len) {
+		return IntStream.slice(offset, len).map(i -> Maths.ubyte(array[i]));
 	}
 
 	/**
 	 * Capture the integer collection as bytes.
 	 */
 	public static byte[] bytes(Collection<Integer> values) {
-		return bytes(Streams.from(values));
+		return bytes(Stream.from(values));
 	}
 
 	/**

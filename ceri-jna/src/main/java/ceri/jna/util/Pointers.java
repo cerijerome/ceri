@@ -4,7 +4,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.function.Functions;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.util.Validate;
 import ceri.jna.type.JnaSize;
 
@@ -207,7 +207,7 @@ public class Pointers {
 	 */
 	public static <T extends PointerType> T[] arrayByVal(Pointer p,
 		Functions.Supplier<T> constructor, Class<T> component, int count) {
-		return Streams.of(Pointers.arrayByVal(p, count)).map(Jna.typeFn(adapt(constructor)))
+		return Stream.of(Pointers.arrayByVal(p, count)).map(Jna.typeFn(adapt(constructor)))
 			.toArray(component);
 	}
 

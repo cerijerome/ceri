@@ -12,7 +12,7 @@ public class StringsTest {
 	private static final String S = "\0A\u00a9\u2103\ud835\udc00";
 	private static final String s = "\0a\u00a9\u2103\ud835\udc00";
 
-	private static IntStream<RuntimeException> stream() {
+	private static IntStream.Rt stream() {
 		return IntStream.of(0, _1B, _2B, _3B, _4B);
 	}
 

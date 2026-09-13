@@ -45,7 +45,6 @@ import ceri.common.stream.DoubleStream;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Streams;
 import ceri.common.text.Chars;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
@@ -960,7 +959,8 @@ public class Assert {
 	/**
 	 * Fails if the stream does does not contain exactly the values in order.
 	 */
-	public static <E extends Exception> void stream(IntStream<E> actual, int... expected) throws E {
+	public static <E extends Exception> void stream(IntStream<E> actual, int... expected)
+		throws E {
 		notNull(actual);
 		array(actual.toArray(), expected);
 	}
@@ -1500,7 +1500,7 @@ public class Assert {
 		notNull(actual);
 		@SuppressWarnings("resource")
 		var fs = Paths.fs(Iterables.first(actual));
-		var expectedPaths = Streams.of(expected).map(fs::getPath).collect(Collectors.toList());
+		var expectedPaths = Stream.of(expected).map(fs::getPath).collect(Collectors.toList());
 		unordered(actual, expectedPaths);
 	}
 

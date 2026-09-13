@@ -4,7 +4,8 @@ import static ceri.ffm.util.FfmOs.linux;
 import static ceri.ffm.util.FfmOs.mac;
 import java.util.Set;
 import ceri.common.data.Xcoder;
-import ceri.common.stream.Streams;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 import ceri.common.util.Os;
 import ceri.ffm.reflect.CAnnotations.CInclude;
@@ -396,14 +397,14 @@ public enum CErrNo {
 	 * Returns an immutable set of error codes, ignoring undefined codes.
 	 */
 	public static Set<Integer> codes(int... errorCodes) {
-		return Streams.ints(errorCodes).filter(c -> c != Const.UNDEFINED).boxed().toSet();
+		return IntStream.of(errorCodes).filter(c -> c != Const.UNDEFINED).boxed().toSet();
 	}
 
 	/**
 	 * Returns an immutable set of error codes, ignoring undefined codes.
 	 */
 	public static Set<Integer> codes(CErrNo... errors) {
-		return Streams.of(errors).filter(CErrNo::defined).map(e -> e.code).toSet();
+		return Stream.of(errors).filter(CErrNo::defined).map(e -> e.code).toSet();
 	}
 
 	/**

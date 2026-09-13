@@ -12,7 +12,7 @@ import ceri.common.collect.Maps;
 import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.property.Parser;
-import ceri.common.stream.Streams;
+import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 
 /**
@@ -55,7 +55,7 @@ public class SystemVars {
 	 * Join paths using the system path separator.
 	 */
 	public static String pathVar(String... paths) {
-		return Streams.of(paths).map(String::trim).filter(Strings.Filter.NON_EMPTY)
+		return Stream.of(paths).map(String::trim).filter(Strings.Filter.NON_EMPTY)
 			.collect(Collectors.joining(File.pathSeparator));
 	}
 
