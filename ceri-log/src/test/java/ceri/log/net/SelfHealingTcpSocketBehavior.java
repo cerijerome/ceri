@@ -14,7 +14,7 @@ import ceri.common.net.TcpSocketOptions;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestTcpSocket;
+import ceri.common.test.TestIo;
 import ceri.common.test.Testing;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
@@ -23,7 +23,7 @@ public class SelfHealingTcpSocketBehavior {
 	private static final HostPort hostPort = HostPort.of("test", 123);
 	private static final int localPort = 321;
 	private SelfHealingTcpSocket.Config config = null;
-	private TestTcpSocket socket = null;
+	private TestIo.TcpSocket socket = null;
 	private SelfHealingTcpSocket shs = null;
 
 	@After
@@ -169,7 +169,7 @@ public class SelfHealingTcpSocketBehavior {
 	}
 
 	private void init() {
-		socket = TestTcpSocket.of(hostPort, localPort);
+		socket = TestIo.tcpSocket(hostPort, localPort);
 		// Broken if IOException is thrown, not RuntimeException
 		config = SelfHealingTcpSocket.Config.builder(hostPort).selfHealing(b -> b
 			.brokenPredicate(IOException.class::isInstance).fixRetryDelayMs(1).recoveryDelayMs(1))
@@ -177,7 +177,7 @@ public class SelfHealingTcpSocketBehavior {
 		shs = SelfHealingTcpSocket.of(config);
 	}
 
-	private static TestTcpSocket open(TestTcpSocket socket) throws IOException {
+	private static TestIo.TcpSocket open(TestIo.TcpSocket socket) throws IOException {
 		socket.open();
 		return socket;
 	}

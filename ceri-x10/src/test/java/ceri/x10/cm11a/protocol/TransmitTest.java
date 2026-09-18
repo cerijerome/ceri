@@ -11,14 +11,14 @@ public class TransmitTest {
 
 	@Test
 	public void testDecode() {
-		Assert.equal(Transmit.decode(Testing.reader(0x04, 0x9b)), Entry.address(House.F, Unit._12));
-		Assert.equal(Transmit.decode(Testing.reader(0x06, 0x90)),
+		Assert.equal(Transmit.decode(Testing.byteReader(0x04, 0x9b)), Entry.address(House.F, Unit._12));
+		Assert.equal(Transmit.decode(Testing.byteReader(0x06, 0x90)),
 			Entry.function(House.F, FunctionType.allUnitsOff));
-		Assert.equal(Transmit.decode(Testing.reader(0x06, 0x92)),
+		Assert.equal(Transmit.decode(Testing.byteReader(0x06, 0x92)),
 			Entry.function(House.F, FunctionType.on));
-		Assert.equal(Transmit.decode(Testing.reader(0x26, 0x94)),
+		Assert.equal(Transmit.decode(Testing.byteReader(0x26, 0x94)),
 			Entry.dim(House.F, FunctionType.dim, 18));
-		Assert.equal(Transmit.decode(Testing.reader(0x07, 0x97, 0x14, 0x1e)),
+		Assert.equal(Transmit.decode(Testing.byteReader(0x07, 0x97, 0x14, 0x1e)),
 			Entry.ext(House.F, 20, 30));
 	}
 }

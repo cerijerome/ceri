@@ -10,23 +10,21 @@ import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestConnector;
-import ceri.common.test.TestInputStream;
-import ceri.common.test.TestOutputStream;
+import ceri.common.test.TestIo;
 import ceri.common.test.Testing;
 
 public class ReplaceableStreamBehavior {
 	private ValueCondition<Exception> sync;
 	private ReplaceableStream.In rin;
-	private TestInputStream tin;
+	private TestIo.In tin;
 	private InputStream in;
 	private InputStream in2;
 	private ReplaceableStream.Out rout;
-	private TestOutputStream tout;
+	private TestIo.Out tout;
 	private ByteArrayOutputStream bout;
 	private ByteArrayOutputStream bout2;
 	private ReplaceableStream.Con.Fixable<Connector.Fixable> fcon;
-	private TestConnector tcon;
+	private TestIo.Connector tcon;
 
 	@After
 	public void after() {
@@ -55,7 +53,7 @@ public class ReplaceableStreamBehavior {
 		rin = ReplaceableStream.in();
 		rin.replace(tin);
 		rin.replace(tin); // does nothing
-		rin.replace(TestInputStream.of());
+		rin.replace(TestIo.in());
 		tin.close.assertCalls(1);
 	}
 
@@ -161,7 +159,7 @@ public class ReplaceableStreamBehavior {
 		rout = ReplaceableStream.out();
 		rout.replace(tout);
 		rout.replace(tout); // does nothing
-		rout.replace(TestOutputStream.of());
+		rout.replace(TestIo.out());
 		tout.close.assertCalls(1);
 	}
 
@@ -239,17 +237,17 @@ public class ReplaceableStreamBehavior {
 
 	private void initIn() {
 		sync = ValueCondition.of();
-		tin = TestInputStream.of();
+		tin = TestIo.in();
 	}
 
 	private void initOut() {
 		sync = ValueCondition.of();
-		tout = TestOutputStream.of();
+		tout = TestIo.out();
 	}
 
 	private void initCon(String name) {
 		fcon = ReplaceableStream.con(name);
-		tcon = TestConnector.of();
+		tcon = TestIo.connector();
 	}
 
 	private static void assertBout(ByteArrayOutputStream bout, String s) {

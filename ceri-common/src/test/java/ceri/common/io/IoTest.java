@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.junit.AfterClass;
@@ -17,8 +18,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestInputStream;
-import ceri.common.test.Testing;
+import ceri.common.test.TestIo;
 import ceri.common.text.Strings;
 import ceri.common.util.SystemVars;
 
@@ -75,7 +75,7 @@ public class IoTest {
 
 	@Test
 	public void testPollString() throws IOException {
-		try (var in = Testing.inputStream("test")) {
+		try (var in = TestIo.inputStream("test")) {
 			var s = Io.pollString(in);
 			Assert.equal(s, "test");
 		}
@@ -84,7 +84,7 @@ public class IoTest {
 	@Test
 	public void testAvailableChar() throws IOException {
 		try (var sys = SystemIo.of()) {
-			sys.in(Testing.inputStream("test"));
+			sys.in(TestIo.inputStream("test"));
 			Assert.equal(Io.availableChar(), 't');
 			Assert.equal(Io.availableChar(), 'e');
 			Assert.equal(Io.availableChar(), 's');
@@ -92,7 +92,7 @@ public class IoTest {
 			sys.in().close();
 			Assert.equal(Io.availableChar(), '\0');
 		}
-		try (var in = TestInputStream.of()) {
+		try (var in = TestIo.in()) {
 			in.available.error.setFrom(ErrorGen.IOX);
 			Assert.equal(Io.availableChar(in), '\0');
 		}
@@ -164,7 +164,7 @@ public class IoTest {
 	@Test
 	public void testReadNext() throws IOException {
 		Assert.isNull(Io.readNext(null));
-		try (var in = TestInputStream.of()) {
+		try (var in = TestIo.in()) {
 			in.to.writeBytes(1, 2, 3);
 			Assert.array(Io.readNext(in), 1, 2, 3);
 			in.to.writeBytes(4);
@@ -179,7 +179,7 @@ public class IoTest {
 	@Test
 	public void testReadNextString() throws IOException {
 		Assert.isNull(Io.readNext(null));
-		try (var in = TestInputStream.of()) {
+		try (var in = TestIo.in()) {
 			in.to.writeBytes('a', 'b', 'c');
 			Assert.equal(Io.readNextString(in), "abc");
 			in.to.writeBytes('d');
@@ -202,7 +202,7 @@ public class IoTest {
 
 	@Test
 	public void testPipe() throws IOException {
-		var in = Testing.inputStream(1, 2, 3, 4, 5);
+		var in = TestIo.inputStream(1, 2, 3, 4, 5);
 		var out = new ByteArrayOutputStream();
 		Io.pipe(in, out);
 		Assert.array(out.toByteArray(), 1, 2, 3, 4, 5);
@@ -220,13 +220,27 @@ public class IoTest {
 
 	@Test
 	public void testReadString() throws IOException {
-		var in = Testing.inputStream("abc\0");
+		var in = TestIo.inputStream("abc\0");
 		Assert.equal(Io.readString(in), "abc\0");
 	}
 
 	@Test
 	public void testLines() throws IOException {
-		var in = Testing.inputStream("line0\n\nline2\nend");
+		var in = TestIo.inputStream("line0\n\nline2\nend");
 		Assert.stream(Io.lines(in), "line0", "", "line2", "end");
 	}
+
+	@Test
+	public void testLinesException() throws IOException {
+		try (var in = TestIo.in()) {
+			var ise = new IllegalStateException("test");
+			var ioe = new IOException("test");
+			in.read.error.set(ise, new UncheckedIOException(ioe));
+			in.to.write(1);
+			Assert.thrown(e -> Assert.same(e, ise), () -> Io.lines(in).toList());
+			in.to.write(1);
+			Assert.thrown(e -> Assert.same(e, ioe), () -> Io.lines(in).toList());
+		}
+	}
+
 }

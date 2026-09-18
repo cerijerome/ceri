@@ -54,6 +54,8 @@ import ceri.common.test.Testing;
 	ceri.common.concurrent.ConcurrentTest.class, //
 	ceri.common.concurrent.FuturesBehavior.class, //
 	ceri.common.concurrent.LazyBehavior.class, //
+	ceri.common.concurrent.ListenableBehavior.class, //
+	ceri.common.concurrent.ListenersBehavior.class, //
 	ceri.common.concurrent.LockerBehavior.class, //
 	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
 	ceri.common.concurrent.SafeReadWriteBehavior.class, //
@@ -92,13 +94,6 @@ import ceri.common.test.Testing;
 	ceri.common.data.TypeValueBehavior.class, //
 	ceri.common.data.XcoderTest.class, //
 	ceri.common.data.XorBehavior.class, //
-	// event
-	ceri.common.event.EventThreadBehavior.class, //
-	ceri.common.event.EventTrackerBehavior.class, //
-	ceri.common.event.IntListenableBehavior.class, //
-	ceri.common.event.IntListenersBehavior.class, //
-	ceri.common.event.ListenableBehavior.class, //
-	ceri.common.event.ListenersBehavior.class, //
 	// except
 	ceri.common.except.ExceptionAdapterBehavior.class, //
 	ceri.common.except.ExceptionTrackerBehavior.class, //
@@ -237,19 +232,12 @@ import ceri.common.test.Testing;
 	ceri.common.test.ManualTesterBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //
 	ceri.common.test.TcpSocketTesterBehavior.class, //
-	ceri.common.test.TestConnectorBehavior.class, //
-	ceri.common.test.TestExecutorServiceBehavior.class, //
-	ceri.common.test.TestFixableBehavior.class, //
-	ceri.common.test.TestFutureBehavior.class, //
-	ceri.common.test.TestInputStreamBehavior.class, //
-	ceri.common.test.TestListenersBehavior.class, //
-	ceri.common.test.TestOutputStreamBehavior.class, //
+	ceri.common.test.TestCollectionTest.class, //
+	ceri.common.test.TestConcurrentBehavior.class, //
+	ceri.common.test.TestIoTest.class, //
 	ceri.common.test.TestPrinterBehavior.class, //
 	ceri.common.test.TestProcessBehavior.class, //
-	ceri.common.test.TestRunAdapterBehavior.class, //
-	ceri.common.test.TestSocketBehavior.class, //
 	ceri.common.test.TestStyleBehavior.class, //
-	ceri.common.test.TestTcpSocketBehavior.class, //
 	ceri.common.test.TestTimerBehavior.class, //
 	ceri.common.test.TestingTest.class, //
 	ceri.common.test.TimeCollectorBehavior.class, //
@@ -273,13 +261,12 @@ import ceri.common.test.Testing;
 	ceri.common.text.Utf8Test.class, //
 	// time
 	ceri.common.time.DatesTest.class, //
+	ceri.common.time.EventTrackerBehavior.class, //
 	ceri.common.time.HolidayBehavior.class, //
 	ceri.common.time.TimeSpecBehavior.class, //
 	ceri.common.time.TimeSupplierBehavior.class, //
 	ceri.common.time.TimeoutBehavior.class, //
 	ceri.common.time.TimerBehavior.class, //
-	// unit
-	ceri.common.unit.TemperatureBehavior.class, //
 	// util
 	ceri.common.util.BasicsTest.class, //
 	ceri.common.util.CapabilityTest.class, //
@@ -292,6 +279,7 @@ import ceri.common.test.Testing;
 	ceri.common.util.OsTest.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
+	ceri.common.util.TemperatureBehavior.class, //
 	ceri.common.util.TruthBehavior.class, //
 	ceri.common.util.ValidateTest.class, //
 	ceri.common.util.VersionBehavior.class, //

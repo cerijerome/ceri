@@ -19,8 +19,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.Captor;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestExecutorService;
-import ceri.common.test.TestFuture;
+import ceri.common.test.TestConcurrent;
 import ceri.common.test.TestProcess;
 import ceri.common.text.Strings;
 import ceri.log.io.LogPrintStream;
@@ -228,8 +227,7 @@ public class LogsTest {
 	public void testCreateArrayWithCount() {
 		Assert.array(Logs.createArray(TestCloseable[]::new, () -> new TestCloseable(0), 3),
 			new TestCloseable(0), new TestCloseable(0), new TestCloseable(0));
-		Assert.thrown(
-			() -> Logs.createArray(TestCloseable[]::new, () -> TestCloseable.of("x"), 3));
+		Assert.thrown(() -> Logs.createArray(TestCloseable[]::new, () -> TestCloseable.of("x"), 3));
 	}
 
 	@Test
@@ -265,7 +263,7 @@ public class LogsTest {
 
 	@Test
 	public void testCloseExecutorServiceWithInterrupt() {
-		try (var exec = TestExecutorService.of()) {
+		try (var exec = TestConcurrent.exec()) {
 			exec.awaitTermination.error.setFrom(ErrorGen.INX, ErrorGen.INX, null);
 			Assert.yes(Logs.close(exec));
 		}
@@ -294,7 +292,7 @@ public class LogsTest {
 
 	@Test
 	public void testCloseFutureWithInterrupt() {
-		var future = TestFuture.of("test");
+		var future = TestConcurrent.futureOf("test");
 		future.get.error.setFrom(ErrorGen.INX);
 		Assert.no(Logs.close(future));
 		testLog.assertFind("(?is)DEBUG .*InterruptedException");
@@ -302,7 +300,7 @@ public class LogsTest {
 
 	@Test
 	public void testCloseFutureWithException() {
-		var future = TestFuture.of("test");
+		var future = TestConcurrent.futureOf("test");
 		future.get.error.setFrom(TimeoutException::new);
 		Assert.no(Logs.close(future));
 		testLog.assertFind("(?is)WARN .*TimeoutException");

@@ -9,7 +9,7 @@ import com.google.protobuf.Empty;
 import ceri.common.collect.Sets;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.event.Listenable;
+import ceri.common.concurrent.Listenable;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.log.concurrent.LoopingExecutor;

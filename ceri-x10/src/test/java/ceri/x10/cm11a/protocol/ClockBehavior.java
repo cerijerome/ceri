@@ -25,7 +25,7 @@ public class ClockBehavior {
 
 	@Test
 	public void shouldDecode() {
-		Clock clock = Clock.decode(Testing.reader(0x9b, 0, 0, 0, 1, 0x04, 0x57));
+		Clock clock = Clock.decode(Testing.byteReader(0x9b, 0, 0, 0, 1, 0x04, 0x57));
 		Assert.equal(clock.house, House.G);
 		Assert.equal(clock.date.getMonth(), Month.JANUARY);
 		Assert.equal(clock.date.getDayOfMonth(), 1);

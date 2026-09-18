@@ -6,15 +6,14 @@ import java.io.OutputStream;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestInputStream;
-import ceri.common.test.TestOutputStream;
+import ceri.common.test.TestIo;
 import ceri.jna.clib.FileDescriptor;
 
 public class TestFileDescriptor implements FileDescriptor {
 	public final CallSync.Supplier<Integer> fd = CallSync.supplier();
 	public final CallSync.Consumer<Integer> flags = CallSync.consumer(0, true);
-	public final TestInputStream in = TestInputStream.of();
-	public final TestOutputStream out = TestOutputStream.of();
+	public final TestIo.In in = TestIo.in();
+	public final TestIo.Out out = TestIo.out();
 	public final CallSync.Runnable close = CallSync.runnable(true);
 
 	public static TestFileDescriptor of(int fd) {

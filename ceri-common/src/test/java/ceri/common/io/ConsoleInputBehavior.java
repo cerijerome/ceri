@@ -10,7 +10,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
-import ceri.common.test.TestInputStream;
+import ceri.common.test.TestIo;
 import ceri.common.text.StringBuilders;
 
 public class ConsoleInputBehavior {
@@ -47,7 +47,7 @@ public class ConsoleInputBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldPollForInput() throws IOException {
-		var tin = TestInputStream.of();
+		var tin = TestIo.in();
 		tin.available.autoResponses(0, 0, 1);
 		tin.to.writeString("abc\n");
 		var out = IoStream.nullPrint();

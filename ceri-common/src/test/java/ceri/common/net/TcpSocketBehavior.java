@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.TestTcpSocket;
+import ceri.common.test.TestIo;
 
 public class TcpSocketBehavior {
 
@@ -35,10 +35,9 @@ public class TcpSocketBehavior {
 
 	@Test
 	public void shouldApplyOptions() throws IOException {
-		try (var s = TestTcpSocket.of()) {
+		try (var s = TestIo.tcpSocket()) {
 			s.options(TcpSocketOptions.of().set(TcpSocketOption.tcpNoDelay, true));
 			Assert.equal(s.option(TcpSocketOption.tcpNoDelay), true);
 		}
 	}
-
 }

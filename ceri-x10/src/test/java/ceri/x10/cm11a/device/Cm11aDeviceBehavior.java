@@ -9,11 +9,10 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestConnector;
+import ceri.common.test.TestIo;
 import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 import ceri.x10.cm11a.protocol.Clock;
@@ -28,14 +27,13 @@ import ceri.x10.command.UnsupportedCommand;
 public class Cm11aDeviceBehavior {
 	private static final Cm11aDevice.Config config = Cm11aDevice.Config.builder().maxSendAttempts(3)
 		.queuePollTimeoutMs(0).readPollMs(0).readTimeoutMs(10000).build();
-	private TestConnector con;
+	private TestIo.Connector con;
 	private Cm11aDevice cm11a;
 
 	@After
 	public void after() {
-		Closeables.close(cm11a, con);
-		cm11a = null;
-		con = null;
+		cm11a = Testing.close(cm11a);
+		con = Testing.close(con);
 	}
 
 	@Test
@@ -214,13 +212,12 @@ public class Cm11aDeviceBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldCloseOnInterrupt() throws IOException {
-		try (TestConnector con = TestConnector.of()) {
-			con.open();
-			try (Cm11aDevice _ = Cm11aDevice.of(config, con)) {
-				con.in.read.error.setFrom(ErrorGen.RIX);
-				con.in.to.writeByte(0).flush();
-				con.in.awaitFeed();
-			}
+		con = TestIo.connector();
+		con.open();
+		try (Cm11aDevice _ = Cm11aDevice.of(config, con)) {
+			con.in.read.error.setFrom(ErrorGen.RIX);
+			con.in.to.writeByte(0).flush();
+			con.in.awaitFeed();
 		}
 	}
 
@@ -230,7 +227,7 @@ public class Cm11aDeviceBehavior {
 	}
 
 	private void init() throws IOException {
-		con = TestConnector.of();
+		con = TestIo.connector();
 		con.open();
 		cm11a = Cm11aDevice.of(config, con);
 	}

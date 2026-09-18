@@ -1,11 +1,8 @@
 package ceri.common.test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
-import ceri.common.concurrent.BoolCondition;
-import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
 import ceri.common.log.Level;
 import ceri.common.process.Processes;
@@ -58,7 +55,7 @@ public class TestingTest {
 	@Test
 	public void testFindTest() {
 		var thread = Thread.currentThread();
-		try (var t = Testing.threadRun(() -> {
+		try (var t = TestConcurrent.threadRun(() -> {
 			var te = Testing.findTest();
 			Assert.equal(te.thread(), thread);
 			Assert.equal(te.element().getClassName(), getClass().getName());
@@ -106,7 +103,7 @@ public class TestingTest {
 	@Test
 	public void testClose() {
 		Assert.equal(Testing.close((AutoCloseable) null), null);
-		Assert.equal(Testing.close(TestFuture.of(1)), null);
+		Assert.equal(Testing.close(TestConcurrent.futureOf(1)), null);
 		Assert.equal(Testing.close(Processes.NULL), null);
 		Assert.assertion(() -> Testing.close("test"));
 	}
@@ -116,41 +113,6 @@ public class TestingTest {
 		var t = Testing.thrown(() -> Assert.throwIo());
 		Assert.throwable(t, IOException.class, "throwIo");
 		Assert.isNull(Testing.thrown(() -> {}));
-	}
-
-	@Test
-	public void testRunRepeat() throws InterruptedException {
-		var sync = BoolCondition.of();
-		try (var _ = Testing.runRepeat(sync::signal)) {
-			sync.await();
-			sync.await();
-		}
-	}
-
-	@Test
-	public void testRunRepeatWithIndex() throws InterruptedException {
-		var sync = ValueCondition.<Integer>of();
-		try (var _ = Testing.runRepeat(i -> sync.signal(i))) {
-			sync.await(i -> i > 1);
-		}
-	}
-
-	@Test
-	public void testThreadCall() {
-		var sync = ValueCondition.<String>of();
-		try (var exec = Testing.threadCall(sync::await)) {
-			sync.signal("test");
-			Assert.equal(exec.get(), "test");
-		}
-	}
-
-	@Test
-	public void testThreadRun() {
-		var sync = BoolCondition.of();
-		try (var exec = Testing.threadRun(sync::await)) {
-			sync.signal();
-			exec.get();
-		}
 	}
 
 	@Test
@@ -166,43 +128,17 @@ public class TestingTest {
 	}
 
 	@Test
-	public void testReadString() {
-		try (var sys = SystemIo.of()) {
-			sys.in(new ByteArrayInputStream("test".getBytes()));
-			Assert.equal(Testing.readString(), "test");
-			Assert.equal(Testing.readString(), "");
-		}
-	}
-
-	@Test
-	public void testReadStringWithBadInputStream() throws IOException {
-		try (var sys = SystemIo.of()) {
-			try (var badIn = new InputStream() {
-				@Override
-				public int read() throws IOException {
-					throw new IOException();
-				}
-			}) {
-				sys.in(badIn);
-				Assert.thrown(Testing::readString);
-			}
-		}
-	}
-
-	@Test
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		Assert.equal(Testing.readableString(bytes), "?a.??~!?");
-		Assert.thrown(IllegalArgumentException.class,
-			() -> Testing.readableString(bytes, 3, 2, "test", '?'));
 		Assert.equal(Testing.readableString(new byte[0], 0, 0, null, '.'), "");
-		Assert.equal(Testing.readableString(new byte[0], 0, 0, "", '.'), "");
+		Assert.equal(Testing.readableString(new byte[0], 0, 0, StandardCharsets.US_ASCII, '.'), "");
 	}
 
 	@Test
-	public void testReader() {
-		Assert.array(Testing.reader(1, 2, 3).readBytes(), 1, 2, 3);
-		Assert.array(Testing.reader("abc").readBytes(), 'a', 'b', 'c');
+	public void testByteReader() {
+		Assert.array(Testing.byteReader(1, 2, 3).readBytes(), 1, 2, 3);
+		Assert.array(Testing.byteReader("abc").readBytes(), 'a', 'b', 'c');
 	}
 
 	@Test

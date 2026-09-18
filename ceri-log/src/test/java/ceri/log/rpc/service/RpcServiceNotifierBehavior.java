@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import com.google.protobuf.Empty;
-import ceri.common.event.Listeners;
+import ceri.common.concurrent.Listeners;
 import ceri.log.rpc.test.TestStreamObserver;
 import ceri.log.test.LogModifier;
 import io.grpc.Status;

@@ -4,7 +4,7 @@ import static ceri.log.rpc.service.RpcServices.respond;
 import static ceri.log.rpc.util.Rpc.EMPTY;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UInt32Value;
-import ceri.common.event.Listeners;
+import ceri.common.concurrent.Listeners;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.log.rpc.TestGrpc;

@@ -1,8 +1,8 @@
 package ceri.x10.cm11a.device;
 
 import java.io.IOException;
-import ceri.common.event.Listenable;
-import ceri.common.event.Listeners;
+import ceri.common.concurrent.Listenable;
+import ceri.common.concurrent.Listeners;
 import ceri.common.function.Enclosure;
 import ceri.common.io.StateChange;
 import ceri.log.concurrent.Dispatcher;

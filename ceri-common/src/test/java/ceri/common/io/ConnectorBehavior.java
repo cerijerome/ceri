@@ -4,10 +4,10 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.Array;
 import ceri.common.test.Assert;
-import ceri.common.test.TestConnector;
+import ceri.common.test.TestIo;
 
 public class ConnectorBehavior {
-
+	
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideNoOpImplementation() throws IOException {
@@ -24,7 +24,7 @@ public class ConnectorBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWrap() throws IOException {
-		try (var con = TestConnector.of()) {
+		try (var con = TestIo.connector()) {
 			con.in.to.writeBytes(1, 2, 3);
 			var w = new Connector.Wrapper<>(con);
 			w.open();

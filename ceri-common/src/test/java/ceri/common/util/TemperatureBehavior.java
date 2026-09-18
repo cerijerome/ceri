@@ -1,13 +1,13 @@
-package ceri.common.unit;
+package ceri.common.util;
 
-import static ceri.common.unit.Temperature.ZERO_C;
-import static ceri.common.unit.Temperature.ZERO_F;
-import static ceri.common.unit.Temperature.ZERO_K;
-import static ceri.common.unit.Temperature.ZERO_R;
-import static ceri.common.unit.Temperature.Scale.celsius;
-import static ceri.common.unit.Temperature.Scale.fahrenheit;
-import static ceri.common.unit.Temperature.Scale.kelvin;
-import static ceri.common.unit.Temperature.Scale.rankine;
+import static ceri.common.util.Temperature.ZERO_C;
+import static ceri.common.util.Temperature.ZERO_F;
+import static ceri.common.util.Temperature.ZERO_K;
+import static ceri.common.util.Temperature.ZERO_R;
+import static ceri.common.util.Temperature.Scale.celsius;
+import static ceri.common.util.Temperature.Scale.fahrenheit;
+import static ceri.common.util.Temperature.Scale.kelvin;
+import static ceri.common.util.Temperature.Scale.rankine;
 import org.junit.Test;
 import ceri.common.test.Assert;
 

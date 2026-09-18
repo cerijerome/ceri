@@ -6,7 +6,7 @@ import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.Testing;
+import ceri.common.test.TestConcurrent;
 import ceri.ffm.clib.test.TestCLibNative;
 import ceri.ffm.test.FfmTesting;
 import ceri.log.test.LogModifier;
@@ -29,7 +29,7 @@ public class LastErrorTest {
 	@Test
 	public void testGet() {
 		LastError.set(1);
-		try (var _ = Testing.threadRun(() -> Assert.equal(LastError.get(), 0))) {}
+		try (var _ = TestConcurrent.threadRun(() -> Assert.equal(LastError.get(), 0))) {}
 		Assert.equal(LastError.get(), 1);
 	}
 

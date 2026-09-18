@@ -47,7 +47,7 @@ public class ConnectorTester {
 			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
 		b.command(Connector.class, "C", (_, _, s) -> s.close(), "C = close the connector");
 		b.command(Fixable.class, "z", (_, _, s) -> s.broken(), "z = mark connector as broken");
-		b.command(TestConnector.class, "Z", (_, _, s) -> s.fixed(), "Z = fix the connector");
+		b.command(TestIo.Connector.class, "Z", (_, _, s) -> s.fixed(), "Z = fix the connector");
 		return b;
 	}
 

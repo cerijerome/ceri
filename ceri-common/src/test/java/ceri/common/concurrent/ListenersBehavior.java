@@ -1,4 +1,4 @@
-package ceri.common.event;
+package ceri.common.concurrent;
 
 import org.junit.Test;
 import ceri.common.collect.Lists;
@@ -12,7 +12,7 @@ public class ListenersBehavior {
 		var b = new StringBuilder();
 		Functions.Consumer<String> l0 = s -> b.append(s.charAt(0));
 		Functions.Consumer<String> l1 = s -> b.append(s.charAt(1));
-		Listeners<String> ls = Listeners.of();
+		var ls = Listeners.<String>of();
 		Assert.yes(ls.isEmpty());
 		ls.listen(l0);
 		ls.listen(l0);
@@ -36,7 +36,7 @@ public class ListenersBehavior {
 		var b = new StringBuilder();
 		Functions.Consumer<String> l0 = s -> b.append(s.charAt(0));
 		Functions.Consumer<String> l1 = s -> b.append(s.charAt(1));
-		Listeners<String> ls = Listeners.of();
+		var ls = Listeners.<String>of();
 		ls.listen(l0);
 		ls.listen(l1);
 		ls.accept("ab");
@@ -72,5 +72,63 @@ public class ListenersBehavior {
 		listeners.listen(events::add);
 		listeners.acceptAll("abc", "de", "f");
 		Assert.ordered(events, "abc", "de", "f");
+	}
+
+	@Test
+	public void shouldAddAndRemoveIntListeners() {
+		int[] count = new int[1];
+		Functions.IntConsumer l0 = i -> count[0] += i;
+		Functions.IntConsumer l1 = i -> count[0] += (i * 100);
+		var ls = Listeners.ofInt();
+		Assert.yes(ls.isEmpty());
+		ls.listen(l0);
+		ls.listen(l0);
+		ls.listen(l1);
+		Assert.equal(ls.size(), 3);
+		ls.accept(1);
+		Assert.equal(count[0], 102);
+		ls.unlisten(l0);
+		ls.accept(2);
+		Assert.equal(count[0], 102 + 202);
+		ls.unlisten(l1);
+		ls.accept(3);
+		Assert.equal(count[0], 102 + 202 + 3);
+		ls.unlisten(l0);
+		ls.accept(4);
+		Assert.equal(count[0], 102 + 202 + 3);
+	}
+
+	@Test
+	public void shouldClearIntListeners() {
+		var b = new StringBuilder();
+		Functions.IntConsumer l0 = i -> b.append((char) ('A' + i));
+		Functions.IntConsumer l1 = i -> b.append((char) ('a' + i));
+		var ls = Listeners.ofInt();
+		ls.listen(l0);
+		ls.listen(l1);
+		ls.acceptAll(1, 2);
+		Assert.equal(b.toString(), "BbCc");
+		ls.clear();
+		ls.accept(3);
+		Assert.equal(b.toString(), "BbCc");
+	}
+
+	@Test
+	public void shouldDuplicateIntListeners() {
+		var ls = Listeners.ofInt();
+		Functions.IntConsumer l0 = _ -> {};
+		Functions.IntConsumer l1 = _ -> {};
+		Assert.yes(ls.listen(l0));
+		Assert.yes(ls.listen(l0));
+		Assert.yes(ls.listen(l1));
+		Assert.yes(ls.listen(l1));
+		Assert.yes(ls.listen(l0));
+		Assert.yes(ls.unlisten(l0));
+		Assert.yes(ls.unlisten(l0));
+		Assert.yes(ls.unlisten(l0));
+		Assert.no(ls.unlisten(l0));
+		Assert.yes(ls.unlisten(l1));
+		Assert.yes(ls.unlisten(l1));
+		Assert.no(ls.unlisten(l1));
 	}
 }

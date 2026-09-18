@@ -3,8 +3,8 @@ package ceri.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.event.Listenable;
-import ceri.common.event.Listeners;
+import ceri.common.concurrent.Listenable;
+import ceri.common.concurrent.Listeners;
 import ceri.common.function.Functions;
 import ceri.common.util.Basics;
 

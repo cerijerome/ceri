@@ -7,7 +7,8 @@ import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestFixable;
+import ceri.common.test.TestConcurrent;
+import ceri.common.test.TestIo;
 import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 
@@ -15,19 +16,19 @@ public class SelfHealingBehavior {
 	private static final IOException BROKEN_EXCEPTION = new IOException("broken");
 	private static final SelfHealing.Config CONF =
 		SelfHealing.Config.of(0, 0, e -> e == BROKEN_EXCEPTION);
-	private TestFixable fixable = null;
+	private TestIo.Fixable fixable = null;
 	private TestSelfHealingDevice device = null;
 
-	private static class TestSelfHealingDevice extends SelfHealing<TestFixable> {
-		private final TestFixable testFixable;
+	private static class TestSelfHealingDevice extends SelfHealing<TestIo.Fixable> {
+		private final TestIo.Fixable testFixable;
 
-		private TestSelfHealingDevice(Config config, TestFixable testFixable) {
+		private TestSelfHealingDevice(Config config, TestIo.Fixable testFixable) {
 			super(config);
 			this.testFixable = testFixable;
 		}
 
 		@Override
-		protected TestFixable openDevice() throws IOException {
+		protected TestIo.Fixable openDevice() throws IOException {
 			testFixable.open();
 			return testFixable;
 		}
@@ -64,7 +65,7 @@ public class SelfHealingBehavior {
 		LogModifier.run(() -> {
 			fixable.open.autoResponse(false);
 			fixable.open.error.setFrom(ErrorGen.IOX);
-			try (var exec = Testing.threadRun(fixable.open::await)) {
+			try (var exec = TestConcurrent.threadRun(fixable.open::await)) {
 				Assert.thrown(device::open);
 				device.open();
 				exec.get();
@@ -79,7 +80,7 @@ public class SelfHealingBehavior {
 		LogModifier.run(() -> {
 			fixable.open.autoResponse(false);
 			fixable.open.error.setFrom(ErrorGen.IOX, ErrorGen.IOX, ErrorGen.IOX, null);
-			try (var exec = Testing.threadRun(() -> {
+			try (var exec = TestConcurrent.threadRun(() -> {
 				fixable.open.await(); // IOX
 				fixable.open.await(); // IOX
 				fixable.open.await(); // IOX
@@ -115,7 +116,7 @@ public class SelfHealingBehavior {
 	}
 
 	private void init() {
-		fixable = TestFixable.of();
+		fixable = TestIo.fixable();
 		device = new TestSelfHealingDevice(CONF, fixable);
 	}
 }

@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.Assert;
-import ceri.common.test.Testing;
+import ceri.common.test.TestConcurrent;
 
 public class BinarySemaphoreBehavior {
 	private BinarySemaphore bs;
@@ -38,7 +38,7 @@ public class BinarySemaphoreBehavior {
 	@Test
 	public void shouldFailIfClosedDuringAcquisition() {
 		bs.acquire();
-		try (var x = Testing.threadRun(() -> {
+		try (var x = TestConcurrent.threadRun(() -> {
 			Assert.thrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)
@@ -51,7 +51,7 @@ public class BinarySemaphoreBehavior {
 	@Test
 	public void shouldFailToAcquireIfInterrupted() {
 		bs.acquire();
-		try (var _ = Testing.threadRun(() -> {
+		try (var _ = TestConcurrent.threadRun(() -> {
 			Assert.thrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)

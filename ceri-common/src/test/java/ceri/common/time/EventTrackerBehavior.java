@@ -1,4 +1,4 @@
-package ceri.common.event;
+package ceri.common.time;
 
 import java.util.function.Supplier;
 import org.junit.Test;
@@ -9,7 +9,7 @@ public class EventTrackerBehavior {
 
 	@Test
 	public void shouldClearEvents() {
-		EventTracker tracker = EventTracker.of(2, 100000);
+		EventTracker tracker = EventTracker.unsafe(2, 100000);
 		Assert.equal(tracker.events(), 0);
 		Assert.equal(tracker.add(), true);
 		Assert.equal(tracker.add(), true);
@@ -54,7 +54,7 @@ public class EventTrackerBehavior {
 
 	private EventTracker tracker(int maxEvents, long windowMs,
 		Supplier<? extends Number> supplier) {
-		return new EventTracker(maxEvents, windowMs) {
+		return new EventTracker(null, null, maxEvents, windowMs) {
 			@Override
 			long currentTimeMs() {
 				return supplier.get().longValue();

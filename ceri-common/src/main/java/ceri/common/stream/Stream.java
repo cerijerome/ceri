@@ -82,13 +82,12 @@ public abstract class Stream<E extends Exception, T> {
 		extends Functions.Function<RuntimeException, E> {
 
 		/**
-		 * Applies the adapter and throws the exception; if null, the original exception is
-		 * re-thrown.
+		 * Applies the adapter and throws the exception if not null.
 		 */
-		default void handle(RuntimeException e) throws E {
-			var ex = apply(e);
+		static <E extends Exception> void adapt(ExAdapter<E> adapter, RuntimeException e) throws E {
+			if (adapter == null) return;
+			var ex = adapter.apply(e);
 			if (ex != null) throw ex;
-			throw e;
 		}
 	}
 
@@ -111,9 +110,8 @@ public abstract class Stream<E extends Exception, T> {
 		public static <K, V, T> Stream.Rt<T> unmap(
 			Functions.BiFunction<? super K, ? super V, ? extends T> unmapper,
 			Map<? extends K, ? extends V> map) {
-			if (map == null || unmapper == null) return empty();
-			return Stream.from(map.entrySet())
-				.map(e -> unmapper.apply(e.getKey(), e.getValue()));
+			return (map == null || unmapper == null) ? empty() :
+				Stream.from(map.entrySet()).map(e -> unmapper.apply(e.getKey(), e.getValue()));
 		}
 
 		/**
@@ -137,7 +135,7 @@ public abstract class Stream<E extends Exception, T> {
 		 * Adapts the stream to allow the exception type.
 		 */
 		public <E extends Exception> Ex<E, T> ex() {
-			return new Ex<>(Reflect.unchecked(supplier()));
+			return super.emptyInstance() ? Ex.empty() : new Ex<>(supplierEx());
 		}
 
 		@Override
@@ -155,7 +153,7 @@ public abstract class Stream<E extends Exception, T> {
 		 */
 		public <E extends Exception> Ex<E, T>
 			filterEx(Excepts.Predicate<? extends E, ? super T> filter) {
-			return this.<E>ex().filter(filter);
+			return super.noOp(filter) ? ex() : new Ex<>(filterSupplier(supplierEx(), filter));
 		}
 
 		@Override
@@ -184,14 +182,14 @@ public abstract class Stream<E extends Exception, T> {
 		 */
 		public <E extends Exception, R> Ex<E, R>
 			mapEx(Excepts.Function<? extends E, ? super T, ? extends R> mapper) {
-			return this.<E>ex().map(mapper);
+			return super.noOp(mapper) ? Ex.empty() : new Ex<>(mapSupplier(supplierEx(), mapper));
 		}
 
 		@Override
 		public IntStream.Rt
 			mapToInt(Excepts.ToIntFunction<? extends RuntimeException, ? super T> mapper) {
-			if (super.noOp(mapper)) return IntStream.Rt.EMPTY;
-			return IntStream.Rt.ofSupplier(super.intSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? IntStream.Rt.EMPTY :
+				IntStream.Rt.ofSupplier(super.intSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -199,14 +197,15 @@ public abstract class Stream<E extends Exception, T> {
 		 */
 		public <E extends Exception> IntStream.Ex<E>
 			mapToIntEx(Excepts.ToIntFunction<? extends E, ? super T> mapper) {
-			return this.<E>ex().mapToInt(mapper);
+			return super.noOp(mapper) ? IntStream.Ex.empty() :
+				IntStream.Ex.ofSupplier(super.intSupplier(supplierEx(), mapper));
 		}
 
 		@Override
 		public LongStream.Rt
 			mapToLong(Excepts.ToLongFunction<? extends RuntimeException, ? super T> mapper) {
-			if (super.noOp(mapper)) return LongStream.Rt.EMPTY;
-			return LongStream.Rt.ofSupplier(super.longSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? LongStream.Rt.EMPTY :
+				LongStream.Rt.ofSupplier(super.longSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -214,14 +213,15 @@ public abstract class Stream<E extends Exception, T> {
 		 */
 		public <E extends Exception> LongStream.Ex<E>
 			mapToLongEx(Excepts.ToLongFunction<? extends E, ? super T> mapper) {
-			return this.<E>ex().mapToLong(mapper);
+			return super.noOp(mapper) ? LongStream.Ex.empty() :
+				LongStream.Ex.ofSupplier(super.longSupplier(supplierEx(), mapper));
 		}
 
 		@Override
 		public DoubleStream.Rt
 			mapToDouble(Excepts.ToDoubleFunction<? extends RuntimeException, ? super T> mapper) {
-			if (super.noOp(mapper)) return DoubleStream.Rt.EMPTY;
-			return DoubleStream.Rt.ofSupplier(super.doubleSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? DoubleStream.Rt.EMPTY :
+				DoubleStream.Rt.ofSupplier(super.doubleSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -229,7 +229,8 @@ public abstract class Stream<E extends Exception, T> {
 		 */
 		public <E extends Exception> DoubleStream.Ex<E>
 			mapToDoubleEx(Excepts.ToDoubleFunction<? extends E, ? super T> mapper) {
-			return this.<E>ex().mapToDouble(mapper);
+			return super.noOp(mapper) ? DoubleStream.Ex.empty() :
+				DoubleStream.Ex.ofSupplier(super.doubleSupplier(supplierEx(), mapper));
 		}
 
 		@Override
@@ -244,7 +245,8 @@ public abstract class Stream<E extends Exception, T> {
 		 */
 		public <E extends Exception, R> Ex<E, R> expandEx(
 			Excepts.Function<? extends E, ? super T, ? extends Iterable<? extends R>> mapper) {
-			return this.<E>ex().expand(mapper);
+			return super.noOp(mapper) ? Ex.empty() :
+				flatMapEx(t -> Stream.from(mapper.apply(t), null));
 		}
 
 		@Override
@@ -285,10 +287,11 @@ public abstract class Stream<E extends Exception, T> {
 		/**
 		 * Calls the consumer for each element.
 		 */
-		public <E extends Exception> void forEachEx(Excepts.Consumer<? extends E, ? super T> consumer) throws E {
+		public <E extends Exception> void
+			forEachEx(Excepts.Consumer<? extends E, ? super T> consumer) throws E {
 			this.<E>ex().forEach(consumer);
 		}
-		
+
 		@Override
 		<R> Rt<R> update(NextSupplier<? extends RuntimeException, ? extends R> supplier) {
 			return new Rt<>(supplier);
@@ -297,6 +300,10 @@ public abstract class Stream<E extends Exception, T> {
 		@Override
 		<R> Rt<R> emptyVal() {
 			return Rt.empty();
+		}
+
+		private <E extends Exception> NextSupplier<E, T> supplierEx() {
+			return Reflect.unchecked(supplier());
 		}
 	}
 
@@ -319,9 +326,8 @@ public abstract class Stream<E extends Exception, T> {
 		public static <E extends Exception, K, V, T> Ex<E, T> unmap(
 			Excepts.BiFunction<E, ? super K, ? super V, ? extends T> unmapper,
 			Map<? extends K, ? extends V> map) {
-			if (map == null || unmapper == null) return empty();
-			return Stream.from(map.entrySet())
-				.mapEx(e -> unmapper.apply(e.getKey(), e.getValue()));
+			return (map == null || unmapper == null) ? empty() :
+				Stream.from(map.entrySet()).mapEx(e -> unmapper.apply(e.getKey(), e.getValue()));
 		}
 
 		/**
@@ -334,11 +340,6 @@ public abstract class Stream<E extends Exception, T> {
 
 		Ex(NextSupplier<? extends E, ? extends T> supplier) {
 			super(supplier);
-		}
-
-		@Override
-		public Rt<T> runtime() {
-			return new Rt<>(super.exSupplier(supplier(), ExceptionAdapter.runtime));
 		}
 
 		@Override
@@ -383,8 +384,8 @@ public abstract class Stream<E extends Exception, T> {
 
 		@Override
 		public IntStream.Ex<E> mapToInt(Excepts.ToIntFunction<? extends E, ? super T> mapper) {
-			if (super.noOp(mapper)) return IntStream.Ex.empty();
-			return IntStream.Ex.ofSupplier(super.intSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? IntStream.Ex.empty() :
+				IntStream.Ex.ofSupplier(super.intSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -396,10 +397,9 @@ public abstract class Stream<E extends Exception, T> {
 		}
 
 		@Override
-		public LongStream.Ex<E>
-			mapToLong(Excepts.ToLongFunction<? extends E, ? super T> mapper) {
-			if (super.noOp(mapper)) return LongStream.Ex.empty();
-			return LongStream.Ex.ofSupplier(super.longSupplier(supplier(), mapper));
+		public LongStream.Ex<E> mapToLong(Excepts.ToLongFunction<? extends E, ? super T> mapper) {
+			return super.noOp(mapper) ? LongStream.Ex.empty() :
+				LongStream.Ex.ofSupplier(super.longSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -413,8 +413,8 @@ public abstract class Stream<E extends Exception, T> {
 		@Override
 		public DoubleStream.Ex<E>
 			mapToDouble(Excepts.ToDoubleFunction<? extends E, ? super T> mapper) {
-			if (super.noOp(mapper)) return DoubleStream.Ex.empty();
-			return DoubleStream.Ex.ofSupplier(super.doubleSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? DoubleStream.Ex.empty() :
+				DoubleStream.Ex.ofSupplier(super.doubleSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -473,6 +473,14 @@ public abstract class Stream<E extends Exception, T> {
 			return cast(super.skip(count));
 		}
 
+		/**
+		 * Calls the consumer for each element.
+		 */
+		public void forEachRt(Excepts.Consumer<? extends RuntimeException, ? super T> consumer)
+			throws E {
+			forEach(Reflect.unchecked(consumer));
+		}
+
 		@Override
 		<R> Ex<E, R> update(NextSupplier<? extends E, ? extends R> supplier) {
 			return new Ex<>(supplier);
@@ -519,25 +527,23 @@ public abstract class Stream<E extends Exception, T> {
 	 * Returns a stream of iterable values.
 	 */
 	public static <T> Rt<T> from(Iterable<? extends T> iterable) {
-		if (iterable == null) return Rt.empty();
-		return from(iterable.iterator());
+		return iterable == null ? Rt.empty() : from(iterable.iterator());
 	}
 
 	/**
-	 * Returns a stream of iterable values.
+	 * Returns a stream of iterable values. Allows runtime exceptions to be unpacked and thrown.
 	 */
 	public static <E extends Exception, T> Ex<E, T> from(Iterable<? extends T> iterable,
 		ExAdapter<E> exAdapter) {
-		if (iterable == null) return Ex.empty();
-		return from(iterable.iterator(), exAdapter);
+		return iterable == null ? Ex.empty() : from(iterable.iterator(), exAdapter);
 	}
 
 	/**
 	 * Returns a stream of iterator values.
 	 */
 	public static <T> Rt<T> from(Iterator<? extends T> iterator) {
-		if (iterator == null || !iterator.hasNext()) return Rt.empty();
-		return Rt.ofSupplier(iteratorSupplier(iterator, null));
+		return (iterator == null || !iterator.hasNext()) ? Rt.empty() :
+			Rt.ofSupplier(iteratorSupplier(iterator, null));
 	}
 
 	/**
@@ -545,16 +551,15 @@ public abstract class Stream<E extends Exception, T> {
 	 */
 	public static <E extends Exception, T> Ex<E, T> from(Iterator<? extends T> iterator,
 		ExAdapter<E> exAdapter) {
-		if (iterator == null || !iterator.hasNext()) return Ex.empty();
-		return Ex.ofSupplier(iteratorSupplier(iterator, exAdapter));
+		return (iterator == null || !iterator.hasNext()) ? Ex.empty() :
+			Ex.ofSupplier(iteratorSupplier(iterator, exAdapter));
 	}
 
 	/**
 	 * Returns a stream from a java stream.
 	 */
 	public static <T> Rt<T> from(java.util.stream.BaseStream<? extends T, ?> stream) {
-		if (stream == null) return Rt.empty();
-		return from(stream.spliterator());
+		return stream == null ? Rt.empty() : from(stream.spliterator());
 	}
 
 	/**
@@ -562,16 +567,15 @@ public abstract class Stream<E extends Exception, T> {
 	 */
 	public static <E extends Exception, T> Ex<E, T>
 		from(java.util.stream.BaseStream<? extends T, ?> stream, ExAdapter<E> exAdapter) {
-		if (stream == null) return Ex.empty();
-		return from(stream.spliterator(), exAdapter);
+		return stream == null ? Ex.empty() : from(stream.spliterator(), exAdapter);
 	}
 
 	/**
 	 * Returns a stream of spliterator values.
 	 */
 	public static <T> Rt<T> from(Spliterator<? extends T> spliterator) {
-		if (spliterator == null) return Rt.empty();
-		return Rt.ofSupplier(spliteratorSupplier(spliterator, null));
+		return spliterator == null ? Rt.empty() :
+			Rt.ofSupplier(spliteratorSupplier(spliterator, null));
 	}
 
 	/**
@@ -579,8 +583,8 @@ public abstract class Stream<E extends Exception, T> {
 	 */
 	public static <E extends Exception, T> Ex<E, T> from(Spliterator<? extends T> spliterator,
 		ExAdapter<E> exAdapter) {
-		if (spliterator == null) return Ex.empty();
-		return Ex.ofSupplier(spliteratorSupplier(spliterator, exAdapter));
+		return spliterator == null ? Ex.empty() :
+			Ex.ofSupplier(spliteratorSupplier(spliterator, exAdapter));
 	}
 
 	/**
@@ -595,8 +599,8 @@ public abstract class Stream<E extends Exception, T> {
 	 * Creates a single stream from sequential streams.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T> Ex<E, T> merge(Ex<E, ? extends T>... streams) {
-		return of(streams).flatMapEx(t -> t);
+	public static <E extends Exception, T> Ex<E, T> merge(Ex<? extends E, ? extends T>... streams) {
+		return Reflect.<Rt<Ex<E, T>>>unchecked(of(streams)).flatMapEx(t -> t);
 	}
 
 	Stream(NextSupplier<? extends E, ? extends T> supplier) {
@@ -624,7 +628,7 @@ public abstract class Stream<E extends Exception, T> {
 	 * Adapts stream exceptions.
 	 */
 	public <F extends Exception> Ex<F, T> ex(ExceptionAdapter<F> adapter) {
-		return emptyInstance() ? Ex.empty() : new Ex<>(exSupplier(supplier(), adapter));
+		return noOp(adapter) ? Ex.empty() : new Ex<>(exSupplier(supplier(), adapter));
 	}
 
 	// filtering
@@ -661,8 +665,7 @@ public abstract class Stream<E extends Exception, T> {
 	 * Returns true if all elements matched.
 	 */
 	public boolean allMatch(Excepts.Predicate<? extends E, ? super T> predicate) throws E {
-		if (noOp(predicate)) return true;
-		return !anyMatch(t -> !predicate.test(t));
+		return noOp(predicate) ? true : !anyMatch(t -> !predicate.test(t));
 	}
 
 	/**
@@ -696,8 +699,7 @@ public abstract class Stream<E extends Exception, T> {
 	/**
 	 * Maps stream elements to a new stream.
 	 */
-	public abstract LongStream<E>
-		mapToLong(Excepts.ToLongFunction<? extends E, ? super T> mapper);
+	public abstract LongStream<E> mapToLong(Excepts.ToLongFunction<? extends E, ? super T> mapper);
 
 	/**
 	 * Maps stream elements to a new stream.
@@ -710,8 +712,7 @@ public abstract class Stream<E extends Exception, T> {
 	 */
 	public <R> Stream<E, R>
 		expand(Excepts.Function<? extends E, ? super T, ? extends Iterable<? extends R>> mapper) {
-		return noOp(mapper) ? emptyVal() : flatMap(t -> Stream.from(mapper.apply(t)).ex());
-
+		return noOp(mapper) ? emptyVal() : flatMap(t -> Stream.from(mapper.apply(t), null));
 	}
 
 	/**
@@ -719,8 +720,7 @@ public abstract class Stream<E extends Exception, T> {
 	 */
 	public <R> Stream<E, R> flatMap(Excepts.Function<? extends E, ? super T, //
 		? extends Stream<E, ? extends R>> mapper) {
-		return emptyInstance() ? emptyVal() :
-			update(flatSupplier(map(mapper).nonNull().supplier()));
+		return noOp(mapper) ? emptyVal() : update(flatSupplier(map(mapper).nonNull().supplier()));
 	}
 
 	// manipulation
@@ -859,24 +859,21 @@ public abstract class Stream<E extends Exception, T> {
 	 * Collects elements into an array.
 	 */
 	public T[] toArray(Class<T> component) throws E {
-		if (component == null) return null;
-		return collect(Collect.array(component));
+		return component == null ? null : collect(Collect.array(component));
 	}
 
 	/**
 	 * Collects elements to an immutable set.
 	 */
 	public Set<T> toSet() throws E {
-		if (emptyInstance()) return Immutable.set();
-		return collect(Collect.set());
+		return emptyInstance() ? Immutable.set() : collect(Collect.set());
 	}
 
 	/**
 	 * Collects elements to an immutable list.
 	 */
 	public List<T> toList() throws E {
-		if (emptyInstance()) return Immutable.list();
-		return collect(Collect.list());
+		return emptyInstance() ? Immutable.list() : collect(Collect.list());
 	}
 
 	/**
@@ -893,16 +890,15 @@ public abstract class Stream<E extends Exception, T> {
 	 */
 	public <K, V> Map<K, V> toMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn,
 		Excepts.Function<? extends E, ? super T, ? extends V> valueFn) throws E {
-		if (emptyInstance()) return Immutable.map();
-		return Immutable.wrap(put(Maps.of(), keyFn, valueFn));
+		return emptyInstance() ? Immutable.map() : Immutable.wrap(put(Maps.of(), keyFn, valueFn));
 	}
 
 	/**
 	 * Collects elements with a collector.
 	 */
 	public <A, R> R collect(Collector<? super T, A, R> collector) throws E {
-		if (collector == null) return null;
-		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
+		return collector == null ? null :
+			collect(collector.supplier(), collector.accumulator(), collector.finisher());
 	}
 
 	/**
@@ -954,7 +950,7 @@ public abstract class Stream<E extends Exception, T> {
 	}
 
 	private boolean emptyInstance() {
-		return this == emptyVal();
+		return this == Rt.EMPTY || this == Ex.EMPTY;
 	}
 
 	private static <E extends Exception, T> NextSupplier<E, T> filterSupplier(
@@ -1036,10 +1032,7 @@ public abstract class Stream<E extends Exception, T> {
 
 	private static <E extends Exception, T> NextSupplier<E, T>
 		preSupplier(NextSupplier<E, T> supplier, Excepts.BoolSupplier<? extends E> pre) {
-		return c -> {
-			if (!pre.getAsBool()) return false;
-			return supplier.next(c);
-		};
+		return c -> pre.getAsBool() ? supplier.next(c) : false;
 	}
 
 	private static <E extends Exception, T> NextSupplier<E, T> adaptedSupplier(
@@ -1077,12 +1070,12 @@ public abstract class Stream<E extends Exception, T> {
 		return c -> {
 			try {
 				if (!iterator.hasNext()) return false;
+				c.accept(iterator.next());
+				return true;
 			} catch (RuntimeException e) {
-				if (exAdapter != null) exAdapter.handle(e);
+				ExAdapter.adapt(exAdapter, e);
 				throw e;
 			}
-			c.accept(iterator.next());
-			return true;
 		};
 	}
 
@@ -1092,12 +1085,12 @@ public abstract class Stream<E extends Exception, T> {
 		return c -> {
 			try {
 				if (!spliterator.tryAdvance(receiver)) return false;
+				c.accept(receiver.value);
+				return true;
 			} catch (RuntimeException e) {
-				if (exAdapter != null) exAdapter.handle(e);
+				ExAdapter.adapt(exAdapter, e);
 				throw e;
 			}
-			c.accept(receiver.value);
-			return true;
 		};
 	}
 

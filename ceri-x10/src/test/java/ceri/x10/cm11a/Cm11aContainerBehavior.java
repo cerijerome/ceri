@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
 import ceri.common.test.Assert;
-import ceri.common.test.TestInputStream;
+import ceri.common.test.TestIo;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.test.TestSerial;
 import ceri.serial.comm.util.SelfHealingSerial;
@@ -110,7 +110,7 @@ public class Cm11aContainerBehavior {
 	}
 
 	@SuppressWarnings("resource")
-	private void initInputStream(TestInputStream in, int... bytes) {
+	private void initInputStream(TestIo.In in, int... bytes) {
 		in.available.autoResponses(0, bytes.length, 0);
 		in.to.writeBytes(bytes);
 	}

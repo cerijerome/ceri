@@ -27,7 +27,7 @@ public class ManualTesterBehavior {
 	private SystemIo sys;
 	private SystemIoCaptor sysCap;
 	private PipedStream pipe;
-	private TestInputStream tin;
+	private TestIo.In tin;
 	private ManualTester m;
 
 	@Before
@@ -118,7 +118,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldExecuteCommandsFromStdIn() {
 		sys = SystemIo.of();
-		sys.in(Testing.inputStream("?;*;-;+;@0;:;~0;!\n"));
+		sys.in(TestIo.inputStream("?;*;-;+;@0;:;~0;!\n"));
 		sys.out(IoStream.nullPrint());
 		ManualTester.builderArray("test", 1).promptSgr(null).build().run();
 	}
@@ -128,7 +128,7 @@ public class ManualTesterBehavior {
 	public void shouldBuildAnInstance() {
 		fastMode.close();
 		sys = SystemIo.of();
-		sys.in(Testing.inputStream("!\n"));
+		sys.in(TestIo.inputStream("!\n"));
 		sys.out(IoStream.nullPrint());
 		ManualTester.builder("test", String::valueOf).in(System.in).out(System.out).err(System.err)
 			.indent("  ").promptSgr(AnsiEscape.csi.sgr().fgColor(BasicColor.cyan, false))
@@ -182,9 +182,9 @@ public class ManualTesterBehavior {
 	public void shouldPrintBytesReadFromInputStream() throws IOException {
 		sysCap = SystemIoCaptor.of();
 		m = ManualTester.builder("test").build();
-		m.readBytes(Testing.inputStream());
+		m.readBytes(TestIo.inputStream());
 		Assert.yes(sysCap.out.isEmpty());
-		m.readBytes(Testing.inputStream(1, -1, 0));
+		m.readBytes(TestIo.inputStream(1, -1, 0));
 		Assert.find(sysCap.out, "01 ff 00");
 	}
 
@@ -303,7 +303,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldHandleInputIoErrors() {
 		sysCap = SystemIoCaptor.of();
-		tin = TestInputStream.of();
+		tin = TestIo.in();
 		tin.to.writeAscii("\n");
 		tin.read.error.setFrom(ErrorGen.IOX);
 		m = ManualTester.builder("test").in(tin).build();

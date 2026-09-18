@@ -54,12 +54,14 @@ public class Captor<T> implements Functions.Consumer<T> {
 	}
 
 	@SafeVarargs
-	public final void verify(T... values) {
+	public final Captor<T> verify(T... values) {
 		verify(Lists.wrap(values));
+		return this;
 	}
 
-	public void verify(List<T> values) {
+	public Captor<T> verify(List<T> values) {
 		Assert.list(this.values, values);
+		return this;
 	}
 
 	public static class OfInt extends Captor<Integer>
@@ -74,14 +76,20 @@ public class Captor<T> implements Functions.Consumer<T> {
 			accept(Math.toIntExact(value));
 		}
 
+		public <E extends Exception> OfInt applyInt(Excepts.Consumer<E, OfInt> consumer) throws E {
+			if (consumer != null) consumer.accept(this);
+			return this;
+		}
+
 		@Override
-		public Captor.OfInt reset() {
+		public OfInt reset() {
 			values.clear();
 			return this;
 		}
 
-		public final void verifyInt(int... values) {
+		public OfInt verifyInt(int... values) {
 			verify(Array.INT.list(values));
+			return this;
 		}
 
 		public int[] ints() {
@@ -95,14 +103,21 @@ public class Captor<T> implements Functions.Consumer<T> {
 			accept(Long.valueOf(value));
 		}
 
+		public <E extends Exception> OfLong applyLong(Excepts.Consumer<E, OfLong> consumer)
+			throws E {
+			if (consumer != null) consumer.accept(this);
+			return this;
+		}
+
 		@Override
 		public OfLong reset() {
 			values.clear();
 			return this;
 		}
 
-		public final void verifyLong(long... values) {
+		public final OfLong verifyLong(long... values) {
 			verify(Array.LONG.list(values));
+			return this;
 		}
 
 		public long[] longs() {
@@ -142,39 +157,46 @@ public class Captor<T> implements Functions.Consumer<T> {
 			return this;
 		}
 
-		public void verify(List<T> ts, List<U> us) {
+		public Bi<T, U> verify(List<T> ts, List<U> us) {
 			first.verify(ts);
 			second.verify(us);
+			return this;
 		}
 
-		public void verify() {
+		public Bi<T, U> verify() {
 			first.verify();
 			second.verify();
+			return this;
 		}
 
-		public void verify(T t, U u) {
+		public Bi<T, U> verify(T t, U u) {
 			first.verify(t);
 			second.verify(u);
+			return this;
 		}
 
-		public void verify(T t0, U u0, T t1, U u1) {
+		public Bi<T, U> verify(T t0, U u0, T t1, U u1) {
 			first.verify(t0, t1);
 			second.verify(u0, u1);
+			return this;
 		}
 
-		public void verify(T t0, U u0, T t1, U u1, T t2, U u2) {
+		public Bi<T, U> verify(T t0, U u0, T t1, U u1, T t2, U u2) {
 			first.verify(t0, t1, t2);
 			second.verify(u0, u1, u2);
+			return this;
 		}
 
-		public void verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3) {
+		public Bi<T, U> verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3) {
 			first.verify(t0, t1, t2, t3);
 			second.verify(u0, u1, u2, u3);
+			return this;
 		}
 
-		public void verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3, T t4, U u4) {
+		public Bi<T, U> verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3, T t4, U u4) {
 			first.verify(t0, t1, t2, t3, t4);
 			second.verify(u0, u1, u2, u3, u4);
+			return this;
 		}
 	}
 

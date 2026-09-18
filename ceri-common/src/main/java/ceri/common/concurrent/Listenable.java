@@ -1,4 +1,4 @@
-package ceri.common.event;
+package ceri.common.concurrent;
 
 import java.util.Map;
 import ceri.common.collect.Maps;
@@ -11,6 +11,68 @@ import ceri.common.util.Basics;
  * Interface to add/remove notification listeners.
  */
 public interface Listenable<T> {
+	/**
+	 * Interface to add/remove int notification listeners.
+	 */
+	interface OfInt {
+		/** A no-op stateless instance. */
+		Null NULL = new Null() {};
+
+		/**
+		 * Attempts to listen, and returns a closable wrapper that unlistens on close. If the call
+		 * to listen returns false, close() will do nothing.
+		 */
+		default <T extends Functions.IntConsumer> Enclosure<T> enclose(T listener) {
+			boolean added = listen(listener);
+			if (!added) return Enclosure.noOp(listener); // no unlisten on close
+			return Enclosure.of(listener, this::unlisten); // unlistens on close
+		}
+
+		/**
+		 * Adds a listener to receive notifications. Returns true if added.
+		 */
+		boolean listen(Functions.IntConsumer listener);
+
+		/**
+		 * Removes a listener from receiving notifications. Returns true if removed.
+		 */
+		boolean unlisten(Functions.IntConsumer listener);
+
+		/**
+		 * Converts into an indirect listenable type.
+		 */
+		default Indirect indirect() {
+			return () -> this;
+		}
+
+		/**
+		 * Interface to indirectly add/remove notification listeners. Useful when classes use a
+		 * listeners instance.
+		 */
+		interface Indirect {
+			OfInt listeners();
+		}
+
+		/**
+		 * A no-op stateless implementation.
+		 */
+		interface Null extends OfInt, OfInt.Indirect {
+			@Override
+			default OfInt listeners() {
+				return this;
+			}
+
+			@Override
+			default boolean listen(Functions.IntConsumer listener) {
+				return false;
+			}
+
+			@Override
+			default boolean unlisten(Functions.IntConsumer listener) {
+				return false;
+			}
+		}
+	}
 
 	/**
 	 * Attempts to listen, and returns a closable wrapper that unlistens on close. If the call to
@@ -36,7 +98,7 @@ public interface Listenable<T> {
 	 * Converts into an indirect listenable type.
 	 */
 	default Indirect<T> indirect() {
-		return Indirect.from(this);
+		return () -> this;
 	}
 
 	/**
@@ -48,13 +110,6 @@ public interface Listenable<T> {
 		 * Provides access to listen and unlisten to events.
 		 */
 		Listenable<T> listeners();
-
-		/**
-		 * Converts a listenable type into an indirect listenable type.
-		 */
-		static <T> Indirect<T> from(Listenable<T> listenable) {
-			return () -> listenable;
-		}
 	}
 
 	/**

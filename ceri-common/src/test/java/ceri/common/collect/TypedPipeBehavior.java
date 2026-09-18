@@ -3,7 +3,7 @@ package ceri.common.collect;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
-import ceri.common.test.Testing;
+import ceri.common.test.TestConcurrent;
 
 public class TypedPipeBehavior {
 
@@ -40,7 +40,7 @@ public class TypedPipeBehavior {
 				return available.get();
 			}
 		};
-		try (var exec = Testing.threadRun(() -> in.awaitRead(1))) {
+		try (var exec = TestConcurrent.threadRun(() -> in.awaitRead(1))) {
 			available.await(1);
 			available.await(0);
 			exec.get();

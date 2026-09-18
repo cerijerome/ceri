@@ -1,4 +1,4 @@
-package ceri.common.unit;
+package ceri.common.util;
 
 import java.util.Objects;
 import ceri.common.function.Functions;

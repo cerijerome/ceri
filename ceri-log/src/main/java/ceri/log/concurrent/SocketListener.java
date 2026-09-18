@@ -7,11 +7,11 @@ import java.net.SocketException;
 import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.Listenable;
+import ceri.common.concurrent.Listeners;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
-import ceri.common.event.Listenable;
-import ceri.common.event.Listeners;
 import ceri.log.util.Logs;
 
 /**

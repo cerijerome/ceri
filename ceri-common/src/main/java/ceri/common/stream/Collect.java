@@ -63,7 +63,7 @@ public class Collect {
 		 * A collector instance composed from its functions.
 		 */
 		record Composed<A, R>(Functions.Supplier<A> supplier,
-			Functions.ObjIntConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			Functions.ObjIntConsumer<A> intAccumulator, Functions.Function<A, R> finisher)
 			implements IntStream.Collector<A, R> {}
 	}
 
@@ -89,7 +89,7 @@ public class Collect {
 		 * A collector instance composed from its functions.
 		 */
 		record Composed<A, R>(Functions.Supplier<A> supplier,
-			Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			Functions.ObjLongConsumer<A> longAccumulator, Functions.Function<A, R> finisher)
 			implements LongStream.Collector<A, R> {}
 	}
 
@@ -115,7 +115,7 @@ public class Collect {
 		 * A collector instance composed from its functions.
 		 */
 		record Composed<A, R>(Functions.Supplier<A> supplier,
-			Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			Functions.ObjDoubleConsumer<A> doubleAccumulator, Functions.Function<A, R> finisher)
 			implements DoubleStream.Collector<A, R> {}
 	}
 

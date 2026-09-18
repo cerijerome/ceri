@@ -35,7 +35,7 @@ public abstract class DoubleStream<E extends Exception> {
 		/**
 		 * Provides an accumulator to add elements to the container.
 		 */
-		Functions.ObjDoubleConsumer<A> accumulator();
+		Functions.ObjDoubleConsumer<A> doubleAccumulator();
 
 		/**
 		 * Provides a finisher to complete the container.
@@ -110,7 +110,7 @@ public abstract class DoubleStream<E extends Exception> {
 		 * Adapts the stream to allow the exception type.
 		 */
 		public <E extends Exception> Ex<E> ex() {
-			return new Ex<>(Reflect.unchecked(supplier()));
+			return super.emptyInstance() ? Ex.empty() : new Ex<>(Reflect.unchecked(supplier()));
 		}
 
 		@Override
@@ -150,8 +150,8 @@ public abstract class DoubleStream<E extends Exception> {
 		@Override
 		public IntStream.Rt
 			mapToInt(Excepts.DoubleToIntFunction<? extends RuntimeException> mapper) {
-			if (super.noOp(mapper)) return IntStream.Rt.EMPTY;
-			return IntStream.Rt.ofSupplier(super.intSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? IntStream.Rt.EMPTY :
+				IntStream.Rt.ofSupplier(super.intSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -165,8 +165,8 @@ public abstract class DoubleStream<E extends Exception> {
 		@Override
 		public LongStream.Rt
 			mapToLong(Excepts.DoubleToLongFunction<? extends RuntimeException> mapper) {
-			if (super.noOp(mapper)) return LongStream.Rt.EMPTY;
-			return LongStream.Rt.ofSupplier(super.longSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? LongStream.Rt.EMPTY :
+				LongStream.Rt.ofSupplier(super.longSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -180,8 +180,8 @@ public abstract class DoubleStream<E extends Exception> {
 		@Override
 		public <T> Stream.Rt<T>
 			mapToObj(Excepts.DoubleFunction<? extends RuntimeException, ? extends T> mapper) {
-			if (super.noOp(mapper)) return Stream.Rt.empty();
-			return Stream.Rt.ofSupplier(super.objSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? Stream.Rt.empty() :
+				Stream.Rt.ofSupplier(super.objSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -287,8 +287,8 @@ public abstract class DoubleStream<E extends Exception> {
 
 		@Override
 		public IntStream.Ex<E> mapToInt(Excepts.DoubleToIntFunction<? extends E> mapper) {
-			if (super.noOp(mapper)) return IntStream.Ex.empty();
-			return IntStream.Ex.ofSupplier(super.intSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? IntStream.Ex.empty() :
+				IntStream.Ex.ofSupplier(super.intSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -301,8 +301,8 @@ public abstract class DoubleStream<E extends Exception> {
 
 		@Override
 		public LongStream.Ex<E> mapToLong(Excepts.DoubleToLongFunction<? extends E> mapper) {
-			if (super.noOp(mapper)) return LongStream.Ex.empty();
-			return LongStream.Ex.ofSupplier(super.longSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? LongStream.Ex.empty() :
+				LongStream.Ex.ofSupplier(super.longSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -316,8 +316,8 @@ public abstract class DoubleStream<E extends Exception> {
 		@Override
 		public <T> Stream.Ex<E, T>
 			mapToObj(Excepts.DoubleFunction<? extends E, ? extends T> mapper) {
-			if (super.noOp(mapper)) return Stream.Ex.empty();
-			return Stream.Ex.ofSupplier(super.objSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? Stream.Ex.empty() :
+				Stream.Ex.ofSupplier(super.objSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -453,8 +453,7 @@ public abstract class DoubleStream<E extends Exception> {
 	 * Only streams elements that match the filter.
 	 */
 	public DoubleStream<E> filter(Excepts.DoublePredicate<? extends E> filter) {
-		if (noOp(filter)) return this;
-		return update(filterSupplier(supplier(), filter));
+		return noOp(filter) ? this : update(filterSupplier(supplier(), filter));
 	}
 
 	/**
@@ -468,8 +467,7 @@ public abstract class DoubleStream<E extends Exception> {
 	 * Returns true if all elements matched.
 	 */
 	public boolean allMatch(Excepts.DoublePredicate<? extends E> predicate) throws E {
-		if (noOp(predicate)) return true;
-		return !anyMatch(i -> !predicate.test(i));
+		return noOp(predicate) ? true : !anyMatch(i -> !predicate.test(i));
 	}
 
 	/**
@@ -492,8 +490,7 @@ public abstract class DoubleStream<E extends Exception> {
 	 * Maps stream elements to new values.
 	 */
 	public DoubleStream<E> map(Excepts.DoubleOperator<? extends E> mapper) {
-		if (noOp(mapper)) return emptyVal();
-		return update(mapSupplier(supplier(), mapper));
+		return noOp(mapper) ? emptyVal() : update(mapSupplier(supplier(), mapper));
 	}
 
 	/**
@@ -517,8 +514,8 @@ public abstract class DoubleStream<E extends Exception> {
 	 */
 	public DoubleStream<E>
 		flatMap(Excepts.DoubleFunction<? extends E, ? extends DoubleStream<E>> mapper) {
-		if (noOp(mapper)) return emptyVal();
-		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
+		return noOp(mapper) ? emptyVal() :
+			update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
 
 	// manipulation
@@ -528,7 +525,8 @@ public abstract class DoubleStream<E extends Exception> {
 	 */
 	public DoubleStream<E> limit(long size) {
 		var counter = Counter.of(size);
-		return update(preSupplier(supplier(), () -> counter.preInc(-Long.signum(counter.get())) > 0L));
+		return update(
+			preSupplier(supplier(), () -> counter.preInc(-Long.signum(counter.get())) > 0L));
 	}
 
 	/**
@@ -542,8 +540,7 @@ public abstract class DoubleStream<E extends Exception> {
 	 * IntStreams sorted elements, by first collecting into a sorted list.
 	 */
 	public DoubleStream<E> sorted() {
-		if (emptyInstance()) return this;
-		return update(adaptedSupplier(supplier(), s -> sortedSupplier(s)));
+		return emptyInstance() ? this : update(adaptedSupplier(supplier(), s -> sortedSupplier(s)));
 	}
 
 	// termination
@@ -617,8 +614,8 @@ public abstract class DoubleStream<E extends Exception> {
 	 * Collects elements with a collector.
 	 */
 	public <A, R> R collect(Collector<A, R> collector) throws E {
-		if (collector == null) return null;
-		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
+		return collector == null ? null :
+			collect(collector.supplier(), collector.doubleAccumulator(), collector.finisher());
 	}
 
 	/**
@@ -776,10 +773,7 @@ public abstract class DoubleStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> preSupplier(NextSupplier<E> supplier,
 		Excepts.BoolSupplier<? extends E> pre) {
-		return c -> {
-			if (!pre.getAsBool()) return false;
-			return supplier.next(c);
-		};
+		return c -> pre.getAsBool() ? supplier.next(c) : false;
 	}
 
 	private static <E extends Exception> NextSupplier<E> adaptedSupplier(NextSupplier<E> supplier,

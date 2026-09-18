@@ -1,21 +1,20 @@
 package ceri.x10.cm17a.device;
 
 import java.io.IOException;
+import ceri.common.concurrent.Listenable;
 import ceri.common.data.Bytes;
 import ceri.common.data.IntArray;
-import ceri.common.event.Listenable;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestFixable;
-import ceri.common.test.TestOutputStream;
+import ceri.common.test.TestIo;
 
 /**
  * Recreates bytes from connector calls.
  */
-public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
-	private final TestOutputStream out;
+public class Cm17aTestConnector extends TestIo.Fixable implements Cm17aConnector {
+	private final TestIo.Out out;
 	public final CallSync.Consumer<Boolean> rts = CallSync.consumer(false, true);
 	public final CallSync.Consumer<Boolean> dtr = CallSync.consumer(false, true);
 	private boolean reset = true;
@@ -28,7 +27,7 @@ public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 
 	private Cm17aTestConnector() {
 		super(null);
-		out = TestOutputStream.of();
+		out = TestIo.out();
 	}
 
 	@Override

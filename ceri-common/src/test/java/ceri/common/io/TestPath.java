@@ -110,5 +110,4 @@ public class TestPath implements Path {
 	public int compareTo(Path other) {
 		return 0;
 	}
-
 }

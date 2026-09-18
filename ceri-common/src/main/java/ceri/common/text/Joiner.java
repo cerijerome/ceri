@@ -7,6 +7,9 @@ import java.util.stream.Collector;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.stream.Collect;
+import ceri.common.stream.DoubleStream;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
 import ceri.common.util.Basics;
 import ceri.common.util.Truth;
 import ceri.common.util.Validate;
@@ -14,7 +17,10 @@ import ceri.common.util.Validate;
 /**
  * Utility for joining a sequence of objects as a string.
  */
-public class Joiner implements Collector<Object, Joiner.Composer.Collecting, String> {
+public class Joiner implements Collector<Object, Joiner.Composer.Collecting, String>,
+	IntStream.Collector<Joiner.Composer.Collecting, String>,
+	LongStream.Collector<Joiner.Composer.Collecting, String>,
+	DoubleStream.Collector<Joiner.Composer.Collecting, String> {
 	/** No separator, prefix or suffix. */
 	public static final Joiner NONE = of("");
 	/** Array-style joining. */
@@ -221,7 +227,22 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 
 	@Override
 	public Functions.BiConsumer<Composer.Collecting, Object> accumulator() {
-		return (c, o) -> c.add(o);
+		return Composer.Collecting::add;
+	}
+
+	@Override
+	public Functions.ObjIntConsumer<Composer.Collecting> intAccumulator() {
+		return Composer.Collecting::add;
+	}
+
+	@Override
+	public Functions.ObjLongConsumer<Composer.Collecting> longAccumulator() {
+		return Composer.Collecting::add;
+	}
+
+	@Override
+	public Functions.ObjDoubleConsumer<Composer.Collecting> doubleAccumulator() {
+		return Composer.Collecting::add;
 	}
 
 	@Override

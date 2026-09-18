@@ -10,7 +10,7 @@ import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.Testing;
+import ceri.common.test.TestIo;
 import ceri.log.test.LogModifier;
 import ceri.serial.spi.util.SpiEmulator;
 import ceri.serial.spi.util.SpiEmulator.Responder;
@@ -71,7 +71,7 @@ public class SpiPulseTransmitterBehavior {
 		init();
 		// Setting data to [0x01, 0xff, 0x00, 0x80, 0x7f]
 		spix.copyFrom(0, ByteProvider.of(0x01, 0xff));
-		spix.readFrom(3, Testing.inputStream(0x80, 0x7f));
+		spix.readFrom(3, TestIo.inputStream(0x80, 0x7f));
 		spix.send();
 		sync.assertCall(ByteProvider.of(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
 			0xcc, 0xcc, 0xcc, 0xcc, // 8 wide

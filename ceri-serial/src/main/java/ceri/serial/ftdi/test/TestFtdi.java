@@ -6,7 +6,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.Direction;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestConnector;
+import ceri.common.test.TestIo;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
@@ -18,7 +18,7 @@ import ceri.serial.ftdi.util.SelfHealingFtdi;
 /**
  * A connector for testing logic against serial connectors.
  */
-public class TestFtdi extends TestConnector implements Ftdi.Fixable {
+public class TestFtdi extends TestIo.Connector implements Ftdi.Fixable {
 	private static final String NAME = Reflect.name(TestFtdi.class);
 	public final CallSync.Supplier<ftdi_usb_strings> descriptor =
 		CallSync.supplier(new ftdi_usb_strings("test", "test", "test"));
@@ -66,7 +66,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	 */
 	@SuppressWarnings("resource")
 	public static TestFtdi[] pairOf() {
-		return TestConnector.chain(new TestFtdi(NAME + "[0->1]"), new TestFtdi(NAME + "[1->0]"));
+		return TestIo.Connector.chain(new TestFtdi(NAME + "[0->1]"), new TestFtdi(NAME + "[1->0]"));
 	}
 
 	/**

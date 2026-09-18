@@ -1,7 +1,5 @@
 package ceri.common.concurrent;
 
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -13,6 +11,8 @@ import ceri.common.util.Holder;
  * Encapsulate a lock, handling locking as a closeable resource.
  */
 public class Locker {
+	/** A no-op stateless locker. */
+	public static final Locker NULL = of(Concurrent.NULL_LOCK);
 	private final Functions.Closeable unlocker;
 	public final Lock lock;
 
@@ -56,6 +56,13 @@ public class Locker {
 	/**
 	 * Executes the operation within the lock and returns the result.
 	 */
+	public <E extends Exception> boolean getAsBool(Excepts.BoolSupplier<E> supplier) throws E {
+		return Concurrent.lockedGetAsBool(lock, supplier);
+	}
+
+	/**
+	 * Executes the operation within the lock and returns the result.
+	 */
 	public <E extends Exception> int getAsInt(Excepts.IntSupplier<E> supplier) throws E {
 		return Concurrent.lockedGetAsInt(lock, supplier);
 	}
@@ -65,6 +72,13 @@ public class Locker {
 	 */
 	public <E extends Exception> long getAsLong(Excepts.LongSupplier<E> supplier) throws E {
 		return Concurrent.lockedGetAsLong(lock, supplier);
+	}
+
+	/**
+	 * Executes the operation within the lock and returns the result.
+	 */
+	public <E extends Exception> double getAsDouble(Excepts.DoubleSupplier<E> supplier) throws E {
+		return Concurrent.lockedGetAsDouble(lock, supplier);
 	}
 
 	/**
@@ -83,20 +97,36 @@ public class Locker {
 	}
 
 	/**
-	 * Tries to execute the operation within the lock and return the result as a value holder. The
-	 * holder is empty if the lock is not available.
+	 * Tries to execute the operation within the lock and return the result. The value is null if
+	 * the lock is not available.
 	 */
-	public <E extends Exception> OptionalInt tryGetAsInt(Excepts.IntSupplier<E> supplier) throws E {
+	public <E extends Exception> Boolean tryGetAsBool(Excepts.BoolSupplier<E> supplier) throws E {
+		return Concurrent.tryLockedGetAsBool(lock, supplier);
+	}
+
+	/**
+	 * Tries to execute the operation within the lock and return the result. The value is null if
+	 * the lock is not available.
+	 */
+	public <E extends Exception> Integer tryGetAsInt(Excepts.IntSupplier<E> supplier) throws E {
 		return Concurrent.tryLockedGetAsInt(lock, supplier);
 	}
 
 	/**
-	 * Tries to execute the operation within the lock and return the result as a value holder. The
-	 * holder is empty if the lock is not available.
+	 * Tries to execute the operation within the lock and return the result. The value is null if
+	 * the lock is not available.
 	 */
-	public <E extends Exception> OptionalLong tryGetAsLong(Excepts.LongSupplier<E> supplier)
-		throws E {
+	public <E extends Exception> Long tryGetAsLong(Excepts.LongSupplier<E> supplier) throws E {
 		return Concurrent.tryLockedGetAsLong(lock, supplier);
+	}
+
+	/**
+	 * Tries to execute the operation within the lock and return the result. The value is null if
+	 * the lock is not available.
+	 */
+	public <E extends Exception> Double tryGetAsDouble(Excepts.DoubleSupplier<E> supplier)
+		throws E {
+		return Concurrent.tryLockedGetAsDouble(lock, supplier);
 	}
 
 	/**

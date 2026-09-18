@@ -19,7 +19,7 @@ import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.Testing;
+import ceri.common.test.TestConcurrent;
 import ceri.jna.util.Jna;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -73,7 +73,7 @@ public class LibFtdiStreamTest {
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		var sync = CallSync.<FTDIProgressInfo, Boolean>function(null);
 		FTDIStreamCallback<?> callback = (_, _, prog, _) -> progress(sync, prog);
-		try (var exec = Testing
+		try (var exec = TestConcurrent
 			.threadRun(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0))) {
 			sync.await(prog -> assertTotalBytes(prog, 18, 0, 0, true));
 			sync.await(prog -> assertTotalBytes(prog, 36, 18, 0, true));

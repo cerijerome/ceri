@@ -1,10 +1,6 @@
 package ceri.common.test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,6 +9,7 @@ import java.lang.reflect.AccessFlag;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Random;
@@ -21,11 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
-import ceri.common.array.Array;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Iterables;
-import ceri.common.concurrent.Concurrent;
-import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
@@ -46,8 +40,6 @@ import ceri.common.text.Strings;
  */
 public class Testing {
 	private static final Pattern TEST_METHOD_REGEX = Pattern.compile("^(test|should)[A-Z]");
-	private static final int DELAY_MICROS = 1;
-	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
 	public static final byte BMIN = Byte.MIN_VALUE;
 	public static final byte BMAX = Byte.MAX_VALUE;
@@ -63,7 +55,7 @@ public class Testing {
 	private Testing() {}
 
 	/**
-	 * Separate junit refs so this class can be used outside of tests.
+	 * Separate junit refs so outer class can be used outside of tests.
 	 */
 	private static class Junit {
 		private static final boolean isTest = Reflect.stackHasPackage(org.junit.Assert.class);
@@ -242,61 +234,6 @@ public class Testing {
 	}
 
 	/**
-	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
-	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
-	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.Runnable<?> runnable) {
-		return runRepeat(runnable, DELAY_MICROS);
-	}
-
-	/**
-	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
-	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
-	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.Runnable<?> runnable,
-		int delayUs) {
-		return runRepeat(_ -> runnable.run(), delayUs);
-	}
-
-	/**
-	 * Repeat action with run count and a microsecond delay until executor is closed. Useful to
-	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
-	 * that event.
-	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.IntConsumer<?> action) {
-		return runRepeat(action, DELAY_MICROS);
-	}
-
-	/**
-	 * Repeat action with run count and a microsecond delay until executor is closed. Useful to
-	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
-	 * that event.
-	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.IntConsumer<?> action,
-		int delayUs) {
-		return SimpleExecutor.run(() -> {
-			for (int i = 0;; i++) {
-				action.accept(i);
-				Concurrent.delayMicros(delayUs);
-			}
-		});
-	}
-
-	/**
-	 * Execute a closable call in a separate thread. Use get() to retrieve the result.
-	 */
-	public static <T> SimpleExecutor<RuntimeException, T> threadCall(Callable<T> callable) {
-		return SimpleExecutor.call(callable);
-	}
-
-	/**
-	 * Execute a closable call in a separate thread. Use get() to wait for completion.
-	 */
-	public static SimpleExecutor<RuntimeException, ?> threadRun(Excepts.Runnable<?> runnable) {
-		return SimpleExecutor.run(runnable);
-	}
-
-	/**
 	 * Reads a string resource from the caller's package with given name.
 	 */
 	public static String resource(String name) {
@@ -335,27 +272,6 @@ public class Testing {
 	}
 
 	/**
-	 * Reads a string from stdin.
-	 */
-	public static String readString() {
-		try {
-			return readString(System.in);
-		} catch (IOException e) {
-			throw new RuntimeException("Shouldn't happen", e);
-		}
-	}
-
-	/**
-	 * Reads a string from given input stream.
-	 */
-	public static String readString(InputStream in) throws IOException {
-		byte[] buffer = new byte[SMALL_BUFFER_SIZE];
-		int n = in.read(buffer);
-		if (n < 1) return "";
-		return new String(buffer, 0, n).trim();
-	}
-
-	/**
 	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
 	public static String readableString(byte[] array) {
@@ -366,53 +282,29 @@ public class Testing {
 	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
 	public static String readableString(byte[] array, int offset, int len) {
-		return readableString(array, offset, len, "UTF8", '?');
+		return readableString(array, offset, len, StandardCharsets.UTF_8, '?');
 	}
 
 	/**
 	 * Converts a byte array to string, with non-visible chars converted to given char.
 	 */
-	public static String readableString(byte[] array, int offset, int len, String charset,
+	public static String readableString(byte[] array, int offset, int len, Charset charset,
 		char unreadableChar) {
-		var b = new StringBuilder();
-		try {
-			if (Strings.isEmpty(charset)) b.append(new String(array, offset, len));
-			else b.append(new String(array, offset, len, charset));
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalArgumentException(e);
-		}
-		for (int i = 0; i < b.length(); i++)
-			if (!Chars.isPrintable(b, i)) b.setCharAt(i, unreadableChar);
-		return b.toString();
+		return Strings.printable(Chars.decode(charset, array, offset, len), unreadableChar);
 	}
 
 	/**
 	 * Returns a ByteProvider.Reader<?> wrapper for bytes.
 	 */
-	public static ByteProvider.Reader<?> reader(int... bytes) {
+	public static ByteProvider.Reader<?> byteReader(int... bytes) {
 		return ByteProvider.of(bytes).reader(0);
 	}
 
 	/**
 	 * Returns a ByteProvider.Reader<?> wrapper for chars.
 	 */
-	public static ByteProvider.Reader<?> reader(String s) {
+	public static ByteProvider.Reader<?> byteReader(String s) {
 		return ByteArray.Immutable.wrap(s.chars().toArray()).reader(0);
-	}
-
-	/**
-	 * Creates a test input stream with given bytes.
-	 */
-	public static ByteArrayInputStream inputStream(int... bytes) {
-		return new ByteArrayInputStream(Array.BYTE.of(bytes));
-	}
-
-	/**
-	 * Creates a test input stream based on UTF8 bytes and encoded actions.
-	 */
-	public static ByteArrayInputStream inputStream(String format, Object... args) {
-		return new ByteArrayInputStream(
-			Strings.format(format, args).getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

@@ -18,8 +18,6 @@ import ceri.common.test.Testing;
 	// io
 	ceri.log.io.LogPrintStreamBehavior.class, //
 	ceri.log.io.SelfHealingBehavior.class, //
-	// io.test
-	ceri.log.io.test.TestTcpSocketBehavior.class, //
 	// net
 	ceri.log.net.SelfHealingTcpSocketBehavior.class, //
 	// registry

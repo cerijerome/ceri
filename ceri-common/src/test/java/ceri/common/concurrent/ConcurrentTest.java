@@ -15,8 +15,7 @@ import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestExecutorService;
-import ceri.common.test.TestFuture;
+import ceri.common.test.TestConcurrent;
 import ceri.common.test.Testing;
 import ceri.common.util.Holder;
 
@@ -134,7 +133,7 @@ public class ConcurrentTest {
 
 	@Test
 	public void testClosedExecutorSubmit() {
-		try (var exec = TestExecutorService.of()) {
+		try (var exec = TestConcurrent.exec()) {
 			exec.execute.error.set(new RejectedExecutionException("test"));
 			Assert.thrown(RejectedExecutionException.class,
 				() -> Concurrent.submit(exec, () -> {}));
@@ -180,7 +179,7 @@ public class ConcurrentTest {
 
 	@Test
 	public void testGetFutureInterruption() {
-		var future = TestFuture.of("test");
+		var future = TestConcurrent.futureOf("test");
 		future.get.error.setFrom(ErrorGen.INX);
 		Assert.thrown(RuntimeInterruptedException.class,
 			() -> Concurrent.get(future, RuntimeException::new));
@@ -213,7 +212,7 @@ public class ConcurrentTest {
 		Assert.equal(Concurrent.tryLockedRun(lock, () -> {
 			holder.set("test0");
 			// Cannot get lock in new thread => return false
-			try (var exec = Testing
+			try (var exec = TestConcurrent
 				.threadCall(() -> Concurrent.tryLockedRun(lock, () -> holder.set("test1")))) {
 				Assert.equal(exec.get(), false);
 			}
@@ -225,8 +224,8 @@ public class ConcurrentTest {
 	public void testTryExecuteGet() {
 		var lock = new ReentrantLock();
 		var holder0 = Concurrent.tryLockedGet(lock, () -> {
-			try (
-				var exec = Testing.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
+			try (var exec =
+				TestConcurrent.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
 				var holder1 = exec.get();
 				Assert.equal(holder1.isEmpty(), true);
 			}
@@ -344,7 +343,7 @@ public class ConcurrentTest {
 
 	@Test
 	public void testInvokeClosedWithTimeout() throws Exception {
-		try (var exec = TestExecutorService.of()) {
+		try (var exec = TestConcurrent.exec()) {
 			exec.execute.error.set(new RejectedExecutionException("test"));
 			Assert.thrown(RejectedExecutionException.class,
 				() -> Concurrent.invoke(exec, IOException::new, () -> {}));

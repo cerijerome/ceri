@@ -10,9 +10,9 @@ import ceri.common.process.Processor;
 import ceri.common.time.Timeout;
 
 public class TestProcess extends Process {
-	public final TestInputStream in = TestInputStream.of();
-	public final TestInputStream err = TestInputStream.of();
-	public final TestOutputStream out = TestOutputStream.of();
+	public final TestIo.In in = TestIo.in();
+	public final TestIo.In err = TestIo.in();
+	public final TestIo.Out out = TestIo.out();
 	public final CallSync.Supplier<Integer> exitValue = CallSync.supplier(0);
 	public final CallSync.Supplier<Boolean> alive = CallSync.supplier(false);
 	public final CallSync.Function<Timeout, Boolean> waitFor = CallSync.function(null, true);
@@ -110,5 +110,4 @@ public class TestProcess extends Process {
 		err.close();
 		out.close();
 	}
-
 }

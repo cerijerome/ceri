@@ -14,8 +14,7 @@ import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 import ceri.common.test.ErrorGen;
-import ceri.common.test.TestExecutorService;
-import ceri.common.test.TestFuture;
+import ceri.common.test.TestConcurrent;
 import ceri.common.test.TestProcess;
 
 public class CloseablesTest {
@@ -186,7 +185,7 @@ public class CloseablesTest {
 	@Test
 	public void testCloseExecutor() {
 		Assert.yes(Closeables.close((ExecutorService) null));
-		try (var exec = TestExecutorService.of()) {
+		try (var exec = TestConcurrent.exec()) {
 			Assert.yes(Closeables.close(exec));
 			exec.shutdown.assertAuto(true);
 			exec.shutdown.error.setFrom(ErrorGen.IOX);
@@ -197,7 +196,7 @@ public class CloseablesTest {
 	@Test
 	public void testCloseFuture() {
 		Assert.yes(Closeables.close((Future<?>) null));
-		var f = TestFuture.of("test");
+		var f = TestConcurrent.futureOf("test");
 		Assert.yes(Closeables.close(f));
 		f.get.assertCalls(1);
 		f.get.error.set(new CancellationException());

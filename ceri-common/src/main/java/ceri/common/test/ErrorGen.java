@@ -25,6 +25,8 @@ public class ErrorGen {
 	public static final Functions.Supplier<Exception> INX =
 		errorFn(InterruptedException::new, "INX");
 	public static final Functions.Supplier<Exception> IOX = errorFn(IOException::new, "IOX");
+	public static final Functions.Supplier<Exception> UOX =
+		errorFn(UnsupportedOperationException::new, "UOX");
 	private volatile Functions.Supplier<Exception> errorFn = null;
 
 	/**

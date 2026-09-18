@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.event.Listenable;
+import ceri.common.concurrent.Listenable;
 import ceri.common.function.Enclosure;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;

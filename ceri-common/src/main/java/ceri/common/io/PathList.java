@@ -28,6 +28,14 @@ public class PathList {
 	private Excepts.Operator<IOException, Path> modifier = IDENTITY; // filters and modifiers
 
 	/**
+	 * Converts a directory stream, unpacking iterator runtime exceptions.
+	 */
+	public static <T> Stream.Ex<IOException, T> stream(DirectoryStream<T> dirs) {
+		return Stream.from(dirs,
+			e -> (e instanceof DirectoryIteratorException die) ? die.getCause() : null);
+	}
+
+	/**
 	 * Returns an instance that accesses all sub-paths.
 	 */
 	public static PathList all(Path dir) {
@@ -160,11 +168,6 @@ public class PathList {
 		try (var dirs = Files.newDirectoryStream(dir)) {
 			stream(dirs).forEach(consumer);
 		}
-	}
-
-	private <T> Stream<IOException, T> stream(DirectoryStream<T> dirs) {
-		return Stream.from(dirs,
-			e -> (e instanceof DirectoryIteratorException die) ? die.getCause() : null);
 	}
 
 	private Path apply(Path path) throws IOException {

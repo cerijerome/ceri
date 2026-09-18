@@ -1,20 +1,57 @@
 package ceri.common.io;
 
 import java.io.IOException;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.util.Arrays;
+import java.util.Iterator;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestCollection;
 import ceri.common.test.Testing;
 
 public class PathListBehavior {
 	private static final Excepts.Predicate<IOException, Object> nullFilter = null;
 	private FileTestHelper helper;
 
+	private static class TestDirStream<T> implements DirectoryStream<T> {
+		public final TestCollection.Iterator<T> iterator;
+
+		@SafeVarargs
+		public static <T> TestDirStream<T> of(T... ts) {
+			return new TestDirStream<>(Arrays.asList(ts));
+		}
+
+		public TestDirStream(Iterable<T> iterable) {
+			this.iterator = TestCollection.iterator(iterable);
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return iterator;
+		}
+
+		@Override
+		public void close() {}
+	}
+
 	@After
 	public void after() {
 		helper = Testing.close(helper);
+	}
+
+	@Test
+	public void testStreamExceptions() {
+		try (var dirs = TestDirStream.of("a", "b", "c")) {
+			var ioe = new IOException("test");
+			dirs.iterator.next.set(new IllegalStateException("test"),
+				new DirectoryIteratorException(ioe));
+			Assert.thrown(IllegalStateException.class, () -> PathList.stream(dirs).toList());
+			Assert.thrown(e -> Assert.same(e, ioe), () -> PathList.stream(dirs).toList());
+		}
 	}
 
 	@Test
@@ -61,8 +98,8 @@ public class PathListBehavior {
 		initFiles();
 		Assert.paths(PathList.all(helper.root).relative().list(), "a", "a/a", "a/a/a.txt", "b",
 			"b/b.txt", "c.h", "d");
-		Assert.paths(PathList.all(helper.root).relative().relative().list(), "a", "a/a", "a/a/a.txt",
-			"b", "b/b.txt", "c.h", "d");
+		Assert.paths(PathList.all(helper.root).relative().relative().list(), "a", "a/a",
+			"a/a/a.txt", "b", "b/b.txt", "c.h", "d");
 		Assert.paths(PathList.all(helper.root).files().relative().list(), "a/a/a.txt", "b/b.txt",
 			"c.h");
 		Assert.paths(PathList.all(helper.root).relative().filter("glob:*.*").list(), "c.h");

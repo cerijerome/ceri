@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import java.io.Closeable;
-import ceri.common.event.Listenable;
+import ceri.common.concurrent.Listenable;
 import ceri.common.function.Enclosure;
 import ceri.common.io.StateChange;
 import ceri.x10.command.Command;

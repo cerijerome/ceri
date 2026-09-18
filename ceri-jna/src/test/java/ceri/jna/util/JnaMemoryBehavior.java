@@ -8,6 +8,7 @@ import com.sun.jna.Memory;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
+import ceri.common.test.TestIo;
 import ceri.common.test.Testing;
 import ceri.jna.test.JnaAssert;
 import ceri.jna.test.JnaTesting;
@@ -108,7 +109,7 @@ public class JnaMemoryBehavior {
 	@Test
 	public void shouldReadFromInputStream() throws IOException {
 		init(5);
-		Assert.equal(m.readFrom(1, Testing.inputStream(0x80, 0xff, 0x7f)), 4);
+		Assert.equal(m.readFrom(1, TestIo.inputStream(0x80, 0xff, 0x7f)), 4);
 		Assert.array(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
 	}
 

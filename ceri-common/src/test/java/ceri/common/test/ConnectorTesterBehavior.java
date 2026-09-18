@@ -8,11 +8,10 @@ public class ConnectorTesterBehavior {
 	@Test
 	public void shouldExecuteCommands() throws IOException {
 		try (var _ = ManualTester.fastMode(); SystemIoCaptor sys = SystemIoCaptor.of();
-			var c = TestConnector.of()) {
+			var c = TestIo.connector()) {
 			sys.in.print("O\nC\nOs\nz\nZ\n!\n");
 			ConnectorTester.test(c);
 			Assert.find(sys.out, "(?s)=> broken.*=> fixed");
 		}
 	}
-
 }

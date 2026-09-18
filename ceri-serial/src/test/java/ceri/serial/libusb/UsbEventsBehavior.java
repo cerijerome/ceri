@@ -8,7 +8,7 @@ import org.junit.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
-import ceri.common.test.Testing;
+import ceri.common.test.TestConcurrent;
 import ceri.serial.libusb.UsbEvents.Completed;
 import ceri.serial.libusb.UsbEvents.PollFd;
 import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
@@ -44,7 +44,7 @@ public class UsbEventsBehavior {
 		try (var _ = events.lockWaiters(); var _ = events.lock()) {
 			Assert.equal(events.handlerActive(), true);
 			Assert.equal(tryLock(), true);
-			try (var thread = Testing.threadCall(() -> tryLock())) {
+			try (var thread = TestConcurrent.threadCall(() -> tryLock())) {
 				Assert.equal(thread.get(), false);
 			}
 		}

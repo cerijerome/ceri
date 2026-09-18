@@ -35,7 +35,7 @@ public abstract class LongStream<E extends Exception> {
 		/**
 		 * Provides an accumulator to add elements to the container.
 		 */
-		Functions.ObjLongConsumer<A> accumulator();
+		Functions.ObjLongConsumer<A> longAccumulator();
 
 		/**
 		 * Provides a finisher to complete the container.
@@ -110,7 +110,7 @@ public abstract class LongStream<E extends Exception> {
 		 * Adapts the stream to allow the exception type.
 		 */
 		public <E extends Exception> Ex<E> ex() {
-			return new Ex<>(Reflect.unchecked(supplier()));
+			return super.emptyInstance() ? Ex.empty() : new Ex<>(supplierEx());
 		}
 
 		@Override
@@ -127,7 +127,7 @@ public abstract class LongStream<E extends Exception> {
 		 * Only streams elements that match the filter, allowing exceptions.
 		 */
 		public <E extends Exception> Ex<E> filterEx(Excepts.LongPredicate<? extends E> filter) {
-			return this.<E>ex().filter(filter);
+			return super.noOp(filter) ? ex() : new Ex<>(filterSupplier(supplierEx(), filter));
 		}
 
 		@Override
@@ -141,7 +141,7 @@ public abstract class LongStream<E extends Exception> {
 			var supplier = supplier();
 			return IntStream.Rt.ofSupplier(c -> supplier.next(l -> c.accept((int) l)));
 		}
-		
+
 		@Override
 		public Rt map(Excepts.LongOperator<? extends RuntimeException> mapper) {
 			return cast(super.map(mapper));
@@ -151,14 +151,13 @@ public abstract class LongStream<E extends Exception> {
 		 * Maps stream elements to new values, allowing exceptions.
 		 */
 		public <E extends Exception> Ex<E> mapEx(Excepts.LongOperator<? extends E> mapper) {
-			return this.<E>ex().map(mapper);
+			return super.noOp(mapper) ? Ex.empty() : new Ex<>(mapSupplier(supplierEx(), mapper));
 		}
 
 		@Override
-		public IntStream.Rt
-			mapToInt(Excepts.LongToIntFunction<? extends RuntimeException> mapper) {
-			if (super.noOp(mapper)) return IntStream.Rt.EMPTY;
-			return IntStream.Rt.ofSupplier(super.intSupplier(supplier(), mapper));
+		public IntStream.Rt mapToInt(Excepts.LongToIntFunction<? extends RuntimeException> mapper) {
+			return super.noOp(mapper) ? IntStream.Rt.EMPTY :
+				IntStream.Rt.ofSupplier(super.intSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -166,14 +165,15 @@ public abstract class LongStream<E extends Exception> {
 		 */
 		public <E extends Exception> IntStream.Ex<E>
 			mapToIntEx(Excepts.LongToIntFunction<? extends E> mapper) {
-			return this.<E>ex().mapToInt(mapper);
+			return super.noOp(mapper) ? IntStream.Ex.empty() :
+				IntStream.Ex.ofSupplier(super.intSupplier(supplierEx(), mapper));
 		}
 
 		@Override
 		public DoubleStream.Rt
 			mapToDouble(Excepts.LongToDoubleFunction<? extends RuntimeException> mapper) {
-			if (super.noOp(mapper)) return DoubleStream.Rt.EMPTY;
-			return DoubleStream.Rt.ofSupplier(super.doubleSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? DoubleStream.Rt.EMPTY :
+				DoubleStream.Rt.ofSupplier(super.doubleSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -181,14 +181,15 @@ public abstract class LongStream<E extends Exception> {
 		 */
 		public <E extends Exception> DoubleStream.Ex<E>
 			mapToDoubleEx(Excepts.LongToDoubleFunction<? extends E> mapper) {
-			return this.<E>ex().mapToDouble(mapper);
+			return super.noOp(mapper) ? DoubleStream.Ex.empty() :
+				DoubleStream.Ex.ofSupplier(super.doubleSupplier(supplierEx(), mapper));
 		}
 
 		@Override
 		public <T> Stream.Rt<T>
 			mapToObj(Excepts.LongFunction<? extends RuntimeException, ? extends T> mapper) {
-			if (super.noOp(mapper)) return Stream.Rt.empty();
-			return Stream.Rt.ofSupplier(super.objSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? Stream.Rt.empty() :
+				Stream.Rt.ofSupplier(super.objSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -196,7 +197,8 @@ public abstract class LongStream<E extends Exception> {
 		 */
 		public <E extends Exception, T> Stream.Ex<E, T>
 			mapToObjEx(Excepts.LongFunction<? extends E, ? extends T> mapper) {
-			return this.<E>ex().mapToObj(mapper);
+			return super.noOp(mapper) ? Stream.Ex.empty() :
+				Stream.Ex.ofSupplier(super.objSupplier(supplierEx(), mapper));
 		}
 
 		@Override
@@ -236,6 +238,10 @@ public abstract class LongStream<E extends Exception> {
 		@Override
 		Rt emptyVal() {
 			return EMPTY;
+		}
+
+		private <E extends Exception> NextSupplier<E> supplierEx() {
+			return Reflect.unchecked(supplier());
 		}
 	}
 
@@ -286,7 +292,7 @@ public abstract class LongStream<E extends Exception> {
 			var supplier = supplier();
 			return IntStream.Ex.ofSupplier(c -> supplier.next(l -> c.accept((int) l)));
 		}
-		
+
 		@Override
 		public Ex<E> map(Excepts.LongOperator<? extends E> mapper) {
 			return cast(super.map(mapper));
@@ -301,8 +307,8 @@ public abstract class LongStream<E extends Exception> {
 
 		@Override
 		public IntStream.Ex<E> mapToInt(Excepts.LongToIntFunction<? extends E> mapper) {
-			if (super.noOp(mapper)) return IntStream.Ex.empty();
-			return IntStream.Ex.ofSupplier(super.intSupplier(supplier(), mapper));
+			return super.noOp(mapper) ? IntStream.Ex.empty() :
+				IntStream.Ex.ofSupplier(super.intSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -314,10 +320,9 @@ public abstract class LongStream<E extends Exception> {
 		}
 
 		@Override
-		public DoubleStream.Ex<E>
-			mapToDouble(Excepts.LongToDoubleFunction<? extends E> mapper) {
-			if (super.noOp(mapper)) return DoubleStream.Ex.empty();
-			return DoubleStream.Ex.ofSupplier(super.doubleSupplier(supplier(), mapper));
+		public DoubleStream.Ex<E> mapToDouble(Excepts.LongToDoubleFunction<? extends E> mapper) {
+			return super.noOp(mapper) ? DoubleStream.Ex.empty() :
+				DoubleStream.Ex.ofSupplier(super.doubleSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -329,10 +334,9 @@ public abstract class LongStream<E extends Exception> {
 		}
 
 		@Override
-		public <T> Stream.Ex<E, T>
-			mapToObj(Excepts.LongFunction<? extends E, ? extends T> mapper) {
-			if (super.noOp(mapper)) return Stream.Ex.empty();
-			return Stream.Ex.ofSupplier(super.objSupplier(supplier(), mapper));
+		public <T> Stream.Ex<E, T> mapToObj(Excepts.LongFunction<? extends E, ? extends T> mapper) {
+			return super.noOp(mapper) ? Stream.Ex.empty() :
+				Stream.Ex.ofSupplier(super.objSupplier(supplier(), mapper));
 		}
 
 		/**
@@ -344,8 +348,7 @@ public abstract class LongStream<E extends Exception> {
 		}
 
 		@Override
-		public Ex<E>
-			flatMap(Excepts.LongFunction<? extends E, ? extends LongStream<E>> mapper) {
+		public Ex<E> flatMap(Excepts.LongFunction<? extends E, ? extends LongStream<E>> mapper) {
 			return cast(super.flatMap(mapper));
 		}
 
@@ -473,8 +476,7 @@ public abstract class LongStream<E extends Exception> {
 	 * Only streams elements that match the filter.
 	 */
 	public LongStream<E> filter(Excepts.LongPredicate<? extends E> filter) {
-		if (noOp(filter)) return this;
-		return update(filterSupplier(supplier(), filter));
+		return noOp(filter) ? this : update(filterSupplier(supplier(), filter));
 	}
 
 	/**
@@ -488,8 +490,7 @@ public abstract class LongStream<E extends Exception> {
 	 * Returns true if all elements matched.
 	 */
 	public boolean allMatch(Excepts.LongPredicate<? extends E> predicate) throws E {
-		if (noOp(predicate)) return true;
-		return !anyMatch(i -> !predicate.test(i));
+		return noOp(predicate) ? true : !anyMatch(i -> !predicate.test(i));
 	}
 
 	/**
@@ -512,13 +513,12 @@ public abstract class LongStream<E extends Exception> {
 	 * Maps stream elements to ints.
 	 */
 	public abstract IntStream<E> ints();
-	
+
 	/**
 	 * Maps stream elements to new values.
 	 */
 	public LongStream<E> map(Excepts.LongOperator<? extends E> mapper) {
-		if (noOp(mapper)) return emptyVal();
-		return update(mapSupplier(supplier(), mapper));
+		return noOp(mapper) ? emptyVal() : update(mapSupplier(supplier(), mapper));
 	}
 
 	/**
@@ -529,8 +529,7 @@ public abstract class LongStream<E extends Exception> {
 	/**
 	 * Maps stream elements to double values.
 	 */
-	public abstract DoubleStream<E>
-		mapToDouble(Excepts.LongToDoubleFunction<? extends E> mapper);
+	public abstract DoubleStream<E> mapToDouble(Excepts.LongToDoubleFunction<? extends E> mapper);
 
 	/**
 	 * Maps stream elements to typed values.
@@ -543,8 +542,8 @@ public abstract class LongStream<E extends Exception> {
 	 */
 	public LongStream<E>
 		flatMap(Excepts.LongFunction<? extends E, ? extends LongStream<E>> mapper) {
-		if (noOp(mapper)) return emptyVal();
-		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
+		return noOp(mapper) ? emptyVal() :
+			update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
 
 	// manipulation
@@ -553,9 +552,7 @@ public abstract class LongStream<E extends Exception> {
 	 * Limits the number of elements.
 	 */
 	public LongStream<E> limit(long size) {
-		var counter = Counter.of(size);
-		return update(
-			preSupplier(supplier(), () -> counter.preInc(-Long.signum(counter.get())) > 0L));
+		return emptyInstance() ? this : update(limitSupplier(supplier(), size));
 	}
 
 	/**
@@ -569,8 +566,7 @@ public abstract class LongStream<E extends Exception> {
 	 * IntStreams sorted elements, by first collecting into a sorted list.
 	 */
 	public LongStream<E> sorted() {
-		if (emptyInstance()) return this;
-		return update(adaptedSupplier(supplier(), s -> sortedSupplier(s)));
+		return emptyInstance() ? this : update(adaptedSupplier(supplier(), s -> sortedSupplier(s)));
 	}
 
 	// termination
@@ -644,8 +640,8 @@ public abstract class LongStream<E extends Exception> {
 	 * Collects elements with a collector.
 	 */
 	public <A, R> R collect(Collector<A, R> collector) throws E {
-		if (collector == null) return null;
-		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
+		return collector == null ? null :
+			collect(collector.supplier(), collector.longAccumulator(), collector.finisher());
 	}
 
 	/**
@@ -771,6 +767,12 @@ public abstract class LongStream<E extends Exception> {
 		};
 	}
 
+	private static <E extends Exception> NextSupplier<E> limitSupplier(NextSupplier<E> supplier,
+		long size) {
+		var counter = Counter.of(size);
+		return preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.get())) > 0L);
+	}
+
 	private static <E extends Exception> IntStream.NextSupplier<E>
 		intSupplier(NextSupplier<E> supplier, Excepts.LongToIntFunction<? extends E> mapper) {
 		var receiver = new NextSupplier.Receiver<E>();
@@ -803,10 +805,7 @@ public abstract class LongStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> preSupplier(NextSupplier<E> supplier,
 		Excepts.BoolSupplier<? extends E> pre) {
-		return c -> {
-			if (!pre.getAsBool()) return false;
-			return supplier.next(c);
-		};
+		return c -> pre.getAsBool() ? supplier.next(c) : false;
 	}
 
 	private static <E extends Exception> NextSupplier<E> adaptedSupplier(NextSupplier<E> supplier,

@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
-import ceri.common.test.TestFixable;
+import ceri.common.test.TestIo;
 
 public class FixableBehavior {
 
@@ -18,7 +18,7 @@ public class FixableBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWrapDelegate() throws IOException {
-		var f = TestFixable.of();
+		var f = TestIo.fixable();
 		var w = new Fixable.Wrapper<>(f);
 		var c = Captor.<StateChange>of();
 		w.listeners().listen(c);
@@ -31,5 +31,4 @@ public class FixableBehavior {
 		w.close();
 		f.close.assertCalls(1);
 	}
-
 }

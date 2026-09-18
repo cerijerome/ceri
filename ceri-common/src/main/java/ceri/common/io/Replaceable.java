@@ -2,8 +2,8 @@ package ceri.common.io;
 
 import java.io.Closeable;
 import java.io.IOException;
-import ceri.common.event.Listenable;
-import ceri.common.event.Listeners;
+import ceri.common.concurrent.Listenable;
+import ceri.common.concurrent.Listeners;
 import ceri.common.function.Excepts;
 import ceri.common.util.Capability;
 

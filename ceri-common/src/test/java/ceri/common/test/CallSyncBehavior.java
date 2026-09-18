@@ -89,7 +89,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldApplyAndRespond() {
 		var call = CallSync.<String, Integer>function(null);
-		try (var exec = Testing.threadCall(() -> call.apply("test"))) {
+		try (var exec = TestConcurrent.threadCall(() -> call.apply("test"))) {
 			Assert.equal(call.await(3), "test");
 			Assert.equal(exec.get(), 3);
 		}
@@ -98,7 +98,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldApplyAndRespondWithInterrupt() {
 		var call = CallSync.<String, Integer>function(null);
-		try (var exec = Testing.threadCall(() -> call.applyWithInterrupt("test"))) {
+		try (var exec = TestConcurrent.threadCall(() -> call.applyWithInterrupt("test"))) {
 			call.assertCall("test", 3);
 			Assert.equal(exec.get(), 3);
 		}
@@ -181,7 +181,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptAndRespond() {
 		var call = CallSync.<String>consumer(null, false);
-		try (var exec = Testing.threadRun(() -> call.accept("test"))) {
+		try (var exec = TestConcurrent.threadRun(() -> call.accept("test"))) {
 			Assert.equal(call.await(), "test");
 			exec.get();
 		}
@@ -190,7 +190,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptAndRespondWithInterrupt() {
 		var call = CallSync.<String>consumer(null, false);
-		try (var exec = Testing.threadRun(() -> call.acceptWithInterrupt("test"))) {
+		try (var exec = TestConcurrent.threadRun(() -> call.acceptWithInterrupt("test"))) {
 			call.assertCall("test");
 			exec.get();
 		}
@@ -257,7 +257,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldGetAndRespond() {
 		var call = CallSync.<String>supplier();
-		try (var exec = Testing.threadCall(() -> call.get())) {
+		try (var exec = TestConcurrent.threadCall(() -> call.get())) {
 			call.await("test");
 			Assert.equal(exec.get(), "test");
 		}
@@ -266,7 +266,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldGetAndRespondWithInterrupt() {
 		var call = CallSync.<String>supplier();
-		try (var exec = Testing.threadCall(() -> call.getWithInterrupt())) {
+		try (var exec = TestConcurrent.threadCall(() -> call.getWithInterrupt())) {
 			call.await("test");
 			Assert.equal(exec.get(), "test");
 		}
@@ -301,7 +301,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldRunAndRespond() {
 		var call = CallSync.runnable(false);
-		try (var exec = Testing.threadRun(() -> call.run())) {
+		try (var exec = TestConcurrent.threadRun(() -> call.run())) {
 			call.await();
 			exec.get();
 		}
@@ -310,7 +310,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldRunAndRespondWithInterrupt() {
 		var call = CallSync.runnable(false);
-		try (var exec = Testing.threadRun(() -> call.runWithInterrupt())) {
+		try (var exec = TestConcurrent.threadRun(() -> call.runWithInterrupt())) {
 			call.await();
 			exec.get();
 		}
@@ -351,8 +351,8 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldProvideStringRepresentationEvenIfLocked() {
 		var tos = CallSync.<String>supplier();
-		try (var exec0 = Testing.threadRun(() -> tos.await(() -> {
-			try (var exec1 = Testing.threadCall(() -> tos.toString())) { // locked
+		try (var exec0 = TestConcurrent.threadRun(() -> tos.await(() -> {
+			try (var exec1 = TestConcurrent.threadCall(() -> tos.toString())) { // locked
 				return exec1.get();
 			}
 		}))) {
@@ -370,8 +370,8 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldProvideCompactStringRepresentationEvenIfLocked() {
 		var tos = CallSync.<String>supplier();
-		try (var exec0 = Testing.threadRun(() -> tos.await(() -> {
-			try (var exec1 = Testing.threadCall(() -> tos.compactString())) { // locked
+		try (var exec0 = TestConcurrent.threadRun(() -> tos.await(() -> {
+			try (var exec1 = TestConcurrent.threadCall(() -> tos.compactString())) { // locked
 				return exec1.get();
 			}
 		}))) {
