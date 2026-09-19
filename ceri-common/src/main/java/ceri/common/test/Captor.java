@@ -25,6 +25,10 @@ public class Captor<T> implements Functions.Consumer<T> {
 		return new Captor.OfLong();
 	}
 
+	public static Captor.OfDouble ofDouble() {
+		return new Captor.OfDouble();
+	}
+
 	public static <T, U> Captor.Bi<T, U> ofBi() {
 		return new Captor.Bi<>(of(), of());
 	}
@@ -36,6 +40,12 @@ public class Captor<T> implements Functions.Consumer<T> {
 	@Override
 	public void accept(T t) {
 		values.add(t);
+	}
+
+	@SafeVarargs
+	public final void acceptAllOf(T... ts) {
+		for (var t : ts)
+			accept(t);
 	}
 
 	public <R> R accept(T t, R response) {
@@ -76,6 +86,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 			accept(Math.toIntExact(value));
 		}
 
+		public void acceptAll(int... ts) {
+			for (var t : ts)
+				accept(t);
+		}
+
 		public <E extends Exception> OfInt applyInt(Excepts.Consumer<E, OfInt> consumer) throws E {
 			if (consumer != null) consumer.accept(this);
 			return this;
@@ -103,6 +118,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 			accept(Long.valueOf(value));
 		}
 
+		public void acceptAll(long... ts) {
+			for (var t : ts)
+				accept(t);
+		}
+
 		public <E extends Exception> OfLong applyLong(Excepts.Consumer<E, OfLong> consumer)
 			throws E {
 			if (consumer != null) consumer.accept(this);
@@ -122,6 +142,39 @@ public class Captor<T> implements Functions.Consumer<T> {
 
 		public long[] longs() {
 			return Array.LONG.unboxed(values);
+		}
+	}
+
+	public static class OfDouble extends Captor<Double> implements Functions.DoubleConsumer {
+		@Override
+		public void accept(double value) {
+			accept(Double.valueOf(value));
+		}
+
+		public void acceptAll(double... ts) {
+			for (var t : ts)
+				accept(t);
+		}
+
+		public <E extends Exception> OfDouble applyDouble(Excepts.Consumer<E, OfDouble> consumer)
+			throws E {
+			if (consumer != null) consumer.accept(this);
+			return this;
+		}
+
+		@Override
+		public OfDouble reset() {
+			values.clear();
+			return this;
+		}
+
+		public final OfDouble verifyDouble(double... values) {
+			verify(Array.DOUBLE.list(values));
+			return this;
+		}
+
+		public double[] doubles() {
+			return Array.DOUBLE.unboxed(values);
 		}
 	}
 
@@ -202,7 +255,7 @@ public class Captor<T> implements Functions.Consumer<T> {
 
 	public static class N<T> extends Captor<List<T>> {
 		@SafeVarargs
-		public final void acceptAll(T... ts) {
+		public final void acceptAsList(T... ts) {
 			super.accept(Immutable.listOf(ts));
 		}
 	}

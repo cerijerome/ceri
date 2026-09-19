@@ -482,14 +482,14 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldConsumeEachElement() throws IOException {
-		Captor.ofInt().applyInt(Rt.empty::forEach).verify();
-		Captor.ofInt().applyInt(Rt.empty::forEachEx).verify();
-		Captor.ofInt().applyInt(Rt.stream()::forEach).verify(-1, 0, 1);
-		Captor.ofInt().applyInt(Rt.stream()::forEachEx).verify(-1, 0, 1);
-		Captor.ofInt().applyInt(c -> Ex.empty.forEach(c::accept)).verify();
-		Captor.ofInt().applyInt(Ex.empty::forEachRt).verify();
-		Captor.ofInt().applyInt(c -> Ex.stream().forEach(c::accept)).verify(-1, 0, 1);
-		Captor.ofInt().applyInt(Ex.stream()::forEachRt).verify(-1, 0, 1);
+		Captor.ofInt().applyInt(Rt.empty::forEach).verifyInt();
+		Captor.ofInt().applyInt(Rt.empty::forEachEx).verifyInt();
+		Captor.ofInt().applyInt(Rt.stream()::forEach).verifyInt(-1, 0, 1);
+		Captor.ofInt().applyInt(Rt.stream()::forEachEx).verifyInt(-1, 0, 1);
+		Captor.ofInt().applyInt(c -> Ex.empty.forEach(c::accept)).verifyInt();
+		Captor.ofInt().applyInt(Ex.empty::forEachRt).verifyInt();
+		Captor.ofInt().applyInt(c -> Ex.stream().forEach(c::accept)).verifyInt(-1, 0, 1);
+		Captor.ofInt().applyInt(Ex.stream()::forEachRt).verifyInt(-1, 0, 1);
 	}
 
 	@Test
@@ -544,16 +544,20 @@ public class IntStreamBehavior {
 	public void shouldDetermineMin() throws IOException {
 		Assert.equal(Rt.empty.min(0), 0);
 		Assert.equal(Rt.stream().min(0), -1);
+		Assert.equal(Rt.of(1, 0, -1).min(0), -1);
 		Assert.equal(Ex.empty.min(0), 0);
 		Assert.equal(Ex.stream().min(0), -1);
+		Assert.equal(Ex.of(1, 0, -1).min(0), -1);
 	}
 
 	@Test
 	public void shouldDetermineMax() throws IOException {
 		Assert.equal(Rt.empty.max(0), 0);
 		Assert.equal(Rt.stream().max(0), 1);
+		Assert.equal(Rt.of(1, 0, -1).max(0), 1);
 		Assert.equal(Ex.empty.max(0), 0);
 		Assert.equal(Ex.stream().max(0), 1);
+		Assert.equal(Ex.of(1, 0, -1).max(0), 1);
 	}
 
 	@Test

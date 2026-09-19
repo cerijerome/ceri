@@ -141,6 +141,11 @@ public abstract class IntStream<E extends Exception> {
 		}
 
 		@Override
+		public LongStream.Rt unsigned() {
+			return mapToLong(Maths::uint);
+		}
+
+		@Override
 		public Rt map(Excepts.IntOperator<? extends RuntimeException> mapper) {
 			return cast(super.map(mapper));
 		}
@@ -291,6 +296,11 @@ public abstract class IntStream<E extends Exception> {
 		@Override
 		public Stream.Ex<E, Integer> boxed() {
 			return mapToObj(Integer::valueOf);
+		}
+
+		@Override
+		public LongStream.Ex<E> unsigned() {
+			return mapToLong(Maths::uint);
 		}
 
 		@Override
@@ -574,9 +584,7 @@ public abstract class IntStream<E extends Exception> {
 	/**
 	 * Maps stream elements to unsigned ints.
 	 */
-	public LongStream<E> unsigned() {
-		return mapToLong(Maths::uint);
-	}
+	public abstract LongStream<E> unsigned();
 
 	/**
 	 * Maps stream elements to new values.

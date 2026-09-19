@@ -27,6 +27,16 @@ public class CaptorBehavior {
 	}
 
 	@Test
+	public void shouldCaptureDoubles() {
+		var captor = Captor.ofDouble();
+		captor.accept(1);
+		Assert.equal(captor.accept(2.0, "x"), "x");
+		captor.accept(3L);
+		captor.apply(c -> c.verify(1.0, 2.0, 3.0));
+		Assert.array(captor.doubles(), 1, 2, 3);
+	}
+
+	@Test
 	public void shouldCaptureBiValues() {
 		var captor = Captor.<Integer, String>ofBi();
 		captor.verify();
@@ -47,18 +57,44 @@ public class CaptorBehavior {
 	@Test
 	public void shouldCaptureLists() {
 		var captor = Captor.<Integer>ofN();
-		captor.acceptAll(1, 2, 3);
+		captor.acceptAsList(1, 2, 3);
 		Assert.ordered(captor.values, List.of(1, 2, 3));
 	}
 
 	@Test
 	public void shouldReset() {
+		var captor = Captor.of();
+		captor.acceptAllOf(1, 2);
+		captor.reset();
+		captor.accept(3);
+		Assert.ordered(captor.values, 3);
+	}
+
+	@Test
+	public void shouldResetInts() {
+		var captor = Captor.ofInt();
+		captor.acceptAll(1, 2);
+		captor.reset();
+		captor.accept(3);
+		Assert.array(captor.ints(), 3);
+	}
+
+	@Test
+	public void shouldResetLongs() {
 		var captor = Captor.ofLong();
-		captor.accept(1);
-		captor.accept(2);
+		captor.acceptAll(1, 2);
 		captor.reset();
 		captor.accept(3);
 		Assert.array(captor.longs(), 3);
+	}
+
+	@Test
+	public void shouldResetDoubles() {
+		var captor = Captor.ofDouble();
+		captor.acceptAll(1, 2);
+		captor.reset();
+		captor.accept(3);
+		Assert.array(captor.doubles(), 3);
 	}
 
 	@Test
