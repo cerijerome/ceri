@@ -178,7 +178,15 @@ public class Collect {
 	 * Collects elements into an array.
 	 */
 	public static <R, T extends R> Collector<T, ?, R[]> array(Class<R> component) {
-		return of(() -> DynamicArray.of(component), DynamicArray.OfType::accept,
+		return arrayFromComponent(component);
+	}
+	
+	/**
+	 * Collects elements into an array.
+	 */
+	public static <R, T extends R> Collector<T, ?, R[]>
+		array(Functions.IntFunction<R[]> constructor) {
+		return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
 			DynamicArray::truncate);
 	}
 
@@ -186,7 +194,7 @@ public class Collect {
 	 * Collects elements into a class array.
 	 */
 	public static Collector<Class<?>, ?, Class<?>[]> classArray() {
-		return array(Reflect.unchecked(Class.class));
+		return arrayFromComponent(Reflect.unchecked(Class.class));
 	}
 
 	/**
@@ -337,5 +345,10 @@ public class Collect {
 		return of(mapSupplier,
 			(m, t) -> m.computeIfAbsent(keyMapper.apply(t), _ -> setSupplier.get()).add(t),
 			Collections::unmodifiableMap);
+	}
+
+	private static <R, T extends R> Collector<T, ?, R[]> arrayFromComponent(Class<R> component) {
+		return of(() -> DynamicArray.of(component), DynamicArray.OfType::accept,
+			DynamicArray::truncate);
 	}
 }

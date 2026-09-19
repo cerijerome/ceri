@@ -29,6 +29,8 @@ public class StreamBehavior {
 	private static final java.util.stream.Stream<Integer> nullStream = null;
 	private static final Integer[] nullArray = null;
 	private static final Integer[] emptyArray = new Integer[0];
+	private static final Class<Integer> nullCls = null;
+	private static final Functions.IntFunction<Integer[]> nullConstructor = null;
 	private static final Stream.ExAdapter<IOException> adapter =
 		e -> (e instanceof UncheckedIOException uie) ? uie.getCause() : null;
 
@@ -579,13 +581,17 @@ public class StreamBehavior {
 		Assert.array(Rt.empty.toArray());
 		Assert.array(Rt.empty.toArray(Integer.class));
 		Assert.array(Rt.stream().toArray(), -1, null, 1, 0);
-		Assert.equal(Rt.stream().toArray(null), null);
+		Assert.equal(Rt.stream().toArray(nullCls), null);
 		Assert.array(Rt.stream().toArray(Integer.class), -1, null, 1, 0);
+		Assert.equal(Rt.stream().toArray(nullConstructor), null);
+		Assert.array(Rt.stream().toArray(Integer[]::new), -1, null, 1, 0);
 		Assert.array(Ex.empty.toArray());
 		Assert.array(Ex.empty.toArray(Integer.class));
 		Assert.array(Ex.stream().toArray(), -1, null, 1, 0);
-		Assert.equal(Ex.stream().toArray(null), null);
+		Assert.equal(Ex.stream().toArray(nullCls), null);
 		Assert.array(Ex.stream().toArray(Integer.class), -1, null, 1, 0);
+		Assert.equal(Ex.stream().toArray(nullConstructor), null);
+		Assert.array(Ex.stream().toArray(Integer[]::new), -1, null, 1, 0);
 	}
 
 	@Test

@@ -38,7 +38,7 @@ public class DynamicArrayBehavior {
 
 	@Test
 	public void shouldAccessObjectsByIndex() {
-		var d = DynamicArray.of();
+		var d = DynamicArray.of(String[]::new);
 		d.set(1, "a", "b");
 		d.set(8, "c");
 		Assert.equal(d.get(2), "b");

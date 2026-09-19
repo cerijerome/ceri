@@ -856,10 +856,17 @@ public abstract class Stream<E extends Exception, T> {
 	}
 
 	/**
-	 * Collects elements into an array.
+	 * Collects elements into an array. For super-class arrays, a collector must be used.
 	 */
 	public T[] toArray(Class<T> component) throws E {
 		return component == null ? null : collect(Collect.array(component));
+	}
+
+	/**
+	 * Collects elements into an array. For super-class arrays, a collector must be used.
+	 */
+	public T[] toArray(Functions.IntFunction<T[]> constructor) throws E {
+		return constructor == null ? null : collect(Collect.array(constructor));
 	}
 
 	/**

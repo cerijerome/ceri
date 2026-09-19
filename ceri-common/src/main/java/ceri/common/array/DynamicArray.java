@@ -22,6 +22,7 @@ import ceri.common.stream.LongStream;
  * Utility to create arrays without initially knowing the required size. Not thread-safe.
  */
 public abstract class DynamicArray<T> {
+	private static final Functions.IntFunction<Object[]> OBJECT_CONSTRUCTOR = Object[]::new;
 	/** Default growth function. */
 	public static final Functions.IntBiOperator GROW_DEF = growX2(8);
 	/** Start with size 1 and double each time. */
@@ -29,7 +30,7 @@ public abstract class DynamicArray<T> {
 	/** Expands only to the size required. */
 	public static final Functions.IntBiOperator GROW_EXACT = (_, s) -> s; // expands only to size
 	private final Functions.IntBiOperator growth;
-	public final TypedArray<T> typed;
+	private final Functions.IntFunction<T> constructor;
 	private T array;
 	private int index = 0;
 
@@ -65,7 +66,7 @@ public abstract class DynamicArray<T> {
 	 * Create an object array builder with given growth.
 	 */
 	public static OfType<Object> of(Functions.IntBiOperator growth) {
-		return of(Object.class, growth);
+		return of(OBJECT_CONSTRUCTOR, growth);
 	}
 
 	/**
@@ -79,7 +80,22 @@ public abstract class DynamicArray<T> {
 	 * Create a type array builder with given growth.
 	 */
 	public static <T> OfType<T> of(Class<T> component, Functions.IntBiOperator growth) {
-		return new OfType<>(component, growth);
+		return of(size -> RawArray.ofType(component, size), growth);
+	}
+
+	/**
+	 * Create a type array builder with default growth.
+	 */
+	public static <T> OfType<T> of(Functions.IntFunction<T[]> constructor) {
+		return of(constructor, GROW_DEF);
+	}
+
+	/**
+	 * Create a type array builder with given growth.
+	 */
+	public static <T> OfType<T> of(Functions.IntFunction<T[]> constructor,
+		Functions.IntBiOperator growth) {
+		return new OfType<>(constructor, growth);
 	}
 
 	/**
@@ -198,8 +214,8 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfType<T> extends DynamicArray<T[]> implements Functions.Consumer<T> {
-		private OfType(Class<T> component, Functions.IntBiOperator growth) {
-			super(TypedArray.type(component), growth);
+		private OfType(Functions.IntFunction<T[]> constructor, Functions.IntBiOperator growth) {
+			super(constructor, growth);
 		}
 
 		@Override
@@ -236,8 +252,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfBool extends DynamicArray<boolean[]> implements Functions.BoolConsumer {
+		private static final Functions.IntFunction<boolean[]> CONSTRUCTOR = boolean[]::new;
+
 		private OfBool(Functions.IntBiOperator growth) {
-			super(Array.BOOL, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -272,8 +290,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfChar extends DynamicArray<char[]> implements Functions.IntConsumer {
+		private static final Functions.IntFunction<char[]> CONSTRUCTOR = char[]::new;
+
 		private OfChar(Functions.IntBiOperator growth) {
-			super(Array.CHAR, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -362,8 +382,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfByte extends DynamicArray<byte[]> implements Functions.IntConsumer {
+		private static final Functions.IntFunction<byte[]> CONSTRUCTOR = byte[]::new;
+
 		private OfByte(Functions.IntBiOperator growth) {
-			super(Array.BYTE, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -426,8 +448,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfShort extends DynamicArray<short[]> implements Functions.IntConsumer {
+		private static final Functions.IntFunction<short[]> CONSTRUCTOR = short[]::new;
+
 		private OfShort(Functions.IntBiOperator growth) {
-			super(Array.SHORT, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -483,8 +507,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfInt extends DynamicArray<int[]> implements Functions.IntConsumer {
+		private static final Functions.IntFunction<int[]> CONSTRUCTOR = int[]::new;
+
 		private OfInt(Functions.IntBiOperator growth) {
-			super(Array.INT, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -540,8 +566,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfLong extends DynamicArray<long[]> implements Functions.LongConsumer {
+		private static final Functions.IntFunction<long[]> CONSTRUCTOR = long[]::new;
+
 		private OfLong(Functions.IntBiOperator growth) {
-			super(Array.LONG, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -597,8 +625,10 @@ public abstract class DynamicArray<T> {
 	 * For building typed arrays.
 	 */
 	public static class OfFloat extends DynamicArray<float[]> implements Functions.DoubleConsumer {
+		private static final Functions.IntFunction<float[]> CONSTRUCTOR = float[]::new;
+
 		private OfFloat(Functions.IntBiOperator growth) {
-			super(Array.FLOAT, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -641,8 +671,10 @@ public abstract class DynamicArray<T> {
 	 */
 	public static class OfDouble extends DynamicArray<double[]>
 		implements Functions.DoubleConsumer {
+		private static final Functions.IntFunction<double[]> CONSTRUCTOR = double[]::new;
+
 		private OfDouble(Functions.IntBiOperator growth) {
-			super(Array.DOUBLE, growth);
+			super(CONSTRUCTOR, growth);
 		}
 
 		@Override
@@ -687,10 +719,10 @@ public abstract class DynamicArray<T> {
 		}
 	}
 
-	private DynamicArray(TypedArray<T> typed, Functions.IntBiOperator growth) {
-		this.typed = typed;
+	private DynamicArray(Functions.IntFunction<T> constructor, Functions.IntBiOperator growth) {
+		this.constructor = constructor;
 		this.growth = growth;
-		this.array = typed.resize(null, growth.applyAsInt(0, 0));
+		this.array = resize(null, growth.applyAsInt(0, 0));
 	}
 
 	/**
@@ -721,7 +753,7 @@ public abstract class DynamicArray<T> {
 	 * Truncates the array to exact size.
 	 */
 	public T truncate() {
-		array = typed.resize(array, index);
+		array = resize(array, index);
 		return array;
 	}
 
@@ -739,7 +771,7 @@ public abstract class DynamicArray<T> {
 		int i = resolveIndex(index);
 		RawArray.acceptSlice(array, offset, length, (o, l) -> {
 			ensureSize(i + l);
-			typed.copy(array, o, this.array, i, l);
+			RawArray.copy(array, o, this.array, i, l);
 			this.index = Math.max(this.index, i + l);
 		});
 		return this.index;
@@ -774,7 +806,7 @@ public abstract class DynamicArray<T> {
 		int len = RawArray.length(array);
 		while (len < size)
 			len = growth.applyAsInt(len, size);
-		array = typed.resize(array, len);
+		array = resize(array, len);
 	}
 
 	private <U> int set(int index, U array, Functions.ObjBiIntConsumer<T> consumer) {
@@ -796,5 +828,9 @@ public abstract class DynamicArray<T> {
 	private void accept(Functions.ObjIntConsumer<T> consumer) {
 		ensureSize(index + 1);
 		consumer.accept(array, index++);
+	}
+
+	private T resize(T array, int length) {
+		return RawArray.resize(constructor, array, length);
 	}
 }

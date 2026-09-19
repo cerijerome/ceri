@@ -45,6 +45,14 @@ public class TypedArrayBehavior {
 	}
 
 	@Test
+	public void shouldResizeArray() {
+		Assert.array(typed.resize(new Integer[] { -1, 1 }, 0));
+		Assert.array(typed.resize(new Integer[] {}, 1), (Integer) null);
+		Assert.array(typed.resize(new Integer[] { -1, 1 }, 1), -1);
+		Assert.array(typed.resize(new Integer[] { -1, 1 }, 3), -1, 1, null);
+	}
+
+	@Test
 	public void shouldProvideElementAtIndex() {
 		Assert.equal(typed.at(NULL, 0), null);
 		Assert.equal(typed.at(ints, -1), null);
