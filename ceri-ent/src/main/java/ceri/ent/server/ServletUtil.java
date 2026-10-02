@@ -3,8 +3,8 @@ package ceri.ent.server;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import ceri.common.text.Strings;
 import ceri.log.util.Logs;
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +37,7 @@ public class ServletUtil {
 	public static void dispatchJsp(HttpServletRequest request, HttpServletResponse response,
 		String jspPath, Object model) throws ServletException, IOException {
 		if (model != null) request.setAttribute(MODEL, model);
-		RequestDispatcher dispatcher = request.getRequestDispatcher(jspPath);
+		var dispatcher = request.getRequestDispatcher(jspPath);
 		dispatcher.forward(request, response);
 	}
 
@@ -69,11 +69,7 @@ public class ServletUtil {
 		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
 	}
 
-	private static String message(Exception e) {
-		if (e == null) return "";
-		String message = e.getMessage();
-		if (message == null) return "";
-		return message;
+	private static String message(Throwable t) {
+		return t == null ? "" : Strings.safe(t.getMessage());
 	}
-
 }

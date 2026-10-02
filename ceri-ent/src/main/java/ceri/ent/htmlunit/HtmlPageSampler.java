@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlPage;
 import ceri.common.function.Excepts;
 
 public class HtmlPageSampler {

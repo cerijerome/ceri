@@ -27,8 +27,8 @@ public class Collect {
 	private static final Collector<?, ?, Object[]> ARRAY = array(Object.class);
 	private static final Collector<?, List<Object>, List<Object>> LIST =
 		of(Lists::of, Collection::add, Immutable::wrap);
-	private static final Collector<?, ?, List<?>> SORTED_LIST =
-		Reflect.unchecked(sortedList(Comparator.naturalOrder()));
+	private static final Collector<?, ?, List<?>> SORTED_LIST = 
+		Reflect.unchecked(sortedList(Reflect.unchecked(Comparator.naturalOrder())));
 	private static final Collector<?, Set<Object>, Set<Object>> SET =
 		of(Sets::of, Collection::add, Immutable::wrap);
 
@@ -180,7 +180,7 @@ public class Collect {
 	public static <R, T extends R> Collector<T, ?, R[]> array(Class<R> component) {
 		return arrayFromComponent(component);
 	}
-	
+
 	/**
 	 * Collects elements into an array.
 	 */

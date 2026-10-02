@@ -3,8 +3,8 @@ package ceri.ent.htmlunit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.DomNode;
 import ceri.common.reflect.Reflect;
 
 public class XPathUtil {

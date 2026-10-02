@@ -182,7 +182,7 @@ public class StreamBehavior {
 	}
 
 	@Test
-	public void testUnmap() {
+	public void testUnmap() throws Exception {
 		var map = Immutable.mapOf(Maps::link, -1, "B", null, "A", 1, null);
 		Assert.stream(Stream.Rt.unmap(null, map));
 		Assert.stream(Stream.Rt.unmap((k, v) -> "" + k + v, null));
@@ -200,7 +200,7 @@ public class StreamBehavior {
 	}
 
 	@Test
-	public void shouldAdaptForExceptions() throws IOException {
+	public void shouldAdaptForExceptions() throws Exception {
 		Assert.stream(Rt.empty.ex());
 		Assert.stream(Rt.empty.ex(ExceptionAdapter.io));
 		Assert.stream(Rt.of(1, 2, 3).ex(), 1, 2, 3);
@@ -221,7 +221,7 @@ public class StreamBehavior {
 	}
 
 	@Test
-	public void shouldFilterElements() throws IOException {
+	public void shouldFilterElements() throws Exception {
 		Assert.stream(Rt.empty.filter(null));
 		Assert.stream(Rt.empty.filterEx(null));
 		Assert.stream(Rt.empty.filter(Rt.pred));

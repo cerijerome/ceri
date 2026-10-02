@@ -184,7 +184,7 @@ public class IntStreamBehavior {
 
 	@Test
 	public void testMerge() throws IOException {
-		Assert.stream(IntStream.merge());
+		Assert.stream(IntStream.merge(new IntStream.Rt[0]));
 		Assert.stream(IntStream.merge((IntStream.Rt[]) null));
 		Assert.stream(IntStream.merge(Rt.of(1, 2), Rt.empty, Rt.of(3), null), 1, 2, 3);
 		Assert.stream(IntStream.merge((IntStream.Ex<IOException>[]) null));
@@ -192,7 +192,7 @@ public class IntStreamBehavior {
 	}
 
 	@Test
-	public void shouldAdaptForExceptions() throws IOException {
+	public void shouldAdaptForExceptions() throws Exception {
 		Assert.stream(Rt.empty.ex());
 		Assert.stream(Rt.empty.ex(ExceptionAdapter.io));
 		Assert.stream(Rt.of(1, 2, 3).ex(), 1, 2, 3);
@@ -213,7 +213,7 @@ public class IntStreamBehavior {
 	}
 
 	@Test
-	public void shouldFilterElements() throws IOException {
+	public void shouldFilterElements() throws Exception {
 		Assert.stream(Rt.empty.filter(null));
 		Assert.stream(Rt.empty.filterEx(null));
 		Assert.stream(Rt.empty.filter(Rt.pred));

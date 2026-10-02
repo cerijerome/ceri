@@ -44,7 +44,7 @@ public class TypeValue<T> {
 	public static <T, V extends TypeValue<T>> V validExcept(V value, T invalid, String name) {
 		Validate.nonNull(value, name);
 		Validate.nonNull(value.type(), name);
-		if (invalid != null) Validate.notEqual(value.type(), invalid, name);
+		if (invalid != null) Validate.notEquals(value.type(), invalid, name);
 		return value;
 	}
 

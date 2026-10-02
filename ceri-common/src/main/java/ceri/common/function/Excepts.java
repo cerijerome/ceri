@@ -301,7 +301,10 @@ public class Excepts {
 	 */
 	@FunctionalInterface
 	public interface BinFunction<E extends Exception, T, R>
-		extends BiFunction<E, T, T, R>, Throws.BinFunction<T, R> {}
+		extends BiFunction<E, T, T, R>, Throws.BinFunction<T, R> {
+		@Override
+		R apply(T t, T u) throws E;
+	}
 
 	/**
 	 * Functional interface that throws specific exceptions.
@@ -453,7 +456,10 @@ public class Excepts {
 	 * Functional interface that throws specific exceptions.
 	 */
 	public interface Operator<E extends Exception, T>
-		extends Function<E, T, T>, Throws.Operator<T> {}
+		extends Function<E, T, T>, Throws.Operator<T> {
+		@Override
+		T apply(T t) throws E;
+	}
 
 	/**
 	 * Functional interface that throws specific exceptions.
@@ -506,7 +512,10 @@ public class Excepts {
 	 * Functional interface that throws specific exceptions.
 	 */
 	public interface BiOperator<E extends Exception, T>
-		extends BiFunction<E, T, T, T>, Throws.BiOperator<T> {}
+		extends BiFunction<E, T, T, T>, Throws.BiOperator<T> {
+		@Override
+		T apply(T t, T u) throws E;
+	}
 
 	/**
 	 * Functional interface that throws specific exceptions.
@@ -672,7 +681,10 @@ public class Excepts {
 	 */
 	@FunctionalInterface
 	public interface BinPredicate<E extends Exception, T>
-		extends BiPredicate<E, T, T>, Throws.BinPredicate<T> {}
+		extends BiPredicate<E, T, T>, Throws.BinPredicate<T> {
+		@Override
+		boolean test(T t, T u) throws E;
+	}
 
 	/**
 	 * Functional interface that throws specific exceptions.
@@ -837,7 +849,10 @@ public class Excepts {
 	 */
 	@FunctionalInterface
 	public interface BinConsumer<E extends Exception, T>
-		extends BiConsumer<E, T, T>, Throws.BinConsumer<T> {}
+		extends BiConsumer<E, T, T>, Throws.BinConsumer<T> {
+		@Override
+		void accept(T t, T u) throws E;
+	}
 
 	/**
 	 * Functional interface that throws specific exceptions.

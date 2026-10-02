@@ -1,10 +1,10 @@
 package ceri.ent.server;
 
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
-import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
-import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
-import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
+import org.eclipse.jetty.ee10.websocket.server.JettyServerUpgradeRequest;
+import org.eclipse.jetty.ee10.websocket.server.JettyServerUpgradeResponse;
+import org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServlet;
+import org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServletFactory;
+import org.htmlunit.websocket.WebSocketListener;
 import ceri.common.util.Basics;
 import jakarta.servlet.ServletException;
 
@@ -19,8 +19,7 @@ public abstract class ServiceWebSocketServlet<T> extends JettyWebSocketServlet {
 
 	@Override
 	public void init() throws ServletException {
-		service = ServiceServlet.getService(this, cls);
-		if (service == null) throw new ServletException(cls + " has not been set");
+		service = ServiceServlet.requireService(this, cls);
 		super.init();
 	}
 

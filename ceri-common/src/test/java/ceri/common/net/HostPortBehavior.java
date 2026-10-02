@@ -77,7 +77,7 @@ public class HostPortBehavior {
 			return;
 		}
 		Assert.notNull(hostPort);
-		Assert.equal(hostPort.host, host);
-		Assert.equal(hostPort.port, port);
+		Assert.equal(hostPort.host(), host);
+		Assert.equal(hostPort.port(), port);
 	}
 }

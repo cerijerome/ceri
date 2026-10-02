@@ -109,7 +109,7 @@ public class PathList {
 	 * Returns the filtered paths as a mutable list.
 	 */
 	public List<Path> list() throws IOException {
-		return list(IDENTITY);
+		return list(p -> p);
 	}
 
 	/**

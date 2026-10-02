@@ -42,7 +42,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testEqualAny() {
+	public void testEqualAny() throws Exception {
 		assertTest(Filters.equalAnyOf(nullArr), false, null, 0, 1);
 		assertTest(Filters.equalAnyOf(), false, null, 0, 1);
 		assertTest(Filters.equalAnyOf(-1, 1), true, -1, 1);
@@ -51,7 +51,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testEqualPrimitive() {
+	public void testEqualPrimitive() throws Exception {
 		assertTest(Filters.equal(1), true, 1);
 		assertTest(Filters.equal(1), false, -1, 0);
 		assertTest(Filters.equal(1L), true, 1);
@@ -61,7 +61,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testInstance() {
+	public void testInstance() throws Exception {
 		assertTest(Filters.instance(null), true, nullStr);
 		assertTest(Filters.instance(null), true, "");
 		assertTest(Filters.instance(Object.class), false, nullStr);
@@ -71,7 +71,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testOfNullPredicate() {
+	public void testOfNullPredicate() throws Exception {
 		assertTest(Filters.of(null), false, null, 1, "");
 		assertTest(Filters.of(Filters.Nulls.yes, null), true, nullStr);
 		assertTest(Filters.of(Filters.Nulls.yes, null), true, nullStr);
@@ -95,7 +95,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testSafe() {
+	public void testSafe() throws Exception {
 		assertTest(Filters.safe(null), false, null, 1, "");
 		assertTest(Filters.safe(Filters.YES), true, null, 1, "");
 	}
@@ -110,7 +110,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testAs() {
+	public void testAs() throws Exception {
 		assertTest(Filters.as(null, Filters.yes()), false, nullStr, "", 1);
 		assertTest(Filters.as(String::valueOf, null), false, nullStr, "", 1);
 		assertTest(Filters.as(String::length, Filters.gt(3)), false, nullStr);
@@ -183,7 +183,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testGt() {
+	public void testGt() throws Exception {
 		assertTest(Filters.gte(null), false, nullStr);
 		assertTest(Filters.gte(null), true, "", "b");
 		assertTest(Filters.gte("c"), false, null, "", "b");
@@ -195,7 +195,7 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testLt() {
+	public void testLt() throws Exception {
 		assertTest(Filters.lte(null), false, nullStr);
 		assertTest(Filters.lte(null), true, "", "b");
 		assertTest(Filters.lte("c"), false, null, "cc");

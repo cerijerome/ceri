@@ -988,6 +988,8 @@ public abstract class Stream<E extends Exception, T> {
 
 	private static <E extends Exception, T> NextSupplier<E, T>
 		sortedSupplier(NextSupplier<E, T> supplier, Comparator<? super T> comparator) {
+		// fuck off
+		// fuck off again
 		Excepts.Operator<E, NextSupplier<E, T>> adapter =
 			s -> iteratorSupplier(sortedList(s, comparator).iterator(), null);
 		return adaptedSupplier(supplier, adapter);

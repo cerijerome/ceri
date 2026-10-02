@@ -8,13 +8,11 @@ import java.util.regex.Pattern;
 import ceri.common.property.Parser;
 import ceri.common.text.Regex;
 
-public class HostPort {
+public record HostPort(String host, int port) {
 	public static final int INVALID_PORT = -1;
 	public static final HostPort NULL = new HostPort(null, INVALID_PORT);
 	public static final HostPort LOCALHOST = new HostPort(Net.LOCALHOST, INVALID_PORT);
 	private static final Pattern HOST_REGEX = Pattern.compile("([^:]+)(?::(\\d+))?");
-	public final String host;
-	public final int port;
 
 	public static HostPort parse(String value) {
 		var m = Regex.match(HOST_REGEX, value);
@@ -41,45 +39,28 @@ public class HostPort {
 		return new HostPort(host, port);
 	}
 
-	private HostPort(String host, int port) {
-		this.host = host;
-		this.port = port;
-	}
-
 	public InetAddress asAddress() throws UnknownHostException {
-		return InetAddress.getByName(host);
+		return InetAddress.getByName(host());
 	}
 
 	public InetSocketAddress asSocketAddress() throws UnknownHostException {
-		return Net.requireResolved(new InetSocketAddress(host, port(0)));
+		return Net.requireResolved(new InetSocketAddress(host(), port(0)));
 	}
 
 	public int port(int def) {
-		return port != INVALID_PORT ? port : def;
+		return hasPort() ? port() : def;
 	}
 
 	public boolean isNull() {
-		return host == null;
+		return host() == null;
 	}
 
 	public boolean hasPort() {
-		return port != INVALID_PORT;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(host, port);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		return (obj instanceof HostPort other) && Objects.equals(host, other.host)
-			&& Objects.equals(port, other.port);
+		return port() != INVALID_PORT;
 	}
 
 	@Override
 	public String toString() {
-		return port == INVALID_PORT ? host : host + ":" + port;
+		return hasPort() ? host() + ":" + port() : host();
 	}
 }

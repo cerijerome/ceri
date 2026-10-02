@@ -19,6 +19,9 @@
           "name": "org.apache.tomcat",
           "level" : "info"
         }, {
+		  "name": "org.apache.tomcat.util.descriptor.DigesterFactory",
+		  "level" : "error"
+        }, {
           "name": "org.eclipse.jetty",
           "level" : "info"
         }

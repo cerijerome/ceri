@@ -51,10 +51,10 @@ public class ValidateTest {
 
 	@Test
 	public void testNotEqual() {
-		Assert.equal(Validate.notEqual(null, OBJ), null);
-		Assert.equal(Validate.notEqual(OBJ, null), OBJ);
-		assertInvalid(() -> Validate.notEqual(null, null));
-		assertInvalid(() -> Validate.notEqual(OBJ, OBJ));
+		Assert.equal(Validate.notEquals(null, OBJ), null);
+		Assert.equal(Validate.notEquals(OBJ, null), OBJ);
+		assertInvalid(() -> Validate.notEquals(null, null));
+		assertInvalid(() -> Validate.notEquals(OBJ, OBJ));
 	}
 
 	@Test

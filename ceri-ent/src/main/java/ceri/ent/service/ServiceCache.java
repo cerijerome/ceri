@@ -195,7 +195,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	@Override
 	public V retrieve(K key) throws ServiceException {
 		Entry<K, V> entry = readFromCache(key);
-		if (entry != null) return entry.value;
+		if (entry != null) return entry.value();
 		V value = retrieveFromService(key);
 		writeToCache(key, value);
 		return value;
@@ -205,7 +205,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		if (entries == null) return Map.of();
 		Map<K, Entry<K, V>> map = new HashMap<>();
 		for (Entry<K, V> entry : entries)
-			map.put(entry.key, entry);
+			map.put(entry.key(), entry);
 		return map;
 	}
 

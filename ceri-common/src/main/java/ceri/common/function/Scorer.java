@@ -210,7 +210,8 @@ public interface Scorer<T> {
 	 */
 	@SafeVarargs
 	static <T> Scorer<T> multiplied(Scorer<? super T>... scorers) {
-		return multiplied(Lists.wrap(scorers));
+		// explicit generic type required for command-line compilation
+		return multiplied(Lists.<Scorer<? super T>>wrap(scorers));
 	}
 
 	/**
@@ -225,7 +226,8 @@ public interface Scorer<T> {
 	 */
 	@SafeVarargs
 	static <T> Scorer<T> averaged(Scorer<? super T>... scorers) {
-		return averaged(Lists.wrap(scorers));
+		// explicit generic type required for command-line compilation
+		return averaged(Lists.<Scorer<? super T>>wrap(scorers));
 	}
 
 	/**

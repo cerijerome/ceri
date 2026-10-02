@@ -149,18 +149,18 @@ public class TestLog implements AutoCloseable {
 
 	private LoggerConfig createLoggerConfig(Configuration config, String name, Appender appender) {
 		var ref = AppenderRef.createAppenderRef(appender.getName(), null, null);
-		var loggerConfig = LoggerConfig.newBuilder().withAdditivity(false).withLevel(Level.ALL)
-			.withLoggerName(name).withIncludeLocation(Boolean.TRUE.toString())
-			.withRefs(new AppenderRef[] { ref }).withConfig(config).build();
+		var loggerConfig = LoggerConfig.newBuilder().setAdditivity(false).setLevel(Level.ALL)
+			.setLoggerName(name).setIncludeLocation(Boolean.TRUE.toString())
+			.setRefs(new AppenderRef[] { ref }).setConfig(config).build();
 		loggerConfig.addAppender(appender, null, null);
 		return loggerConfig;
 	}
 
 	private Appender createFileAppender(Configuration config, Path file) {
 		var name = file.getFileName().toString();
-		var layout = PatternLayout.newBuilder().withPattern(PATTERN).build();
+		var layout = PatternLayout.newBuilder().setPattern(PATTERN).build();
 		var appender =
-			FileAppender.newBuilder().withFileName(file.toString()).setIgnoreExceptions(false)
+			FileAppender.newBuilder().setFileName(file.toString()).setIgnoreExceptions(false)
 				.setName(name).setLayout(layout).setConfiguration(config).build();
 		appender.start();
 		return appender;

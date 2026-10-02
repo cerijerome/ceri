@@ -184,7 +184,7 @@ public class LongStreamBehavior {
 
 	@Test
 	public void testMerge() throws IOException {
-		Assert.stream(LongStream.merge());
+		Assert.stream(LongStream.merge(new LongStream.Rt[0]));
 		Assert.stream(LongStream.merge((LongStream.Rt[]) null));
 		Assert.stream(LongStream.merge(Rt.of(1, 2), Rt.empty, Rt.of(3), null), 1, 2, 3);
 		Assert.stream(LongStream.merge((LongStream.Ex<IOException>[]) null));
@@ -192,7 +192,7 @@ public class LongStreamBehavior {
 	}
 
 	@Test
-	public void shouldAdaptForExceptions() throws IOException {
+	public void shouldAdaptForExceptions() throws Exception {
 		Assert.stream(Rt.empty.ex());
 		Assert.stream(Rt.empty.ex(ExceptionAdapter.io));
 		Assert.stream(Rt.of(1, 2, 3).ex(), 1, 2, 3);
@@ -213,7 +213,7 @@ public class LongStreamBehavior {
 	}
 
 	@Test
-	public void shouldFilterElements() throws IOException {
+	public void shouldFilterElements() throws Exception {
 		Assert.stream(Rt.empty.filter(null));
 		Assert.stream(Rt.empty.filterEx(null));
 		Assert.stream(Rt.empty.filter(Rt.pred));

@@ -33,7 +33,7 @@ public class RpcServices {
 	 */
 	public static boolean isCancelledBeforeHalfClose(Throwable t) {
 		return Exceptions.matches(t, StatusRuntimeException.class,
-			Regex.Filter.find(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
+			Regex.Filter.<RuntimeException, String>find(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
 	}
 
 	/**

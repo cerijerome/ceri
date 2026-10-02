@@ -74,7 +74,7 @@ public interface TcpSocket extends Connector {
 	 */
 	@SuppressWarnings("resource")
 	static Wrapper connect(HostPort hostPort) throws IOException {
-		return Closeables.applyOrClose(new Socket(hostPort.host, hostPort.port),
+		return Closeables.applyOrClose(new Socket(hostPort.host(), hostPort.port()),
 			TcpSocket::wrap);
 	}
 

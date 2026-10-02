@@ -293,7 +293,8 @@ public class Regex {
 		 * Splits the char sequence into a stream.
 		 */
 		public Stream.Rt<String> stream(CharSequence s) {
-			return stream(pattern, s).map(modifier);
+			var stream = stream(pattern, s);
+			return modifier == null ? stream : stream.map(modifier);
 		}
 
 		/**

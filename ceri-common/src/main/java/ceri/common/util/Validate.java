@@ -72,14 +72,14 @@ public class Validate {
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */
-	public static <T> T notEqual(T actual, T unexpected) {
-		return notEqual(actual, unexpected, "");
+	public static <T> T notEquals(T actual, T unexpected) {
+		return notEquals(actual, unexpected, "");
 	}
 
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */
-	public static <T> T notEqual(T actual, T unexpected, String format, Object... args) {
+	public static <T> T notEquals(T actual, T unexpected, String format, Object... args) {
 		if (!Objects.equals(actual, unexpected)) return actual;
 		throw failed("%s must not equal %s", f(format, args), unexpected);
 	}

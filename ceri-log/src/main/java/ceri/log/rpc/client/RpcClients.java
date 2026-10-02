@@ -16,12 +16,12 @@ public class RpcClients {
 
 	public static boolean isHalfClosedCall(Throwable t) {
 		return Exceptions.matches(t, IllegalStateException.class,
-			Regex.Filter.find(HALF_CLOSED_MSG_REGEX));
+			Regex.Filter.<RuntimeException, String>find(HALF_CLOSED_MSG_REGEX));
 	}
 
 	public static boolean isChannelShutdown(Throwable t) {
 		return Exceptions.matches(t, StatusRuntimeException.class,
-			Regex.Filter.find(SHUTDOWN_MSG_REGEX));
+			Regex.Filter.<RuntimeException, String>find(SHUTDOWN_MSG_REGEX));
 	}
 
 	/**

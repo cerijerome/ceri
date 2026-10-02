@@ -17,5 +17,4 @@ public class ShutdownSync {
 			throw new RuntimeInterruptedException(e);
 		}
 	}
-
 }

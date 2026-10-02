@@ -15,5 +15,4 @@ public class WebSocketUtil {
 		if (t instanceof SocketTimeoutException) return true;
 		return false;
 	}
-
 }
