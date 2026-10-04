@@ -167,7 +167,6 @@ import ceri.common.test.Testing;
 	ceri.common.math.TrigTest.class, //
 	// net
 	ceri.common.net.AddressTypeBehavior.class, //
-	ceri.common.net.EmailsTest.class, //
 	ceri.common.net.HostPortBehavior.class, //
 	ceri.common.net.NetTest.class, //
 	ceri.common.net.ReplaceableTcpSocketBehavior.class, //

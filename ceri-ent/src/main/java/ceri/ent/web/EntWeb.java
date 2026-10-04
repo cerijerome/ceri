@@ -11,5 +11,4 @@ public class EntWeb {
 		Set.of("DidactGothic", "FuturaLT", "Limelight", "Montserrat", "Muli", "Nunito", "Roboto");
 
 	private EntWeb() {}
-
 }

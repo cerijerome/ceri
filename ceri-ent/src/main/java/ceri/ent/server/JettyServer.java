@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.eclipse.jetty.ee10.servlet.ErrorHandler;
@@ -31,16 +33,18 @@ import jakarta.servlet.Servlet;
  * Base wrapper class for managing a jetty server.
  */
 public class JettyServer implements AutoCloseable {
+	private static final Logger logger = LogManager.getFormatterLogger();
 	// Check dependency jar names still match this pattern
 	private static final String JSTL_JAR_PATTERN = ".*/jakarta.*\\.jstl.*\\.jar$";
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
 	private static final Pattern PROTOCOL_NAME_REGEX = Pattern.compile("^(\\w+)");
 	private static final String ROOT_PATH = "/";
 	private static final String LOCALHOST = "localhost";
+	private final Config config;
 	private final ResourceFactory.Closeable resources;
 	private final WebAppContext app;
 	private final Server server;
-	protected final String rootUrl;
+	private final String rootUrl;
 
 	private static class MinimalErrorHandler extends ErrorHandler {
 		@Override
@@ -51,13 +55,16 @@ public class JettyServer implements AutoCloseable {
 			if (isShowStacks()) writeErrorHtmlStacks(request, writer);
 		}
 	}
-	
+
+	private record Config(int port, boolean showServletUrls) {}
+
 	public static class Builder {
 		private static final String DIR_ALLOWED = DefaultServlet.CONTEXT_INIT + "dirAllowed";
 		private static final String TMP_DIR = "tmp";
 		private final ResourceFactory.Closeable resources;
 		private final WebAppContext app = new WebAppContext();
 		private int port = 8080;
+		private boolean showServletUrls = true;
 
 		private Builder(ResourceFactory.Closeable resources) {
 			this.resources = resources;
@@ -67,7 +74,7 @@ public class JettyServer implements AutoCloseable {
 		 * Set the server path.
 		 */
 		public Builder path(String path) {
-			app.setContextPath(path);
+			app().setContextPath(path);
 			return this;
 		}
 
@@ -90,7 +97,7 @@ public class JettyServer implements AutoCloseable {
 		 * Sets base resource dirs from class packages.
 		 */
 		public Builder base(Iterable<Class<?>> classes) {
-			app.setBaseResource(JettyServer.resources(resources, classes));
+			app().setBaseResource(JettyServer.resources(resources(), classes));
 			return this;
 		}
 
@@ -98,7 +105,7 @@ public class JettyServer implements AutoCloseable {
 		 * Don't show the powered-by jetty line in error pages.
 		 */
 		public Builder minimalError() {
-			app.setErrorHandler(new MinimalErrorHandler());
+			app().setErrorHandler(new MinimalErrorHandler());
 			return this;
 		}
 
@@ -106,7 +113,15 @@ public class JettyServer implements AutoCloseable {
 		 * Enable or disable directory listing.
 		 */
 		public Builder noDirs() {
-			app.setInitParameter(DIR_ALLOWED, String.valueOf(false));
+			app().setInitParameter(DIR_ALLOWED, String.valueOf(false));
+			return this;
+		}
+
+		/**
+		 * Don't write servlet urls to log on startup.
+		 */
+		public Builder hideServletUrls() {
+			showServletUrls = false;
 			return this;
 		}
 
@@ -114,7 +129,7 @@ public class JettyServer implements AutoCloseable {
 		 * Enables JSP using default temp dir.
 		 */
 		public Builder jsp() {
-			JettyServer.initForJsp(app, (Path) null);
+			JettyServer.initForJsp(app(), (Path) null);
 			return this;
 		}
 
@@ -130,7 +145,7 @@ public class JettyServer implements AutoCloseable {
 		 * Enables JSP using given temp dir.
 		 */
 		public Builder jsp(String jspTmpDir) {
-			initForJsp(app, Path.of(jspTmpDir));
+			initForJsp(app(), Path.of(jspTmpDir));
 			return this;
 		}
 
@@ -138,7 +153,7 @@ public class JettyServer implements AutoCloseable {
 		 * Adds a servlet.
 		 */
 		public Builder servlet(Class<? extends Servlet> servlet, String pathSpec) {
-			app.addServlet(servlet, pathSpec);
+			app().addServlet(servlet, pathSpec);
 			return this;
 		}
 
@@ -146,7 +161,7 @@ public class JettyServer implements AutoCloseable {
 		 * Sets an attribute.
 		 */
 		public Builder attribute(String name, Object value) {
-			app.setAttribute(name, value);
+			app().setAttribute(name, value);
 			return this;
 		}
 
@@ -158,8 +173,23 @@ public class JettyServer implements AutoCloseable {
 			return attribute(service.getClass().getName(), service);
 		}
 
+		/**
+		 * Provide direct access to web app context.
+		 */
+		public WebAppContext app() {
+			return app;
+		}
+		
+		/**
+		 * Provide direct access to resource factory.
+		 */
+		public ResourceFactory resources() {
+			return resources;
+		}
+		
 		private JettyServer build() {
-			return new JettyServer(resources, app, server(app, port));
+			return new JettyServer(resources, app, server(app, port),
+				new Config(port, showServletUrls));
 		}
 	}
 
@@ -201,7 +231,9 @@ public class JettyServer implements AutoCloseable {
 		}
 	}
 
-	private JettyServer(ResourceFactory.Closeable resources, WebAppContext app, Server server) {
+	private JettyServer(ResourceFactory.Closeable resources, WebAppContext app, Server server,
+		Config config) {
+		this.config = config;
 		this.resources = resources;
 		this.app = app;
 		this.server = server;
@@ -209,10 +241,18 @@ public class JettyServer implements AutoCloseable {
 	}
 
 	/**
+	 * Returns the server port.
+	 */
+	public int port() {
+		return config.port();
+	}
+
+	/**
 	 * Starts the server.
 	 */
 	public void start() throws IOException {
 		ExceptionAdapter.io.run(server::start);
+		if (config.showServletUrls()) servletUrls().forEach(url -> logger.info("URL: {}", url));
 	}
 
 	/**
@@ -242,8 +282,8 @@ public class JettyServer implements AutoCloseable {
 	/**
 	 * Finds the urls for registered servlets.
 	 */
-	public String[] servletUrls() {
-		return Stream.from(servletPaths(app)).map(this::url).toArray(String[]::new);
+	public List<String> servletUrls() {
+		return Stream.from(servletPaths(app)).map(this::url).toList();
 	}
 
 	@Override
@@ -256,11 +296,9 @@ public class JettyServer implements AutoCloseable {
 
 	@SuppressWarnings("resource")
 	private String rootUrl() {
-		var connector = connector();
-		var protocol = protocol(connector);
+		var protocol = protocol(connector());
 		if (protocol == null) return null;
-		return String.format("%s://%s:%d%s", protocol, host(), connector.getPort(),
-			app.getContextPath());
+		return String.format("%s://%s:%d%s", protocol, host(), port(), app.getContextPath());
 	}
 
 	private String host() {
@@ -312,11 +350,9 @@ public class JettyServer implements AutoCloseable {
 	private static List<String> servletPaths(WebAppContext app) {
 		var mappings = app.getServletHandler().getServletMappings();
 		var paths = Lists.<String>of();
-		for (var mapping : mappings) {
-			for (var path : mapping.getPathSpecs()) {
+		for (var mapping : mappings)
+			for (var path : mapping.getPathSpecs())
 				if (path.charAt(0) != '*' && !ROOT_PATH.equals(path)) paths.add(path);
-			}
-		}
 		if (paths.isEmpty()) paths.add(ROOT_PATH);
 		return paths;
 	}

@@ -11,8 +11,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
-	<url>
-		https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
+	<url>https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
 
 	<properties>
 		<!-- Common across repos -->
@@ -27,17 +26,13 @@
 		<exec.maven.version>3.6.4</exec.maven.version>
 		<junit.version>4.13.2</junit.version>
 		<log4j.version>2.26.1</log4j.version>
-		<httpcomponents.version>4.5.14</httpcomponents.version>
 		<jetty.version>12.1.13</jetty.version>
-		<jakarta.annotation.version>3.0.0</jakarta.annotation.version>
 		<os.maven.version>1.7.1</os.maven.version>
 		<protobuf.version>4.36.0</protobuf.version>
 		<protobuf.maven.version>0.6.1</protobuf.maven.version>
 		<grpc.version>1.84.0</grpc.version>
 		<jna.version>5.16.0</jna.version>
 		<!-- Specific to repo -->
-		<jakarta.jstl.api.version>3.0.0</jakarta.jstl.api.version>
-		<jakarta.jstl.version>3.0.1</jakarta.jstl.version>
 		<htmlunit.version>5.5.0</htmlunit.version>
 		<selenium.java.version>4.49.0</selenium.java.version>
 		<jackson.version>2.22.3</jackson.version>
@@ -72,11 +67,6 @@
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-slf4j-impl</artifactId>
 				<version>${log4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>fluent-hc</artifactId>
-				<version>${httpcomponents.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty.ee10</groupId>

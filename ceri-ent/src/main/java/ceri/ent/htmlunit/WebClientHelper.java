@@ -9,10 +9,10 @@ import org.htmlunit.SilentCssErrorHandler;
 import org.htmlunit.StringWebResponse;
 import org.htmlunit.TopLevelWindow;
 import org.htmlunit.WebClient;
-//import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import org.htmlunit.html.HtmlPage;
 import ceri.common.function.Functions;
-import ceri.common.net.Net;
+import ceri.common.net.Http;
+import ceri.common.net.Urls;
 import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements Functions.Closeable {
@@ -20,9 +20,10 @@ public class WebClientHelper implements Functions.Closeable {
 	private static final int DEFAULT_JS_TIMEOUT_MS = 10_000;
 	protected final WebClient webClient;
 
-	public static void disableGargoyleLog() {
+	public static void disableHtmlUnitLog() {
 		// Static initialization doesn't always work, now called from constructor
-		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
+		java.util.logging.Logger.getLogger(WebClient.class.getPackageName()).setLevel(Level.OFF);
+		// java.util.logging.Logger.getLogger("org.htmlunit").setLevel(Level.OFF);
 	}
 
 	public static class Builder {
@@ -69,7 +70,7 @@ public class WebClientHelper implements Functions.Closeable {
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setTimeout(DEFAULT_TIMEOUT_MS);
 		if (builder.header != null) setHeaders(webClient, builder.header);
-		disableGargoyleLog();
+		disableHtmlUnitLog();
 	}
 
 	@Override
@@ -99,16 +100,16 @@ public class WebClientHelper implements Functions.Closeable {
 
 	public HtmlPage getPage(String url, Path file) throws IOException {
 		String content = Files.readString(file);
-		StringWebResponse response = new StringWebResponse(content, Net.url(url));
+		StringWebResponse response = new StringWebResponse(content, Urls.url(url));
 		return (HtmlPage) webClient.getPageCreator().createPage(response,
 			new TopLevelWindow("", webClient) {});
 	}
 
 	public static void setHeaders(WebClient webClient, SampleHeader header) {
-		webClient.addRequestHeader("User-Agent", header.userAgent);
-		webClient.addRequestHeader("Accept", header.accept);
-		webClient.addRequestHeader("Accept-Language", header.acceptLanguage);
-		webClient.addRequestHeader("Accept-Encoding", header.acceptEncoding);
+		webClient.addRequestHeader(Http.Headers.USER_AGENT, header.userAgent());
+		webClient.addRequestHeader(Http.Headers.ACCEPT, header.accept());
+		webClient.addRequestHeader(Http.Headers.ACCEPT_LANGUAGE, header.acceptLanguage());
+		webClient.addRequestHeader(Http.Headers.ACCEPT_ENCODING, header.acceptEncoding());
 	}
 
 	public static HtmlPage page(String url) throws IOException {

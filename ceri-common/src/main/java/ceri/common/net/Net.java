@@ -6,13 +6,10 @@ import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URI;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
 
@@ -24,20 +21,6 @@ public class Net {
 	public static final String LOCALHOST_IPV6 = "::1"; // one of ::1/128
 
 	private Net() {}
-
-	/**
-	 * Creates a URL object from a string, converting any syntax exception to unchecked.
-	 */
-	public static URL url(String url) {
-		return ExceptionAdapter.illegalArg.get(() -> new URI(url).toURL());
-	}
-
-	/**
-	 * Returns the URI object for a URL, converting any syntax exception to unchecked.
-	 */
-	public static URI uri(URL url) {
-		return ExceptionAdapter.illegalArg.get(url::toURI);
-	}
 
 	/**
 	 * Checks an internet address is resolved. Throws UnknownHostException if not.
@@ -130,6 +113,8 @@ public class Net {
 		return broadcast(ifaceAddresses(iface));
 	}
 
+	// support
+	
 	private static Inet4Address broadcast(Stream.Rt<InterfaceAddress> stream) {
 		return stream.map(InterfaceAddress::getBroadcast).instances(Inet4Address.class).next();
 	}

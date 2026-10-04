@@ -19,13 +19,6 @@ public class NetTest {
 	}
 
 	@Test
-	public void testUrl() {
-		Net.url("http://example.com");
-		Net.url("https://example");
-		Assert.thrown(IllegalArgumentException.class, () -> Net.url("https://"));
-	}
-
-	@Test
 	public void testRequireResolved() throws UnknownHostException {
 		Assert.thrown(
 			() -> Net.requireResolved(InetSocketAddress.createUnresolved("localhost", 0)));
