@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,6 +44,22 @@ public class LogsTest {
 	@Before
 	public void before() {
 		testLog.clear();
+	}
+
+	@Test
+	public void testConfigLogger() {
+		var config = Logs.config();
+		Assert.equal(config.logger((String) null).getName(), "");
+	}
+
+	@Test
+	public void testConfigMax() {
+		var config = Logs.config();
+		var level = config.logger(getClass()).getLevel();
+		Assert.equal(config.max(getClass(), null), level);
+		Assert.equal(config.max(getClass(), Level.INFO), level);
+		Assert.equal(config.max(getClass(), Level.ERROR), Level.ERROR);
+		Configurator.setLevel(getClass(), level);
 	}
 
 	@Test
