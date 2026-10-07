@@ -18,6 +18,116 @@ public class Http {
 
 	private Http() {}
 
+	public static class Status {
+		// Informational
+		public static final int CONTINUE = 100;
+		public static final int SWITCHING_PROTOCOLS = 101;
+		public static final int EARLY_HINTS = 103;
+		// Successful
+		public static final int OK = 200;
+		public static final int CREATED = 201;
+		public static final int ACCEPTED = 202;
+		public static final int NON_AUTHORITATIVE_INFORMATION = 203;
+		public static final int NO_CONTENT = 204;
+		public static final int RESET_CONTENT = 205;
+		public static final int PARTIAL_CONTENT = 206;
+		public static final int MULTI_STATUS = 207;
+		public static final int ALREADY_REPORTED = 208;
+		public static final int IM_USED = 226;
+		// Redirection
+		public static final int MULTIPLE_CHOICES = 300;
+		public static final int MOVED_PERMANENTLY = 301;
+		public static final int FOUND = 302;
+		public static final int SEE_OTHER = 303;
+		public static final int NOT_MODIFIED = 304;
+		public static final int TEMPORARY_REDIRECT = 307;
+		public static final int PERMANENT_REDIRECT = 308;
+		// Client error
+		public static final int BAD_REQUEST = 400;
+		public static final int UNAUTHORIZED = 401;
+		public static final int PAYMENT_REQUIRED = 402;
+		public static final int FORBIDDEN = 403;
+		public static final int NOT_FOUND = 404;
+		public static final int METHOD_NOT_ALLOWED = 405;
+		public static final int NOT_ACCEPTABLE = 406;
+		public static final int PROXY_AUTHENTICATION_REQUIRED = 407;
+		public static final int REQUEST_TIMEOUT = 408;
+		public static final int CONFLICT = 409;
+		public static final int GONE = 410;
+		public static final int LENGTH_REQUIRED = 411;
+		public static final int PRECONDITION_FAILED = 412;
+		public static final int CONTENT_TOO_LARGE = 413;
+		public static final int URI_TOO_LONG = 414;
+		public static final int UNSUPPORTED_MEDIA_TYPE = 415;
+		public static final int RANGE_NOT_SATISFIABLE = 416;
+		public static final int EXPECTATION_FAILED = 417;
+		public static final int IM_A_TEAPOT = 418;
+		public static final int MISDIRECTED_REQUEST = 421;
+		public static final int UNPROCESSABLE_CONTENT = 422;
+		public static final int LOCKED = 423;
+		public static final int FAILED_DEPENDENCY = 424;
+		public static final int TOO_EARLY = 425;
+		public static final int UPGRADE_REQUIRED = 426;
+		public static final int PRECONDITION_REQUIRED = 428;
+		public static final int TOO_MANY_REQUESTS = 429;
+		public static final int REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
+		public static final int UNAVAILABLE_FOR_LEGAL_REASONS = 451;
+		// Server error
+		public static final int INTERNAL_SERVER_ERROR = 500;
+		public static final int NOT_IMPLEMENTED = 501;
+		public static final int BAD_GATEWAY = 502;
+		public static final int SERVICE_UNAVAILABLE = 503;
+		public static final int GATEWAY_TIMEOUT = 504;
+		public static final int HTTP_VERSION_NOT_SUPPORTED = 505;
+		public static final int VARIANT_ALSO_NEGOTIATES = 506;
+		public static final int INSUFFICIENT_STORAGE = 507;
+		public static final int LOOP_DETECTED = 508;
+		public static final int NOT_EXTENDED = 510;
+		public static final int NETWORK_AUTHENTICATION_REQUIRED = 511;
+
+		private Status() {}
+
+		public enum Group {
+			none(0, 0),
+			informational(100, 199),
+			successful(200, 299),
+			redirection(300, 399),
+			clientError(400, 499),
+			serverError(500, 599);
+
+			public final int min;
+			public final int max;
+
+			private Group(int min, int max) {
+				this.min = min;
+				this.max = max;
+			}
+
+			public boolean known() {
+				return this != none;
+			}
+
+			public boolean has(int code) {
+				return Maths.within(code, min, max);
+			}
+		}
+
+		public static Group group(int code) {
+			return switch (code / 100) {
+				case 1 -> Group.informational;
+				case 2 -> Group.successful;
+				case 3 -> Group.redirection;
+				case 4 -> Group.clientError;
+				case 5 -> Group.serverError;
+				default -> Group.none;
+			};
+		}
+
+		public static boolean success(int code) {
+			return Group.successful.has(code);
+		}
+	}
+
 	/**
 	 * Select headers not defined in core java.
 	 */
@@ -55,6 +165,7 @@ public class Http {
 		public static final String TE = "TE";
 		public static final String UPGRADE = "Upgrade";
 		public static final String USER_AGENT = "User-Agent";
+		public static final String X_FORWARDED_FOR = "X-Forwarded-For";
 		// Responses
 		public static final String ACCEPT_RANGES = "Accept-Ranges";
 		public static final String AGE = "Age";
@@ -86,6 +197,7 @@ public class Http {
 	/**
 	 * Interface for a simple url downloader.
 	 */
+	@FunctionalInterface
 	public interface Download {
 		/**
 		 * Returns bytes from a get request.
@@ -98,7 +210,7 @@ public class Http {
 		 * Returns bytes from a request.
 		 */
 		default byte[] bytes(HttpRequest request) throws IOException {
-			return execute(request, HttpResponse.BodyHandlers.ofByteArray());
+			return send(request, HttpResponse.BodyHandlers.ofByteArray());
 		}
 
 		/**
@@ -126,10 +238,10 @@ public class Http {
 		 * Returns a string from a request.
 		 */
 		default String string(HttpRequest request, Charset charset) throws IOException {
-			return execute(request, HttpResponse.BodyHandlers.ofString(charset));
+			return send(request, HttpResponse.BodyHandlers.ofString(charset));
 		}
 
-		<T> T execute(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws IOException;
+		<T> T send(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws IOException;
 
 		/**
 		 * Extends the interface for closeable resources.
@@ -140,9 +252,7 @@ public class Http {
 	/**
 	 * A downloader using the java http client.
 	 */
-	private static class Downloader implements Download.Closeable {
-		private static final int OK_STATUS_MIN = 200;
-		private static final int OK_STATUS_MAX = 299;
+	public static class Downloader implements Download.Closeable {
 		private static final Downloader DEFAULT =
 			new Downloader(HttpClient.newHttpClient(), Config.DEFAULT);
 		private final HttpClient client;
@@ -158,13 +268,13 @@ public class Http {
 		}
 
 		@Override
-		public <T> T execute(HttpRequest request, BodyHandler<T> handler) throws IOException {
+		public <T> T send(HttpRequest request, BodyHandler<T> handler) throws IOException {
 			IOException ex = null;
 			for (int i = config.attempts(); i > 0; i--) {
 				try {
 					var response = client.send(request, handler);
 					var code = response.statusCode();
-					if (Maths.within(code, OK_STATUS_MIN, OK_STATUS_MAX)) return response.body();
+					if (Status.success(code)) return response.body();
 					throw new IOException("Unexpected response code: " + code);
 				} catch (InterruptedException e) {
 					throw new RuntimeInterruptedException(e);
@@ -178,7 +288,7 @@ public class Http {
 
 		@Override
 		public void close() {
-			Closeables.close(client);
+			if (this != DEFAULT) Closeables.close(client);
 		}
 	}
 
@@ -190,9 +300,16 @@ public class Http {
 	}
 
 	/**
-	 * Creates a downloader.
+	 * Creates a downloader. The downloader closes the client when closed.
 	 */
-	public static Download.Closeable downloader(HttpClient client, Downloader.Config config) {
+	public static Downloader downloader(HttpClient client) {
+		return downloader(client, Downloader.Config.DEFAULT);
+	}
+
+	/**
+	 * Creates a downloader. The downloader closes the client when closed.
+	 */
+	public static Downloader downloader(HttpClient client, Downloader.Config config) {
 		return new Downloader(client, config);
 	}
 

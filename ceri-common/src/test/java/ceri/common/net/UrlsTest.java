@@ -1,5 +1,6 @@
 package ceri.common.net;
 
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -8,6 +9,21 @@ public class UrlsTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		Assert.privateConstructor(Urls.class);
+	}
+
+	@Test
+	public void testUrlBuilder() {
+		Assert.string(Urls.builder("http://test").url(), "http://test");
+		Assert.string(
+			Urls.builder("test/q").param("a", 123).param("a").param("a", "").param("b b", "x x")
+				.form(false).param("b b", "x x").param(null, "x").uri(),
+			"test/q?a=123&a&a=&b+b=x+x&b%20b=x%20x");
+	}
+
+	@Test
+	public void testUrlBuilderCharset() {
+		Assert.string(Urls.builder("test").param("\u00e9", 1).charset(StandardCharsets.US_ASCII)
+			.param("\u00e9", 2).string(), "test?%C3%A9=1&%3F=2");
 	}
 
 	@Test
@@ -30,7 +46,7 @@ public class UrlsTest {
 		Assert.equal(Urls.decode(""), "");
 		Assert.equal(Urls.decode("a+b%26c"), "a b&c");
 	}
-	
+
 	@Test
 	public void testValidEmails() {
 		Assert.yes(Urls.isEmail("a@y.zz"));

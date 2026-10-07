@@ -12,7 +12,7 @@ import ceri.common.util.Capability;
 /**
  * Stops and starts cycles in a separate thread. Primarily used for manual testing.
  */
-public class CycleRunner implements Functions.Closeable {
+public class Cycler implements Functions.Closeable {
 	private final SimpleExecutor<RuntimeException, ?> exec;
 	private final Locker locker;
 	private final ValueCondition<Action> sync;
@@ -33,19 +33,19 @@ public class CycleRunner implements Functions.Closeable {
 		stop;
 	}
 
-	public static Cycle activeCycle(CycleRunner runner) {
+	public static Cycle activeCycle(Cycler runner) {
 		return runner == null ? null : runner.cycle();
 	}
 
-	public static CycleRunner of(Locker locker) {
+	public static Cycler of(Locker locker) {
 		return of(locker, Integer.MAX_VALUE);
 	}
 
-	public static CycleRunner of(Locker locker, int max) {
-		return new CycleRunner(locker, max);
+	public static Cycler of(Locker locker, int max) {
+		return new Cycler(locker, max);
 	}
 
-	private CycleRunner(Locker locker, int max) {
+	private Cycler(Locker locker, int max) {
 		this.locker = locker;
 		sync = ValueCondition.of(locker.lock);
 		exec = SimpleExecutor.run(() -> loops(max));

@@ -26,8 +26,8 @@ public class ShutdownServlet extends ServiceServlet<ShutdownSync> {
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ServletUtil.log(logger, request);
+		Servlets.log(logger, request);
 		service().signal();
-		ServletUtil.setSuccessText(response);
+		Servlets.setSuccessText(response);
 	}
 }

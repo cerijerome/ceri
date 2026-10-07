@@ -11,6 +11,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.concurrent.Concurrent;
@@ -39,13 +43,7 @@ public class Logs {
 	/**
 	 * For lazy string instantiation.
 	 */
-	private static class ToString {
-		private final Excepts.Supplier<?, String> stringSupplier;
-
-		private ToString(Excepts.Supplier<?, String> stringSupplier) {
-			this.stringSupplier = stringSupplier;
-		}
-
+	private record ToString(Excepts.Supplier<?, String> stringSupplier) {
 		@Override
 		public String toString() {
 			return ExceptionAdapter.runtime.get(stringSupplier);
@@ -53,10 +51,55 @@ public class Logs {
 	}
 
 	/**
+	 * Provides access to logging configuration.
+	 */
+	public record Config(Configuration config) {
+		/**
+		 * Returns the configuration for a specific logger.
+		 */
+		public LoggerConfig logger(String name) {
+			return Strings.isEmpty(name) ? config.getRootLogger() : config.getLoggerConfig(name);
+		}
+
+		/**
+		 * Returns the configuration for a specific logger.
+		 */
+		public LoggerConfig logger(Class<?> cls) {
+			return logger(loggerName(cls));
+		}
+
+		/**
+		 * Sets the logger level if currently lower than the given level.
+		 */
+		public Level max(String name, Level level) {
+			var logger = logger(name);
+			var current = logger.getLevel();
+			if (level == null || current.compareTo(level) <= 0) return current;
+			Configurator.setLevel(name, level);
+			return level;
+		}
+
+		/**
+		 * Sets the logger level if currently lower than the given level.
+		 */
+		public Level max(Class<?> cls, Level level) {
+			return max(loggerName(cls), level);
+		}
+	}
+
+	/**
+	 * Returns the current log configuration.
+	 */
+	public static Config config() {
+		var context = (LoggerContext) LogManager.getContext(false);
+		return new Config(context.getConfiguration());
+	}
+
+	/**
 	 * Returns the logger name for a class.
 	 */
 	public static String loggerName(Class<?> cls) {
-		String logger = cls.getCanonicalName();
+		var logger = cls.getCanonicalName();
 		if (logger == null) logger = cls.getName();
 		return logger;
 	}
@@ -578,7 +621,7 @@ public class Logs {
 		return "\n"
 			+ "================================================================================\n"
 			+ "|                                                                              |\n"
-			+ "| " + Strings.pad(title, TITLE_MAX_WIDTH, " " , 0.5) + " |\n"
+			+ "| " + Strings.pad(title, TITLE_MAX_WIDTH, " ", 0.5) + " |\n"
 			+ "|                                                                              |\n"
 			+ "================================================================================";
 	}

@@ -52,18 +52,15 @@ public class TestConcurrentBehavior {
 	public void shouldGetFutureWithException() {
 		var future = TestConcurrent.futureOf("test");
 		future.get.error.setFrom(ErrorGen.IOX);
-		var t = Testing.thrown(() -> future.get());
-		Assert.throwable(t, ExecutionException.class);
-		Assert.throwable(t.getCause(), IOException.class);
+		Assert.thrownCause(ExecutionException.class, IOException.class, future::get);
 	}
 
 	@Test
 	public void shouldGetFutureTimeoutWithException() {
 		var future = TestConcurrent.futureOf("test");
 		future.get.error.setFrom(ErrorGen.IOX);
-		var t = Testing.thrown(() -> future.get(1, TimeUnit.MILLISECONDS));
-		Assert.throwable(t, ExecutionException.class);
-		Assert.throwable(t.getCause(), IOException.class);
+		Assert.thrownCause(ExecutionException.class, IOException.class,
+			() -> future.get(1, TimeUnit.MILLISECONDS));
 	}
 
 	@Test

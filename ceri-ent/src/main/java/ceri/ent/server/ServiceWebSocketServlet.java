@@ -4,8 +4,6 @@ import org.eclipse.jetty.ee10.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.ee10.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServlet;
 import org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServletFactory;
-import org.htmlunit.websocket.WebSocketListener;
-import ceri.common.util.Basics;
 import jakarta.servlet.ServletException;
 
 @SuppressWarnings("serial")
@@ -29,12 +27,11 @@ public abstract class ServiceWebSocketServlet<T> extends JettyWebSocketServlet {
 		configure(factory, service());
 	}
 
-	protected abstract WebSocketListener createWebSocket(JettyServerUpgradeRequest req,
+	protected abstract Object createWebSocket(JettyServerUpgradeRequest req,
 		JettyServerUpgradeResponse resp, T service);
 
-	protected void configure(JettyWebSocketServletFactory factory, T service) {
-		Basics.unused(factory, service);
-	}
+	@SuppressWarnings("unused")
+	protected void configure(JettyWebSocketServletFactory factory, T service) {}
 
 	private T service() {
 		return service;

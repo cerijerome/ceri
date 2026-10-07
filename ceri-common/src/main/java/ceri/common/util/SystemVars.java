@@ -13,6 +13,7 @@ import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.property.Parser;
 import ceri.common.stream.Stream;
+import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 
 /**
@@ -27,6 +28,15 @@ public class SystemVars {
 	private static final Map<String, Optional<String>> vars = new ConcurrentHashMap<>();
 
 	private SystemVars() {}
+
+	/**
+	 * Returns a property name with full class name and dot extensions.
+	 */
+	public static String name(Class<?> base, String... extensions) {
+		var ext = Joiner.DOT.joinAll(extensions);
+		if (Strings.isEmpty(ext)) return base == null ? "" : base.getName();
+		return base == null ? ext : base.getName() + "." + ext;
+	}
 
 	/**
 	 * Returns the system temp directory.
@@ -138,9 +148,10 @@ public class SystemVars {
 	 * Sets a system property and returns the previous value, or null if not set. A null value
 	 * passed in will clear the property.
 	 */
-	public static String setProperty(String name, String value) {
+	public static String setProperty(String name, Object value) {
 		if (Strings.isBlank(name)) return null;
-		return value != null ? System.setProperty(name, value) : System.clearProperty(name);
+		return value != null ? System.setProperty(name, value.toString()) :
+			System.clearProperty(name);
 	}
 
 	/**

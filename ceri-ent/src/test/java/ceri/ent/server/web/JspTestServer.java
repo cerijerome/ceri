@@ -1,8 +1,6 @@
 package ceri.ent.server.web;
 
 import java.io.IOException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.ent.server.JettyServer;
 import ceri.ent.server.ShutdownServlet;
 import ceri.ent.server.ShutdownSync;
@@ -11,7 +9,6 @@ import ceri.ent.server.ShutdownSync;
  * Creates the servlets and starts the server.
  */
 public class JspTestServer {
-	private static final Logger logger = LogManager.getLogger();
 	private static final String JSP_TEST_PATH = "/jsp-test";
 
 	public static void main(String[] args) throws IOException {
@@ -19,8 +16,6 @@ public class JspTestServer {
 		var service = new JspTestService("test");
 		try (var server = of(service, shutdown, 8080)) {
 			server.start();
-			for (var url : server.servletUrls())
-				logger.info("URL: {}", url);
 			shutdown.await();
 		}
 	}

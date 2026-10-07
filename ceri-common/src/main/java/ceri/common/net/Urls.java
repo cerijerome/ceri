@@ -56,6 +56,14 @@ public class Urls {
 		 * Adds a query parameter. Spaces are encoded as {@code +} with forms enabled, otherwise
 		 * {@code %20}.
 		 */
+		public Builder param(String name) {
+			return param(name, null);
+		}
+
+		/**
+		 * Adds a query parameter. Spaces are encoded as {@code +} with forms enabled, otherwise
+		 * {@code %20}.
+		 */
 		public Builder param(String name, Object value) {
 			return addParam(encode(name), encode(value));
 		}

@@ -168,6 +168,7 @@ import ceri.common.test.Testing;
 	// net
 	ceri.common.net.AddressTypeBehavior.class, //
 	ceri.common.net.HostPortBehavior.class, //
+	ceri.common.net.HttpTest.class, //
 	ceri.common.net.NetTest.class, //
 	ceri.common.net.ReplaceableTcpSocketBehavior.class, //
 	ceri.common.net.TcpServerSocketBehavior.class, //
@@ -234,10 +235,9 @@ import ceri.common.test.Testing;
 	ceri.common.test.TestCollectionTest.class, //
 	ceri.common.test.TestConcurrentBehavior.class, //
 	ceri.common.test.TestIoTest.class, //
+	ceri.common.test.TestNetTest.class, //
 	ceri.common.test.TestPrinterBehavior.class, //
 	ceri.common.test.TestProcessBehavior.class, //
-	ceri.common.test.TestStyleBehavior.class, //
-	ceri.common.test.TestTimerBehavior.class, //
 	ceri.common.test.TestingTest.class, //
 	ceri.common.test.TimeCollectorBehavior.class, //
 	// text

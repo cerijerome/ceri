@@ -7,7 +7,7 @@ public class CycleRunnerBehavior {
 
 	@Test
 	public void shouldNotFailForNullCycle() {
-		try (var cr = CycleRunner.of(Locker.of())) {
+		try (var cr = Cycler.of(Locker.of())) {
 			cr.start(null);
 		}
 	}
@@ -15,7 +15,7 @@ public class CycleRunnerBehavior {
 	@Test
 	public void shouldRunCycle() {
 		var sync = CallSync.<Integer, Integer>function(0);
-		try (var cr = CycleRunner.of(Locker.of())) {
+		try (var cr = Cycler.of(Locker.of())) {
 			cr.start(i -> sync.apply(i));
 			sync.await(0);
 			sync.await(0);
@@ -26,7 +26,7 @@ public class CycleRunnerBehavior {
 	@Test
 	public void shouldRunMaxLoops() {
 		var sync = CallSync.<Integer, Integer>function(0);
-		try (var cr = CycleRunner.of(Locker.of(), 3)) {
+		try (var cr = Cycler.of(Locker.of(), 3)) {
 			cr.start(i -> sync.apply(i));
 			sync.await(0);
 			sync.await(0);

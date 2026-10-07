@@ -85,8 +85,7 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
 		Assert.io(() -> err.callWithInterrupt(ExceptionAdapter.io));
-		var t = Testing.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
-		Assert.throwable(t.getCause(), SQLException.class);
+		Assert.thrownCause(SQLException.class, () -> err.callWithInterrupt(ExceptionAdapter.io));
 	}
 
 	@Test

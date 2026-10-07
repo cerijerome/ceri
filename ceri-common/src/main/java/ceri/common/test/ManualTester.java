@@ -64,7 +64,7 @@ public class ManualTester implements Functions.Closeable {
 	private final int errorDelayMs;
 	private final Locker locker = Locker.of();
 	private final List<String> history = Lists.of();
-	private CycleRunner cycleRunner = null;
+	private Cycler cycleRunner = null;
 	private int index = 0;
 	private boolean exit = false;
 
@@ -541,9 +541,9 @@ public class ManualTester implements Functions.Closeable {
 	/**
 	 * Start a cycle in a separate thread. Starts the thread on first call.
 	 */
-	public void startCycle(CycleRunner.Cycle cycle) {
+	public void startCycle(Cycler.Cycle cycle) {
 		stopCycle();
-		if (cycleRunner == null) cycleRunner = CycleRunner.of(locker());
+		if (cycleRunner == null) cycleRunner = Cycler.of(locker());
 		cycleRunner.start(cycle);
 		outf("%s cycle started: %s", cycle.name(), cycle);
 	}
@@ -561,8 +561,8 @@ public class ManualTester implements Functions.Closeable {
 	/**
 	 * Return the active cycle, or null if not running.
 	 */
-	public CycleRunner.Cycle activeCycle() {
-		return CycleRunner.activeCycle(cycleRunner);
+	public Cycler.Cycle activeCycle() {
+		return Cycler.activeCycle(cycleRunner);
 	}
 
 	/**

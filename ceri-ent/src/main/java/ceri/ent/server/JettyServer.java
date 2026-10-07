@@ -7,8 +7,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.descriptor.DigesterFactory;
 import org.eclipse.jetty.ee10.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.eclipse.jetty.ee10.servlet.ErrorHandler;
@@ -26,6 +28,7 @@ import ceri.common.net.Net;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Stream;
 import ceri.common.text.Regex;
+import ceri.common.util.SystemVars;
 import ceri.log.util.Logs;
 import jakarta.servlet.Servlet;
 
@@ -33,9 +36,11 @@ import jakarta.servlet.Servlet;
  * Base wrapper class for managing a jetty server.
  */
 public class JettyServer implements AutoCloseable {
-	private static final Logger logger = LogManager.getFormatterLogger();
+	private static final Logger logger = LogManager.getLogger();
 	// Check dependency jar names still match this pattern
 	private static final String JSTL_JAR_PATTERN = ".*/jakarta.*\\.jstl.*\\.jar$";
+	private static final String DIGESTER_FACTORY_VALIDATING =
+		SystemVars.name(DigesterFactory.class, "validating");
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
 	private static final Pattern PROTOCOL_NAME_REGEX = Pattern.compile("^(\\w+)");
 	private static final String ROOT_PATH = "/";
@@ -45,6 +50,15 @@ public class JettyServer implements AutoCloseable {
 	private final WebAppContext app;
 	private final Server server;
 	private final String rootUrl;
+
+	static {
+		// Remove noisy logging here rather than every log4 config
+		var config = Logs.config();
+		config.max("org.eclipse.jetty", Level.INFO);
+		config.max("org.apache.tomcat", Level.INFO);
+		config.max("org.apache.jasper", Level.INFO);
+		config.max(DigesterFactory.class, Level.ERROR);
+	}
 
 	private static class MinimalErrorHandler extends ErrorHandler {
 		@Override
@@ -67,6 +81,11 @@ public class JettyServer implements AutoCloseable {
 		private boolean showServletUrls = true;
 
 		private Builder(ResourceFactory.Closeable resources) {
+			// Disable XML validation and namespace awareness
+			app.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*");
+			// Force the internal DigesterFactory/MetaData processor to skip validation
+			app.setConfigurationDiscovered(true);
+			System.setProperty(DIGESTER_FACTORY_VALIDATING, "false");
 			this.resources = resources;
 		}
 
@@ -129,7 +148,7 @@ public class JettyServer implements AutoCloseable {
 		 * Enables JSP using default temp dir.
 		 */
 		public Builder jsp() {
-			JettyServer.initForJsp(app(), (Path) null);
+			initForJsp(app(), (Path) null);
 			return this;
 		}
 
@@ -179,14 +198,14 @@ public class JettyServer implements AutoCloseable {
 		public WebAppContext app() {
 			return app;
 		}
-		
+
 		/**
 		 * Provide direct access to resource factory.
 		 */
 		public ResourceFactory resources() {
 			return resources;
 		}
-		
+
 		private JettyServer build() {
 			return new JettyServer(resources, app, server(app, port),
 				new Config(port, showServletUrls));

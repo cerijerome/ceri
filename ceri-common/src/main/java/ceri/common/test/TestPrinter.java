@@ -95,7 +95,7 @@ public class TestPrinter extends RunListener {
 	private void capture(Description description) {
 		String testClassName = description.getClassName();
 		String simpleName = description.getTestClass().getSimpleName();
-		String className = TestStyle.target(simpleName);
+		String className = Testing.Style.target(simpleName);
 		String methodName = description.getMethodName();
 		captureTest(testClassName, className, methodName);
 

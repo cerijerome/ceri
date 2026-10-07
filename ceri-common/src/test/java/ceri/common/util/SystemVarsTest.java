@@ -14,6 +14,15 @@ public class SystemVarsTest {
 	}
 
 	@Test
+	public void testName() {
+		Assert.string(SystemVars.name(null), "");
+		Assert.string(SystemVars.name(null, "test", "2"), "test.2");
+		Assert.string(SystemVars.name(SystemVars.class), SystemVars.class.getName());
+		Assert.string(SystemVars.name(SystemVars.class, "test", "2"), "%s.test.2",
+			SystemVars.class.getName());
+	}
+
+	@Test
 	public void testTempDir() {
 		Assert.path(SystemVars.tempDir(), SystemVars.sys("java.io.tmpdir"));
 	}

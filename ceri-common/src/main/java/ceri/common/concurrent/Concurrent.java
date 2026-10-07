@@ -3,6 +3,8 @@ package ceri.common.concurrent;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -260,6 +262,20 @@ public class Concurrent {
 			if (executor.isShutdown()) return Futures.cancelled();
 			throw e;
 		}
+	}
+
+	/**
+	 * Returns a completable future for a call.
+	 */
+	public static <T> CompletableFuture<T> completableFuture(Callable<T> callable) {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return callable.call();
+			} catch (Exception e) {
+				interrupt(e);
+				throw new CompletionException(e);
+			}
+		});
 	}
 
 	/**

@@ -144,6 +144,7 @@ public class RegexTest {
 		Assert.ordered(Regex.Split.LINE.list(" "), " ");
 		Assert.ordered(Regex.Split.LINE.list("\n"));
 		Assert.ordered(Regex.Split.LINE.list(" \n\t"), " ", "\t");
+		Assert.stream(Regex.Split.LINE.stream(" \n\t"), " ", "\t");
 	}
 
 	@Test
@@ -158,6 +159,7 @@ public class RegexTest {
 		Assert.ordered(Regex.Split.COMMA.list(" , a "), "", "a");
 		Assert.ordered(Regex.Split.COMMA.list("a,b"), "a", "b");
 		Assert.ordered(Regex.Split.COMMA.list(" a , b "), "a", "b");
+		Assert.stream(Regex.Split.COMMA.stream(" a , b "), "a", "b");
 	}
 
 	@Test
@@ -167,6 +169,7 @@ public class RegexTest {
 		Assert.ordered(Regex.Split.SPACE.list(" "));
 		Assert.ordered(Regex.Split.SPACE.list("a"), "a");
 		Assert.ordered(Regex.Split.SPACE.list(" a b "), "", "a", "b");
+		Assert.stream(Regex.Split.SPACE.stream(" a b "), "", "a", "b");
 	}
 
 	@Test

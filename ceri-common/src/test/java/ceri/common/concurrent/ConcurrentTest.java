@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -12,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
@@ -175,6 +178,19 @@ public class ConcurrentTest {
 		initExec(null);
 		Assert.io(
 			() -> Concurrent.submitAndWait(exec, () -> Thread.sleep(10000), IOException::new, 1));
+	}
+
+	@Test
+	public void testCompletableFuture() throws InterruptedException, ExecutionException {
+		var supplier = CallSync.supplier("test");
+		supplier.error.setFrom(null, ErrorGen.IOX, ErrorGen.INX);
+		Assert.equal(completable(supplier).get(), "test");
+		Assert.thrownCause(IOException.class, completable(supplier)::get);
+		Assert.thrownCause(InterruptedException.class, completable(supplier)::get);
+	}
+
+	private static <T> CompletableFuture<T> completable(CallSync.Supplier<T> supplier) {
+		return Concurrent.completableFuture(() -> supplier.getWithInterrupt(ExceptionAdapter.io));
 	}
 
 	@Test

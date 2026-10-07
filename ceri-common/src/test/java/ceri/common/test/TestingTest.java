@@ -31,6 +31,117 @@ public class TestingTest {
 	}
 
 	@Test
+	public void testGuessStyleFromTargetOrTestClass() {
+		Assert.equal(Testing.Style.guessFrom((Class<?>) null), Testing.Style.none);
+		Assert.equal(Testing.Style.guessFrom(TestingTest.class), Testing.Style.test);
+		Assert.equal(Testing.Style.guessFrom(Testing.Style.class), Testing.Style.behavior);
+		Assert.equal(Testing.Style.guessFrom(ErrorGenBehavior.class), Testing.Style.behavior);
+		Assert.equal(Testing.Style.guessFrom((String) null), Testing.Style.none);
+		Assert.equal(Testing.Style.guessFrom(""), Testing.Style.none);
+		Assert.equal(Testing.Style.guessFrom("Util"), Testing.Style.test);
+		Assert.equal(Testing.Style.guessFrom("Helper"), Testing.Style.behavior);
+	}
+
+	@Test
+	public void shouldConvertToTestStyle() {
+		Assert.string(Testing.Style.test.test(null), "Test");
+		Assert.string(Testing.Style.test.test(""), "Test");
+		Assert.string(Testing.Style.test.test("My\n"), "My\n");
+		Assert.string(Testing.Style.test.test("My"), "MyTest");
+		Assert.string(Testing.Style.test.test("ceri.common.My"), "ceri.common.MyTest");
+		Assert.string(Testing.Style.test.test("/My.class"), "/MyTest.class");
+		Assert.string(Testing.Style.behavior.test(""), "Behavior");
+		Assert.string(Testing.Style.behavior.test("My.java"), "MyBehavior.java");
+		Assert.string(Testing.Style.behavior.test("ceri/common/My.java"),
+			"ceri/common/MyBehavior.java");
+		Assert.string(Testing.Style.none.test("My\n"), "My\n");
+		Assert.string(Testing.Style.none.test(""), "");
+		Assert.string(Testing.Style.none.test("My"), "My");
+		Assert.string(Testing.Style.none.test("ceri.common.My"), "ceri.common.My");
+		Assert.string(Testing.Style.none.test("My.java"), "My.java");
+		Assert.string(Testing.Style.none.test("/My.class"), "/My.class");
+		Assert.string(Testing.Style.none.test("ceri/common/My.java"), "ceri/common/My.java");
+	}
+
+	@Test
+	public void shouldExtractStyleTarget() {
+		Assert.string(Testing.Style.target(null), "");
+		Assert.string(Testing.Style.target(""), "");
+		Assert.string(Testing.Style.target("Test\n"), "Test\n");
+		Assert.string(Testing.Style.target("Test"), "");
+		Assert.string(Testing.Style.target("Behavior.class"), ".class");
+		Assert.string(Testing.Style.target("MyTest"), "My");
+		Assert.string(Testing.Style.target("MyClass"), "MyClass");
+		Assert.string(Testing.Style.target("MyBehavior.java"), "My.java");
+		Assert.string(Testing.Style.target("ceri.common.MyTest"), "ceri.common.My");
+		Assert.string(Testing.Style.target("ceri/common/MyBehavior.class"), "ceri/common/My.class");
+	}
+
+	@Test
+	public void shouldDetermineIfTestHasStyle() {
+		Assert.no(Testing.Style.hasStyle(null));
+		Assert.no(Testing.Style.hasStyle(""));
+		Assert.no(Testing.Style.hasStyle("Name"));
+		Assert.no(Testing.Style.hasStyle("ceri.common.Name"));
+		Assert.no(Testing.Style.hasStyle("Name.java"));
+		Assert.no(Testing.Style.hasStyle("ceri/common/Name.java"));
+		Assert.no(Testing.Style.hasStyle(null));
+		Assert.no(Testing.Style.hasStyle(null));
+		Assert.yes(Testing.Style.hasStyle("Test"));
+		Assert.yes(Testing.Style.hasStyle("ceri.common.Test"));
+		Assert.yes(Testing.Style.hasStyle("Test.java"));
+		Assert.yes(Testing.Style.hasStyle("MyBehavior"));
+		Assert.yes(Testing.Style.hasStyle("MyBehavior.class"));
+		Assert.yes(Testing.Style.hasStyle("ceri/common/MyBehavior.class"));
+	}
+
+	@Test
+	public void shouldGetStyleFromName() {
+		Assert.equal(Testing.Style.from(null), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Name"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Test\n"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("ceri.common.test.FullName"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("ceri.common.test"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("ceri.common.behavior"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Test"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("ceri.common.test.Test"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("ceri.common.test.MyTest"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("ceri.common.test.BehaviorTest"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("ceri.common.test.TestTest"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("Behavior"), Testing.Style.behavior);
+		Assert.equal(Testing.Style.from("ceri.common.test.Behavior"), Testing.Style.behavior);
+		Assert.equal(Testing.Style.from("ceri.common.test.TestBehavior"), Testing.Style.behavior);
+		Assert.equal(Testing.Style.from("ceri.common.test.TestBehavior"), Testing.Style.behavior);
+		Assert.equal(Testing.Style.from("ceri.common.test.BehaviorBehavior"),
+			Testing.Style.behavior);
+	}
+
+	@Test
+	public void shouldGetStyleFromPath() {
+		Assert.equal(Testing.Style.from("Name.java"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Name.class"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Test.jar"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Test.javax"), Testing.Style.none);
+		Assert.equal(Testing.Style.from("Test.java"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("Behavior.class"), Testing.Style.behavior);
+		Assert.equal(Testing.Style.from("/Test.java"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("ceri/common/test/Test.class"), Testing.Style.test);
+		Assert.equal(Testing.Style.from("ceri/common/test/MyBehavior.class"),
+			Testing.Style.behavior);
+	}
+
+	@Test
+	public void shouldGetStyleFromSuffix() {
+		Assert.equal(Testing.Style.fromSuffix(null), Testing.Style.none);
+		Assert.equal(Testing.Style.fromSuffix(""), Testing.Style.none);
+		Assert.equal(Testing.Style.fromSuffix("Tester"), Testing.Style.none);
+		Assert.equal(Testing.Style.fromSuffix("test"), Testing.Style.none);
+		Assert.equal(Testing.Style.fromSuffix("behavior"), Testing.Style.none);
+		Assert.equal(Testing.Style.fromSuffix("Test"), Testing.Style.test);
+		Assert.equal(Testing.Style.fromSuffix("Behavior"), Testing.Style.behavior);
+	}
+
+	@Test
 	public void testIsTest() {
 		Assert.yes(Testing.isTest());
 	}

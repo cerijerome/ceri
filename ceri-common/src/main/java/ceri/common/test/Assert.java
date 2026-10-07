@@ -36,6 +36,7 @@ import ceri.common.data.TypeValue;
 import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.function.Throws;
 import ceri.common.io.Buffers;
 import ceri.common.io.PathList;
 import ceri.common.io.Paths;
@@ -213,15 +214,14 @@ public class Assert {
 	/**
 	 * Tests that an exception was thrown while executing the runnable.
 	 */
-	public static void thrown(Excepts.Runnable<Exception> runnable) {
+	public static void thrown(Throws.Runnable runnable) {
 		thrown(Exception.class, runnable);
 	}
 
 	/**
 	 * Tests that a specific exception type was thrown while executing the runnable.
 	 */
-	public static void thrown(Class<? extends Throwable> exceptionCls,
-		Excepts.Runnable<?> runnable) {
+	public static void thrown(Class<? extends Throwable> exceptionCls, Throws.Runnable runnable) {
 		thrown(exceptionCls, (Functions.Consumer<Throwable>) null, runnable);
 	}
 
@@ -229,7 +229,7 @@ public class Assert {
 	 * Tests that an exception was thrown while executing the runnable, with message matching the
 	 * regex.
 	 */
-	public static void thrown(String regex, Excepts.Runnable<Exception> runnable) {
+	public static void thrown(String regex, Throws.Runnable runnable) {
 		thrown(Throwable.class, regex, runnable);
 	}
 
@@ -238,7 +238,7 @@ public class Assert {
 	 * matching the regex.
 	 */
 	public static void thrown(Class<? extends Throwable> superCls, String regex,
-		Excepts.Runnable<?> runnable) {
+		Throws.Runnable runnable) {
 		thrown(superCls, t -> match(t.getMessage(), regex), runnable);
 	}
 
@@ -246,7 +246,7 @@ public class Assert {
 	 * Tests if an exception is thrown with given message.
 	 */
 	public static void thrown(Functions.Consumer<? super Throwable> test,
-		Excepts.Runnable<?> runnable) {
+		Throws.Runnable runnable) {
 		thrown(Throwable.class, test, runnable);
 	}
 
@@ -254,7 +254,7 @@ public class Assert {
 	 * Tests if an exception is thrown with given message.
 	 */
 	public static <E extends Throwable> void thrown(Class<E> superCls,
-		Functions.Consumer<? super E> test, Excepts.Runnable<?> runnable) {
+		Functions.Consumer<? super E> test, Throws.Runnable runnable) {
 		try {
 			runnable.run();
 		} catch (Throwable t) {
@@ -262,6 +262,38 @@ public class Assert {
 			return;
 		}
 		throw failure("Nothing thrown, expected: %s", name(superCls));
+	}
+
+	/**
+	 * Tests if an exception is thrown with given cause.
+	 */
+	public static <E extends Throwable> void thrownCause(Class<E> causeCls,
+		Throws.Runnable runnable) {
+		thrownCause(causeCls, (Functions.Consumer<Throwable>) null, runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given cause.
+	 */
+	public static <E extends Throwable> void thrownCause(Class<E> causeCls,
+		Functions.Consumer<? super E> test, Throws.Runnable runnable) {
+		thrownCause(Throwable.class, causeCls, test, runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given cause.
+	 */
+	public static <E extends Throwable> void thrownCause(Class<? extends Throwable> superCls,
+		Class<E> causeCls, Throws.Runnable runnable) {
+		thrownCause(superCls, causeCls, (Functions.Consumer<Throwable>) null, runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given cause.
+	 */
+	public static <E extends Throwable> void thrownCause(Class<? extends Throwable> superCls,
+		Class<E> causeCls, Functions.Consumer<? super E> test, Throws.Runnable runnable) {
+		thrown(superCls, e -> throwable(e.getCause(), causeCls, test), runnable);
 	}
 
 	/**
@@ -959,8 +991,7 @@ public class Assert {
 	/**
 	 * Fails if the stream does does not contain exactly the values in order.
 	 */
-	public static <E extends Exception> void stream(IntStream<E> actual, int... expected)
-		throws E {
+	public static <E extends Exception> void stream(IntStream<E> actual, int... expected) throws E {
 		notNull(actual);
 		array(actual.toArray(), expected);
 	}

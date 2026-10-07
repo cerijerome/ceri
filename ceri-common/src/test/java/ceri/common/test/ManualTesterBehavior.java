@@ -362,8 +362,8 @@ public class ManualTesterBehavior {
 		};
 	}
 
-	private static CycleRunner.Cycle cycle(int delayMs) {
-		return new CycleRunner.Cycle() {
+	private static Cycler.Cycle cycle(int delayMs) {
+		return new Cycler.Cycle() {
 			@Override
 			public int cycle(int sequence) {
 				return delayMs;

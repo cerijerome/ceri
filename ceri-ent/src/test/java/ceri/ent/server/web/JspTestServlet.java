@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ent.server.ServiceServlet;
-import ceri.ent.server.ServletUtil;
+import ceri.ent.server.Servlets;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ public class JspTestServlet extends ServiceServlet<JspTestService> {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
-		ServletUtil.log(logger, request);
-		ServletUtil.dispatchJsp(request, response, JSP, null);
+		Servlets.log(logger, request);
+		Servlets.dispatchJsp(request, response, JSP, null);
 	}
 }
