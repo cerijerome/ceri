@@ -46,7 +46,7 @@ public class Capability {
 		 */
 		static <E extends Exception> Excepts.Predicate<E, IntId>
 			filter(Excepts.IntPredicate<E> predicate) {
-			return Filters.asInt(IntId::id, predicate);
+			return Filters.asIntEx(IntId::id, predicate);
 		}
 	}
 
@@ -81,7 +81,7 @@ public class Capability {
 		 */
 		static <E extends Exception> Excepts.Predicate<E, LongId>
 			filter(Excepts.LongPredicate<E> predicate) {
-			return Filters.asLong(LongId::id, predicate);
+			return Filters.asLongEx(LongId::id, predicate);
 		}
 	}
 
@@ -118,7 +118,7 @@ public class Capability {
 		 */
 		static <E extends Exception, T extends Name> Excepts.Predicate<E, T>
 			filter(Excepts.Predicate<E, String> name) {
-			return Filters.as(Name::name, name);
+			return Filters.asEx(Name::name, name);
 		}
 	}
 

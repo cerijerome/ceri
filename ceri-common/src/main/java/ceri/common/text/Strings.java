@@ -11,7 +11,6 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
-import ceri.common.reflect.Reflect;
 import ceri.common.stream.IntStream;
 import ceri.common.util.Hasher;
 
@@ -31,56 +30,50 @@ public class Strings {
 	public static class Filter {
 		public static final Functions.Predicate<CharSequence> NON_EMPTY = Strings::nonEmpty;
 		public static final Functions.Predicate<String> NON_BLANK = Strings::nonBlank;
+		public static final Functions.BiPredicate<Object, Object> EQUALS =
+			(t, u) -> String.valueOf(t).equals(String.valueOf(u));
 
 		private Filter() {}
 
 		/**
-		 * Returns true if not null and not empty.
+		 * Applies comparator to non-null string representation.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, CharSequence> nonEmpty() {
-			return Reflect.unchecked(NON_EMPTY);
-		}
-
-		/**
-		 * Returns true if not null and has a non-whitespace code point.
-		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> nonBlank() {
-			return Reflect.unchecked(NON_BLANK);
+		public static <T> Functions.Predicate<T>
+			of(Excepts.Predicate<? extends RuntimeException, ? super String> predicate) {
+			if (predicate == null) return Filters.YES.cast();
+			return Filters.as(null, String::valueOf, predicate);
 		}
 
 		/**
 		 * Applies comparator to non-null string representation.
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, T>
-			of(Excepts.Predicate<E, ? super String> predicate) {
-			if (predicate == null) return Filters.yes();
-			return t -> t != null && predicate.test(String.valueOf(t));
+			ofEx(Excepts.Predicate<E, ? super String> predicate) {
+			if (predicate == null) return Filters.YES.castEx();
+			return Filters.asEx(null, String::valueOf, predicate);
 		}
 
 		/**
 		 * Returns true if the non-null arg string equals the string, with optional case match.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> eq(boolean matchCase,
-			String s) {
-			if (s == null) return Filters.isNull();
+		public static Functions.Predicate<String> eq(boolean matchCase, String s) {
+			if (s == null) return Filters.IS_NULL.cast();
 			return of(t -> Strings.equals(matchCase, t, s));
 		}
 
 		/**
 		 * Returns true for strings that contain the given substring.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, CharSequence>
-			contains(CharSequence s) {
-			if (s == null) return Filters.isNull();
+		public static Functions.Predicate<CharSequence> contains(CharSequence s) {
+			if (s == null) return Filters.IS_NULL.cast();
 			return t -> t != null && Strings.contains(t, s);
 		}
 
 		/**
 		 * Returns true for strings that contain the given substring, with optional case match.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> contains(boolean matchCase,
-			String s) {
-			if (s == null) return Filters.isNull();
+		public static Functions.Predicate<String> contains(boolean matchCase, String s) {
+			if (s == null) return Filters.IS_NULL.cast();
 			return t -> t != null && Strings.contains(matchCase, t, s);
 		}
 	}

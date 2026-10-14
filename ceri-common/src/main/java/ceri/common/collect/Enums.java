@@ -27,6 +27,36 @@ public class Enums {
 	private Enums() {}
 
 	/**
+	 * Enum filters.
+	 */
+	public static class Filter {
+		private Filter() {}
+
+		/**
+		 * Predicate to match enum name.
+		 */
+		public static Functions.Predicate<Enum<?>> name(String name) {
+			return name(Filters.equal(name));
+		}
+
+		/**
+		 * Predicate applied to enum name.
+		 */
+		public static Functions.Predicate<Enum<?>>
+			name(Excepts.Predicate<? extends RuntimeException, ? super String> predicate) {
+			return Filters.as(Enum::name, predicate);
+		}
+		
+		/**
+		 * Predicate applied to enum name.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
+			nameEx(Excepts.Predicate<? extends E, ? super String> predicate) {
+			return Filters.asEx(Enum::name, predicate);
+		}
+	}
+
+	/**
 	 * Enum comparators.
 	 */
 	public static class Compare {
@@ -58,28 +88,6 @@ public class Enums {
 		 */
 		public static <T extends Enum<T>> Comparator<T> ordinal() {
 			return Reflect.unchecked(ordinal);
-		}
-	}
-
-	/**
-	 * Enum filters.
-	 */
-	public static class Filter {
-		private Filter() {}
-
-		/**
-		 * Predicate to match enum name.
-		 */
-		public static <E extends Exception> Excepts.Predicate<E, Enum<?>> name(String name) {
-			return name(Filters.equal(name));
-		}
-
-		/**
-		 * Predicate applied to enum name.
-		 */
-		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
-			name(Excepts.Predicate<? extends E, ? super String> predicate) {
-			return Filters.as(Enum::name, predicate);
 		}
 	}
 

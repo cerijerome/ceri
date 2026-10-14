@@ -11,12 +11,21 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.Testing;
 import ceri.common.util.SystemVars;
 
 public class PathsTest {
+	private static final Functions.Predicate<String> NAME_TXT = s -> s.endsWith(".txt");
+	private static final Excepts.Predicate<IOException, String> NAME_TXT_EX = NAME_TXT.castEx();
+	private static final Functions.Predicate<Path> TXT = Paths.Filter.name(NAME_TXT);
+	private static final Excepts.Predicate<IOException, Path> TXT_EX =
+		Paths.Filter.nameEx(NAME_TXT_EX);
+	private static final Functions.Predicate<Path> EXT_TXT = Paths.Filter.ext("txt"::equals);
+	private static final Excepts.Predicate<IOException, Path> EXT_TXT_EX =
+		Paths.Filter.extEx("txt"::equals);
 	private FileTestHelper helper;
 	private FileTestHelper deleter;
 
@@ -33,24 +42,29 @@ public class PathsTest {
 	}
 
 	@Test
-	public void testFilters() throws IOException {
+	public void testFilter() throws IOException {
 		initFiles();
-		assertPathListOf(p -> p.filter(Paths.Filter.file()), "c.h");
-		assertPathListAll(p -> p.filter(Paths.Filter.file()), "a/a/a.txt", "b/b.txt", "c.h");
-		assertPathListOf(p -> p.filter(Paths.Filter.dir()), "a", "b", "d");
-		assertPathListAll(p -> p.filter(Paths.Filter.dir()), "a", "a/a", "b", "d");
-		assertPathListAll(
-			p -> p.filter(Paths.Filter.namePath(path -> path.toString().endsWith(".txt"))),
-			"a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filter(Paths.Filter.name(s -> s.endsWith(".txt"))), "a/a/a.txt",
+		assertPathListOf(p -> p.filter(Paths.Filter.FILE), "c.h");
+		assertPathListAll(p -> p.filter(Paths.Filter.FILE), "a/a/a.txt", "b/b.txt", "c.h");
+		assertPathListOf(p -> p.filter(Paths.Filter.DIR), "a", "b", "d");
+		assertPathListAll(p -> p.filter(Paths.Filter.DIR), "a", "a/a", "b", "d");
+		assertPathListAll(p -> p.filter(Paths.Filter.pattern(null, "glob:**/*.txt")), "a/a/a.txt",
 			"b/b.txt");
-		assertPathListAll(p -> p.filter(Paths.Filter.ext("txt"::equals)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(TXT), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(TXT_EX), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(EXT_TXT), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(EXT_TXT_EX), "a/a/a.txt", "b/b.txt");
 		var now = Instant.now();
-		assertPathListOf(p -> p.filter(Paths.Filter.lastModified(d -> d.isBefore(now))), "a", "b",
+		assertPathListOf(p -> p.filterEx(Paths.Filter.lastModified(d -> d.isBefore(now))), "a", "b",
 			"c.h", "d");
-		assertPathListOf(p -> p.filter(Paths.Filter.lastModified(d -> d.isAfter(now))));
-		assertPathListOf(p -> p.filter(Paths.Filter.size(s -> s == 0)));
-		assertPathListOf(p -> p.filter(Paths.Filter.size(s -> s < 2)), "c.h");
+		assertPathListOf(p -> p.filterEx(Paths.Filter.lastModified(d -> d.isAfter(now))));
+		assertPathListOf(p -> p.filterEx(Paths.Filter.size(s -> s == 0)));
+		assertPathListOf(p -> p.filterEx(Paths.Filter.size(s -> s < 2)), "c.h");
+		assertPathListAll(p -> p.filter(Paths.Filter.namePath(TXT)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(Paths.Filter.namePathEx(TXT_EX)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(Paths.Filter.name(NAME_TXT)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(Paths.Filter.nameEx(NAME_TXT_EX)), "a/a/a.txt",
+			"b/b.txt");
 	}
 
 	@SuppressWarnings("resource")
@@ -388,15 +402,15 @@ public class PathsTest {
 			.file("c.h", "c").dir("d").build();
 	}
 
-	private void assertPathListOf(Excepts.Consumer<IOException, PathList> action, String... paths)
-		throws IOException {
+	private void assertPathListOf(Excepts.Consumer<? extends IOException, PathList> action,
+		String... paths) throws IOException {
 		var pathFinder = PathList.of(helper.root);
 		action.accept(pathFinder);
 		helper.assertPaths(pathFinder.list(), paths);
 	}
 
-	private void assertPathListAll(Excepts.Consumer<IOException, PathList> action, String... paths)
-		throws IOException {
+	private void assertPathListAll(Excepts.Consumer<? extends IOException, PathList> action,
+		String... paths) throws IOException {
 		var pathFinder = PathList.all(helper.root);
 		action.accept(pathFinder);
 		helper.assertPaths(pathFinder.list(), paths);

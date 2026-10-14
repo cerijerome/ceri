@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import org.junit.Test;
+import ceri.common.function.Filters;
 import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 
@@ -28,13 +29,15 @@ public class StringsTest {
 
 	@Test
 	public void testFilters() throws Exception {
-		Assert.equal(Strings.Filter.nonEmpty().test(null), false);
-		Assert.equal(Strings.Filter.nonEmpty().test(b("")), false);
-		Assert.equal(Strings.Filter.nonEmpty().test(b(" ")), true);
-		Assert.equal(Strings.Filter.nonBlank().test(null), false);
-		Assert.equal(Strings.Filter.nonBlank().test(" "), false);
+		Assert.equal(Strings.Filter.NON_EMPTY.test(null), false);
+		Assert.equal(Strings.Filter.NON_EMPTY.test(b("")), false);
+		Assert.equal(Strings.Filter.NON_EMPTY.test(b(" ")), true);
+		Assert.equal(Strings.Filter.NON_BLANK.test(null), false);
+		Assert.equal(Strings.Filter.NON_BLANK.test(" "), false);
 		Assert.equal(Strings.Filter.of(null).test(S), true);
-		Assert.equal(Strings.Filter.of(_ -> true).test(null), false);
+		Assert.equal(Strings.Filter.of(Filters.YES).test(null), true);
+		Assert.equal(Strings.Filter.ofEx(null).test(S), true);
+		Assert.equal(Strings.Filter.ofEx(Filters.YES.castEx()).test(null), true);
 		Assert.equal(Strings.Filter.eq(false, s).test(S), true);
 		Assert.equal(Strings.Filter.eq(true, s).test(S), false);
 		Assert.equal(Strings.Filter.eq(true, null).test(S), false);

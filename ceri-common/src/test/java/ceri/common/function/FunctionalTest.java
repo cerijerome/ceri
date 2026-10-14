@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import java.io.IOException;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -49,6 +50,18 @@ public class FunctionalTest {
 		Assert.equal(a.apply(i -> i - 1), 0);
 		a.accept(null);
 		a.accept(i -> Assert.equal(i, 1));
+	}
+
+	@Test
+	public void testCast() throws IOException {
+		Functions.Function<Object, Integer> fn = t -> String.valueOf(t).length();
+		Functions.Function<String, Number> fnc = Functional.cast(fn);
+		Excepts.Function<IOException, Object, Integer> fnEx = Functional.castEx(fn);
+		Excepts.Function<IOException, String, Number> fncEx = Functional.cast(fnEx);
+		Assert.equal(fn.apply(1.0), 3);
+		Assert.equal(fnc.apply("1.0"), 3);
+		Assert.equal(fnEx.apply(1.0), 3);
+		Assert.equal(fncEx.apply("1.0"), 3);
 	}
 
 	@Test

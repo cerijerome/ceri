@@ -102,9 +102,11 @@ import ceri.common.test.Testing;
 	ceri.common.function.CloseablesTest.class, //
 	ceri.common.function.ComparesTest.class, //
 	ceri.common.function.EnclosureBehavior.class, //
+	ceri.common.function.ExceptsTest.class, //
 	ceri.common.function.FiltersTest.class, //
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionalTest.class, //
+	ceri.common.function.FunctionsTest.class, //
 	ceri.common.function.LambdasTest.class, //
 	ceri.common.function.ScorerTest.class, //
 	// geom

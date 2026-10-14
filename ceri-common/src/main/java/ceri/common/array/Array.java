@@ -54,27 +54,59 @@ public class Array {
 		/**
 		 * Returns true if any element and index matches the predicate.
 		 */
+		public static <T> Functions.Predicate<T[]>
+			any(Excepts.ObjIntPredicate<? extends RuntimeException, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.cast();
+			return ts -> testAny(predicate, ts);
+		}
+
+		/**
+		 * Returns true if any element and index matches the predicate.
+		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, T[]>
-			any(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Filters.no();
-			return ts -> {
-				if (ts != null) for (int i = 0; i < ts.length; i++)
-					if (predicate.test(ts[i], i)) return true;
-				return false;
-			};
+			anyEx(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return ts -> testAny(predicate, ts);
+		}
+
+		/**
+		 * Returns true if all elements and indexes match the predicate.
+		 */
+		public static <T> Functions.Predicate<T[]>
+			all(Excepts.ObjIntPredicate<? extends RuntimeException, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.cast();
+			return ts -> testAll(predicate, ts);
 		}
 
 		/**
 		 * Returns true if all elements and indexes match the predicate.
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, T[]>
-			all(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Filters.no();
-			return ts -> {
-				if (ts != null) for (int i = 0; i < ts.length; i++)
-					if (!predicate.test(ts[i], i)) return false;
-				return true;
-			};
+			allEx(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return ts -> testAll(predicate, ts);
+		}
+
+		/**
+		 * Returns true if any element and index matches the predicate.
+		 */
+		@SafeVarargs
+		public static <E extends Exception, T> boolean
+			testAny(Excepts.ObjIntPredicate<? extends E, ? super T> predicate, T... ts) throws E {
+			if (ts != null) for (int i = 0; i < ts.length; i++)
+				if (predicate.test(ts[i], i)) return true;
+			return false;
+		}
+
+		/**
+		 * Returns true if all elements and indexes match the predicate.
+		 */
+		@SafeVarargs
+		public static <E extends Exception, T> boolean
+			testAll(Excepts.ObjIntPredicate<? extends E, ? super T> predicate, T... ts) throws E {
+			if (ts != null) for (int i = 0; i < ts.length; i++)
+				if (!predicate.test(ts[i], i)) return false;
+			return true;
 		}
 	}
 
@@ -692,6 +724,8 @@ public class Array {
 		if (stringFn == null) return Strings.NULL;
 		return RawArray.toString((a, i) -> stringFn.apply(a[i]), joiner, array, offset, length);
 	}
+
+	// support
 
 	private static <T> Class<T> requireNonPrimitive(Class<T> type) {
 		if (type == null || !type.isPrimitive()) return type;

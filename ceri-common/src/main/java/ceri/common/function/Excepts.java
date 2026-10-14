@@ -1,5 +1,7 @@
 package ceri.common.function;
 
+import ceri.common.reflect.Reflect;
+
 /**
  * Interfaces that throw specific exceptions.
  */
@@ -618,6 +620,13 @@ public class Excepts {
 	public interface Predicate<E extends Exception, T> extends Throws.Predicate<T> {
 		@Override
 		boolean test(T t) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <U extends T> Predicate<E, U> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**
@@ -674,6 +683,13 @@ public class Excepts {
 	public interface BiPredicate<E extends Exception, T, U> extends Throws.BiPredicate<T, U> {
 		@Override
 		boolean test(T t, U u) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <V extends T, W extends U> BiPredicate<E, V, W> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**
@@ -693,6 +709,13 @@ public class Excepts {
 	public interface ObjBoolPredicate<E extends Exception, T> extends Throws.ObjBoolPredicate<T> {
 		@Override
 		boolean test(T t, boolean b) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <U extends T> ObjBoolPredicate<E, U> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**
@@ -702,6 +725,13 @@ public class Excepts {
 	public interface ObjBytePredicate<E extends Exception, T> extends Throws.ObjBytePredicate<T> {
 		@Override
 		boolean test(T t, byte b) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <U extends T> ObjBytePredicate<E, U> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**
@@ -711,6 +741,13 @@ public class Excepts {
 	public interface ObjIntPredicate<E extends Exception, T> extends Throws.ObjIntPredicate<T> {
 		@Override
 		boolean test(T t, int i) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <U extends T> ObjIntPredicate<E, U> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**
@@ -720,6 +757,13 @@ public class Excepts {
 	public interface ObjLongPredicate<E extends Exception, T> extends Throws.ObjLongPredicate<T> {
 		@Override
 		boolean test(T t, long l) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <U extends T> ObjLongPredicate<E, U> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**
@@ -730,6 +774,13 @@ public class Excepts {
 		extends Throws.ObjDoublePredicate<T> {
 		@Override
 		boolean test(T t, double d) throws E;
+
+		/**
+		 * Adapts type parameters.
+		 */
+		default <U extends T> ObjDoublePredicate<E, U> cast() {
+			return Reflect.unchecked(this);
+		}
 	}
 
 	/**

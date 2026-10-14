@@ -8,6 +8,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.Holder;
 
 /**
@@ -78,6 +79,34 @@ public class Functional {
 			};
 		}
 	}
+
+	// Casting
+
+	/**
+	 * Adapts type parameters.
+	 */
+	public static <T, R> Functions.Function<T, R>
+		cast(Functions.Function<? super T, ? extends R> function) {
+		return Reflect.unchecked(function);
+	}
+
+	/**
+	 * Adapts type parameters.
+	 */
+	public static <E extends Exception, T, R> Excepts.Function<E, T, R>
+		cast(Excepts.Function<? extends E, ? super T, ? extends R> function) {
+		return Reflect.unchecked(function);
+	}
+
+	/**
+	 * Adapts type parameters.
+	 */
+	public static <E extends Exception, T, R> Excepts.Function<E, T, R>
+		castEx(Excepts.Function<? extends RuntimeException, ? super T, ? extends R> function) {
+		return Reflect.unchecked(function);
+	}
+
+	// Execution
 
 	/**
 	 * Gets result from function and operand; returns null if function or operand is null.
@@ -216,6 +245,8 @@ public class Functional {
 		return true;
 	}
 
+	// Muting
+
 	/**
 	 * Invokes the supplier and returns the result, which may be null. Errors will be thrown, but
 	 * exceptions will be suppressed, and null returned. Interrupted exceptions will re-interrupt
@@ -271,6 +302,8 @@ public class Functional {
 			return true;
 		}, false);
 	}
+
+	// General
 
 	/**
 	 * Provide sequential access to the given values, repeating the last entry. If no values are

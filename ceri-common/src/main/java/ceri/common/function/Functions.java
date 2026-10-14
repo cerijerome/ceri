@@ -1,5 +1,7 @@
 package ceri.common.function;
 
+import ceri.common.reflect.Reflect;
+
 /**
  * Interfaces that do not throw checked exceptions.
  */
@@ -443,7 +445,19 @@ public class Functions {
 	 */
 	@FunctionalInterface
 	public interface Predicate<T>
-		extends Excepts.Predicate<RuntimeException, T>, java.util.function.Predicate<T> {}
+		extends Excepts.Predicate<RuntimeException, T>, java.util.function.Predicate<T> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, U extends T> Excepts.Predicate<E, U> castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <U extends T> Predicate<U> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
@@ -485,7 +499,20 @@ public class Functions {
 	 */
 	@FunctionalInterface
 	public interface BiPredicate<T, U>
-		extends Excepts.BiPredicate<RuntimeException, T, U>, java.util.function.BiPredicate<T, U> {}
+		extends Excepts.BiPredicate<RuntimeException, T, U>, java.util.function.BiPredicate<T, U> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, V extends T, W extends U> Excepts.BiPredicate<E, V, W>
+			castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <V extends T, W extends U> BiPredicate<V, W> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
@@ -498,32 +525,91 @@ public class Functions {
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
-	public interface ObjBoolPredicate<T> extends Excepts.ObjBoolPredicate<RuntimeException, T> {}
+	public interface ObjBoolPredicate<T> extends Excepts.ObjBoolPredicate<RuntimeException, T> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, U extends T> Excepts.ObjBoolPredicate<E, U> castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <U extends T> ObjBoolPredicate<U> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
-	public interface ObjBytePredicate<T> extends Excepts.ObjBytePredicate<RuntimeException, T> {}
+	public interface ObjBytePredicate<T> extends Excepts.ObjBytePredicate<RuntimeException, T> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, U extends T> Excepts.ObjBytePredicate<E, U> castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <U extends T> ObjBytePredicate<U> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
-	public interface ObjIntPredicate<T> extends Excepts.ObjIntPredicate<RuntimeException, T> {}
+	public interface ObjIntPredicate<T> extends Excepts.ObjIntPredicate<RuntimeException, T> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, U extends T> Excepts.ObjIntPredicate<E, U> castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <U extends T> ObjIntPredicate<U> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
-	public interface ObjLongPredicate<T> extends Excepts.ObjLongPredicate<RuntimeException, T> {}
+	public interface ObjLongPredicate<T> extends Excepts.ObjLongPredicate<RuntimeException, T> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, U extends T> Excepts.ObjLongPredicate<E, U> castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <U extends T> ObjLongPredicate<U> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
-	public interface ObjDoublePredicate<T>
-		extends Excepts.ObjDoublePredicate<RuntimeException, T> {}
+	public interface ObjDoublePredicate<T> extends Excepts.ObjDoublePredicate<RuntimeException, T> {
+		/**
+		 * Adapts type parameters.
+		 */
+		default <E extends Exception, U extends T> Excepts.ObjDoublePredicate<E, U> castEx() {
+			return Filters.castEx(this);
+		}
+
+		@Override
+		default <U extends T> ObjDoublePredicate<U> cast() {
+			return Reflect.unchecked(this);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.

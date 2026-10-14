@@ -72,10 +72,17 @@ public class Compares {
 	}
 
 	/**
+	 * Casts the comparator to narrow its type.
+	 */
+	public static <T> Comparator<T> cast(Comparator<? super T> comparator) {
+		return Reflect.unchecked(comparator);
+	}
+
+	/**
 	 * A comparator that always returns 0.
 	 */
 	public static <T> Comparator<T> ofNull() {
-		return Reflect.unchecked(NULL);
+		return cast(NULL);
 	}
 
 	/**
@@ -245,7 +252,7 @@ public class Compares {
 	 * Comparator for string representations of objects.
 	 */
 	public static <T> Comparator<T> string() {
-		return Reflect.unchecked(TO_STRING);
+		return cast(TO_STRING);
 	}
 
 	// support

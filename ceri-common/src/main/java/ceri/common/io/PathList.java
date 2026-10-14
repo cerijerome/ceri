@@ -14,6 +14,7 @@ import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functional;
+import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 
@@ -58,35 +59,50 @@ public class PathList {
 	 * Filter files only; may not work after calling relative().
 	 */
 	public PathList files() {
-		return filter(Paths.Filter.file());
+		return filter(Paths.Filter.FILE);
 	}
 
 	/**
 	 * Filter path by file system pattern syntax.
 	 */
 	public PathList filter(String format, Object... args) {
-		return filter(pattern(format, args));
+		return filter(pattern(format, args).castEx());
 	}
 
 	/**
 	 * Filter paths based on predicate.
 	 */
-	public PathList filter(Excepts.Predicate<IOException, ? super Path> filter) {
-		return modify(p -> Filters.test(Filters.Nulls.no, filter, p) ? p : null);
+	public PathList filter(Excepts.Predicate<? extends RuntimeException, ? super Path> filter) {
+		return modify(p -> Filters.test(Filters.Nulls.no, p, filter) ? p : null);
+	}
+
+	/**
+	 * Filter paths based on predicate.
+	 */
+	public PathList filterEx(Excepts.Predicate<? extends IOException, ? super Path> filter) {
+		return modify(p -> Filters.test(Filters.Nulls.no, p, filter) ? p : null);
 	}
 
 	/**
 	 * Filter final path segment name by file system pattern syntax.
 	 */
 	public PathList nameFilter(String format, Object... args) {
-		return filter(Filters.as(Path::getFileName, pattern(format, args)));
+		return filter(Filters.as(Path::getFileName, pattern(format, args).cast()));
 	}
 
 	/**
 	 * Filter final path segment name based on predicate.
 	 */
-	public PathList nameFilter(Excepts.Predicate<IOException, ? super String> filter) {
+	public PathList
+		nameFilter(Excepts.Predicate<? extends RuntimeException, ? super String> filter) {
 		return filter(Filters.as(Paths::name, filter));
+	}
+
+	/**
+	 * Filter final path segment name based on predicate.
+	 */
+	public PathList nameFilterEx(Excepts.Predicate<? extends IOException, ? super String> filter) {
+		return filterEx(Filters.asEx(Paths::name, filter));
 	}
 
 	/**
@@ -144,7 +160,7 @@ public class PathList {
 	}
 
 	@SuppressWarnings("resource")
-	private Excepts.Predicate<IOException, Path> pattern(String format, Object... args) {
+	private Functions.Predicate<Path> pattern(String format, Object... args) {
 		return Paths.Filter.pattern(Paths.fs(dir), format, args);
 	}
 

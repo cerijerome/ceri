@@ -25,6 +25,10 @@ public class ExceptionsTest {
 		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(noMsgEx), false);
 		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(emptyEx), false);
 		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(testEx), true);
+		Assert.equal(Exceptions.Filter.messageEx(Strings::nonEmpty).test(null), false);
+		Assert.equal(Exceptions.Filter.messageEx(Strings::nonEmpty).test(noMsgEx), false);
+		Assert.equal(Exceptions.Filter.messageEx(Strings::nonEmpty).test(emptyEx), false);
+		Assert.equal(Exceptions.Filter.messageEx(Strings::nonEmpty).test(testEx), true);
 	}
 
 	@Test

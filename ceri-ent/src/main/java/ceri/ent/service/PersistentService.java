@@ -32,7 +32,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	protected Set<V> findAll() {
-		return find(Filters.yes());
+		return find(Filters.YES.castEx());
 	}
 
 	public <E extends Exception> V findFirst(Excepts.Predicate<E, V> filter) throws E {

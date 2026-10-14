@@ -194,7 +194,7 @@ public interface Scorer<T> {
 	 */
 	static <E extends Exception, T> Excepts.Predicate<E, T> filter(Scorer<? super T> scorer,
 		Excepts.Predicate<? extends E, ? super Double> filter) {
-		return Filters.as(t -> score(scorer, t), filter);
+		return Filters.asEx(t -> score(scorer, t), filter);
 	}
 
 	/**

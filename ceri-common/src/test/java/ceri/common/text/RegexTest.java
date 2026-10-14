@@ -1,8 +1,12 @@
 package ceri.common.text;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
+import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 
 public class RegexTest {
@@ -10,6 +14,8 @@ public class RegexTest {
 	private static final Pattern USTRING_PATTERN = Pattern.compile("([A-Z]+)");
 	private static final Pattern INT_PATTERN = Pattern.compile("(\\d+)");
 	private static final String nullStr = null;
+	private static final Functions.Predicate<Matcher> FIND = Matcher::find;
+	private static final Excepts.Predicate<IOException, Matcher> FIND_EX = FIND.castEx();
 
 	@Test
 	public void testPrivateConstructor() {
@@ -87,10 +93,14 @@ public class RegexTest {
 
 	@Test
 	public void testFilterMatching() throws Exception {
-		Assert.equal(Regex.Filter.matching(null, _ -> true).test(""), false);
+		Assert.equal(Regex.Filter.matching(null, Filters.YES).test(""), false);
 		Assert.equal(Regex.Filter.matching(Regex.ALL, null).test(""), false);
-		Assert.equal(Regex.Filter.matching(Regex.ALL, Matcher::find).test(null), false);
-		Assert.equal(Regex.Filter.matching(Regex.ALL, Matcher::find).test("a"), true);
+		Assert.equal(Regex.Filter.matching(Regex.ALL, FIND).test(null), false);
+		Assert.equal(Regex.Filter.matching(Regex.ALL, FIND).test("a"), true);
+		Assert.equal(Regex.Filter.matchingEx(null, Filters.YES.castEx()).test(""), false);
+		Assert.equal(Regex.Filter.matchingEx(Regex.ALL, null).test(""), false);
+		Assert.equal(Regex.Filter.matchingEx(Regex.ALL, FIND_EX).test(null), false);
+		Assert.equal(Regex.Filter.matchingEx(Regex.ALL, FIND_EX).test("a"), true);
 	}
 
 	@Test

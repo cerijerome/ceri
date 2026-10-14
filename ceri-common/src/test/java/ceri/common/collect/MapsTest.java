@@ -1,5 +1,7 @@
 package ceri.common.collect;
 
+import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.TreeMap;
 import org.junit.Test;
 import ceri.common.collect.Immutable.Wrap;
 import ceri.common.collect.Maps.Put;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
@@ -29,6 +32,7 @@ public class MapsTest {
 	private static final Functions.BiOperator<Object> biFn = (l, r) -> l != null ? l : r;
 	private static final Functions.BiPredicate<Object, Object> nullBiPr = null;
 	private static final Functions.BiPredicate<Object, Object> biPr = Basics::noneNull;
+	private static final Excepts.BiPredicate<IOException, Object, Object> biPrEx = Basics::noneNull;
 
 	private static Integer[] array() {
 		return list.toArray(Integer[]::new);
@@ -41,6 +45,20 @@ public class MapsTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		Assert.privateConstructor(Maps.class, Maps.Filter.class, Maps.Compare.class);
+	}
+
+	@Test
+	public void testFilters() throws Exception {
+		var filter = Maps.Filter.entry(biPr);
+		var filterEx = Maps.Filter.entryEx(biPrEx);
+		Assert.equal(Maps.Filter.entry(null).test(entry(1, "1")), false);
+		Assert.equal(filter.test(null), false);
+		Assert.equal(filter.test(entry(1, null)), false);
+		Assert.equal(filter.test(entry(1, "1")), true);
+		Assert.equal(Maps.Filter.entryEx(null).test(entry(1, "1")), false);
+		Assert.equal(filterEx.test(null), false);
+		Assert.equal(filterEx.test(entry(1, null)), false);
+		Assert.equal(filterEx.test(entry(1, "1")), true);
 	}
 
 	@Test
@@ -229,7 +247,7 @@ public class MapsTest {
 		Assert.equal(Maps.getOrThrow(map, null), "B");
 		Assert.equal(Maps.getOrThrow(map, 1), null);
 	}
-	
+
 	@Test
 	public void testFirstKey() {
 		Assert.equal(Maps.firstKey(nullMap), null);
@@ -406,5 +424,9 @@ public class MapsTest {
 		Functions.Consumer<Map<K, V>> consumer) {
 		consumer.accept(map);
 		return map;
+	}
+
+	private static <K, V> Map.Entry<K, V> entry(K k, V v) {
+		return new AbstractMap.SimpleEntry<>(k, v);
 	}
 }

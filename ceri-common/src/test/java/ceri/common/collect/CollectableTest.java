@@ -13,6 +13,7 @@ public class CollectableTest {
 	private static final List<Integer> nullList = null;
 	private static final List<Integer> emptyList = List.of();
 	private static final List<Integer> list = Immutable.listOf(-1, null, 1);
+	private static final List<Integer> list2 = Immutable.listOf(-1, 1);
 	private static final Set<Integer> set = Immutable.setOf(-1, null, 1);
 	private static final Map<Integer, String> nullMap = null;
 	private static final Map<Integer, String> emptyMap = Map.of();
@@ -35,11 +36,18 @@ public class CollectableTest {
 	}
 
 	@Test
+	public void testFilterCast() {
+		Functions.Predicate<List<Integer>> filter =
+			Collectable.Filter.cast(Collectable.Filter.has(null));
+		Assert.equal(filter.test(list), true);
+	}
+
+	@Test
 	public void testFilterHas() throws Exception {
 		var filter = Collectable.Filter.has(null);
-		Assert.equal(filter.test(null), false);
-		Assert.equal(filter.test(Lists.ofAll(1, -1)), false);
-		Assert.equal(filter.test(Lists.ofAll(1, -1, null)), true);
+		Assert.equal(Collectable.Filter.test(null, filter), false);
+		Assert.equal(Collectable.Filter.test(list, filter), true);
+		Assert.equal(Collectable.Filter.test(list2, filter), false);
 	}
 
 	@Test
@@ -47,9 +55,9 @@ public class CollectableTest {
 		Assert.equal(Collectable.Filter.hasAll(nullArray).test(null), true);
 		Assert.equal(Collectable.Filter.hasAll(nullList).test(null), true);
 		var filter = Collectable.Filter.hasAll(null, 1);
-		Assert.equal(filter.test(null), false);
-		Assert.equal(filter.test(Lists.ofAll(1, -1)), false);
-		Assert.equal(filter.test(Lists.ofAll(1, -1, null)), true);
+		Assert.equal(Collectable.Filter.test(null, filter), false);
+		Assert.equal(Collectable.Filter.test(list, filter), true);
+		Assert.equal(Collectable.Filter.test(list2, filter), false);
 	}
 
 	@Test
@@ -152,5 +160,4 @@ public class CollectableTest {
 		Assert.array(Collectable.adaptToArray(list, String[]::new, String::valueOf), "-1", "null",
 			"1");
 	}
-
 }

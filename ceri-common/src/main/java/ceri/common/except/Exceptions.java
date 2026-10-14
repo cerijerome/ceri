@@ -28,9 +28,17 @@ public class Exceptions {
 		/**
 		 * Returns true if the throwable matches the class.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, Throwable>
-			message(Excepts.Predicate<E, String> predicate) {
+		public static Functions.Predicate<Throwable>
+			message(Excepts.Predicate<? extends RuntimeException, String> predicate) {
 			return Filters.as(Throwable::getMessage, predicate);
+		}
+
+		/**
+		 * Returns true if the throwable matches the class.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, Throwable>
+			messageEx(Excepts.Predicate<? extends E, String> predicate) {
+			return Filters.asEx(Throwable::getMessage, predicate);
 		}
 	}
 

@@ -35,10 +35,19 @@ public class Maps {
 		/**
 		 * Transforms a bi-predicate into a map entry predicate.
 		 */
-		public static <E extends Exception, K, V> Excepts.Predicate<E, Map.Entry<K, V>>
-			entry(Excepts.BiPredicate<E, ? super K, ? super V> predicate) {
-			if (predicate == null) return _ -> false;
+		public static <K, V> Functions.Predicate<Map.Entry<K, V>>
+			entry(Excepts.BiPredicate<? extends RuntimeException, ? super K, ? super V> predicate) {
+			if (predicate == null) return Filters.NO.cast();
 			return Filters.biAs(Map.Entry::getKey, Map.Entry::getValue, predicate);
+		}
+
+		/**
+		 * Transforms a bi-predicate into a map entry predicate.
+		 */
+		public static <E extends Exception, K, V> Excepts.Predicate<E, Map.Entry<K, V>>
+			entryEx(Excepts.BiPredicate<E, ? super K, ? super V> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return Filters.biAsEx(Map.Entry::getKey, Map.Entry::getValue, predicate);
 		}
 	}
 
@@ -629,14 +638,14 @@ public class Maps {
 	public static <E extends Exception, K, V, M extends Map<K, V>> M removeIf(M map,
 		Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate) throws E {
 		if (!isEmpty(map) && predicate != null)
-			Iterables.removeIf(map.entrySet(), Filter.entry(predicate));
+			Iterables.removeIf(map.entrySet(), Filter.entryEx(predicate));
 		return map;
 	}
 
 	/**
 	 * Returns a stream of map keys for entries that match the predicate.
 	 */
-	public static <E extends Exception, K, V> Stream<E, K>
+	public static <E extends Exception, K, V> Stream.Ex<E, K>
 		keys(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
 		return Maps.<E, K, V>entries(predicate, map).map(Map.Entry::getKey);
 	}
@@ -654,7 +663,7 @@ public class Maps {
 	 */
 	public static <E extends Exception, K, V> Stream.Ex<E, Map.Entry<K, V>>
 		entries(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
-		return stream(map).filterEx(Filter.entry(predicate));
+		return stream(map).filterEx(Filter.entryEx(predicate));
 	}
 
 	/**

@@ -38,57 +38,68 @@ public class Paths {
 	 * Predicates for filtering paths.
 	 */
 	public static class Filter {
-		private static final Functions.Predicate<Path> FILE = Files::isRegularFile;
-		private static final Functions.Predicate<Path> DIR = Files::isDirectory;
+		public static final Functions.Predicate<Path> FILE = Files::isRegularFile;
+		public static final Functions.Predicate<Path> DIR = Files::isDirectory;
 
 		private Filter() {}
-
-		/**
-		 * A filter that only accepts files.
-		 */
-		public static <E extends Exception> Excepts.Predicate<E, Path> file() {
-			return Filters.ex(FILE);
-		}
-
-		/**
-		 * A filter that only accepts directories.
-		 */
-		public static <E extends Exception> Excepts.Predicate<E, Path> dir() {
-			return Filters.ex(DIR);
-		}
 
 		/**
 		 * A filter based on file system pattern syntax, such as glob or regex.
 		 */
 		@SuppressWarnings("resource")
-		public static <E extends Exception> Excepts.Predicate<E, Path> pattern(FileSystem fs,
+		public static Functions.Predicate<Path> pattern(FileSystem fs,
 			String format, Object... args) {
-			fs = Basics.def(fs, FileSystems.getDefault());
+			if (fs == null)
+				fs = FileSystems.getDefault();
 			return fs.getPathMatcher(Strings.format(format, args))::matches;
 		}
 
 		/**
 		 * A filter that applies the filter to the filename as a path.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, Path>
-			namePath(Excepts.Predicate<? extends E, Path> filter) {
+		public static Functions.Predicate<Path>
+			namePath(Excepts.Predicate<? extends RuntimeException, Path> filter) {
 			return Filters.as(Path::getFileName, filter);
+		}
+
+		/**
+		 * A filter that applies the filter to the filename as a path.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, Path>
+			namePathEx(Excepts.Predicate<? extends E, Path> filter) {
+			return Filters.asEx(Path::getFileName, filter);
+		}
+
+		/**
+		 * A filter that applies the filter to the filename.
+		 */
+		public static Functions.Predicate<Path>
+			name(Excepts.Predicate<? extends RuntimeException, String> filter) {
+			return Filters.as(Paths::name, filter);
 		}
 
 		/**
 		 * A filter that applies the filter to the filename.
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Path>
-			name(Excepts.Predicate<? extends E, String> filter) {
-			return Filters.as(Paths::name, filter);
+			nameEx(Excepts.Predicate<? extends E, String> filter) {
+			return Filters.asEx(Paths::name, filter);
+		}
+
+		/**
+		 * A filter that applies the filter to the filename extension.
+		 */
+		public static Functions.Predicate<Path>
+			ext(Excepts.Predicate<? extends RuntimeException, String> filter) {
+			return Filters.as(Paths::ext, filter);
 		}
 
 		/**
 		 * A filter that applies the filter to the filename extension.
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Path>
-			ext(Excepts.Predicate<? extends E, String> filter) {
-			return Filters.as(Paths::ext, filter);
+			extEx(Excepts.Predicate<? extends E, String> filter) {
+			return Filters.asEx(Paths::ext, filter);
 		}
 
 		/**
@@ -96,7 +107,7 @@ public class Paths {
 		 */
 		public static Excepts.Predicate<IOException, Path>
 			lastModified(Excepts.Predicate<? extends IOException, ? super Instant> filter) {
-			return Filters.as(Paths::lastModified, filter);
+			return Filters.asEx(Paths::lastModified, filter);
 		}
 
 		/**
@@ -104,7 +115,7 @@ public class Paths {
 		 */
 		public static Excepts.Predicate<IOException, Path>
 			size(Excepts.Predicate<? extends IOException, ? super Long> filter) {
-			return Filters.as(Files::size, filter);
+			return Filters.asEx(Files::size, filter);
 		}
 	}
 
@@ -347,7 +358,7 @@ public class Paths {
 	public static String string(Path path) {
 		return path == null ? null : path.toString();
 	}
-	
+
 	/**
 	 * Convert file path to unix format.
 	 */

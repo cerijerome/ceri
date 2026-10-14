@@ -25,9 +25,26 @@ public class Collectable {
 		private Filter() {}
 
 		/**
+		 * Adapts type parameters.
+		 */
+		public static <T, U extends T, C extends Collection<U>> Functions.Predicate<C>
+			cast(Functions.Predicate<Collection<T>> predicate) {
+			return Reflect.unchecked(predicate);
+		}
+
+		/**
+		 * Adapts type parameters.
+		 */
+		public static <E extends Exception, T, U extends T, C extends Collection<U>>
+			Excepts.Predicate<E, C>
+			castEx(Excepts.Predicate<? extends E, Collection<T>> predicate) {
+			return Reflect.unchecked(predicate);
+		}
+
+		/**
 		 * Predicate that returns true if a collection contains the value.
 		 */
-		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>> has(T value) {
+		public static <T> Functions.Predicate<Collection<T>> has(T value) {
 			return ts -> ts != null && ts.contains(value);
 		}
 
@@ -35,19 +52,26 @@ public class Collectable {
 		 * Predicate that returns true if a collection contains all the values.
 		 */
 		@SafeVarargs
-		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>>
-			hasAll(T... values) {
-			if (values == null) return Filters.yes();
+		public static <T> Functions.Predicate<Collection<T>> hasAll(T... values) {
+			if (values == null) return Filters.YES.cast();
 			return hasAll(Sets.ofAll(values));
 		}
 
 		/**
 		 * Predicate that returns true if a collection contains all the values.
 		 */
-		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>>
+		public static <T> Functions.Predicate<Collection<T>>
 			hasAll(Collection<? extends T> values) {
-			if (values == null) return Filters.yes();
+			if (values == null) return Reflect.unchecked(Filters.YES);
 			return ts -> ts != null && ts.containsAll(values);
+		}
+
+		/**
+		 * Returns true if the predicate matches the collection.
+		 */
+		public static <E extends Exception, T, U extends T> boolean test(Collection<U> collection,
+			Excepts.Predicate<E, Collection<T>> predicate) throws E {
+			return Filters.test(null, collection, castEx(predicate));
 		}
 	}
 

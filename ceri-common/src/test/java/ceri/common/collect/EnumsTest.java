@@ -1,21 +1,25 @@
 package ceri.common.collect;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.text.Strings;
 
 public class EnumsTest {
-	private static final String nullString = null;
-	private static final Class<E> nullClass = null;
-	private static final E[] nullArray = null;
-	private static final E[] emptyArray = new E[0];
-	private static final List<E> list = Lists.ofAll(E.a, null, E.B);
-	private static final Comparator<String> scomp = Comparator.comparing(Strings::lower);
-	private static final Functions.Predicate<String> spred =
+	private static final String NULL_STR = null;
+	private static final Class<E> NULL_CLS = null;
+	private static final E[] NULL_ARRAY = null;
+	private static final E[] EMPTY_ARRAY = new E[0];
+	private static final List<E> LIST = Lists.ofAll(E.a, null, E.B);
+	private static final Comparator<String> LOWER_COMP = Comparator.comparing(Strings::lower);
+	private static final Functions.Predicate<String> LOWER_FILTER =
+		s -> Objects.equals(s, Strings.lower(s));
+	private static final Excepts.Predicate<IOException, String> LOWER_FILTER_EX =
 		s -> Objects.equals(s, Strings.lower(s));
 
 	private static enum None {}
@@ -47,36 +51,34 @@ public class EnumsTest {
 	}
 
 	private static E[] array() {
-		return list.toArray(E[]::new);
+		return LIST.toArray(E[]::new);
+	}
+
+	@Test
+	public void testFilters() throws Exception {
+		Assert.equal(Enums.Filter.name(NULL_STR).test(null), false);
+		Assert.equal(Enums.Filter.name(NULL_STR).test(E.a), false);
+		Assert.equal(Enums.Filter.name("a").test(null), false);
+		Assert.equal(Enums.Filter.name("a").test(E.B), false);
+		Assert.equal(Enums.Filter.name("a").test(E.a), true);
+		Assert.equal(Enums.Filter.name(LOWER_FILTER).test(null), false);
+		Assert.equal(Enums.Filter.name(LOWER_FILTER).test(E.B), false);
+		Assert.equal(Enums.Filter.name(LOWER_FILTER).test(E.a), true);
+		Assert.equal(Enums.Filter.nameEx(LOWER_FILTER_EX).test(null), false);
+		Assert.equal(Enums.Filter.nameEx(LOWER_FILTER_EX).test(E.B), false);
+		Assert.equal(Enums.Filter.nameEx(LOWER_FILTER_EX).test(E.a), true);
 	}
 
 	@Test
 	public void testComparators() {
 		Assert.ordered(sort(Enums.Compare.ordinal(), array()), null, E.a, E.B);
 		Assert.ordered(sort(Enums.Compare.name(), array()), null, E.B, E.a);
-		Assert.ordered(sort(Enums.Compare.name(scomp), array()), null, E.a, E.B);
-	}
-
-	@Test
-	public void testPredicates() throws Exception {
-		Assert.equal(Enums.Filter.name(nullString).test(null), false);
-		Assert.equal(Enums.Filter.name(nullString).test(E.a), false);
-		Assert.equal(Enums.Filter.name("a").test(null), false);
-		Assert.equal(Enums.Filter.name("a").test(E.B), false);
-		Assert.equal(Enums.Filter.name("a").test(E.a), true);
-		Assert.equal(Enums.Filter.name(spred).test(null), false);
-		Assert.equal(Enums.Filter.name(spred).test(E.B), false);
-		Assert.equal(Enums.Filter.name(spred).test(E.a), true);
-	}
-
-	@SafeVarargs
-	private static <T> List<T> sort(Comparator<? super T> comparator, T... values) {
-		return Lists.sort(Lists.ofAll(values), comparator);
+		Assert.ordered(sort(Enums.Compare.name(LOWER_COMP), array()), null, E.a, E.B);
 	}
 
 	@Test
 	public void testOf() {
-		Assert.ordered(Enums.of(nullClass));
+		Assert.ordered(Enums.of(NULL_CLS));
 		Assert.ordered(Enums.of(String.class)); // no enums
 		Assert.ordered(Enums.of(None.class));
 		Assert.ordered(Enums.of(E.class), E.a, E.B, E.c);
@@ -84,12 +86,12 @@ public class EnumsTest {
 
 	@Test
 	public void testSet() {
-		Assert.unordered(Enums.set(nullClass));
+		Assert.unordered(Enums.set(NULL_CLS));
 		Assert.unordered(Enums.set(None.class));
 		Assert.unordered(Enums.set(E.class), E.a, E.B, E.c);
 		Assert.unordered(Enums.<E>set());
-		Assert.unordered(Enums.set(nullArray));
-		Assert.unordered(Enums.set(emptyArray));
+		Assert.unordered(Enums.set(NULL_ARRAY));
+		Assert.unordered(Enums.set(EMPTY_ARRAY));
 		Assert.unordered(Enums.set(E.a, null, E.B), E.a, null, E.B);
 		Assert.unordered(Enums.set(E.a, E.B), E.a, E.B);
 	}
@@ -128,7 +130,7 @@ public class EnumsTest {
 
 	@Test
 	public void testValueOf() {
-		Assert.equal(Enums.valueOf(nullClass, "a", E.a), E.a);
+		Assert.equal(Enums.valueOf(NULL_CLS, "a", E.a), E.a);
 		Assert.equal(Enums.valueOf(E.class, "a"), E.a);
 		Assert.isNull(Enums.valueOf(E.class, "ab"));
 		Assert.isNull(Enums.valueOf(E.class, null, null));
@@ -147,5 +149,10 @@ public class EnumsTest {
 		Assert.equal(Enums.find(E.class, t -> t.name().equals("c")), E.c);
 		Assert.equal(Enums.find(E.class, t -> t.name().equals("x")), null);
 		Assert.equal(Enums.find(E.class, t -> t.name().equals("x"), E.B), E.B);
+	}
+
+	@SafeVarargs
+	private static <T> List<T> sort(Comparator<? super T> comparator, T... values) {
+		return Lists.sort(Lists.ofAll(values), comparator);
 	}
 }

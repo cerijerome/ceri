@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 
 /**
@@ -14,91 +15,176 @@ public class Iterables {
 
 	private Iterables() {}
 
+	/**
+	 * Iterable filter support.
+	 */
 	public static class Filter {
 		private Filter() {}
 
 		/**
-		 * Predicate that returns true if a collection contains all the values.
+		 * Adapts type parameters.
 		 */
-		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>> has(T value) {
-			return any(Filters.equal(value));
+		public static <T, U extends T, I extends Iterable<U>> Functions.Predicate<I>
+			cast(Functions.Predicate<Iterable<T>> predicate) {
+			return Reflect.unchecked(predicate);
 		}
 
 		/**
-		 * Predicate that returns true if a collection contains all the values.
+		 * Adapts type parameters.
+		 */
+		public static <E extends Exception, T, U extends T, I extends Iterable<U>>
+			Excepts.Predicate<E, I> castEx(Excepts.Predicate<? extends E, Iterable<T>> predicate) {
+			return Reflect.unchecked(predicate);
+		}
+
+		/**
+		 * Predicate that returns true if an iterable sequence contains the value.
+		 */
+		public static <T> Functions.Predicate<Iterable<T>> has(T value) {
+			return ts -> testAny(ts, Filters.equal(value));
+		}
+
+		/**
+		 * Predicate that returns true if an iterable sequence contains any of the values.
 		 */
 		@SafeVarargs
-		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-			hasAny(T... values) {
-			if (values == null) return any(null);
+		public static <T> Functions.Predicate<Iterable<T>> hasAnyOf(T... values) {
+			if (values == null) return Filters.NO.cast();
 			return hasAny(Sets.ofAll(values));
 		}
 
 		/**
-		 * Predicate that returns true if a collection contains all the values.
+		 * Predicate that returns true if an iterable sequence contains any of the values.
 		 */
-		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-			hasAny(Collection<? extends T> values) {
-			if (values == null) return any(null);
+		public static <T> Functions.Predicate<Iterable<T>> hasAny(Collection<? extends T> values) {
+			if (values == null) return Filters.NO.cast();
 			return any(values::contains);
 		}
 
 		/**
 		 * Returns true if any element matches the predicate.
 		 */
+		public static <T> Functions.Predicate<Iterable<T>>
+			any(Excepts.Predicate<? extends RuntimeException, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.cast();
+			return ts -> testAny(ts, predicate);
+		}
+
+		/**
+		 * Returns true if any element matches the predicate.
+		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-			any(Excepts.Predicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Filters.no();
-			return ts -> {
-				if (ts == null) return false;
-				for (T t : ts)
-					if (predicate.test(t)) return true;
-				return false;
-			};
+			anyEx(Excepts.Predicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return ts -> testAny(ts, predicate);
+		}
+
+		/**
+		 * Returns true if all elements match the predicate.
+		 */
+		public static <T> Functions.Predicate<Iterable<T>>
+			all(Excepts.Predicate<? extends RuntimeException, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.cast();
+			return ts -> testAll(ts, predicate);
 		}
 
 		/**
 		 * Returns true if all elements match the predicate.
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-			all(Excepts.Predicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Filters.no();
-			return ts -> {
-				if (ts == null) return false;
-				for (T t : ts)
-					if (!predicate.test(t)) return false;
-				return true;
-			};
+			allEx(Excepts.Predicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return ts -> testAll(ts, predicate);
+		}
+
+		/**
+		 * Returns true if any element and index matches the predicate.
+		 */
+		public static <T> Functions.Predicate<Iterable<T>>
+			anyIndex(Excepts.ObjIntPredicate<? extends RuntimeException, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.cast();
+			return ts -> testAnyIndex(ts, predicate);
 		}
 
 		/**
 		 * Returns true if any element and index matches the predicate.
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-			anyIndex(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Filters.no();
-			return ts -> {
-				if (ts == null) return false;
-				int i = 0;
-				for (T t : ts)
-					if (predicate.test(t, i++)) return true;
-				return false;
-			};
+			anyIndexEx(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return ts -> testAnyIndex(ts, predicate);
+		}
+
+		/**
+		 * Returns true if all elements and indexes match the predicate.
+		 */
+		public static <T> Functions.Predicate<Iterable<T>>
+			allIndex(Excepts.ObjIntPredicate<? extends RuntimeException, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.cast();
+			return ts -> testAllIndex(ts, predicate);
 		}
 
 		/**
 		 * Returns true if all elements and indexes match the predicate.
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-			allIndex(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Filters.no();
-			return ts -> {
-				if (ts == null) return false;
-				int i = 0;
-				for (T t : ts)
-					if (!predicate.test(t, i++)) return false;
-				return true;
-			};
+			allIndexEx(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Filters.NO.castEx();
+			return ts -> testAllIndex(ts, predicate);
+		}
+
+		/**
+		 * Returns true if the predicate matches the iterable.
+		 */
+		public static <E extends Exception, T, U extends T> boolean test(Iterable<U> iterable,
+			Excepts.Predicate<E, Iterable<T>> predicate) throws E {
+			return Filters.test(null, iterable, castEx(predicate));
+		}
+
+		/**
+		 * Returns true if the predicate matches any elements.
+		 */
+		public static <E extends Exception, T> boolean testAny(Iterable<T> iterable,
+			Excepts.Predicate<? extends E, ? super T> predicate) throws E {
+			if (iterable == null) return false;
+			for (T t : iterable)
+				if (predicate.test(t)) return true;
+			return false;
+		}
+
+		/**
+		 * Returns true if the predicate matches all elements.
+		 */
+		public static <E extends Exception, T> boolean testAll(Iterable<T> iterable,
+			Excepts.Predicate<? extends E, ? super T> predicate) throws E {
+			if (iterable == null) return false;
+			for (T t : iterable)
+				if (!predicate.test(t)) return false;
+			return true;
+		}
+
+		/**
+		 * Returns true if the predicate matches any element and index.
+		 */
+		public static <E extends Exception, T> boolean testAnyIndex(Iterable<T> iterable,
+			Excepts.ObjIntPredicate<? extends E, ? super T> predicate) throws E {
+			if (iterable == null) return false;
+			int i = 0;
+			for (T t : iterable)
+				if (predicate.test(t, i++)) return true;
+			return false;
+		}
+
+		/**
+		 * Returns true if the predicate matches all elements and indexes.
+		 */
+		public static <E extends Exception, T> boolean testAllIndex(Iterable<T> iterable,
+			Excepts.ObjIntPredicate<? extends E, ? super T> predicate) throws E {
+			if (iterable == null) return false;
+			int i = 0;
+			for (T t : iterable)
+				if (!predicate.test(t, i++)) return false;
+			return true;
 		}
 	}
 

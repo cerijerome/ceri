@@ -19,7 +19,7 @@ public class ValueCondition<T> {
 	private static final Functions.BiOperator<Object> REPLACER = (latest, _) -> latest;
 	public final Lock lock;
 	private final Condition condition;
-	private final Excepts.BiOperator<RuntimeException, T> merger;
+	private final Excepts.BiOperator<? extends RuntimeException, T> merger;
 	private T value = null;
 
 	/**
@@ -40,7 +40,8 @@ public class ValueCondition<T> {
 	 * Creates an instance with its own lock and a function that merges a new signal value to its
 	 * existing value (either of which may be null).
 	 */
-	public static <T> ValueCondition<T> of(Excepts.BiOperator<RuntimeException, T> merger) {
+	public static <T> ValueCondition<T>
+		of(Excepts.BiOperator<? extends RuntimeException, T> merger) {
 		return of(new ReentrantLock(), merger);
 	}
 
@@ -49,11 +50,11 @@ public class ValueCondition<T> {
 	 * existing value (either of which may be null).
 	 */
 	public static <T> ValueCondition<T> of(Lock lock,
-		Excepts.BiOperator<RuntimeException, T> merger) {
+		Excepts.BiOperator<? extends RuntimeException, T> merger) {
 		return new ValueCondition<>(lock, merger);
 	}
 
-	private ValueCondition(Lock lock, Excepts.BiOperator<RuntimeException, T> merger) {
+	private ValueCondition(Lock lock, Excepts.BiOperator<? extends RuntimeException, T> merger) {
 		this.lock = lock;
 		this.merger = merger;
 		condition = lock.newCondition();
@@ -86,7 +87,7 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null. Current value is cleared.
 	 */
 	public T await() throws InterruptedException {
-		return await(Filters.yes());
+		return await(Filters.YES);
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire. Current value is cleared.
 	 */
 	public T awaitTimeout(long timeoutMs) throws InterruptedException {
-		return awaitTimeout(timeoutMs, Filters.yes());
+		return awaitTimeout(timeoutMs, Filters.YES);
 	}
 
 	/**
@@ -146,7 +147,7 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null.
 	 */
 	public T awaitPeek() throws InterruptedException {
-		return awaitPeek(Filters.yes());
+		return awaitPeek(Filters.YES);
 	}
 
 	/**
@@ -159,7 +160,7 @@ public class ValueCondition<T> {
 	/**
 	 * Waits indefinitely for predicate to be true.
 	 */
-	public T awaitPeek(Excepts.Predicate<RuntimeException, T> predicate)
+	public T awaitPeek(Excepts.Predicate<RuntimeException, ? super T> predicate)
 		throws InterruptedException {
 		return awaitPeek(Timer.INFINITE, predicate);
 	}
@@ -218,8 +219,8 @@ public class ValueCondition<T> {
 	/**
 	 * Waits for predicate to be true (on entry, or after signal) or timer to expire.
 	 */
-	private T awaitValue(Timer timer, Excepts.Predicate<RuntimeException, ? super T> predicate)
-		throws InterruptedException {
+	private <E extends Exception> T awaitValue(Timer timer,
+		Excepts.Predicate<E, ? super T> predicate) throws InterruptedException, E {
 		timer.start();
 		while (value == null || !predicate.test(value)) {
 			var snapshot = timer.snapshot();

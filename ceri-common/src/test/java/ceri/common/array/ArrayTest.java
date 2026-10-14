@@ -1,14 +1,27 @@
 package ceri.common.array;
 
+import java.io.IOException;
 import java.util.Objects;
 import org.junit.Test;
 import ceri.common.function.Compares;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 
 public class ArrayTest {
+	private static final Functions.ObjIntPredicate<Object> GT0 = (_, i) -> i > 0;
+	private static final Excepts.ObjIntPredicate<IOException, Object> GT0_EX = GT0.castEx();
+	private static final Functions.Predicate<Object[]> ANY_GT0 = Array.Filter.any(GT0);
+	private static final Excepts.Predicate<IOException, Object[]> ANY_GT0_EX =
+		Array.Filter.anyEx(GT0_EX);
+	private static final Functions.ObjIntPredicate<Object> LT1 = (_, i) -> i < 1;
+	private static final Excepts.ObjIntPredicate<IOException, Object> LT1_EX = LT1.castEx();
+	private static final Functions.Predicate<Object[]> ALL_LT1 = Array.Filter.all(LT1);
+	private static final Excepts.Predicate<IOException, Object[]> ALL_LT1_EX =
+		Array.Filter.allEx(LT1_EX);
 	private static final Object[] NULL = null;
 	private final Integer[] ints = { -1, null, 1 };
 
@@ -24,19 +37,25 @@ public class ArrayTest {
 	@Test
 	public void testFilterAny() throws Exception {
 		Assert.equal(Array.Filter.any(null).test(ints), false);
-		var filter = Array.Filter.any((_, i) -> i > 0);
-		Assert.equal(filter.test(NULL), false);
-		Assert.equal(filter.test(ints(1)), false);
-		Assert.equal(filter.test(ints), true);
+		Assert.equal(ANY_GT0.test(NULL), false);
+		Assert.equal(ANY_GT0.test(ints(1)), false);
+		Assert.equal(ANY_GT0.test(ints), true);
+		Assert.equal(Array.Filter.anyEx(null).test(ints), false);
+		Assert.equal(ANY_GT0_EX.test(NULL), false);
+		Assert.equal(ANY_GT0_EX.test(ints(1)), false);
+		Assert.equal(ANY_GT0_EX.test(ints), true);
 	}
 
 	@Test
 	public void testFilterAll() throws Exception {
 		Assert.equal(Array.Filter.all(null).test(ints), false);
-		var filter = Array.Filter.all((_, i) -> i < 1);
-		Assert.equal(filter.test(NULL), true);
-		Assert.equal(filter.test(ints(1)), true);
-		Assert.equal(filter.test(ints), false);
+		Assert.equal(ALL_LT1.test(NULL), true);
+		Assert.equal(ALL_LT1.test(ints(1)), true);
+		Assert.equal(ALL_LT1.test(ints), false);
+		Assert.equal(Array.Filter.allEx(null).test(ints), false);
+		Assert.equal(ALL_LT1_EX.test(NULL), true);
+		Assert.equal(ALL_LT1_EX.test(ints(1)), true);
+		Assert.equal(ALL_LT1_EX.test(ints), false);
 	}
 
 	@Test
@@ -222,22 +241,22 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void testForEach() throws Exception {
+	public void testForEach() {
 		Assert.equal(Array.forEach(null, _ -> {}), null);
 		Assert.same(Array.forEach(ints, null), ints);
 		Captor.of().apply(c -> Array.forEach(ints, c::accept)).verify(-1, null, 1);
 	}
 
 	@Test
-	public void testForEachIndexed() throws Exception {
+	public void testForEachIndexed() {
 		Assert.equal(Array.forEachIndexed(null, (_, _) -> {}), null);
 		Assert.same(Array.forEachIndexed(ints, null), ints);
-		Captor.ofBi().apply(c -> Array.forEachIndexed(ints, c::accept)).verify(-1, 0, null, 1,
-			1, 2);
+		Captor.ofBi().apply(c -> Array.forEachIndexed(ints, c::accept)).verify(-1, 0, null, 1, 1,
+			2);
 	}
 
 	@Test
-	public void testApplySlice() throws Exception {
+	public void testApplySlice() {
 		Assert.equal(Array.applySlice(3, 1, 3, null), null);
 		Assert.equal(Array.applySlice(3, 1, 3, (_, _) -> 1), 1);
 		Captor.ofBi().apply(c -> Array.applySlice(0, 1, 3, (o, l) -> c.accept(o, l, null)))
@@ -249,7 +268,7 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void testAcceptSlice() throws Exception {
+	public void testAcceptSlice() {
 		Array.acceptSlice(3, 1, 3, null);
 		Captor.ofBi().apply(c -> Array.acceptSlice(0, 1, 3, c::accept)).verify(0, 0);
 		Captor.ofBi().apply(c -> Array.acceptSlice(3, 1, 3, c::accept)).verify(1, 2);
@@ -264,7 +283,7 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void testApplyBiSlice() throws Exception {
+	public void testApplyBiSlice() {
 		Assert.equal(Array.applyBiSlice(1, 0, 1, 1, 0, 1, null), null);
 	}
 
@@ -277,8 +296,7 @@ public class ArrayTest {
 	public void testSort() {
 		Assert.equal(Array.sort(null), null);
 		Assert.array(Array.sort(ints.clone()), null, -1, 1);
-		Assert.array(Array.sort(ints.clone(), Compares.of(Compares.Nulls.last)), -1, 1,
-			null);
+		Assert.array(Array.sort(ints.clone(), Compares.of(Compares.Nulls.last)), -1, 1, null);
 	}
 
 	@Test

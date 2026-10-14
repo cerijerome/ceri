@@ -8,13 +8,15 @@ import java.util.Iterator;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestCollection;
 import ceri.common.test.Testing;
 
 public class PathListBehavior {
-	private static final Excepts.Predicate<IOException, Object> nullFilter = null;
+	private static final Functions.Predicate<Object> nullFilter = null;
+	private static final Excepts.Predicate<IOException, Object> nullFilterEx = null;
 	private FileTestHelper helper;
 
 	private static class TestDirStream<T> implements DirectoryStream<T> {
@@ -77,6 +79,7 @@ public class PathListBehavior {
 		assertPathList(PathList.all(helper.root).filter("regex:.*/[^/]*\\.txt"), "a/a/a.txt",
 			"b/b.txt");
 		assertPathList(PathList.of(helper.root).filter(nullFilter));
+		assertPathList(PathList.of(helper.root).filterEx(nullFilterEx));
 	}
 
 	@Test
@@ -91,6 +94,7 @@ public class PathListBehavior {
 		assertPathList(PathList.all(helper.root).nameFilter(s -> s.endsWith("txt")), "a/a/a.txt",
 			"b/b.txt");
 		assertPathList(PathList.of(helper.root).nameFilter(nullFilter));
+		assertPathList(PathList.of(helper.root).nameFilterEx(nullFilterEx));
 	}
 
 	@Test
