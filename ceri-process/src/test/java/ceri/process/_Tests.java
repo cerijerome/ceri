@@ -1,14 +1,14 @@
 package ceri.process;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-process
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 	// nmcli
 	ceri.process.nmcli.NmcliBehavior.class, //
 	// scutil

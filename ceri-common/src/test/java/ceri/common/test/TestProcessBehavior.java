@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.process.Parameters;
 import ceri.common.test.TestProcess.TestProcessor;

@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Mutable;

@@ -1,6 +1,6 @@
 package ceri.jna.clib.jna;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.util.Os;
 import ceri.jna.util.JnaOs;

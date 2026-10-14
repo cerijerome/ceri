@@ -1,8 +1,8 @@
 package ceri.serial.spi.jna;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.jna.clib.FileDescriptor;
@@ -13,7 +13,7 @@ public class SpiDevTest {
 	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.spiRef();
 	private FileDescriptor fd;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(fd, ref);
 		fd = null;

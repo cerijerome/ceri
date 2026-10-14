@@ -10,8 +10,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 
@@ -20,7 +20,7 @@ public class SqlStatementBehavior {
 	private TestPreparedStatement ps;
 	private SqlStatement stmt;
 
-	@After
+	@AfterEach
 	public void after() {
 		stmt = Testing.close(stmt);
 		ps = Testing.close(ps);

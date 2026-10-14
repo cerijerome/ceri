@@ -6,7 +6,7 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_230X;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_AM;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_BM;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_R;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.serial.libusb.jna.LibUsbException;
 

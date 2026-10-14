@@ -1,8 +1,8 @@
 package ceri.serial.comm;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -19,7 +19,7 @@ public class SerialPortBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private SerialPort serial;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(serial, ref);
 		serial = null;

@@ -1,7 +1,7 @@
 package ceri.common.log;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -19,7 +19,7 @@ public class LoggerBehavior {
 	private StringBuilder err;
 	private SystemIo sysIo;
 
-	@After
+	@AfterEach
 	public void after() {
 		Logger.removeLogger(KEY);
 		logger = null;

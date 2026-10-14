@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import static java.lang.Long.MAX_VALUE;
 import java.util.Arrays;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.LongArray.Mutable;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;

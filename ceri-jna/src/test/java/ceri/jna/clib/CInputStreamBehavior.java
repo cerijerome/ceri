@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
@@ -16,7 +16,7 @@ public class CInputStreamBehavior {
 	private int fd;
 	private CInputStream in;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(in, ref);
 		fd = -1;

@@ -1,7 +1,7 @@
 package ceri.log.test;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.Assert;

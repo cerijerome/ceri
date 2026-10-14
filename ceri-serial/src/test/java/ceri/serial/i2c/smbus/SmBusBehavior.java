@@ -1,7 +1,7 @@
 package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.test.Assert;
 

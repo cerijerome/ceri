@@ -1,6 +1,6 @@
 package ceri.jna.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;

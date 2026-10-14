@@ -1,6 +1,6 @@
 package ceri.x10.cm17a.device;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;

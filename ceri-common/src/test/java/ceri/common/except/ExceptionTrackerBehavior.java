@@ -3,7 +3,7 @@ package ceri.common.except;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionTracker.Key;
 import ceri.common.io.IoExceptions;
 import ceri.common.test.Assert;

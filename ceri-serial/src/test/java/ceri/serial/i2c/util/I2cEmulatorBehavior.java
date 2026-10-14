@@ -1,8 +1,8 @@
 package ceri.serial.i2c.util;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
@@ -17,7 +17,7 @@ public class I2cEmulatorBehavior {
 	private I2cEmulator i2c;
 	private I2cSlaveDeviceEmulator dev;
 
-	@After
+	@AfterEach
 	public void after() {
 		i2c = null;
 		dev = null;

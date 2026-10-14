@@ -23,8 +23,8 @@ import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.VarStruct;
 import ceri.jna.util.Caller;
-import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Pointers;
 
 /**

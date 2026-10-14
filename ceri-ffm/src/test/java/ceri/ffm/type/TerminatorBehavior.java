@@ -1,7 +1,7 @@
 package ceri.ffm.type;
 
 import java.lang.foreign.MemorySegment;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.ffm.core.Terminator;
 

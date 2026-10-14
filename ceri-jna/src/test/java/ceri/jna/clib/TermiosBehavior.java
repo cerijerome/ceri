@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
@@ -20,7 +20,7 @@ public class TermiosBehavior {
 	private CTermios.termios termios = null;
 	private Termios tm = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(fd, ref);
 		fd = null;

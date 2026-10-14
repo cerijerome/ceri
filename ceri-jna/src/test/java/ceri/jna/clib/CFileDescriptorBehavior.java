@@ -3,8 +3,8 @@ package ceri.jna.clib;
 import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -21,7 +21,7 @@ public class CFileDescriptorBehavior {
 	private final JnaLibrary.Ref<TestCLibNative> ref = TestCLibNative.ref();
 	private CFileDescriptor fd;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(fd, ref);
 		fd = null;

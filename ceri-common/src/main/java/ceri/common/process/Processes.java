@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.regex.Pattern;
-import ceri.common.io.IoStream;
 import ceri.common.io.Io;
+import ceri.common.io.IoStream;
 import ceri.common.text.Joiner;
 import ceri.common.text.Regex;
 

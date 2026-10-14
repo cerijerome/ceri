@@ -2,9 +2,9 @@ package ceri.serial.libusb;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
@@ -22,7 +22,7 @@ public class UsbDeviceHandleBehavior {
 	private Usb usb;
 	private UsbDeviceHandle handle;
 
-	@Before
+	@BeforeEach
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -31,7 +31,7 @@ public class UsbDeviceHandleBehavior {
 		handle = usb.open(LibUsbFinder.of(0x0d8c, 0));
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		handle.close();
 		usb.close();

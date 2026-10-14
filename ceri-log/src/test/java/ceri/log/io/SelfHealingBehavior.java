@@ -2,8 +2,8 @@ package ceri.log.io;
 
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
@@ -34,7 +34,7 @@ public class SelfHealingBehavior {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(device, fixable);
 		device = null;

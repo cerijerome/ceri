@@ -3,7 +3,7 @@ package ceri.common.concurrent;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.TestConcurrent;

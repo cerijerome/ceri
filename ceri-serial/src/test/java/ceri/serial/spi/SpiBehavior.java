@@ -1,7 +1,7 @@
 package ceri.serial.spi;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
 

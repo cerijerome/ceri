@@ -2,7 +2,7 @@ package ceri.common.xml;
 
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;

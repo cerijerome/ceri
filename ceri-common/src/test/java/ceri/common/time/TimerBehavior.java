@@ -4,7 +4,7 @@ import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.time.TimeSupplier.nanos;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;

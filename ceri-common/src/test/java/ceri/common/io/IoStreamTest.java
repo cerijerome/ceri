@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.io.IoStream.FilterRead;
@@ -29,7 +29,7 @@ public class IoStreamTest {
 	private InputStream in;
 	private OutputStream out;
 
-	@After
+	@AfterEach
 	public void after() {
 		in = Testing.close(in);
 		out = Testing.close(out);

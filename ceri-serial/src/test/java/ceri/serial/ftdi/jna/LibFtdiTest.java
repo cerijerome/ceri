@@ -6,9 +6,9 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import static ceri.serial.libusb.test.TestLibUsbNative.lastError;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
@@ -31,7 +31,7 @@ public class LibFtdiTest {
 	private ftdi_context ftdi;
 	private DeviceConfig config;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -39,7 +39,7 @@ public class LibFtdiTest {
 		lib.data.addConfig(config);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		LibFtdi.ftdi_free(ftdi);
 		config = null;

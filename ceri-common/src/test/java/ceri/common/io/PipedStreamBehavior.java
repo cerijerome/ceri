@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.test.Assert;

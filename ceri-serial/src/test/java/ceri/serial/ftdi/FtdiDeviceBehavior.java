@@ -18,9 +18,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
@@ -49,7 +49,7 @@ public class FtdiDeviceBehavior {
 	private FtdiDevice ftdi;
 	private DeviceConfig config;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -57,7 +57,7 @@ public class FtdiDeviceBehavior {
 		lib.data.addConfig(config);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		config = null;
 		if (ftdi != null) ftdi.close();

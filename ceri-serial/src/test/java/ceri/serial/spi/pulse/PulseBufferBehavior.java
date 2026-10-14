@@ -1,7 +1,7 @@
 package ceri.serial.spi.pulse;
 
 import java.nio.ByteBuffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.jna.util.Jna;
 

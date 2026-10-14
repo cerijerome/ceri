@@ -1,8 +1,8 @@
 package ceri.ffm.clib.ffm;
 
 import java.lang.foreign.SegmentAllocator;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
@@ -19,7 +19,7 @@ public class CSignalTest {
 	private final Captor<CSignal> captor = Captor.of();
 	private final sighandler_t handler = s -> captor.accept(CSignal.xcoder.decode(s));
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(lib);
 	}

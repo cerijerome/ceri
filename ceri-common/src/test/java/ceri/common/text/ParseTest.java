@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 

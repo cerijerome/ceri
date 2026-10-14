@@ -10,9 +10,9 @@ import static ceri.serial.libusb.test.TestLibUsbNative.lastError;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteArray;
 import ceri.common.function.Enclosure;
@@ -37,7 +37,7 @@ public class LibFtdiStreamTest {
 	private Enclosure<TestLibUsbNative> enc;
 	private ftdi_context ftdi;
 
-	@Before
+	@BeforeEach
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -50,7 +50,7 @@ public class LibFtdiStreamTest {
 		ftdi.max_packet_size = 5;
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		LibFtdi.ftdi_free(ftdi);
 		enc.close();

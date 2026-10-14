@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class NonMatchBehavior {

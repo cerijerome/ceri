@@ -8,7 +8,7 @@ import static ceri.common.util.Temperature.Scale.celsius;
 import static ceri.common.util.Temperature.Scale.fahrenheit;
 import static ceri.common.util.Temperature.Scale.kelvin;
 import static ceri.common.util.Temperature.Scale.rankine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class TemperatureBehavior {

@@ -10,8 +10,8 @@ import java.util.Set;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.Stream;
 import ceri.common.stream.Collect;
+import ceri.common.stream.Stream;
 import ceri.common.text.Parse;
 import ceri.common.text.ToString;
 

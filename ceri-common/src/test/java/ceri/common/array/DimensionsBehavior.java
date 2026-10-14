@@ -1,6 +1,6 @@
 package ceri.common.array;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.IntProvider;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;

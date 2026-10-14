@@ -1,7 +1,7 @@
 package ceri.x10.cm11a;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.DeviceMode;
 import ceri.common.test.Assert;
 import ceri.common.test.TestIo;

@@ -6,8 +6,8 @@ import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByReference;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.jna.util.JnaArgs;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaArgs;
 
 /**
  * Extends standard integer type, exposing size and sign, and providing read/write pointer access.

@@ -1,7 +1,7 @@
 package ceri.jna.clib.jna;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CTermios.tcflag_t;
@@ -17,7 +17,7 @@ public class CTermiosTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private int fd;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 		fd = -1;

@@ -3,8 +3,8 @@ package ceri.common.test;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.function.Closeables;
 import ceri.common.io.TestPath;
@@ -12,7 +12,7 @@ import ceri.common.io.TestPath;
 public class FileTestHelperBehavior {
 	private FileTestHelper files;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(files);
 		files = null;

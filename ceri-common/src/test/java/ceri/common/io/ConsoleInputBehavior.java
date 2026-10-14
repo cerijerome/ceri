@@ -6,8 +6,8 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.TestIo;
@@ -28,7 +28,7 @@ public class ConsoleInputBehavior {
 	private StringBuilder out;
 	private ConsoleInput con;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ps, in);
 		in = null;

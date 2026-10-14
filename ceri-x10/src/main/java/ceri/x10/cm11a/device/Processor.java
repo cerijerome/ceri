@@ -18,13 +18,13 @@ import ceri.common.io.Connector;
 import ceri.common.io.PollingInputStream;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.cm11a.protocol.Clock;
-import ceri.x10.cm11a.protocol.X10Data;
 import ceri.x10.cm11a.protocol.Entry;
 import ceri.x10.cm11a.protocol.EntryBuffer;
 import ceri.x10.cm11a.protocol.EntryCollector;
 import ceri.x10.cm11a.protocol.Protocol;
 import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.cm11a.protocol.Transmit;
+import ceri.x10.cm11a.protocol.X10Data;
 import ceri.x10.command.Command;
 
 /**

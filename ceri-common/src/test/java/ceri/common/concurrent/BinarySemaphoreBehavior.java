@@ -1,20 +1,20 @@
 package ceri.common.concurrent;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestConcurrent;
 
 public class BinarySemaphoreBehavior {
 	private BinarySemaphore bs;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		bs = BinarySemaphore.of();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		bs.close();
 	}

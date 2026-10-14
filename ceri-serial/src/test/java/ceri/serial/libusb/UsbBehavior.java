@@ -3,9 +3,9 @@ package ceri.serial.libusb;
 import java.io.IOException;
 import java.util.Locale;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.serial.libusb.jna.LibUsbFinder;
@@ -16,13 +16,13 @@ public class UsbBehavior {
 	private TestLibUsbNative lib;
 	private Enclosure<TestLibUsbNative> enc;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		enc.close();
 	}

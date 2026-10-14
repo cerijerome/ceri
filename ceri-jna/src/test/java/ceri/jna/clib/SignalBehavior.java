@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -16,7 +16,7 @@ import ceri.log.util.Logs;
 public class SignalBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 	}

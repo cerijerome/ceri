@@ -1,7 +1,7 @@
 package ceri.jna.test;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -14,7 +14,7 @@ public class JnaTestingTest {
 	private MemCache mc = null;
 	private Memory m = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		m = Testing.close(m);
 		mc = Testing.close(mc);

@@ -3,8 +3,8 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CPoll.POLLIN;
 import static ceri.jna.clib.jna.CPoll.POLLOUT;
 import static ceri.jna.clib.jna.CPoll.POLLPRI;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.time.TimeSpec;
@@ -16,7 +16,7 @@ import ceri.jna.util.JnaLibrary;
 public class CPollTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 	}

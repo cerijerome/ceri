@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
@@ -23,7 +23,7 @@ public class RegistryServiceBehavior {
 	private FileTestHelper files = null;
 	private RegistryService service = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(service, files);
 		service = null;

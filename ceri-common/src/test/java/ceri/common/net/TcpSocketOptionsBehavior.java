@@ -1,8 +1,8 @@
 package ceri.common.net;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestIo;
 import ceri.common.test.Testing;
@@ -10,7 +10,7 @@ import ceri.common.test.Testing;
 public class TcpSocketOptionsBehavior {
 	private TestIo.TcpSocket socket;
 
-	@After
+	@AfterEach
 	public void after() {
 		socket = Testing.close(socket);
 	}

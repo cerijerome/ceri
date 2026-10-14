@@ -1,6 +1,6 @@
 package ceri.jna.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.LastErrorException;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;

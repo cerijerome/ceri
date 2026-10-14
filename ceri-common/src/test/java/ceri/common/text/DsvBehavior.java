@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.Resource;
 import ceri.common.test.Assert;
 
@@ -18,7 +18,7 @@ public class DsvBehavior {
 	private Dsv parser;
 	private Iterator<String> lines;
 
-	@After
+	@AfterEach
 	public void after() {
 		parser = null;
 		lines = null;

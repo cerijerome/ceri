@@ -1,8 +1,8 @@
 package ceri.serial.libusb;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
@@ -23,14 +23,14 @@ public class UsbDescriptorsBehavior {
 	private Enclosure<TestLibUsbNative> enc;
 	private Usb usb;
 
-	@Before
+	@BeforeEach
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
 		usb = Usb.of();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		usb.close();
 		enc.close();

@@ -3,7 +3,7 @@ package ceri.common.function;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Sets;
 import ceri.common.test.Assert;
 import ceri.common.text.Strings;

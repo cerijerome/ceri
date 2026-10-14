@@ -5,7 +5,7 @@ import static ceri.common.test.Testing.LMAX;
 import static ceri.common.test.Testing.LMIN;
 import java.time.Duration;
 import java.time.Instant;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class TimeSpecBehavior {

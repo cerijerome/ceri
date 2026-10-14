@@ -3,7 +3,7 @@ package ceri.common.text;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;

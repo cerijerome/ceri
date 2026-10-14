@@ -1,6 +1,6 @@
 package ceri.jna.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.array.Array;
 import ceri.common.data.ByteArray;

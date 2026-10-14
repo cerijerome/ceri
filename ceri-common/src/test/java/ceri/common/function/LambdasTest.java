@@ -2,7 +2,7 @@ package ceri.common.function;
 
 import java.util.Iterator;
 import java.util.function.IntPredicate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class LambdasTest {

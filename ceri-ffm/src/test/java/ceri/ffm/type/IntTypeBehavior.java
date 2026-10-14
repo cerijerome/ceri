@@ -1,6 +1,6 @@
 package ceri.ffm.type;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.ffm.test.FfmTestTypes.s16;
 import ceri.ffm.test.FfmTestTypes.s32;

@@ -3,7 +3,7 @@ package ceri.jna.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;

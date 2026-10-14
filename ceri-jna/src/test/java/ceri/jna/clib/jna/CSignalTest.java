@@ -1,7 +1,7 @@
 package ceri.jna.clib.jna;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.Bytes;
 import ceri.common.function.Closeables;
@@ -18,7 +18,7 @@ import ceri.jna.util.JnaLibrary;
 public class CSignalTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 	}

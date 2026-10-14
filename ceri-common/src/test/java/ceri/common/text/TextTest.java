@@ -1,7 +1,7 @@
 package ceri.common.text;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Immutable;
 import ceri.common.test.Assert;
 

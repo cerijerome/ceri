@@ -3,7 +3,7 @@ package ceri.common.net;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestIo;
 

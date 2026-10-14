@@ -16,8 +16,8 @@ import static ceri.serial.comm.jna.CSerial.PARITY_SPACE;
 import static ceri.serial.comm.jna.CSerial.STOPBITS_1;
 import static ceri.serial.comm.jna.CSerial.STOPBITS_1_5;
 import static ceri.serial.comm.jna.CSerial.STOPBITS_2;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CException;
@@ -34,7 +34,7 @@ import ceri.jna.util.JnaOs;
 public class CSerialTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 	}

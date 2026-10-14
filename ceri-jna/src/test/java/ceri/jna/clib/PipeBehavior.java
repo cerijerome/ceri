@@ -2,7 +2,7 @@ package ceri.jna.clib;
 
 import static ceri.jna.clib.FileDescriptor.FLAGS;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.jna.clib.FileDescriptor.Open;
 

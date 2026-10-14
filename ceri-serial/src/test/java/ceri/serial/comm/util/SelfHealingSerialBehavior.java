@@ -2,8 +2,8 @@ package ceri.serial.comm.util;
 
 import java.io.IOException;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
@@ -25,7 +25,7 @@ public class SelfHealingSerialBehavior {
 	private SelfHealingSerial serial;
 	private TestSerial testSerial;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(serial, ref);
 		serial = null;

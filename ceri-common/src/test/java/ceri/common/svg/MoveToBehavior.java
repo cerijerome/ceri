@@ -1,6 +1,6 @@
 package ceri.common.svg;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.geom.Point2d;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;

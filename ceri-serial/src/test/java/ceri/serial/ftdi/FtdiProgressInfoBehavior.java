@@ -1,7 +1,7 @@
 package ceri.serial.ftdi;
 
 import java.time.Instant;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 

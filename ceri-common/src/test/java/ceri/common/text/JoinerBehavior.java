@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import java.util.Iterator;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Excepts;
 import ceri.common.stream.Stream;
 import ceri.common.test.Assert;

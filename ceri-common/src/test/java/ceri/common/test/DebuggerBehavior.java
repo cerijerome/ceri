@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.reflect.Caller;
 import ceri.common.reflect.Reflect;

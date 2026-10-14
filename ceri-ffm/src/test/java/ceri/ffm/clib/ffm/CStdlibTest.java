@@ -1,7 +1,7 @@
 package ceri.ffm.clib.ffm;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.ffm.clib.test.TestCLibNative;
@@ -12,7 +12,7 @@ public class CStdlibTest {
 	private static final String KEY = CStdlibTest.class.getName();
 	private final FfmTesting.Lib<TestCLibNative> lib = TestCLibNative.lib();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(lib);
 	}

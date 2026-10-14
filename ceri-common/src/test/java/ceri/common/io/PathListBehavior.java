@@ -5,8 +5,8 @@ import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
@@ -40,7 +40,7 @@ public class PathListBehavior {
 		public void close() {}
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		helper = Testing.close(helper);
 	}

@@ -1,7 +1,7 @@
 package ceri.jna.type;
 
 import static ceri.jna.util.JnaTestData.assertEmpty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;

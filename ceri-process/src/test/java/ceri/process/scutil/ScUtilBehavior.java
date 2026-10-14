@@ -2,7 +2,7 @@ package ceri.process.scutil;
 
 import java.io.IOException;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Node;
 import ceri.common.process.Parameters;
 import ceri.common.test.Assert;

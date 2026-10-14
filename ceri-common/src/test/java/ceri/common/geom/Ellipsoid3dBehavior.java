@@ -1,7 +1,6 @@
 package ceri.common.geom;
 
-import static org.hamcrest.CoreMatchers.is;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 
@@ -27,9 +26,9 @@ public class Ellipsoid3dBehavior {
 	@Test
 	public void shouldDefineNull() {
 		Assert.equal(Ellipsoid3d.of(0, 0, 0), Ellipsoid3d.ZERO);
-		Assert.notEqual(Ellipsoid3d.of(1, 0, 0), is(Ellipsoid3d.ZERO));
-		Assert.notEqual(Ellipsoid3d.of(0, 1, 0), is(Ellipsoid3d.ZERO));
-		Assert.notEqual(Ellipsoid3d.of(0, 0, 1), is(Ellipsoid3d.ZERO));
+		Assert.notEqual(Ellipsoid3d.of(1, 0, 0), Ellipsoid3d.ZERO);
+		Assert.notEqual(Ellipsoid3d.of(0, 1, 0), Ellipsoid3d.ZERO);
+		Assert.notEqual(Ellipsoid3d.of(0, 0, 1), Ellipsoid3d.ZERO);
 	}
 
 	@Test

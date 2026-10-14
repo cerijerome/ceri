@@ -2,7 +2,7 @@ package ceri.serial.ftdi.jna;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_BUSY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.libusb.jna.LibUsbException;

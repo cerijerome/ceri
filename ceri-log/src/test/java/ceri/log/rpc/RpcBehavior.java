@@ -1,9 +1,9 @@
 package ceri.log.rpc;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
@@ -14,12 +14,12 @@ public class RpcBehavior {
 	private static final int NOTIFIER_RESET_DELAY_MS = 0;
 	private TestRpcContainer rpc;
 
-	@Before
+	@BeforeEach
 	public void before() throws IOException {
 		rpc = new TestRpcContainer(PORT, SHUTDOWN_TIMEOUT_MS, NOTIFIER_RESET_DELAY_MS);
 	}
 
-	@After
+	@AfterEach
 	public void afterClass() throws IOException {
 		rpc.close();
 	}

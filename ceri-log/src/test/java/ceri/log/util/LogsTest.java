@@ -11,10 +11,10 @@ import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.test.Assert;
 import ceri.common.test.BinaryPrinter;
@@ -30,18 +30,18 @@ public class LogsTest {
 	private static TestLog testLog;
 	private static Logger logger;
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		testLog = TestLog.of(Logs.class);
 		logger = testLog.logger();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() {
 		testLog.close();
 	}
 
-	@Before
+	@BeforeEach
 	public void before() {
 		testLog.clear();
 	}

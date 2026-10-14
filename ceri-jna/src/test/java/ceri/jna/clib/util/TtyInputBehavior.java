@@ -4,8 +4,8 @@ import static ceri.jna.clib.jna.CTermios.ECHO;
 import static ceri.jna.clib.jna.CTermios.ECHONL;
 import static ceri.jna.clib.jna.CTermios.ICANON;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Excepts;
@@ -26,7 +26,7 @@ public class TtyInputBehavior {
 	private Enclosure<? extends LineReader> ttyRef = null;
 	private LineReader tty = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ttyRef, sys, ref);
 		termios = null;

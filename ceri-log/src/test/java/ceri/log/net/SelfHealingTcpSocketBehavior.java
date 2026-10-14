@@ -2,8 +2,8 @@ package ceri.log.net;
 
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
@@ -26,7 +26,7 @@ public class SelfHealingTcpSocketBehavior {
 	private TestIo.TcpSocket socket = null;
 	private SelfHealingTcpSocket shs = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		shs = Testing.close(shs);
 		socket = null;

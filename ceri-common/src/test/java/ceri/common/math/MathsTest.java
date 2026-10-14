@@ -4,7 +4,7 @@ import static ceri.common.math.Bound.Type.exc;
 import static ceri.common.math.Bound.Type.inc;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class MathsTest {

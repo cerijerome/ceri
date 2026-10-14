@@ -1,14 +1,14 @@
 package ceri.common;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-common
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 	// array
 	ceri.common.array.ArrayTest.class, //
 	ceri.common.array.DimensionsBehavior.class, //

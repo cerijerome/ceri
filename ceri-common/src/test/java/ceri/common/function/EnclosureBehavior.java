@@ -1,7 +1,7 @@
 package ceri.common.function;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;

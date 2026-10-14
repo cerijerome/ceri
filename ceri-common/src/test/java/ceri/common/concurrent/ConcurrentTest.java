@@ -12,8 +12,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
@@ -26,7 +26,7 @@ public class ConcurrentTest {
 	private CallSync.Consumer<Object> captor;
 	private ExecutorService exec = Executors.newCachedThreadPool();
 
-	@After
+	@AfterEach
 	public void after() {
 		exec = Testing.close(exec);
 		captor = null;

@@ -1,6 +1,6 @@
 package ceri.serial.spi.pulse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Functions;
 import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;

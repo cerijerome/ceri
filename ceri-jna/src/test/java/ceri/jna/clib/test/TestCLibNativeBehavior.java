@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
@@ -32,7 +32,7 @@ public class TestCLibNativeBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private int fd = -1;
 
-	@After
+	@AfterEach
 	public void after() {
 		if (fd >= 0) ref.lib().close(fd);
 		Closeables.close(ref);

@@ -3,7 +3,7 @@ package ceri.common.time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 

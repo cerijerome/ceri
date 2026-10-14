@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 
 public class TypedPropertiesBehavior {
 	private static Properties properties = new Properties();
 
-	@BeforeClass
+	@BeforeAll
 	public static void createProperties() {
 		properties.put("xyz", "");
 		properties.put("x", "X");

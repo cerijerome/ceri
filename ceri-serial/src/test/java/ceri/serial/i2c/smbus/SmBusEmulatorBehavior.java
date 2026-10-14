@@ -1,8 +1,8 @@
 package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.Assert;
 import ceri.serial.i2c.I2cAddress;
@@ -16,7 +16,7 @@ public class SmBusEmulatorBehavior {
 	private I2cSlaveDeviceEmulator dev;
 	private SmBusEmulator smBus;
 
-	@After
+	@AfterEach
 	public void after() {
 		i2c = null;
 		dev = null;

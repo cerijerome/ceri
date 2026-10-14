@@ -4,8 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
@@ -26,7 +26,7 @@ public class ReplaceableStreamBehavior {
 	private ReplaceableStream.Con.Fixable<Connector.Fixable> fcon;
 	private TestIo.Connector tcon;
 
-	@After
+	@AfterEach
 	public void after() {
 		in2 = Testing.close(in2);
 		in = Testing.close(in);

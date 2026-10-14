@@ -1,6 +1,6 @@
 package ceri.ent.json;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ceri.common.test.Assert;

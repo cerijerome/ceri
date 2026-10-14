@@ -1,76 +1,87 @@
 package ceri.common.test;
 
-import java.util.Iterator;
-import org.junit.Test;
-import org.junit.runner.Description;
-import ceri.common.test.TestPrinterBehavior.MyClass.MySubClass;
+import java.io.PrintStream;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.TestSource;
+import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
+import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.descriptor.MethodSource;
+import org.junit.platform.launcher.TestIdentifier;
+import ceri.common.collect.Iterables;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringBuilders;
 
 public class TestPrinterBehavior {
+	private static final String CLS_NAME = TestPrinterBehavior.class.getName();
+	private PrintStream out = null;
 
-	static class MyClass {
-		static class MySubClass {
-			void mySubMethod() {}
-		}
-
-		void myMethod() {}
-	}
-
-	@Test
-	public void shouldObeyEqualsContract() {
-		TestPrinter.Test test = new TestPrinter.Test("testClassName", "className", "description");
-		TestPrinter.Test test1 = new TestPrinter.Test("testClassName", "className", "description");
-		TestPrinter.Test test2 = new TestPrinter.Test("testClassName0", "className", "description");
-		TestPrinter.Test test3 = new TestPrinter.Test("testClassName", "className0", "description");
-		TestPrinter.Test test4 = new TestPrinter.Test("testClassName", "className", "description0");
-		Testing.exerciseEquals(test, test1);
-		Assert.notEqualAll(test, test2, test3, test4);
-	}
-
-	@Test
-	public void shouldIterateOverChildren() {
-		TestPrinter p = new TestPrinter();
-		Description d = Description.createTestDescription(MyClass.class, "myMethod");
-		d.addChild(Description.createTestDescription(MySubClass.class, "mySubMethod"));
-		p.testStarted(d);
-		Assert.equal(p.tests().size(), 2);
-		Iterator<TestPrinter.Test> i = p.tests().iterator();
-		Assert.equal(i.next().description, "mySubMethod");
-		Assert.equal(i.next().description, "myMethod");
+	@AfterEach
+	public void after() {
+		out = Testing.close(out);
 	}
 
 	@Test
 	public void shouldConvertBehaviorMethodNameToPhrase() {
-		TestPrinter p = new TestPrinter();
-		Description d = Description.createTestDescription(getClass(), "shouldConvertToPhrase");
-		p.testStarted(d);
-		Assert.yes(p.tests().isEmpty());
-		Assert.equal(p.behaviors().size(), 1);
-		Assert.equal(p.behaviors().iterator().next().description, "should convert to phrase");
+		var tp = new TestPrinter();
+		tp.executionStarted(identifier());
+		Assert.equal(tp.tests().size(), 0);
+		Assert.equal(tp.behaviors().size(), 1);
+		Assert.string(Iterables.first(tp.behaviors()).description(),
+			"should convert behavior method name to phrase");
 	}
 
 	@Test
-	public void shouldExtractTestMethodName() {
-		TestPrinter p = new TestPrinter();
-		Description d = Description.createTestDescription(getClass(), "testThisMethod");
-		p.testStarted(d);
-		Assert.yes(p.behaviors().isEmpty());
-		Assert.equal(p.tests().iterator().next().description, "test thisMethod");
+	public void testExtractTestMethodName() {
+		var tp = new TestPrinter();
+		tp.executionStarted(identifier());
+		Assert.equal(tp.behaviors().size(), 0);
+		Assert.equal(tp.tests().size(), 1);
+		Assert.string(Iterables.first(tp.tests()).description(), "test extractTestMethodName");
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void shouldPrintBehaviorsAndTests() {
-		TestPrinter p = new TestPrinter();
-		Description db = Description.createTestDescription(getClass(), "shouldBe");
-		Description dt = Description.createTestDescription(getClass(), "testThis");
-		p.testStarted(db);
-		p.testStarted(dt);
-		StringBuilder b = new StringBuilder();
-		p.print(StringBuilders.printStream(b));
-		String output = b.toString();
-		Assert.yes(output.contains("should be\n"));
-		Assert.yes(output.contains("test this\n"));
+		var tp = new TestPrinter();
+		tp.executionStarted(identifier("shouldBeGood"));
+		tp.executionStarted(identifier("testThisMethod"));
+		tp.executionStarted(identifier("unknownTest"));
+		tp.executionStarted(identifier(null));
+		var b = new StringBuilder();
+		out = StringBuilders.printStream(b);
+		tp.print(out);
+		var output = b.toString();
+		Assert.find(output, "should be good\n");
+		Assert.find(output, "test thisMethod\n");
+		Assert.find(output, "unknownTest\n");
 	}
 
+	private static TestIdentifier identifier() {
+		return identifier(Reflect.previousMethodName(1));
+	}
+
+	private static TestIdentifier identifier(String method) {
+		return TestIdentifier.from(
+			new AbstractTestDescriptor(uniqueId(method), displayName(method), source(method)) {
+				@Override
+				public TestDescriptor.Type getType() {
+					return TestDescriptor.Type.TEST;
+				}
+			});
+	}
+
+	private static UniqueId uniqueId(String method) {
+		var id = UniqueId.forEngine(TestPrinter.class.getName()).append("class", CLS_NAME);
+		return method == null ? id : id.append("method", method);
+	}
+
+	private static String displayName(String method) {
+		return method == null ? CLS_NAME : CLS_NAME + "." + method;
+	}
+
+	private static TestSource source(String method) {
+		return method == null ? ClassSource.from(CLS_NAME) : MethodSource.from(CLS_NAME, method);
+	}
 }

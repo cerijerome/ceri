@@ -1,20 +1,20 @@
 package ceri.jna.clib.test;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class TestFileDescriptorBehavior {
 	private TestFileDescriptor fd;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		fd = TestFileDescriptor.of(33);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		fd.close();
 	}

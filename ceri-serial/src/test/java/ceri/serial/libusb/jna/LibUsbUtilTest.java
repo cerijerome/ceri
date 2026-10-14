@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.jna.test.JnaTesting;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;

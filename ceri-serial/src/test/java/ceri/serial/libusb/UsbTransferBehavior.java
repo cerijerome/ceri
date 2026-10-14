@@ -14,9 +14,9 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
@@ -40,7 +40,7 @@ public class UsbTransferBehavior {
 	private Usb usb;
 	private UsbDeviceHandle handle;
 
-	@Before
+	@BeforeEach
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -49,7 +49,7 @@ public class UsbTransferBehavior {
 		handle = usb.open(LibUsbFinder.of(0x05ac, 0));
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		handle.close();
 		usb.close();

@@ -1,7 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
 import org.apache.logging.log4j.Level;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Lists;
 import ceri.common.test.Assert;
 import ceri.log.test.LogModifier;

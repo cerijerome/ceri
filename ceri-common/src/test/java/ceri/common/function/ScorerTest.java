@@ -1,6 +1,6 @@
 package ceri.common.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Lists;
 import ceri.common.test.Assert;
 

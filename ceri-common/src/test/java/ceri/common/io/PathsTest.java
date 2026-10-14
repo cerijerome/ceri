@@ -7,8 +7,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -29,7 +29,7 @@ public class PathsTest {
 	private FileTestHelper helper;
 	private FileTestHelper deleter;
 
-	@After
+	@AfterEach
 	public void after() {
 		deleter = Testing.close(deleter);
 		helper = Testing.close(helper);

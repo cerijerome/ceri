@@ -2,7 +2,7 @@ package ceri.common.color;
 
 import java.awt.Color;
 import java.util.Comparator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;

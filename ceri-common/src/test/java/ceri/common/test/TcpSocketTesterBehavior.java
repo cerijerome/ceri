@@ -1,21 +1,21 @@
 package ceri.common.test;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 
 public class TcpSocketTesterBehavior {
 	private Functions.Closeable fastMode;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		fastMode = ManualTester.fastMode();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(fastMode);
 	}

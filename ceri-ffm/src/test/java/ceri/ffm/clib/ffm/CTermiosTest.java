@@ -1,7 +1,7 @@
 package ceri.ffm.clib.ffm;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.ffm.clib.test.TestCLibNative;
@@ -16,7 +16,7 @@ public class CTermiosTest {
 	private TestCLibNative lib;
 	private int fd;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(testLib);
 		lib = null;

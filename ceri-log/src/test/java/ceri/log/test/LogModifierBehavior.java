@@ -3,8 +3,8 @@ package ceri.log.test;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.log.util.Logs;
 
@@ -12,7 +12,7 @@ public class LogModifierBehavior {
 	private static final Logger logger = LogManager.getLogger();
 	private static int count = 0;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		count = 0;
 	}

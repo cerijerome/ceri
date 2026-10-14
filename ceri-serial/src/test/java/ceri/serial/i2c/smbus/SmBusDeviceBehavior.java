@@ -3,8 +3,8 @@ package ceri.serial.i2c.smbus;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -24,7 +24,7 @@ public class SmBusDeviceBehavior {
 	private I2cDevice i2c;
 	private SmBus smBus;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(fd, ref);
 		fd = null;

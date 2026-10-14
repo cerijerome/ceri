@@ -1,7 +1,7 @@
 package ceri.ffm.core;
 
 import java.lang.foreign.MemorySegment;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
 import ceri.ffm.type.Primitive;

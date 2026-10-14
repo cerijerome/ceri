@@ -1,7 +1,7 @@
 package ceri.jna.type;
 
 import static ceri.jna.test.JnaTesting.mem;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Fields;

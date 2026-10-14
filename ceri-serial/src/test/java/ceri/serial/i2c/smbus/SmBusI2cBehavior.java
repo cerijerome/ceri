@@ -2,8 +2,8 @@ package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
 import java.util.List;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -22,7 +22,7 @@ public class SmBusI2cBehavior {
 	private I2cDevice i2c;
 	private SmBus smBus;
 
-	@After
+	@AfterEach
 	public void after() {
 		fd = Testing.close(fd);
 		Closeables.close(ref);

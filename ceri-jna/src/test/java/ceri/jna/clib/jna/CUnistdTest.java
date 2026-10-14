@@ -3,8 +3,8 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDWR;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Closeables;
@@ -15,8 +15,8 @@ import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Seek;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.test.JnaAssert;
-import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaLibrary;
 
 public class CUnistdTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -24,7 +24,7 @@ public class CUnistdTest {
 	private int fd = -1;
 	private Memory m = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		if (fd != -1) CUnistd.closeSilently(fd);
 		Closeables.close(m, ref, helper);

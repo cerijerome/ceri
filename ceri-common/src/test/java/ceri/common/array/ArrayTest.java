@@ -2,7 +2,7 @@ package ceri.common.array;
 
 import java.io.IOException;
 import java.util.Objects;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;

@@ -18,8 +18,8 @@ import ceri.common.reflect.Reflect;
 import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.Strings;
-import ceri.jna.util.JnaArgs;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaArgs;
 import ceri.jna.util.Pointers;
 
 /**

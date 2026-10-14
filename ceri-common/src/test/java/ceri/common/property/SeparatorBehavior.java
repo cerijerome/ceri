@@ -1,6 +1,6 @@
 package ceri.common.property;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class SeparatorBehavior {

@@ -2,8 +2,8 @@ package ceri.x10.cm17a.device;
 
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
@@ -21,7 +21,7 @@ public class Cm17aDeviceBehavior {
 	private Cm17aTestConnector con;
 	private Cm17aDevice cm17a;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(cm17a, con);
 		cm17a = null;

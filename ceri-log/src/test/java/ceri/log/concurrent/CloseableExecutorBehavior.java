@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.test.Assert;

@@ -3,7 +3,7 @@ package ceri.common.sql;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.text.Strings;
 

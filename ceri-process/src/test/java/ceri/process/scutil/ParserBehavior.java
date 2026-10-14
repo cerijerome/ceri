@@ -1,6 +1,6 @@
 package ceri.process.scutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Node;
 import ceri.common.test.Assert;
 

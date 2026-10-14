@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -20,7 +20,7 @@ public class MmapBehavior {
 	private CFileDescriptor fd = null;
 	private Mmap mmap = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(mmap, fd, mem, ref);
 		mem = null;

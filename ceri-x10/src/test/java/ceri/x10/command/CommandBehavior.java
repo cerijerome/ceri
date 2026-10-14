@@ -1,8 +1,8 @@
 package ceri.x10.command;
 
 import java.util.Collection;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -19,7 +19,7 @@ public class CommandBehavior {
 	private static ValueCondition<Command> sync = ValueCondition.of();
 	private static Command.Listener listener = listener(sync);
 
-	@Before
+	@BeforeEach
 	public void before() {
 		sync.clear();
 	}

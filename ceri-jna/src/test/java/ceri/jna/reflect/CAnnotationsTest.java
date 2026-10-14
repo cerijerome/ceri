@@ -1,6 +1,6 @@
 package ceri.jna.reflect;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.jna.reflect.CAnnotations.CGen;
 import ceri.jna.reflect.CAnnotations.CInclude;

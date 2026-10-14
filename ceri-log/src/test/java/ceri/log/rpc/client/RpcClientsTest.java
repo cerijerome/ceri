@@ -1,7 +1,7 @@
 package ceri.log.rpc.client;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;

@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.log.Level;
 import ceri.common.process.Processes;

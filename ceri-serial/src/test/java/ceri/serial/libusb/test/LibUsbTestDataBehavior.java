@@ -1,7 +1,7 @@
 package ceri.serial.libusb.test;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.jna.test.JnaAssert;
@@ -16,7 +16,7 @@ public class LibUsbTestDataBehavior {
 	private TestLibUsbNative lib;
 	private Enclosure<TestLibUsbNative> enc;
 
-	@After
+	@AfterEach
 	public void after() {
 		Logs.close(enc);
 		lib = null;

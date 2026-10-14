@@ -2,8 +2,8 @@ package ceri.serial.spi.pulse;
 
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
@@ -22,7 +22,7 @@ public class SpiPulseTransmitterBehavior {
 	private SpiEmulator spi;
 	private SpiPulseTransmitter spix;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(spix);
 		spix = null;

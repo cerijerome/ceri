@@ -1,7 +1,7 @@
 package ceri.serial.libusb.jna;
 
 import java.util.function.Function;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.array.Array;
 import ceri.common.test.Assert;

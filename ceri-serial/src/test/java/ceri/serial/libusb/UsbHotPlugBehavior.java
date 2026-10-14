@@ -1,9 +1,9 @@
 package ceri.serial.libusb;
 
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
@@ -26,7 +26,7 @@ public class UsbHotPlugBehavior {
 
 	private static record CallbackArgs(UsbDevice device, libusb_hotplug_event event) {}
 
-	@Before
+	@BeforeEach
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -35,7 +35,7 @@ public class UsbHotPlugBehavior {
 		builder = usb.hotPlug((device, event) -> callback.apply(new CallbackArgs(device, event)));
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		usb.close();
 		enc.close();

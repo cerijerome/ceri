@@ -1,7 +1,7 @@
 package ceri.x10.cm11a.device;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.x10.command.Command;
 import ceri.x10.command.House;
 import ceri.x10.command.TestCommandListener;

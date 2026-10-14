@@ -4,8 +4,8 @@ import static ceri.common.data.Bytes.toAscii;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteStream;
@@ -25,7 +25,7 @@ public class TestIoTest {
 	private TestIo.Socket socket;
 	private TestIo.TcpSocket tcpSocket;
 
-	@After
+	@AfterEach
 	public void after() {
 		in = Testing.close(in);
 		out = Testing.close(out);

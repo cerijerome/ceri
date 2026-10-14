@@ -7,7 +7,7 @@ import static ceri.jna.clib.FileDescriptor.Open.RDWR;
 import static ceri.jna.clib.FileDescriptor.Open.TRUNC;
 import static ceri.jna.clib.FileDescriptor.Open.WRONLY;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.jna.clib.FileDescriptor.Open;

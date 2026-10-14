@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class ResourceBehavior {
@@ -14,7 +14,8 @@ public class ResourceBehavior {
 		var url = Resource.url(String.class);
 		Assert.equal(url.getPath().endsWith("/java/lang/String.class"), true);
 		url = Resource.url(Test.class);
-		Assert.equal(url.getPath().endsWith("/org/junit/Test.class"), true);
+		Assert.match(url.getPath(), ".*/%s/Test.class",
+			Test.class.getPackageName().replace('.', '/'));
 		url = Resource.url(Resource.class);
 		Assert.equal(url.getPath().endsWith("/ceri/common/io/Resource.class"), true);
 	}
@@ -59,8 +60,8 @@ public class ResourceBehavior {
 	@Test
 	public void shouldAccessJar() throws IOException {
 		Assert.thrown(() -> Resource.of(Test.class, "\0"));
-		try (var r = Resource.of(Test.class, "runner")) {
-			Assert.containsAll(PathList.of(r.path()).names(), "Runner.class");
+		try (var r = Resource.of(Test.class, "function")) {
+			Assert.containsAll(PathList.of(r.path()).names(), "Executable.class");
 		}
 	}
 

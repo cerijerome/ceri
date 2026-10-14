@@ -7,8 +7,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
@@ -19,7 +19,7 @@ public class NioTest {
 	private TestKey key1;
 	private TestKey key2;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		selector = new TestSelector(null, Set.of());
 		key0 = new TestKey(selector, null).interestOps(1);

@@ -2,7 +2,7 @@ package ceri.common.except;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.test.Assert;
 

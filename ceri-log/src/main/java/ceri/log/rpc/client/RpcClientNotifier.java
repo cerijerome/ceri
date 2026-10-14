@@ -13,8 +13,8 @@ import ceri.common.concurrent.Listenable;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.log.concurrent.LoopingExecutor;
-import ceri.log.rpc.util.RpcStreamer;
 import ceri.log.rpc.util.Rpc;
+import ceri.log.rpc.util.RpcStreamer;
 import ceri.log.util.Logs;
 import io.grpc.stub.StreamObserver;
 

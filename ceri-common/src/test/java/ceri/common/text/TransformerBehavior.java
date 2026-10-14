@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.function.Functions;

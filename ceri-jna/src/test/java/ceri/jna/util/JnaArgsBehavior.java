@@ -3,7 +3,7 @@ package ceri.jna.util;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;

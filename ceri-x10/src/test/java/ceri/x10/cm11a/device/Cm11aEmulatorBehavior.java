@@ -1,9 +1,9 @@
 package ceri.x10.cm11a.device;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
@@ -15,12 +15,12 @@ import ceri.x10.command.Unit;
 public class Cm11aEmulatorBehavior {
 	private Cm11aEmulator cm11a;
 
-	@Before
+	@BeforeEach
 	public void beforeClass() {
 		cm11a = Cm11aEmulator.of(1);
 	}
 
-	@After
+	@AfterEach
 	public void afterClass() {
 		cm11a.close();
 	}

@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
@@ -51,7 +51,7 @@ public class AssertTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		helper = Testing.close(helper);
 	}

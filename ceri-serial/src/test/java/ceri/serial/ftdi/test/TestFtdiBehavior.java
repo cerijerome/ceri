@@ -1,7 +1,7 @@
 package ceri.serial.ftdi.test;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.Array;

@@ -7,7 +7,7 @@ import java.lang.invoke.VarHandle;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Throws;
 import ceri.common.stream.IntStream;

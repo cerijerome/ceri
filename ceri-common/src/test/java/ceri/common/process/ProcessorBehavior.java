@@ -1,7 +1,7 @@
 package ceri.common.process;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestProcess;

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Maps;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;

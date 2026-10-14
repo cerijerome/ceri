@@ -6,8 +6,8 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPOR
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
 import java.nio.ByteBuffer;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
@@ -30,7 +30,7 @@ public class TestLibUsbNativeBehavior {
 	private Enclosure<TestLibUsbNative> enc;
 	private timeval t0 = new timeval();
 
-	@After
+	@AfterEach
 	public void after() {
 		Logs.close(enc);
 		lib = null;

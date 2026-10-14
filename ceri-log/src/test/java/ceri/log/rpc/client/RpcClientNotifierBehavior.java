@@ -2,8 +2,8 @@ package ceri.log.rpc.client;
 
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.google.protobuf.Empty;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
@@ -21,7 +21,7 @@ public class RpcClientNotifierBehavior {
 	private CallSync.Function<String, Integer> transform;
 	private RpcClientNotifier<Integer, String> notifier;
 
-	@After
+	@AfterEach
 	public void after() {
 		notifier = Testing.close(notifier);
 		transform = null;

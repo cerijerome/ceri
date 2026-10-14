@@ -4,8 +4,8 @@ import static ceri.jna.clib.Poll.Error.POLLNVAL;
 import static ceri.jna.clib.Poll.Event.POLLIN;
 import static ceri.jna.clib.Poll.Event.POLLOUT;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.test.Assert;
 import ceri.common.time.TimeSpec;
@@ -17,7 +17,7 @@ public class PollBehavior {
 	private Pipe pipe;
 	private Poll poll;
 
-	@After
+	@AfterEach
 	public void after() {
 		Logs.close(pipe);
 		pipe = null;

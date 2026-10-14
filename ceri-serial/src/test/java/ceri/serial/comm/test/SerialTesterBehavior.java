@@ -1,9 +1,9 @@
 package ceri.serial.comm.test;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
@@ -25,12 +25,12 @@ public class SerialTesterBehavior {
 	private TestSerial serial;
 	private FileTestHelper files;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		fastMode = ManualTester.fastMode();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(serial, sys, ref, files, fastMode);
 		fastMode = null;

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;

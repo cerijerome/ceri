@@ -7,9 +7,9 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
@@ -30,12 +30,12 @@ public class ManualTesterBehavior {
 	private TestIo.In tin;
 	private ManualTester m;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		fastMode = ManualTester.fastMode();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		m = Testing.close(m);
 		tin = Testing.close(tin);

@@ -2,7 +2,7 @@ package ceri.common.function;
 
 import java.util.Comparator;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Lists;
 import ceri.common.stream.Stream;
 import ceri.common.test.Assert;

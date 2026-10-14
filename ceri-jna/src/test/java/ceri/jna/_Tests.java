@@ -1,14 +1,14 @@
 package ceri.jna;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-jna
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 	// clib
 	ceri.jna.clib.CFileDescriptorBehavior.class, //
 	ceri.jna.clib.CInputStreamBehavior.class, //

@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.Bytes;
 
 public class BinaryPrinterBehavior {
 	private StringBuilder b;
 	private BinaryPrinter bin;
 
-	@After
+	@AfterEach
 	public void after() {
 		b = null;
 		bin = null;

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.Bytes;
 import ceri.common.test.Assert;
 

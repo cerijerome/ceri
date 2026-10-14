@@ -1,7 +1,7 @@
 package ceri.jna.type;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Closeables;
@@ -57,7 +57,7 @@ public class IntTypeBehavior {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(m);
 		m = null;

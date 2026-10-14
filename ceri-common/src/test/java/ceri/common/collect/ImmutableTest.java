@@ -8,7 +8,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Immutable.Wrap;
 import ceri.common.function.Compares;
 import ceri.common.function.Functions;

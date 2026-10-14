@@ -4,37 +4,26 @@ import java.io.PrintStream;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.runner.Description;
-import org.junit.runner.notification.RunListener;
+import org.junit.platform.engine.support.descriptor.MethodSource;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestIdentifier;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Sets;
 import ceri.common.function.Compares;
 import ceri.common.text.Text;
 
 /**
- * Prints out tests (traditionl unit tests) and behaviors (BDD-style) in readable phrases. Works
+ * Prints out tests (traditional unit tests) and behaviors (BDD-style) in readable phrases. Works
  * with JUnitCore running a suite of test classes. Used by TestUtil.exec
  */
-public class TestPrinter extends RunListener {
+public class TestPrinter implements TestExecutionListener {
 	private static final Pattern BEHAVIOR_METHOD_PATTERN = Pattern.compile("^(should.*)$");
 	private static final Pattern TEST_METHOD_PATTERN = Pattern.compile("^test(.*)$");
 	private final Set<Test> tests = Sets.tree();
 	private final Set<Test> behaviors = Sets.tree();
 
-	public static final class Test implements Comparable<Test> {
-		public final String testClassName;
-		public final String className;
-		public final String description;
-		private final String toString;
-		private final int hashCode;
-
-		Test(String testClassName, String className, String description) {
-			this.testClassName = testClassName;
-			this.className = className;
-			this.description = description;
-			toString = testClassName + ": " + className + " " + description;
-			hashCode = toString.hashCode();
-		}
+	public record Test(String testClassName, String className, String description)
+		implements Comparable<Test> {
 
 		@Override
 		public int compareTo(Test test) {
@@ -43,18 +32,7 @@ public class TestPrinter extends RunListener {
 
 		@Override
 		public String toString() {
-			return toString;
-		}
-
-		@Override
-		public int hashCode() {
-			return hashCode;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			return (obj instanceof Test other) && toString.equals(other.toString);
+			return testClassName() + ": " + className() + " " + description();
 		}
 	}
 
@@ -84,23 +62,16 @@ public class TestPrinter extends RunListener {
 		return Immutable.wrap(behaviors);
 	}
 
-	/**
-	 * Called by JUnitCore each time a test starts.
-	 */
 	@Override
-	public void testStarted(Description description) {
-		capture(description);
-	}
-
-	private void capture(Description description) {
-		String testClassName = description.getClassName();
-		String simpleName = description.getTestClass().getSimpleName();
-		String className = Testing.Style.target(simpleName);
-		String methodName = description.getMethodName();
+	public void executionStarted(TestIdentifier testIdentifier) {
+		if (!testIdentifier.isTest()) return;
+		var source = testIdentifier.getSource().orElse(null);
+		if (!(source instanceof MethodSource method)) return;
+		var testClass = method.getJavaClass();
+		var testClassName = testClass.getSimpleName();
+		var methodName = method.getMethodName();
+		var className = Testing.Style.target(testClassName);
 		captureTest(testClassName, className, methodName);
-
-		for (Description child : description.getChildren())
-			capture(child);
 	}
 
 	private void captureTest(String testClassName, String className, String methodName) {
@@ -125,5 +96,4 @@ public class TestPrinter extends RunListener {
 	private static String getTestDescription(String methodName) {
 		return "test " + Text.firstToLower(methodName);
 	}
-
 }

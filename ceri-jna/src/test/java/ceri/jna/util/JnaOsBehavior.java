@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
@@ -10,7 +10,7 @@ import ceri.common.util.Os;
 public class JnaOsBehavior {
 	private Functions.Closeable override;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(override);
 		override = null;

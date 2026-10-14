@@ -2,8 +2,8 @@ package ceri.ffm.reflect;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.IoStream;
 import ceri.common.io.SystemIo;
@@ -73,7 +73,7 @@ public class CSymbolGenBehavior {
 	@CUndefined
 	public static class Undefined {}
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(sys, files);
 		files = null;

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
@@ -15,7 +15,7 @@ public class TestConcurrentBehavior {
 	private TestConcurrent.Exec exec;
 	private SimpleExecutor<RuntimeException, ?> simple;
 
-	@After
+	@AfterEach
 	public void after() {
 		exec = Testing.close(exec);
 		simple = Testing.close(simple);

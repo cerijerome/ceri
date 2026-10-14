@@ -1,7 +1,7 @@
 package ceri.jna.test;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Structure;
 import ceri.common.test.Assert;
@@ -10,14 +10,14 @@ import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.test.JnaTesting.MemCache;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
-import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaTestData.TestStruct;
 
 public class JnaAssertTest {
 	private MemCache mc = null;
 	private Memory m = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		m = Testing.close(m);
 		mc = Testing.close(mc);

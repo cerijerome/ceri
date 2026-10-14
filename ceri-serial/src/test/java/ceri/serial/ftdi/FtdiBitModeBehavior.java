@@ -1,6 +1,6 @@
 package ceri.serial.ftdi;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;

@@ -1,7 +1,7 @@
 package ceri.common.reflect;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Captor;
 import ceri.common.text.Strings;
 
@@ -18,7 +18,7 @@ public class ClassReInitializerBehavior {
 		}
 	}
 
-	@Before
+	@BeforeEach
 	public void before() {
 		captor = Captor.of();
 	}

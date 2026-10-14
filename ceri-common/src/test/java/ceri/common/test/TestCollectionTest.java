@@ -3,7 +3,7 @@ package ceri.common.test;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Lists;
 import ceri.common.stream.DoubleStream;
 import ceri.common.stream.IntStream;

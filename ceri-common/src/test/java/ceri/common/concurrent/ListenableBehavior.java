@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;

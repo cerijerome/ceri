@@ -5,8 +5,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.IoExceptions;
 import ceri.common.test.Assert;
@@ -19,7 +19,7 @@ public class PropertySourceBehavior {
 	private FileTestHelper files = null;
 	private PropertySource source = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(files);
 		files = null;

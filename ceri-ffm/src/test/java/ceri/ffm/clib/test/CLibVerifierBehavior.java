@@ -1,8 +1,8 @@
 package ceri.ffm.clib.test;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.SystemIoCaptor;
@@ -15,7 +15,7 @@ import ceri.ffm.util.FfmOs;
 public class CLibVerifierBehavior {
 	private final FfmTesting.Lib<? extends TestCLibNative> ref = TestCLibNative.lib();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 	}

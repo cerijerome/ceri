@@ -1,8 +1,8 @@
 package ceri.common.net;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
@@ -14,7 +14,7 @@ public class HttpTest {
 	private TestNet.HttpClient client = null;
 	private Http.Downloader downloader = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		downloader = Testing.close(downloader);
 		client = Testing.close(client);

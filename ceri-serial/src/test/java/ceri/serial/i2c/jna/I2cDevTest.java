@@ -1,8 +1,8 @@
 package ceri.serial.i2c.jna;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
@@ -16,7 +16,7 @@ import ceri.serial.i2c.jna.TestI2cCLibNative.Rw;
 public class I2cDevTest {
 	private JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.i2cRef();
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(ref);
 	}

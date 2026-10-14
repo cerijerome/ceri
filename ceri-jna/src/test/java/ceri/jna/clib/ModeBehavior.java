@@ -1,6 +1,6 @@
 package ceri.jna.clib;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.jna.clib.Mode.Mask;

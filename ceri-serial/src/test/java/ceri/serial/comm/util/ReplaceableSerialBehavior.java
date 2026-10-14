@@ -1,7 +1,7 @@
 package ceri.serial.comm.util;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.SerialParams;

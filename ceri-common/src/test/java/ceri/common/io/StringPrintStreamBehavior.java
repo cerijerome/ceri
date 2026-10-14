@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class StringPrintStreamBehavior {

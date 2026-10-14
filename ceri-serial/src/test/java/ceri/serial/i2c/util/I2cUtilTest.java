@@ -1,7 +1,7 @@
 package ceri.serial.i2c.util;
 
 import static ceri.serial.i2c.util.I2cUtil.address;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class I2cUtilTest {

@@ -1,7 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.text.AnsiEscape.Sgr.reset;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.text.Table.Orientation;
 

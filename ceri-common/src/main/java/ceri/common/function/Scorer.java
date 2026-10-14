@@ -8,9 +8,9 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.Collect;
 import ceri.common.stream.DoubleStream;
 import ceri.common.stream.Stream;
-import ceri.common.stream.Collect;
 
 /**
  * Provides a score value for a typed object.

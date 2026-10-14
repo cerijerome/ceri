@@ -5,7 +5,7 @@ import static ceri.common.text.AnsiEscape.Sgr.BasicColor.cyan;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.magenta;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.yellow;
 import java.awt.Color;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class AnsiEscapeBehavior {

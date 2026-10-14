@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.except.ExceptionAdapter;
 

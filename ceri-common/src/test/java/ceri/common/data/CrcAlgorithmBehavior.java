@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.data.CrcBehavior.CRC16_XMODEM;
 import static ceri.common.data.CrcBehavior.CRC8_SMBUS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 

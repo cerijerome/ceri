@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.x10.command.Command;

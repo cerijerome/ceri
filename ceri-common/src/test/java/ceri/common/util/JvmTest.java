@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import java.util.regex.Pattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class JvmTest {

@@ -1,7 +1,7 @@
 package ceri.x10.util;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.x10.command.Command;

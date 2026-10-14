@@ -31,8 +31,8 @@ import ceri.common.text.Text;
 import ceri.common.text.ToString;
 import ceri.common.text.Transformer;
 import ceri.common.util.Hasher;
-import ceri.ffm.core.Layouts;
 import ceri.ffm.core.Formats;
+import ceri.ffm.core.Layouts;
 import ceri.ffm.reflect.TypeNode;
 
 /**

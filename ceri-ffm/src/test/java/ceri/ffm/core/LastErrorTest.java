@@ -1,8 +1,8 @@
 package ceri.ffm.core;
 
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
@@ -15,7 +15,7 @@ public class LastErrorTest {
 	private final FfmTesting.Lib<TestCLibNative> testLib = TestCLibNative.lib();
 	private TestCLibNative lib;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(testLib);
 		lib = null;

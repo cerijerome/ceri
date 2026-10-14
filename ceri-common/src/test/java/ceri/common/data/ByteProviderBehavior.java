@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;

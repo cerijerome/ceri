@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Sets;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;

@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;

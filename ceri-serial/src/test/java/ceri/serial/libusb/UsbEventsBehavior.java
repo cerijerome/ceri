@@ -2,9 +2,9 @@ package ceri.serial.libusb;
 
 import java.time.Duration;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
@@ -21,7 +21,7 @@ public class UsbEventsBehavior {
 	private Usb usb;
 	private UsbEvents events;
 
-	@Before
+	@BeforeEach
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
@@ -29,7 +29,7 @@ public class UsbEventsBehavior {
 		events = usb.events();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		usb.close();
 		enc.close();

@@ -1,14 +1,14 @@
 package ceri.ffm;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-ffm
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 	// clib.ffm
 	ceri.ffm.clib.ffm.CErrNoTest.class, //
 	ceri.ffm.clib.ffm.CExceptionTest.class, //

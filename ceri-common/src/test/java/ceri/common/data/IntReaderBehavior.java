@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import static java.lang.Integer.MIN_VALUE;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.test.Assert;
 import ceri.common.util.Validate;

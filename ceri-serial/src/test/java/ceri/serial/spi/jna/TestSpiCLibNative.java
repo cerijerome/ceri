@@ -22,8 +22,8 @@ import ceri.common.test.CallSync;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.type.CUlong;
-import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Jna;
+import ceri.jna.util.JnaLibrary;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class TestSpiCLibNative extends TestCLibNative {

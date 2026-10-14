@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.data.BinaryState;
 import ceri.common.test.Assert;
 

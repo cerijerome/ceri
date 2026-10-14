@@ -1,7 +1,7 @@
 package ceri.common.color;
 
 import static ceri.common.color.Colors.color;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class ColorxableTest {

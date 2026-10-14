@@ -1,7 +1,7 @@
 package ceri.common.math;
 
 import java.util.Comparator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Compares;
 import ceri.common.math.Bound.Type;
 import ceri.common.test.Assert;

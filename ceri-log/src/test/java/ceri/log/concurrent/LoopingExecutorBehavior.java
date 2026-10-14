@@ -3,7 +3,7 @@ package ceri.log.concurrent;
 import static ceri.common.concurrent.Concurrent.delayMicros;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;

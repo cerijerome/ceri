@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.common.util.Counter;

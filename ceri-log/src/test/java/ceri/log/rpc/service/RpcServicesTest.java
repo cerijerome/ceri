@@ -3,7 +3,7 @@ package ceri.log.rpc.service;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.google.protobuf.Empty;
 import ceri.common.test.Assert;
 import ceri.log.rpc.test.TestStreamObserver;

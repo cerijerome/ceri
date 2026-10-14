@@ -4,7 +4,7 @@ import static ceri.common.geom.Point2d.X_UNIT;
 import static ceri.common.geom.Point2d.Y_UNIT;
 import static ceri.common.math.Maths.PI_BY_2;
 import static java.lang.Math.PI;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 

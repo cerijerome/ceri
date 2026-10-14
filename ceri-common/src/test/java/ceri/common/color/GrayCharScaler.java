@@ -2,8 +2,8 @@ package ceri.common.color;
 
 import java.io.IOException;
 import ceri.common.array.Array;
-import ceri.common.io.IoExceptions;
 import ceri.common.io.Io;
+import ceri.common.io.IoExceptions;
 import ceri.common.text.Strings;
 
 /**

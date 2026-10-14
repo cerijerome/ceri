@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Dimensions;
 import ceri.common.data.Bytes;
 import ceri.common.io.Direction;

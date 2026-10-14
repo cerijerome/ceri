@@ -1,7 +1,7 @@
 package ceri.log.io;
 
 import org.apache.logging.log4j.Level;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.log.util.TestLog;
 
 public class LogPrintStreamBehavior {

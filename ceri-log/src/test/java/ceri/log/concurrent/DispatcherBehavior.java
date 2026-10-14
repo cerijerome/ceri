@@ -1,7 +1,7 @@
 package ceri.log.concurrent;
 
 import org.apache.logging.log4j.Level;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.Functions;

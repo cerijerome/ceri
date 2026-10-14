@@ -2,7 +2,7 @@ package ceri.common.collect;
 
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 

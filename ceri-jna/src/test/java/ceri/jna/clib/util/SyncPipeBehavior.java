@@ -1,8 +1,8 @@
 package ceri.jna.clib.util;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.function.Closeables;
@@ -24,7 +24,7 @@ public class SyncPipeBehavior {
 	private CFileDescriptor fd;
 	private SimpleExecutor<RuntimeException, ?> thread;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(thread, sync, pipe, fd, ref);
 		poll = null;

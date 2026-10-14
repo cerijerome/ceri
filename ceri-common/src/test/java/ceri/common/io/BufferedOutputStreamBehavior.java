@@ -2,15 +2,15 @@ package ceri.common.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.test.Assert;
 
 public class BufferedOutputStreamBehavior {
 	private final ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
-	@Before
+	@BeforeEach
 	public void before() {
 		bout.reset();
 	}

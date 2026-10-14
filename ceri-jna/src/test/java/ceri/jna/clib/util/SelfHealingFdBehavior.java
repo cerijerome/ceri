@@ -3,8 +3,8 @@ package ceri.jna.clib.util;
 import java.io.IOException;
 import java.util.Objects;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Lambdas;
 import ceri.common.io.StateChange;
@@ -29,7 +29,7 @@ public class SelfHealingFdBehavior {
 	private TestFileDescriptor fd;
 	private SelfHealingFd shf;
 
-	@After
+	@AfterEach
 	public void after() {
 		shf = Testing.close(shf);
 		fd = Testing.close(fd);

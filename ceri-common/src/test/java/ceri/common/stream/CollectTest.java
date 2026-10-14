@@ -3,7 +3,7 @@ package ceri.common.stream;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Sets;

@@ -1,6 +1,6 @@
 package ceri.serial.comm;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class ParityBehavior {

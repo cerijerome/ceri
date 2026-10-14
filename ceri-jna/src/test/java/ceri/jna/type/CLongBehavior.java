@@ -1,6 +1,6 @@
 package ceri.jna.type;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
 public class CLongBehavior {

@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;

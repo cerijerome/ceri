@@ -1,7 +1,7 @@
 package ceri.serial.ftdi.util;
 
 import java.util.Properties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.Assert;
 import ceri.serial.ftdi.jna.LibFtdi;

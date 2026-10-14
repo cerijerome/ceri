@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,6 +21,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Iterables;
@@ -156,16 +161,22 @@ public class Testing {
 	 * Separate junit refs so outer class can be used outside of tests.
 	 */
 	private static class Junit {
-		private static final boolean isTest = Reflect.stackHasPackage(org.junit.Assert.class);
+		private static final boolean isTest = Reflect.stackHasPackage("org.junit");
 
 		private Junit() {}
 
 		private static void exec(PrintStream out, Class<?>... classes) {
-			var core = new org.junit.runner.JUnitCore();
+			var discoveryRequest = LauncherDiscoveryRequestBuilder.request()
+				.selectors(DiscoverySelectors.selectClasses(classes)).build();
+			var summaryListener = new SummaryGeneratingListener();
 			var tp = new TestPrinter();
-			core.addListener(tp);
-			core.run(classes);
-			tp.print(out);
+			try (var session = LauncherFactory.openSession(); var writer = new PrintWriter(out)) {
+				var launcher = session.getLauncher();
+				var testPlan = launcher.discover(discoveryRequest);
+				launcher.execute(testPlan, tp, summaryListener);
+				tp.print(out);
+				summaryListener.getSummary().printTo(writer);
+			}
 		}
 	}
 

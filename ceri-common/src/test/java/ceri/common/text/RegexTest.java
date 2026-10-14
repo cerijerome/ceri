@@ -3,7 +3,7 @@ package ceri.common.text;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;

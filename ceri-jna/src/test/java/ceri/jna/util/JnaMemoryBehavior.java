@@ -2,8 +2,8 @@ package ceri.jna.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
@@ -21,7 +21,7 @@ public class JnaMemoryBehavior {
 	private JnaMemory.Reader r;
 	private JnaMemory.Writer w;
 
-	@After
+	@AfterEach
 	public void after() {
 		m0 = Testing.close(m0);
 		r = null;

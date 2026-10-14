@@ -1,8 +1,8 @@
 package ceri.serial.ftdi.util;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.serial.ftdi.FtdiBitMode;
@@ -14,7 +14,7 @@ import ceri.serial.ftdi.test.TestFtdi;
 public class FtdiConfigBehavior {
 	private TestFtdi ftdi;
 
-	@After
+	@AfterEach
 	public void after() {
 		ftdi = Testing.close(ftdi);
 	}

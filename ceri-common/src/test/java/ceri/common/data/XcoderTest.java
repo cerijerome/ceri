@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.collect.Enums;
 import ceri.common.test.Assert;

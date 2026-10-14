@@ -2,8 +2,8 @@ package ceri.common.net;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
@@ -15,7 +15,7 @@ public class UdpChannelBehavior {
 	private UdpChannel udp0 = null;
 	private UdpChannel udp1 = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		udp1 = Testing.close(udp1);
 		udp0 = Testing.close(udp0);

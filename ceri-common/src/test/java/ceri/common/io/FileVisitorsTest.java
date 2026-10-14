@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.FileTestHelper;
@@ -14,7 +14,7 @@ import ceri.common.test.Testing;
 public class FileVisitorsTest {
 	private FileTestHelper helper = null;
 
-	@After
+	@AfterEach
 	public void after() {
 		helper = Testing.close(helper);
 	}

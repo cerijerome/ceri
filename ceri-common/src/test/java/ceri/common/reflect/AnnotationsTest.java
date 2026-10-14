@@ -13,7 +13,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.RecordComponent;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Functions;
 import ceri.common.log.Level;
 import ceri.common.test.Assert;

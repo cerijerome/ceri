@@ -1,14 +1,14 @@
 package ceri.log;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-log
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 	// concurrent
 	ceri.log.concurrent.CloseableExecutorBehavior.class, //
 	ceri.log.concurrent.DispatcherBehavior.class, //

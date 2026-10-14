@@ -1,21 +1,21 @@
 package ceri.jna.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestConcurrent;
 
 public class ThreadBuffersBehavior {
 	private ThreadBuffers buffers;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		buffers = ThreadBuffers.of();
 		buffers.size(3);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		buffers.close();
 	}

@@ -7,9 +7,9 @@ import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.Exceptions;
@@ -25,13 +25,13 @@ import ceri.common.util.SystemVars;
 public class IoTest {
 	private static FileTestHelper helper = null;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createFiles() throws IOException {
 		helper = FileTestHelper.builder(SystemVars.tempDir()).file("a/a/a.txt", "aaa")
 			.file("b/b.txt", "bbb").file("c.txt", "ccc").dir("d").build();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void deleteFiles() {
 		helper.close();
 	}

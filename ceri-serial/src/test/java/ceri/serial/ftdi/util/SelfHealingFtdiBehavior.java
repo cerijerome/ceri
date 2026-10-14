@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import ceri.common.array.Array;
 import ceri.common.concurrent.ValueCondition;
@@ -41,7 +41,7 @@ public class SelfHealingFtdiBehavior {
 	private DeviceConfig sampleConfig;
 	private SelfHealingFtdi con;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(con, enc);
 		con = null;

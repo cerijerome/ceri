@@ -5,8 +5,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
 import org.apache.logging.log4j.Level;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
@@ -30,7 +30,7 @@ public class Cm11aDeviceBehavior {
 	private TestIo.Connector con;
 	private Cm11aDevice cm11a;
 
-	@After
+	@AfterEach
 	public void after() {
 		cm11a = Testing.close(cm11a);
 		con = Testing.close(con);

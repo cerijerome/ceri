@@ -1,14 +1,14 @@
 package ceri.serial;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import ceri.common.test.Testing;
 
 /**
  * Generated test suite for ceri-serial
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 	// comm
 	ceri.serial.comm.ParityBehavior.class, //
 	ceri.serial.comm.SerialBehavior.class, //

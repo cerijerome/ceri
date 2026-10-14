@@ -3,7 +3,7 @@ package ceri.log.rpc.util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.google.protobuf.BytesValue;
 import ceri.common.array.Array;
 import ceri.common.collect.Lists;

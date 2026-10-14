@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Library;
 import ceri.common.test.Assert;
 import ceri.common.util.Os;
@@ -12,7 +12,7 @@ public class JnaLibraryBehavior {
 
 	public static interface LibTestNative extends Library {}
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		JnaLibrary.path(); // make sure class has initialized
 	}

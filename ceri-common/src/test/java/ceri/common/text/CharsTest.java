@@ -8,8 +8,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.Bytes;
@@ -21,7 +21,7 @@ public class CharsTest {
 	private static final Charset UTF8 = StandardCharsets.UTF_8;
 	private StringBuilder b;
 
-	@After
+	@AfterEach
 	public void after() {
 		b = null;
 	}

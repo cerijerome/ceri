@@ -1,14 +1,14 @@
 package ceri.common.util;
 
 import java.io.File;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 
 public class SystemVarsTest {
 
-	@After
+	@AfterEach
 	public void after() {
 		SystemVars.clear();
 	}

@@ -1,7 +1,7 @@
 package ceri.serial.libusb.jna;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
@@ -29,7 +29,7 @@ public class LibUsbTest {
 	private TestLibUsbNative lib;
 	private Enclosure<TestLibUsbNative> enc;
 
-	@After
+	@AfterEach
 	public void after() {
 		lib = null;
 		if (enc != null) enc.close();

@@ -1,8 +1,8 @@
 package ceri.serial.spi;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
@@ -20,7 +20,7 @@ public class SpiDeviceBehavior {
 	private FileDescriptor fd;
 	private SpiDevice spi;
 
-	@After
+	@AfterEach
 	public void after() {
 		Closeables.close(fd, ref);
 		fd = null;

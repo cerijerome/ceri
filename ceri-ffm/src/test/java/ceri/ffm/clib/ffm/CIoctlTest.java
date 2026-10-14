@@ -1,7 +1,7 @@
 package ceri.ffm.clib.ffm;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.ffm.clib.ffm.CIoctl.Linux.serial_struct;
@@ -18,7 +18,7 @@ public class CIoctlTest {
 	private TestCLibNative lib;
 	private int fd;
 
-	@After
+	@AfterEach
 	public void after() {
 		if (fd != -1) CUnistd.closeSilently(fd);
 		Closeables.close(testLib);

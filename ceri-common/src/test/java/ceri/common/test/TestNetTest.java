@@ -6,14 +6,14 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLContext;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.net.Http;
 
 public class TestNetTest {
 	private TestNet.HttpClient client;
 
-	@After
+	@AfterEach
 	public void after() {
 		client = Testing.close(client);
 	}

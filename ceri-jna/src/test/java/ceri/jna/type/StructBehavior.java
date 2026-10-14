@@ -3,7 +3,7 @@ package ceri.jna.type;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Functions;
@@ -11,9 +11,9 @@ import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Align;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.Struct.Packed;
+import ceri.jna.util.Jna;
 import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
-import ceri.jna.util.Jna;
 
 public class StructBehavior {
 	private final JnaTestData data = JnaTestData.of();

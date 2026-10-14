@@ -1,6 +1,6 @@
 package ceri.ffm.reflect;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.ffm.reflect.CAnnotations.CGen;
 import ceri.ffm.reflect.CAnnotations.CInclude;

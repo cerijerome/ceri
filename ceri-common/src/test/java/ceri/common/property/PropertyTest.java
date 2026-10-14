@@ -3,8 +3,8 @@ package ceri.common.property;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import ceri.common.stream.Stream;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
@@ -14,7 +14,7 @@ import ceri.common.test.Testing;
 public class PropertyTest {
 	private FileTestHelper helper;
 
-	@After
+	@AfterEach
 	public void after() {
 		helper = Testing.close(helper);
 	}

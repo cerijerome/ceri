@@ -2,7 +2,7 @@ package ceri.common.property;
 
 import java.util.List;
 import java.util.regex.Pattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.collect.Sets;
 import ceri.common.data.Bytes;
 import ceri.common.function.Excepts;

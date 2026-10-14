@@ -10,7 +10,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ceri.common.reflect.Generics.Typed;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
