@@ -1,15 +1,20 @@
 package ceri.common.test;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Sets;
 import ceri.common.function.Compares;
+import ceri.common.text.Regex;
 import ceri.common.text.Text;
 
 /**
@@ -33,6 +38,20 @@ public class TestPrinter implements TestExecutionListener {
 		@Override
 		public String toString() {
 			return testClassName() + ": " + className() + " " + description();
+		}
+	}
+
+	public static void exec(PrintStream out, Class<?>... classes) {
+		var discoveryRequest = LauncherDiscoveryRequestBuilder.request()
+			.selectors(DiscoverySelectors.selectClasses(classes)).build();
+		var summaryListener = new SummaryGeneratingListener();
+		var tp = new TestPrinter();
+		try (var session = LauncherFactory.openSession(); var writer = new PrintWriter(out)) {
+			var launcher = session.getLauncher();
+			var testPlan = launcher.discover(discoveryRequest);
+			launcher.execute(testPlan, tp, summaryListener);
+			tp.print(out);
+			summaryListener.getSummary().printTo(writer);
 		}
 	}
 
@@ -74,19 +93,14 @@ public class TestPrinter implements TestExecutionListener {
 		captureTest(testClassName, className, methodName);
 	}
 
-	private void captureTest(String testClassName, String className, String methodName) {
-		Matcher m;
-		m = BEHAVIOR_METHOD_PATTERN.matcher(methodName);
-		if (m.find()) {
-			behaviors.add(new Test(testClassName, className, getBehaviorDescription(m.group(1))));
-			return;
-		}
-		m = TEST_METHOD_PATTERN.matcher(methodName);
-		if (m.find()) {
-			tests.add(new Test(testClassName, className, getTestDescription(m.group(1))));
-			return;
-		}
-		tests.add(new Test(testClassName, className, methodName));
+	private boolean captureTest(String testClassName, String className, String methodName) {
+		var group = Regex.findGroup(BEHAVIOR_METHOD_PATTERN, methodName, 1);
+		if (group != null)
+			return behaviors.add(new Test(testClassName, className, getBehaviorDescription(group)));
+		group = Regex.findGroup(TEST_METHOD_PATTERN, methodName, 1);
+		if (group != null)
+			return tests.add(new Test(testClassName, className, getTestDescription(group)));
+		return tests.add(new Test(testClassName, className, methodName));
 	}
 
 	private static String getBehaviorDescription(String methodName) {

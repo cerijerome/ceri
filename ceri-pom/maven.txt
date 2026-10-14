@@ -5,7 +5,8 @@ Installation
 ------------
 - Download and unpack in directory, e.g. ~/apache-maven-3.5.3
 - Set up env:
-  export M2_HOME = "~/apache-maven-3.5.3" (~/.bash_profile)
+  ln -sfn <maven-dir> apache-maven
+  export M2_HOME = "~/apache-maven" (~/.bash_profile)
   export PATH="$PATH:$M2_HOME" (~/.bash_profile)
 - Make sure JAVA_HOME is set to correct location
 - Configure eclipse:
@@ -42,6 +43,7 @@ Troubleshooting
 ---------------
 - When building, remember to also build parent pom
 - Add -X to mvn command for debug info
+  -Dceri.compiler.argument=-X... for compiling
 - Show pom with all inherited settings:
   mvn help:effective-pom
 - Show dependency tree:

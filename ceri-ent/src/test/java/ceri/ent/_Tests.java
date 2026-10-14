@@ -9,6 +9,6 @@ import ceri.ent.json.JsonUtilTest;
 @SelectClasses({ JsonUtilTest.class, })
 public class _Tests {
 	public static void main(String... args) {
-		Testing.exec(_Tests.class);
+		Testing.print(_Tests.class);
 	}
 }

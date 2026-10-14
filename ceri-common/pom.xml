@@ -18,10 +18,11 @@
 
 	<dependencies>
 		<dependency>
+			<!-- Used by TestPrinter -->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
+	
 </project>

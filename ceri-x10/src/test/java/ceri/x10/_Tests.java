@@ -43,6 +43,6 @@ import ceri.common.test.Testing;
 })
 public class _Tests {
 	public static void main(String... args) {
-		Testing.exec(_Tests.class);
+		Testing.print(_Tests.class);
 	}
 }

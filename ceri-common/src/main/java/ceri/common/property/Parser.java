@@ -1,6 +1,5 @@
 package ceri.common.property;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +46,7 @@ public class Parser {
 	 */
 	@SafeVarargs
 	public static <T> Types<T> types(T... values) {
-		return types(Arrays.asList(values));
+		return types(Lists.wrap(values));
 	}
 
 	/**
@@ -69,7 +68,7 @@ public class Parser {
 	 */
 	@SafeVarargs
 	public static Strings strings(java.lang.String... values) {
-		return strings(Arrays.asList(values));
+		return strings(Lists.wrap(values));
 	}
 
 	/**
@@ -194,7 +193,7 @@ public class Parser {
 		 */
 		default <E extends Exception, R> Types<R>
 			splitArray(Excepts.Function<E, ? super T, R[]> splitter) throws E {
-			return split(t -> Arrays.asList(splitter.apply(t)));
+			return split(t -> Lists.wrap(splitter.apply(t)));
 		}
 
 		/**
@@ -234,7 +233,7 @@ public class Parser {
 		 * Access the value or use default supplier if null.
 		 */
 		default Collection<T> get(@SuppressWarnings("unchecked") T... defs) {
-			return get(() -> Arrays.asList(defs));
+			return get(() -> Lists.wrap(defs));
 		}
 
 		/**
@@ -307,8 +306,7 @@ public class Parser {
 		 * Transforms as each value for a double stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default DoubleStream.Rt
-			doubleStream(Functions.ToDoubleFunction<? super T> constructor) {
+		default DoubleStream.Rt doubleStream(Functions.ToDoubleFunction<? super T> constructor) {
 			return stream().nonNull().mapToDouble(constructor);
 		}
 
@@ -396,7 +394,7 @@ public class Parser {
 		default <E extends Exception, R> List<R> toEachDef(
 			Excepts.Function<E, ? super T, ? extends R> constructor,
 			@SuppressWarnings("unchecked") R... defs) throws E {
-			return toEach(constructor, Arrays.asList(defs));
+			return toEach(constructor, Lists.wrap(defs));
 		}
 
 		/**

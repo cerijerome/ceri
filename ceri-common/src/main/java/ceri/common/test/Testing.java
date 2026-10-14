@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,13 +19,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
-import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
-import org.junit.platform.launcher.core.LauncherFactory;
-import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Enums;
 import ceri.common.collect.Iterables;
+import ceri.common.concurrent.Lazy;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
@@ -59,6 +54,8 @@ public class Testing {
 	public static final long LMAX = Long.MAX_VALUE;
 	public static final double DNINF = Double.NEGATIVE_INFINITY;
 	public static final double DPINF = Double.POSITIVE_INFINITY;
+	private static final Lazy.Supplier<RuntimeException, Boolean> isTest =
+		Lazy.unsafe(() -> Reflect.stackHasPackage("org.junit"));
 
 	private Testing() {}
 
@@ -158,29 +155,6 @@ public class Testing {
 	}
 
 	/**
-	 * Separate junit refs so outer class can be used outside of tests.
-	 */
-	private static class Junit {
-		private static final boolean isTest = Reflect.stackHasPackage("org.junit");
-
-		private Junit() {}
-
-		private static void exec(PrintStream out, Class<?>... classes) {
-			var discoveryRequest = LauncherDiscoveryRequestBuilder.request()
-				.selectors(DiscoverySelectors.selectClasses(classes)).build();
-			var summaryListener = new SummaryGeneratingListener();
-			var tp = new TestPrinter();
-			try (var session = LauncherFactory.openSession(); var writer = new PrintWriter(out)) {
-				var launcher = session.getLauncher();
-				var testPlan = launcher.discover(discoveryRequest);
-				launcher.execute(testPlan, tp, summaryListener);
-				tp.print(out);
-				summaryListener.getSummary().printTo(writer);
-			}
-		}
-	}
-
-	/**
 	 * A simple value annotation.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -201,21 +175,14 @@ public class Testing {
 	 * Returns true if currently running as a junit test.
 	 */
 	public static boolean isTest() {
-		return Junit.isTest;
+		return isTest.get();
 	}
 
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
-	public static void exec(Class<?>... classes) {
-		exec(System.out, classes);
-	}
-
-	/**
-	 * Executes tests and prints test names in readable phrases.
-	 */
-	public static void exec(PrintStream out, Class<?>... classes) {
-		Junit.exec(out, classes);
+	public static void print(Class<?>... classes) {
+		TestPrinter.exec(System.out, classes);
 	}
 
 	/**

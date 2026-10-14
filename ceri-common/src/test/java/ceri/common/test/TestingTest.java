@@ -152,7 +152,7 @@ public class TestingTest {
 		try (var sys = SystemIo.of()) {
 			var b = new StringBuilder();
 			sys.out(StringBuilders.printStream(b));
-			Testing.exec(ExecTest.class);
+			Testing.print(ExecTest.class);
 			Assert.yes(b.toString().contains("Exec should do this"));
 			Assert.yes(b.toString().contains("Exec test that"));
 		}

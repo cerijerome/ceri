@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import ceri.common.collect.Collectable;
 import ceri.common.collect.Lists;
@@ -167,7 +168,7 @@ public class Filters {
 	@SafeVarargs
 	public static <E extends Exception, T> boolean testAnyOf(Nulls nulls, T t,
 		Excepts.Predicate<? extends E, ? super T>... predicates) throws E {
-		return testAny(nulls, t, Lists.wrap(predicates));
+		return testAny(nulls, t, listOf(predicates));
 	}
 
 	/**
@@ -186,7 +187,7 @@ public class Filters {
 	@SafeVarargs
 	public static <E extends Exception, T> boolean testAllOf(Nulls nulls, T t,
 		Excepts.Predicate<? extends E, ? super T>... predicates) throws E {
-		return testAll(nulls, t, Lists.wrap(predicates));
+		return testAll(nulls, t, listOf(predicates));
 	}
 
 	/**
@@ -566,7 +567,7 @@ public class Filters {
 	@SafeVarargs
 	public static <T> Functions.Predicate<T>
 		andOf(Excepts.Predicate<? extends RuntimeException, ? super T>... predicates) {
-		return and(Lists.wrap(predicates));
+		return and(listOf(predicates));
 	}
 
 	/**
@@ -583,7 +584,7 @@ public class Filters {
 	@SafeVarargs
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		andOfEx(Excepts.Predicate<? extends E, ? super T>... predicates) {
-		return andEx(Lists.wrap(predicates));
+		return andEx(listOf(predicates));
 	}
 
 	/**
@@ -600,7 +601,7 @@ public class Filters {
 	@SafeVarargs
 	public static <T> Functions.Predicate<T>
 		orOf(Excepts.Predicate<? extends RuntimeException, ? super T>... predicates) {
-		return or(Lists.wrap(predicates));
+		return or(listOf(predicates));
 	}
 
 	/**
@@ -695,5 +696,11 @@ public class Filters {
 	private static <E extends Exception, T, U> boolean test(T t, U u,
 		Excepts.BiPredicate<E, ? super T, ? super U> predicate) throws E {
 		return predicate == null ? false : predicate.test(t, u);
+	}
+
+	@SafeVarargs
+	private static <E extends Exception, T> List<Excepts.Predicate<E, T>>
+		listOf(Excepts.Predicate<? extends E, ? super T>... predicates) {
+		return Reflect.unchecked(Lists.wrap(predicates));
 	}
 }

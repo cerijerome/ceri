@@ -44,16 +44,19 @@
 	<!-- Dependencies included in all children -->
 	<dependencies>
 		<dependency>
+			<!-- Defines test annotations -->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<!-- Defines suite annotations -->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite-api</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<!-- Required to run suites -->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite-engine</artifactId>
 			<scope>test</scope>
