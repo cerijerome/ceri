@@ -32,52 +32,6 @@ public class Parser {
 	private static final Parse.Function<Long> DLONG = Parse::decodeLong;
 	private static final Parse.Function<Double> DOUBLE = Parse::parseDouble;
 
-	private Parser() {}
-
-	/**
-	 * Returns a string parser for the value.
-	 */
-	public static <T> Parser.Type<T> type(T value) {
-		return () -> value;
-	}
-
-	/**
-	 * Returns an instance using the fixed values.
-	 */
-	@SafeVarargs
-	public static <T> Types<T> types(T... values) {
-		return types(Lists.wrap(values));
-	}
-
-	/**
-	 * Returns an instance using the value collection.
-	 */
-	public static <T> Types<T> types(Collection<T> values) {
-		return () -> values;
-	}
-
-	/**
-	 * Returns a string parser for the value.
-	 */
-	public static Parser.String string(java.lang.String value) {
-		return () -> value;
-	}
-
-	/**
-	 * Returns a string collection parser for the values.
-	 */
-	@SafeVarargs
-	public static Strings strings(java.lang.String... values) {
-		return strings(Lists.wrap(values));
-	}
-
-	/**
-	 * Returns a string collection parser for the values.
-	 */
-	public static Strings strings(Collection<java.lang.String> values) {
-		return () -> values;
-	}
-
 	/**
 	 * Interface for setting primitive array values.
 	 */
@@ -230,16 +184,16 @@ public class Parser {
 		}
 
 		/**
-		 * Access the value or use default supplier if null.
+		 * Access the values or use default supplier if null.
 		 */
-		default Collection<T> get(@SuppressWarnings("unchecked") T... defs) {
+		default Collection<T> get(T[] defs) {
 			return get(() -> Lists.wrap(defs));
 		}
 
 		/**
 		 * Provides access with default values if the collection is null.
 		 */
-		default Types<T> def(@SuppressWarnings("unchecked") T... defs) {
+		default Types<T> def(T[] defs) {
 			return Parser.types(get(defs));
 		}
 
@@ -273,8 +227,7 @@ public class Parser {
 		 * Returns the values as an array, or returns default if the value collection is null. Null
 		 * values in the collection are retained.
 		 */
-		default T[] arrayDef(Functions.IntFunction<T[]> arrayFn,
-			@SuppressWarnings("unchecked") T... defs) {
+		default T[] arrayDef(Functions.IntFunction<T[]> arrayFn, T[] defs) {
 			return apply(list -> list.toArray(arrayFn), defs);
 		}
 
@@ -391,9 +344,8 @@ public class Parser {
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
 		 * is null. Null values in the collection are retained.
 		 */
-		default <E extends Exception, R> List<R> toEachDef(
-			Excepts.Function<E, ? super T, ? extends R> constructor,
-			@SuppressWarnings("unchecked") R... defs) throws E {
+		default <E extends Exception, R> List<R>
+			toEachDef(Excepts.Function<E, ? super T, ? extends R> constructor, R[] defs) throws E {
 			return toEach(constructor, Lists.wrap(defs));
 		}
 
@@ -675,8 +627,17 @@ public class Parser {
 			return type::get;
 		}
 
-		@Override
-		default Strings def(java.lang.String... defs) {
+		/**
+		 * Access the values or use default supplier if null.
+		 */
+		default Collection<java.lang.String> getOf(java.lang.String... defs) {
+			return get(defs);
+		}
+
+		/**
+		 * Provides access with default values if the collection is null.
+		 */
+		default Strings defOf(java.lang.String... defs) {
 			return Parser.strings(get(defs));
 		}
 
@@ -859,6 +820,87 @@ public class Parser {
 		default <T extends Enum<T>> Types<T> asEnums(Class<T> cls) {
 			return asEach(v -> Enum.valueOf(cls, v));
 		}
+	}
+
+	private Parser() {}
+
+	/**
+	 * Returns a string parser for the value.
+	 */
+	public static <T> Parser.Type<T> type(T value) {
+		return () -> value;
+	}
+
+	/**
+	 * Returns an instance using the fixed values.
+	 */
+	@SafeVarargs
+	public static <T> Types<T> types(T... values) {
+		return types(Lists.wrap(values));
+	}
+
+	/**
+	 * Returns an instance using the value collection.
+	 */
+	public static <T> Types<T> types(Collection<T> values) {
+		return () -> values;
+	}
+
+	/**
+	 * Returns a string parser for the value.
+	 */
+	public static Parser.String string(java.lang.String value) {
+		return () -> value;
+	}
+
+	/**
+	 * Returns a string collection parser for the values.
+	 */
+	@SafeVarargs
+	public static Strings strings(java.lang.String... values) {
+		return strings(Lists.wrap(values));
+	}
+
+	/**
+	 * Returns a string collection parser for the values.
+	 */
+	public static Strings strings(Collection<java.lang.String> values) {
+		return () -> values;
+	}
+
+	/**
+	 * Access the type values or use default supplier if null.
+	 */
+	@SafeVarargs
+	public static <T> Collection<T> get(Types<T> types, T... defs) {
+		return types == null ? null : types.get(defs);
+	}
+
+	/**
+	 * Provides type access with default values if the collection is null.
+	 */
+	@SafeVarargs
+	public static <T> Types<T> def(Types<T> types, T... defs) {
+		return types == null ? null : types.def(defs);
+	}
+
+	/**
+	 * Returns the type values as an array, or returns default if the value collection is null. Null
+	 * values in the collection are retained.
+	 */
+	@SafeVarargs
+	public static <T> T[] arrayDef(Types<T> types, Functions.IntFunction<T[]> arrayFn, T... defs) {
+		return types == null ? null : types.arrayDef(arrayFn, defs);
+	}
+
+	/**
+	 * Transforms each non-null value to a new unmodifiable list, or default if the collection is
+	 * null. Null values in the collection are retained.
+	 */
+	@SafeVarargs
+	public static <E extends Exception, T, R> List<R> toEachDef(Types<T> types,
+		Excepts.Function<E, ? super T, ? extends R> constructor, R... defs) throws E {
+		return types == null ? null : types.toEachDef(constructor, defs);
 	}
 
 	/* support */

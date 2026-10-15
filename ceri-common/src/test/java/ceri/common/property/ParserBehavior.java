@@ -31,14 +31,23 @@ public class ParserBehavior {
 	}
 
 	@Test
+	public void shouldGetDefaultValues() {
+		Assert.equal(Parser.get(null, 1, 2), null);
+		Assert.ordered(Parser.get(Parser.types((List<Integer>) null), 1, 2), 1, 2);
+		Assert.ordered(Parser.strings((List<String>) null).getOf("1", ""), "1", "");
+	}
+	
+	@Test
 	public void shouldProvideDefaultValues() {
 		Assert.equal(Parser.type(null).def("x").get(), "x");
 		Assert.equal(Parser.type(null).def(() -> "x").get(), "x");
 		Assert.equal(Parser.Type.from(() -> null).def("x").get(), "x");
 		Assert.ordered(Parser.types((List<Integer>) null).def(List.of(1)).get(), 1);
-		Assert.ordered(Parser.types((List<Integer>) null).def(1).get(), 1);
+		Assert.ordered(Parser.types((List<Integer>) null).def(List.of(1)).get(), 1);
+		Assert.equal(Parser.def(null, 1, 2), null);
+		Assert.ordered(Parser.def(Parser.types((List<Integer>) null), 1, 2).get(), 1, 2);
 		Assert.ordered(Parser.types((List<Integer>) null).def(() -> List.of(1)).get(), 1);
-		Assert.ordered(Parser.Strings.from(() -> null).def("x").get(), "x");
+		Assert.ordered(Parser.Strings.from(() -> null).defOf("x").get(), "x");
 		Assert.ordered(Parser.Strings.from(() -> null).def(List.of("x")).get(), "x");
 		Assert.ordered(Parser.Strings.from(() -> null).def(() -> List.of("x")).get(), "x");
 		Assert.ordered(Parser.Types.from(() -> null).def(List.of(1)).get(), 1);
@@ -125,8 +134,9 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldConvertToArrayWithDefault() {
-		Assert.array(Parser.Types.from(() -> null).arrayDef(Integer[]::new, 0, 1, 2), 0, 1, 2);
-		Assert.array(Parser.types(-1, 0, 1).arrayDef(Integer[]::new, 0, 1, 2), -1, 0, 1);
+		Assert.equal(Parser.arrayDef(null, Integer[]::new, 0, 1, 2), null);
+		Assert.array(Parser.arrayDef(Parser.Types.from(() -> null), Integer[]::new, 0, 1), 0, 1);
+		Assert.array(Parser.arrayDef(Parser.types(-1, 0, 1), Integer[]::new, 0, 1, 2), -1, 0, 1);
 	}
 
 	@Test
@@ -186,8 +196,9 @@ public class ParserBehavior {
 	public void shouldConvertListItems() {
 		Assert.equal(Parser.Strings.from(() -> null).toEach(String::length), null);
 		Assert.ordered(Parser.types("a", "bb", "").toEach(String::length), 1, 2, 0);
-		Assert.ordered(Parser.types((List<String>) null).toEachDef(String::length, 1), 1);
-		Assert.ordered(strings("").toEachDef(String::length, 1));
+		Assert.equal(Parser.toEachDef(null, String::length, 1), null);
+		Assert.ordered(Parser.toEachDef(Parser.types((List<String>) null), String::length, 1), 1);
+		Assert.ordered(Parser.toEachDef(strings(""), String::length, 1));
 	}
 
 	@Test
