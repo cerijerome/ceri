@@ -2,8 +2,13 @@ package ceri.ent.service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.concurrent.SafeReadWrite;
@@ -14,15 +19,107 @@ import ceri.common.function.Functions;
 /**
  * An in-memory data service with persistence.
  */
-public class PersistentService<K extends Comparable<K>, V> implements Persistable {
+public class PersistentService<K extends Comparable<K>, V> implements Service.Persistable {
 	private static final int UNLIMITED_COUNT = -1;
-	private final PersistentStore<Set<V>> store;
+	private final Service.Store<Set<V>> store;
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final Map<K, V> map = Maps.tree();
 	private final Functions.Function<V, K> idFn;
 	private boolean modified = false;
 
-	public PersistentService(PersistentStore<Set<V>> store, Functions.Function<V, K> idFn) {
+	/**
+	 * Simple id manager for local instances.
+	 */
+	public static class LocalId {
+		private long nextId;
+
+		public LocalId() {
+			this(0);
+		}
+
+		public LocalId(long nextId) {
+			this.nextId = nextId;
+		}
+
+		public void taken(long id) {
+			if (id >= nextId) nextId = id + 1;
+		}
+
+		public long checkId() {
+			return nextId;
+		}
+
+		public long takeId() {
+			return nextId++;
+		}
+	}
+
+	/**
+	 * A persistent service with long id keys.
+	 */
+	public static class OfId<V> extends PersistentService<Long, V> {
+		private final LocalId localId = new LocalId();
+
+		public OfId(Service.Store<Set<V>> store, Functions.Function<V, Long> idFn) {
+			super(store, idFn);
+		}
+
+		protected long takeId() {
+			return localId.takeId();
+		}
+
+		@Override
+		protected void safeAdd(Map<Long, V> map) {
+			super.safeAdd(map);
+			for (Long id : map.keySet())
+				localId.taken(id);
+		}
+	}
+
+	/**
+	 * Contains a group of persistent services.
+	 */
+	public static class Group implements Functions.Closeable, Service.Persistable {
+		private static final Logger logger = LogManager.getLogger();
+		private final List<? extends Service.Persistable> persistables;
+
+		Group(Collection<? extends Service.Persistable> persistables) {
+			this.persistables = Immutable.list(persistables);
+		}
+
+		@Override
+		public void close() {
+			save();
+		}
+
+		@Override
+		public void load() throws IOException {
+			for (var persistable : persistables)
+				persistable.load();
+		}
+
+		@Override
+		public void save() {
+			for (var persistable : persistables)
+				Service.Persistable.save(logger, persistable);
+		}
+	}
+
+	/**
+	 * Creates a container for persistent services.
+	 */
+	public static Group group(Service.Persistable... persistables) {
+		return group(Arrays.asList(persistables));
+	}
+
+	/**
+	 * Creates a container for persistent services.
+	 */
+	public static Group group(Collection<? extends Service.Persistable> persistables) {
+		return new Group(persistables);
+	}
+
+	public PersistentService(Service.Store<Set<V>> store, Functions.Function<V, K> idFn) {
 		this.store = store;
 		this.idFn = idFn;
 	}
@@ -32,7 +129,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	protected Set<V> findAll() {
-		return find(Filters.YES.castEx());
+		return find(Filters.YES.cast());
 	}
 
 	public <E extends Exception> V findFirst(Excepts.Predicate<E, V> filter) throws E {
@@ -44,7 +141,8 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		return find(filter, UNLIMITED_COUNT);
 	}
 
-	public <E extends Exception> Set<V> find(Excepts.Predicate<E, V> filter, int maxCount) throws E {
+	public <E extends Exception> Set<V> find(Excepts.Predicate<E, V> filter, int maxCount)
+		throws E {
 		return safe.read(() -> {
 			var values = Sets.<V>of();
 			for (V value : this.map.values()) {

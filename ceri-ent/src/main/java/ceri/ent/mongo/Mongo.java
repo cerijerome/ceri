@@ -22,7 +22,7 @@ import com.mongodb.client.model.changestream.ChangeStreamDocument;
 import ceri.common.net.Net;
 import ceri.common.text.Regex;
 
-public class MongoUtil {
+public class Mongo {
 	public static final String MONGODB_PROTOCOL = "mongodb://";
 	public static final String LOCALHOST = MONGODB_PROTOCOL + Net.LOCALHOST;
 	public static final int PORT = 27017;
@@ -33,7 +33,7 @@ public class MongoUtil {
 	private static final JsonWriterSettings PRETTY =
 		JsonWriterSettings.builder().indent(true).build();
 
-	private MongoUtil() {}
+	private Mongo() {}
 
 	public static String localhost(int port) {
 		return LOCALHOST + ":" + port;
@@ -47,7 +47,7 @@ public class MongoUtil {
 		return MONGODB_PROTOCOL + String.join(",", hostPorts);
 	}
 
-	public static String connection(HostList hosts) {
+	public static String connection(Hosts hosts) {
 		return MONGODB_PROTOCOL + hosts;
 	}
 
@@ -173,5 +173,4 @@ public class MongoUtil {
 			document.append((String) keyVals[i], keyVals[i + 1]);
 		return document;
 	}
-
 }

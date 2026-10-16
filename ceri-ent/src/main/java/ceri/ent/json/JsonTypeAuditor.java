@@ -1,4 +1,4 @@
-package ceri.ent.json.adapter;
+package ceri.ent.json;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,11 +18,11 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * Checks when a type matching predicates is (de)serialized. Can be configured to log and/or throw
- * exception. Useful to audit the presence of library type adapters, and when Gson warns of missing
- * java type adapters. Register with gson builder BEFORE other adapters - for some reason the order
- * is reversed during Gson construction.
+ * exceptions. Useful to audit the presence of library type adapters, and when Gson warns of missing
+ * java type adapters. Register with the gson builder BEFORE other adapters - for some reason the
+ * order is reversed during Gson construction.
  */
-public class JsonTypeAuditor implements TypeAdapterFactory {
+public class JsonTypeAuditor implements TypeAdapterFactory, Json.Registrant {
 	private static final Logger logger = LogManager.getLogger();
 	private static final List<Class<?>> JAVA_COLLECTIONS =
 		List.of(Collection.class, Set.class, List.class, Map.class);
@@ -116,31 +116,6 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 		public JsonTypeAuditor build() {
 			return new JsonTypeAuditor(this);
 		}
-
-		private static Predicate<TypeToken<?>> classMatches(Pattern pattern) {
-			// return typeToken -> pattern.matcher(typeToken.getType().getTypeName()).matches();
-			return typeToken -> {
-				String name = typeToken.getRawType().getTypeName();
-				return pattern.matcher(name).matches();
-			};
-		}
-
-		private static Predicate<TypeToken<?>> classIs(Class<?> cls) {
-			// return typeToken -> cls == typeToken.getType().getClass();
-			return typeToken -> {
-				Class<?> actual = typeToken.getRawType();
-				return cls == actual;
-			};
-		}
-
-		private static Predicate<TypeToken<?>> subClassOf(Class<?> cls) {
-			// return typeToken -> cls.isAssignableFrom(typeToken.getType().getClass());
-			return typeToken -> {
-				Class<?> actual = typeToken.getRawType();
-				return cls.isAssignableFrom(actual);
-			};
-		}
-
 	}
 
 	public static Builder builder() {
@@ -155,6 +130,12 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 	}
 
 	@Override
+	public GsonBuilder registerWith(GsonBuilder b) {
+		if (!enabled) return b;
+		return b.registerTypeAdapterFactory(this);
+	}
+
+	@Override
 	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
 		if (!enabled || allow.test(type) || !deny.test(type)) return null;
 		IllegalArgumentException e = new IllegalArgumentException("No adapter for: " + type);
@@ -163,9 +144,29 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 		return null;
 	}
 
-	public GsonBuilder registerWith(GsonBuilder b) {
-		if (!enabled) return b;
-		return b.registerTypeAdapterFactory(this);
+	// support
+
+	private static Predicate<TypeToken<?>> classMatches(Pattern pattern) {
+		// return typeToken -> pattern.matcher(typeToken.getType().getTypeName()).matches();
+		return typeToken -> {
+			String name = typeToken.getRawType().getTypeName();
+			return pattern.matcher(name).matches();
+		};
 	}
 
+	private static Predicate<TypeToken<?>> classIs(Class<?> cls) {
+		// return typeToken -> cls == typeToken.getType().getClass();
+		return typeToken -> {
+			Class<?> actual = typeToken.getRawType();
+			return cls == actual;
+		};
+	}
+
+	private static Predicate<TypeToken<?>> subClassOf(Class<?> cls) {
+		// return typeToken -> cls.isAssignableFrom(typeToken.getType().getClass());
+		return typeToken -> {
+			Class<?> actual = typeToken.getRawType();
+			return cls.isAssignableFrom(actual);
+		};
+	}
 }

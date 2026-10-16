@@ -1,33 +1,31 @@
-package ceri.ent.mongo.server;
+package ceri.ent.mongo;
 
 import static ceri.common.net.Net.LOCALHOST;
 import java.io.IOException;
 import java.nio.file.Path;
 import ceri.common.net.HostPort;
 import ceri.common.process.Parameters;
-import ceri.ent.mongo.HostGroup;
-import ceri.ent.mongo.MongoUtil;
 
-public class Mongos extends ProcessRunner {
+public class Mongos extends ProcessGroup.Runner {
 	private static final String MONGOS = "mongos";
 	private static final String PORT_OPTION = "--port";
 	private static final String CONFIGDB_OPTION = "--configdb";
 	private static final String LOG_PATH_OPTION = "--logpath";
 	private static final String LOG_APPEND_OPTION = "--logappend";
 	public final String mongosPath;
-	public final HostGroup configDb;
+	public final Hosts.Group configDb;
 	public final HostPort hostPort;
 	public final Path logPath;
 	public final boolean logAppend;
 
-	public static Mongos start(HostGroup configDb) throws IOException {
+	public static Mongos start(Hosts.Group configDb) throws IOException {
 		return builder().configDb(configDb).start();
 	}
 
 	public static class Builder {
 		String mongosPath = MONGOS;
 		Integer port = null;
-		HostGroup configDb = null;
+		Hosts.Group configDb = null;
 		Path logPath = null;
 		boolean logAppend = false;
 
@@ -47,7 +45,7 @@ public class Mongos extends ProcessRunner {
 			return this;
 		}
 
-		public Builder configDb(HostGroup configDb) {
+		public Builder configDb(Hosts.Group configDb) {
 			this.configDb = configDb;
 			return this;
 		}
@@ -94,11 +92,10 @@ public class Mongos extends ProcessRunner {
 	}
 
 	public int port() {
-		return hostPort.port(MongoUtil.PORT);
+		return hostPort.port(Mongo.PORT);
 	}
 
 	public String host() {
 		return hostPort.toString();
 	}
-
 }

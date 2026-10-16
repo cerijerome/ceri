@@ -45,7 +45,6 @@ public class WebClientHelper implements Functions.Closeable {
 		public WebClientHelper build() {
 			return new WebClientHelper(this);
 		}
-
 	}
 
 	public static Builder builder() {

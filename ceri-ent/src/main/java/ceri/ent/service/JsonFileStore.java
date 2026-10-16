@@ -7,27 +7,27 @@ import java.nio.file.Path;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.gson.JsonSyntaxException;
-import ceri.ent.json.JsonCoder;
+import ceri.ent.json.Json;
 
-public class JsonFileStore<T> implements PersistentStore<T> {
+public class JsonFileStore<T> implements Service.Store<T> {
 	private static final Logger logger = LogManager.getLogger();
-	private final JsonCoder<T> coder;
+	private final Json.Coder<T> coder;
 	private final Path file;
 
-	private JsonFileStore(JsonCoder<T> coder, Path file) {
-		this.file = file;
-		this.coder = coder;
+	public static <T> JsonFileStore<T> of(Json.Coder<T> coder, Path file) {
+		return new JsonFileStore<>(coder, file);
 	}
 
-	public static <T> JsonFileStore<T> create(JsonCoder<T> coder, Path file) {
-		return new JsonFileStore<>(coder, file);
+	private JsonFileStore(Json.Coder<T> coder, Path file) {
+		this.file = file;
+		this.coder = coder;
 	}
 
 	@Override
 	public T load() throws IOException {
 		try {
 			logger.info("Loading from {}", file);
-			String json = Files.readString(file);
+			var json = Files.readString(file);
 			return coder.fromJson(json);
 		} catch (FileNotFoundException e) {
 			return null;
@@ -39,8 +39,7 @@ public class JsonFileStore<T> implements PersistentStore<T> {
 	@Override
 	public void save(T t) throws IOException {
 		logger.info("Saving to {}", file);
-		String json = coder.toJson(t);
+		var json = coder.toJson(t);
 		Files.writeString(file, json);
 	}
-
 }

@@ -14,20 +14,31 @@ import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.property.TypedProperties;
-import ceri.ent.json.JsonCoder;
+import ceri.ent.json.Json;
 
 /**
  * A caching layer over a service, with persistence.
  */
-public class ServiceCache<K, V> implements Service<K, V>, Persistable {
+public class ServiceCache<K, V> implements Service<K, V>, Service.Persistable {
 	private static final Logger logger = LogManager.getLogger();
 	public final String name;
 	public final Config config;
 	private final Service<K, V> service;
-	private final PersistentStore<Collection<Entry<K, V>>> store;
+	private final Service.Store<Collection<Entry<K, V>>> store;
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final Map<K, Entry<K, V>> cache;
 	private boolean modified = false;
+
+	public record Entry<K, V>(K key, V value, long expiration) {
+
+		public boolean expired(long t) {
+			return expiration() < t;
+		}
+
+		public boolean expired() {
+			return expired(System.currentTimeMillis());
+		}
+	}
 
 	public static class Config {
 		public final Path cacheFile;
@@ -103,9 +114,9 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 			alwaysSave = builder.alwaysSave;
 		}
 
-		public <T> PersistentStore<T> store(JsonCoder<T> coder) {
+		public <T> Service.Store<T> store(Json.Coder<T> coder) {
 			if (coder == null || cacheFile == null) return null;
-			return JsonFileStore.create(coder, cacheFile);
+			return JsonFileStore.of(coder, cacheFile);
 		}
 	}
 
@@ -146,17 +157,17 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	}
 
 	public static <K, V> ServiceCache<K, V> of(String name, Config config, Service<K, V> service,
-		JsonCoder<Collection<Entry<K, V>>> coder) {
+		Json.Coder<Collection<Entry<K, V>>> coder) {
 		return of(name, config, service, config.store(coder));
 	}
 
 	public static <K, V> ServiceCache<K, V> of(String name, Config config, Service<K, V> service,
-		PersistentStore<Collection<Entry<K, V>>> store) {
+		Service.Store<Collection<Entry<K, V>>> store) {
 		return new ServiceCache<>(name, config, service, store);
 	}
 
 	private ServiceCache(String name, Config config, Service<K, V> service,
-		PersistentStore<Collection<Entry<K, V>>> store) {
+		Service.Store<Collection<Entry<K, V>>> store) {
 		this.name = name;
 		this.config = config;
 		this.service = service;
@@ -193,7 +204,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	}
 
 	@Override
-	public V retrieve(K key) throws ServiceException {
+	public V retrieve(K key) throws Service.Exception {
 		Entry<K, V> entry = readFromCache(key);
 		if (entry != null) return entry.value();
 		V value = retrieveFromService(key);
@@ -233,12 +244,12 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		return null;
 	}
 
-	private V retrieveFromService(K key) throws ServiceException {
+	private V retrieveFromService(K key) throws Service.Exception {
 		int retries = config.retries;
 		while (true) {
 			try {
 				return service.retrieve(key);
-			} catch (RuntimeException | ServiceException e) {
+			} catch (RuntimeException | Service.Exception e) {
 				if (retries <= 0) throw e;
 				logger.warn("{} request failed, retrying {}: {}", name, key, e);
 				retries--;

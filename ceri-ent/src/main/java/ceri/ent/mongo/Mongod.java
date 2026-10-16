@@ -1,4 +1,4 @@
-package ceri.ent.mongo.server;
+package ceri.ent.mongo;
 
 import static ceri.common.net.Net.LOCALHOST;
 import java.io.IOException;
@@ -7,9 +7,8 @@ import java.util.List;
 import ceri.common.collect.Immutable;
 import ceri.common.net.HostPort;
 import ceri.common.process.Parameters;
-import ceri.ent.mongo.MongoUtil;
 
-public class Mongod extends ProcessRunner {
+public class Mongod extends ProcessGroup.Runner {
 	private static final String MONGOD = "mongod";
 	private static final String DB_PATH_OPTION = "--dbpath";
 	private static final String PORT_OPTION = "--port";
@@ -158,7 +157,7 @@ public class Mongod extends ProcessRunner {
 	}
 
 	public int port() {
-		return hostPort.port(MongoUtil.PORT);
+		return hostPort.port(Mongo.PORT);
 	}
 
 	public String host() {

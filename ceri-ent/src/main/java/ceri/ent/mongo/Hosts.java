@@ -3,30 +3,49 @@ package ceri.ent.mongo;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.collect.Sets;
 import ceri.common.net.HostPort;
 import ceri.common.net.Net;
 import ceri.common.text.Joiner;
 
-public class HostList {
-	public static final HostList LOCALHOST = from(Net.LOCALHOST);
-	public final List<HostPort> hosts;
+public record Hosts(List<HostPort> hosts) {
+	public static final Hosts LOCALHOST = from(Net.LOCALHOST);
 
-	public static HostList from(String... hosts) {
+	public record Group(String name, Hosts hosts) {
+
+		public List<HostPort> hostPorts() {
+			return hosts().hosts();
+		}
+
+		@Override
+		public String toString() {
+			return name + "/" + hosts;
+		}
+	}
+
+	public static Group group(String name, HostPort... hosts) {
+		return group(name, Lists.wrap(hosts));
+	}
+
+	public static Group group(String name, Iterable<HostPort> hosts) {
+		return new Group(name, Hosts.of(hosts));
+	}
+
+	public static Hosts from(String... hosts) {
 		return from(Arrays.asList(hosts));
 	}
 
-	public static HostList from(Iterable<String> hosts) {
+	public static Hosts from(Iterable<String> hosts) {
 		return builder().addFrom(hosts).build();
 	}
 
-	public static HostList of(HostPort... hosts) {
+	public static Hosts of(HostPort... hosts) {
 		return of(Arrays.asList(hosts));
 	}
 
-	public static HostList of(Iterable<HostPort> hosts) {
+	public static Hosts of(Iterable<HostPort> hosts) {
 		return builder().add(hosts).build();
 	}
 
@@ -53,29 +72,13 @@ public class HostList {
 			return this;
 		}
 
-		public HostList build() {
-			return new HostList(this);
+		public Hosts build() {
+			return new Hosts(Immutable.list(hosts));
 		}
 	}
 
 	public static Builder builder() {
 		return new Builder();
-	}
-
-	HostList(Builder builder) {
-		hosts = Immutable.list(builder.hosts);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(hosts);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof HostList other)) return false;
-		return Objects.equals(hosts, other.hosts);
 	}
 
 	@Override

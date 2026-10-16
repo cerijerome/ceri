@@ -56,5 +56,4 @@ public class HtmlPageSampler {
 		Files.writeString(file, page.asXml());
 		return page;
 	}
-
 }

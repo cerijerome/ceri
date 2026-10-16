@@ -27,6 +27,8 @@ public class WebDriverContainer implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final String BLANK_URL = "about:blank";
+	public static final JavascriptExecutor NULL_JS = nullJs();
+	public static final JavascriptExecutor UNSUPPORTED_JS = unsupportedJs();
 	private final Excepts.Supplier<IOException, WebDriver> constructor;
 	private final int timeoutSec;
 	private final boolean canReset;
@@ -83,7 +85,7 @@ public class WebDriverContainer implements Functions.Closeable {
 	 */
 	public JavascriptExecutor js() {
 		if (driver instanceof JavascriptExecutor) return (JavascriptExecutor) driver;
-		return WebDriverUtil.nullJs();
+		return NULL_JS;
 	}
 
 	public void getBlank() {
@@ -165,5 +167,33 @@ public class WebDriverContainer implements Functions.Closeable {
 	private WebDriver create(Excepts.Supplier<IOException, WebDriver> constructor)
 		throws IOException {
 		return constructor.get();
+	}
+
+	private static final JavascriptExecutor nullJs() {
+		return new JavascriptExecutor() {
+			@Override
+			public Object executeScript(String script, Object... args) {
+				return null;
+			}
+
+			@Override
+			public Object executeAsyncScript(String script, Object... args) {
+				return null;
+			}
+		};
+	}
+
+	private static final JavascriptExecutor unsupportedJs() {
+		return new JavascriptExecutor() {
+			@Override
+			public Object executeScript(String script, Object... args) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public Object executeAsyncScript(String script, Object... args) {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 }

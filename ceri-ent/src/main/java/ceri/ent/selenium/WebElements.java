@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 import org.openqa.selenium.WebElement;
 import ceri.common.collect.Immutable;
 
-public class WebElementUtil {
+public class WebElements {
 	private static final Pattern WHITESPACE = Pattern.compile("\\p{Zs}+");
 	private static final String OUTER_HTML = "outerHTML";
 	private static final String INNER_HTML = "innerHTML";
 
-	private WebElementUtil() {}
+	private WebElements() {}
 
 	public static String innerHtml(WebElement element) {
 		if (element == null) return null;
@@ -30,17 +30,17 @@ public class WebElementUtil {
 
 	public static List<String> innerHtmls(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return Immutable.adaptList(WebElementUtil::innerHtml, elements);
+		return Immutable.adaptList(WebElements::innerHtml, elements);
 	}
 
 	public static List<String> outerHtmls(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return Immutable.adaptList(WebElementUtil::outerHtml, elements);
+		return Immutable.adaptList(WebElements::outerHtml, elements);
 	}
 
 	public static List<String> texts(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return Immutable.adaptList(WebElementUtil::text, elements);
+		return Immutable.adaptList(WebElements::text, elements);
 	}
 
 	public static String trim(String s) {
