@@ -34,6 +34,7 @@ public class UdpChannelBehavior {
 	@Test
 	public void shouldUnicastDatagram() throws IOException {
 		if (!isNetworkAvailable()) return;
+		// Hang during tests: 2026/11/02
 		udp0 = UdpChannel.of(0);
 		udp1 = UdpChannel.of(0);
 		udp0.unicast(udp1.port, ByteProvider.of(1, 2, 3));

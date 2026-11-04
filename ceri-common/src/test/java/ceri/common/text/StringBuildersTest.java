@@ -3,7 +3,6 @@ package ceri.common.text;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -144,7 +143,7 @@ public class StringBuildersTest {
 	public void testPrintStream() {
 		p = StringBuilders.printStream(null);
 		p.append(S);
-		p = StringBuilders.printStream(b(), StandardCharsets.UTF_8);
+		p = StringBuilders.printStream(b(), Chars.UTF8);
 		p.write(0);
 		p.print(S);
 		p.println("\b\t\f\'\"");
@@ -158,7 +157,7 @@ public class StringBuildersTest {
 		o.write(0);
 		o = StringBuilders.outputStream(b());
 		o.write(0);
-		o.write(S.getBytes(StandardCharsets.UTF_8));
+		o.write(S.getBytes(Chars.UTF8));
 		o.close();
 		Assert.string(b, "\0" + S);
 	}

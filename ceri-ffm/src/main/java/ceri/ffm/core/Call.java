@@ -494,7 +494,7 @@ public final class Call {
 		var node = TypeNode.of(parameter);
 		var adapter = adapter(node);
 		if (adapter != null) return adapter;
-		throw Exceptions.illegalArg("Unsupported arg type: %s (%s)", Reflect.localName(parameter),
+		throw Exceptions.illegalArg("Unsupported arg type: %s (%s)", Reflect.qname(parameter),
 			node.typed());
 	}
 
@@ -503,7 +503,7 @@ public final class Call {
 		var adapter = adapter(node);
 		if (adapter != null) return adapter;
 		throw Exceptions.illegalArg("Unsupported vararg type: %s[%d] (%s)",
-			Reflect.localName(parameter), i, node.typed());
+			Reflect.qname(parameter), i, node.typed());
 	}
 
 	private static Native.Adapter<?, ?> rtn(Method method) {

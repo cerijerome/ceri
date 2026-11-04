@@ -26,12 +26,15 @@ public class ReflectTest {
 	private static final Counter.OfInt counter = Counter.of(0);
 
 	private static abstract class Abstract {
-		@SuppressWarnings("unused")
 		public Abstract() {}
+
+		public Class<?> cls() {
+			return getClass();
+		}
 	}
 
 	private static class Error {
-		public static Method M_error = Reflect.publicMethod(Error.class, "error");
+		public static Method M_error = Reflect.firstMethod(Error.class, "error");
 
 		@SuppressWarnings("unused")
 		public Error() {
@@ -129,19 +132,15 @@ public class ReflectTest {
 
 	@Test
 	public void testGetClass() {
-		Assert.equal(Reflect.getClass(null), null);
-		Assert.equal(Reflect.getClass(String.class), Class.class);
-		Assert.equal(Reflect.getClass("abc"), String.class);
+		Assert.equal(Reflect.classOf(null), null);
+		Assert.equal(Reflect.classOf(String.class), Class.class);
+		Assert.equal(Reflect.classOf("abc"), String.class);
 	}
 
 	@Test
 	public void testPackageLevels() {
 		Assert.equal(Reflect.packageLevels((Class<?>) null), 0);
 		Assert.equal(Reflect.packageLevels(getClass()), 3);
-		Assert.equal(Reflect.packageLevels((String) null), 0);
-		Assert.equal(Reflect.packageLevels(""), 0);
-		Assert.equal(Reflect.packageLevels("a"), 1);
-		Assert.equal(Reflect.packageLevels("a.b.c.d"), 4);
 	}
 
 	@Test
@@ -198,8 +197,8 @@ public class ReflectTest {
 	@Test
 	public void testIsStaticMember() {
 		Assert.equal(Reflect.isStatic((Member) null), false);
-		Assert.equal(Reflect.isStatic(Reflect.publicField(Fields.class, "s")), false);
-		Assert.equal(Reflect.isStatic(Reflect.publicField(E.class, "a")), true);
+		Assert.equal(Reflect.isStatic(Reflect.field(Fields.class, "s")), false);
+		Assert.equal(Reflect.isStatic(Reflect.field(E.class, "a")), true);
 	}
 
 	@Test
@@ -218,34 +217,29 @@ public class ReflectTest {
 
 	@Test
 	public void testPublicField() {
-		Assert.isNull(Reflect.publicField(Fields.class, "l"));
-		Assert.isNull(Reflect.publicField(Fields.class, "d"));
-		Assert.isNull(Reflect.publicField(Fields.class, "x"));
-		Assert.isNull(Reflect.publicField(Fields.class, null));
-		Assert.isNull(Reflect.publicField(null, "s"));
+		Assert.isNull(Reflect.field(Fields.class, "l"));
+		Assert.isNull(Reflect.field(Fields.class, "d"));
+		Assert.isNull(Reflect.field(Fields.class, "x"));
+		Assert.isNull(Reflect.field(Fields.class, null));
+		Assert.isNull(Reflect.field(null, "s"));
 	}
 
 	@Test
 	public void testPublicFieldValue() {
-		Assert
-			.isNull(Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
-		Assert.isNull(Reflect.publicFieldValue(new Fields().apply(f -> f.l = 100),
-			Reflect.publicField(Fields.class, "l")));
-		Assert.isNull(Reflect.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
-		Assert.isNull(Reflect.publicFieldValue(null, Reflect.publicField(Fields.class, "i")));
-	}
-
-	@Test
-	public void testPublicValue() {
-		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
-		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
+		Assert.isNull(Reflect.fieldValue(new Object(), Reflect.field(Fields.class, "s")));
+		Assert.isNull(Reflect.fieldValue(new Fields().apply(f -> f.l = 100),
+			Reflect.field(Fields.class, "l")));
+		Assert.isNull(Reflect.fieldValue(new Fields().apply(f -> f.s = "test"), (String) null));
+		Assert.isNull(Reflect.fieldValue(null, Reflect.field(Fields.class, "i")));
+		Assert.equal(Reflect.fieldValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
+		Assert.equal(Reflect.fieldValue(new Fields().apply(f -> f.i = 333), "i"), 333);
 		byte[] bytes = Array.BYTE.of(1, 2, 3);
-		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
-		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.l = 100), "l"));
-		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
-		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "x"));
-		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), null));
-		Assert.isNull(Reflect.publicValue(null, "s"));
+		Assert.equal(Reflect.fieldValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
+		Assert.isNull(Reflect.fieldValue(new Fields().apply(f -> f.l = 100), "l"));
+		Assert.isNull(Reflect.fieldValue(new Fields().apply(f -> f.d = 0.3), "d"));
+		Assert.isNull(Reflect.fieldValue(new Fields().apply(f -> f.s = "test"), "x"));
+		Assert.isNull(Reflect.fieldValue(new Fields().apply(f -> f.s = "test"), (String) null));
+		Assert.isNull(Reflect.fieldValue(null, "s"));
 	}
 
 	@Test
@@ -257,20 +251,39 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testPublicMethod() {
-		Assert.equal(Reflect.publicMethod(null, "voidMethod"), null);
-		Assert.equal(Reflect.publicMethod(Init.class, "init"), null);
-		Assert.equal(Reflect.publicMethod(General.class, ""), null);
-		Assert.equal(Reflect.publicMethod(General.class, "voidMethod").getName(), "voidMethod");
+	public void testFirstMethod() {
+		Assert.equal(Reflect.firstMethod(null, "voidMethod"), null);
+		Assert.equal(Reflect.firstMethod(Init.class, "init"), null);
+		Assert.equal(Reflect.firstMethod(General.class, ""), null);
+		Assert.equal(Reflect.firstMethod(General.class, "voidMethod").getName(), "voidMethod");
+	}
+
+	@Test
+	public void testMethod() {
+		Assert.equal(Reflect.method(null, "voidMethod"), null);
+		Assert.equal(Reflect.method(null, "voidMethod"), null);
+		Assert.equal(Reflect.method(General.class, null), null);
+		Assert.equal(Reflect.method(General.class, "voidMethod", (Class<?>[]) null), null);
+		Assert.equal(Reflect.method(General.class, "voidMethod").getName(), "voidMethod");
+		Assert.equal(Reflect.method(General.class, "intMethod"), null);
+		Assert.equal(Reflect.method(General.class, "intMethod", Integer.class), null);
+		Assert.equal(Reflect.method(General.class, "intMethod", int.class).getName(), "intMethod");
+	}
+
+	@Test
+	public void testValidMethod() {
+		Assert.equal(Reflect.validMethod(General.class, "intMethod", int.class).getName(),
+			"intMethod");
+		Assert.illegalArg(() -> Reflect.validMethod(General.class, "intMethod"));
 	}
 
 	@Test
 	public void testAbbreviatePackages() {
-		Assert.isNull(Reflect.abbreviatePackages(null));
-		Assert.equal(Reflect.abbreviatePackages(""), "");
-		Assert.equal(Reflect.abbreviatePackages("ceri.common.reflect.ReflectUtil"),
+		Assert.isNull(Reflect.compactPackages(null));
+		Assert.equal(Reflect.compactPackages(""), "");
+		Assert.equal(Reflect.compactPackages("ceri.common.reflect.ReflectUtil"),
 			"c.c.r.ReflectUtil");
-		Assert.equal(Reflect.abbreviatePackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
+		Assert.equal(Reflect.compactPackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
 	}
 
 	@Test
@@ -303,35 +316,50 @@ public class ReflectTest {
 	@Test
 	public void testName() {
 		Assert.string(Reflect.name((Class<?>) null), "null");
-		Assert.string(Reflect.localName((String) null), "null");
 		Assert.string(Reflect.name(int.class), "int");
 		Assert.string(Reflect.name(byte[].class), "byte[]");
 		Assert.string(Reflect.name(Abstract.class), "%s.%s", getClass().getSimpleName(),
 			Abstract.class.getSimpleName());
 		Assert.string(Reflect.name(Abstract[].class), "%s.%s[]", getClass().getSimpleName(),
 			Abstract.class.getSimpleName());
-		var param = Reflect.publicMethod(General.class, "intMethod").getParameters()[0];
-		Assert.string(Reflect.localName((Parameter) null), "null");
-		Assert.match(Reflect.localName(param), "intMethod\\.(i|arg0)");
 	}
 
 	@Test
-	public void testNestedName() {
-		Assert.equal(Reflect.nestedName(null), "null");
-		Assert.equal(Reflect.nestedName(int.class), "int");
-		Assert.equal(Reflect.nestedName(byte[].class), "byte[]");
-		Assert.equal(Reflect.nestedName(Abstract.class), Abstract.class.getSimpleName());
-		Assert.equal(Reflect.nestedName(Abstract[].class), Abstract.class.getSimpleName() + "[]");
+	public void testSimple() {
+		Assert.string(Reflect.simple((Class<?>) null), "null");
+		Assert.string(Reflect.simple(String.class), "String");
+		Assert.string(Reflect.simple(int[][].class), "int[][]");
 	}
 
 	@Test
-	public void testSimple() throws ReflectiveOperationException {
-		Assert.equal(Reflect.simple((Class<?>) null), "null");
-		Assert.equal(Reflect.simple((Field) null), "null");
-		Assert.equal(Reflect.simple((Executable) null), "null");
-		Assert.equal(Reflect.simple(Error.class.getConstructor()), "new Error");
-		Assert.equal(Reflect.simple(Reflect.publicMethod(General.class, "intMethod")),
+	public void testQname() throws ReflectiveOperationException {
+		Assert.string(Reflect.qname((Class<?>) null), "null");
+		Assert.string(Reflect.qname((Field) null), "null");
+		Assert.string(Reflect.qname((Executable) null), "null");
+		Assert.string(Reflect.qname(Error.class.getConstructor()), "new Error");
+		Assert.string(Reflect.qname(Reflect.firstMethod(General.class, "intMethod")),
 			"General.intMethod");
+		var param = Reflect.firstMethod(General.class, "intMethod").getParameters()[0];
+		Assert.string(Reflect.qname((Parameter) null), "null");
+		Assert.match(Reflect.qname(param), "intMethod\\.(i|arg0)");
+	}
+
+	@Test
+	public void testQnameLimit() {
+
+	}
+
+	@Test
+	public void testAnonClassNames() {
+		var c1 = new Abstract() {
+			@Override
+			public Class<?> cls() {
+				return new Abstract() {}.cls();
+			}
+		}.cls();
+		Assert.string(Reflect.simple(c1), "1");
+		Assert.string(Reflect.qname(c1), "1.1");
+		Assert.string(Reflect.name(c1), "%s.1.1", Reflect.className(this));
 	}
 
 	@Test
@@ -448,21 +476,22 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testMethodDescriptor() {
+	public void testMethodDescriptor() throws NoSuchMethodException {
 		Assert.string(Reflect.descriptor(null), "null");
 		Assert.string(Reflect.descriptor(Error.M_error), "String error(int)");
-		Assert.string(Reflect.descriptor(Reflect.publicMethod(Arrays.class, "asList")),
+		Assert.string(Reflect.descriptor(Reflect.firstMethod(Arrays.class, "asList")),
 			"List asList(Object...)");
-		Assert.string(Reflect.descriptor(Reflect.publicMethod(String.class, "format")),
+		Assert.string(
+			Reflect.descriptor(String.class.getMethod("format", String.class, Object[].class)),
 			"String format(String, Object...)");
 	}
 
 	@Test
 	public void testIsVoid() {
 		Assert.equal(Reflect.isVoid(null), false);
-		Assert.equal(Reflect.isVoid(Reflect.publicMethod(General.class, "voidMethod")), true);
-		Assert.equal(Reflect.isVoid(Reflect.publicMethod(General.class, "voidMethod2")), false);
-		Assert.equal(Reflect.isVoid(Reflect.publicMethod(General.class, "intMethod")), false);
+		Assert.equal(Reflect.isVoid(Reflect.firstMethod(General.class, "voidMethod")), true);
+		Assert.equal(Reflect.isVoid(Reflect.firstMethod(General.class, "voidMethod2")), false);
+		Assert.equal(Reflect.isVoid(Reflect.firstMethod(General.class, "intMethod")), false);
 	}
 
 	@Test

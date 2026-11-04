@@ -351,7 +351,7 @@ public abstract class IntType<T extends IntType<T>> implements Comparable<T> {
 	 * Returns the specification for this type.
 	 */
 	public Spec spec() {
-		return spec(Reflect.getClass(this));
+		return spec(Reflect.classOf(this));
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import ceri.common.array.Array;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
+import ceri.common.text.Chars;
 import ceri.common.util.Validate;
 
 /**
@@ -224,7 +225,7 @@ public interface ByteReader {
 	 * Returns the string from UTF-8 bytes.
 	 */
 	default String readUtf8(int length) {
-		return readString(length, StandardCharsets.UTF_8);
+		return readString(length, Chars.UTF8);
 	}
 
 	/**

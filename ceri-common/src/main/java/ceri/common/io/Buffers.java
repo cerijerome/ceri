@@ -399,7 +399,7 @@ public abstract class Buffers<B extends Buffer, A> {
 	 * Returns the base buffer class type.
 	 */
 	public static Class<? extends Buffer> baseType(Buffer buffer) {
-		return baseType(Reflect.getClass(buffer));
+		return baseType(Reflect.classOf(buffer));
 	}
 
 	/**

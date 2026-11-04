@@ -13,7 +13,6 @@ import org.htmlunit.html.HtmlPage;
 import ceri.common.function.Functions;
 import ceri.common.net.Http;
 import ceri.common.net.Urls;
-import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements Functions.Closeable {
 	private static final int DEFAULT_TIMEOUT_MS = 60_000;

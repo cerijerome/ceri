@@ -5,11 +5,11 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.collect.Lists;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 
 public class Urls {
@@ -27,7 +27,7 @@ public class Urls {
 		private static final String ENCODED_SPACE = "%20";
 		private final String base;
 		private final List<Param> params = Lists.of();
-		private Charset charset = StandardCharsets.UTF_8;
+		private Charset charset = Chars.UTF8;
 		private boolean form = true;
 
 		private record Param(String name, String value) {}
@@ -136,7 +136,7 @@ public class Urls {
 	 */
 	public static String encode(String s) {
 		if (Strings.isEmpty(s)) return "";
-		return URLEncoder.encode(s, StandardCharsets.UTF_8);
+		return URLEncoder.encode(s, Chars.UTF8);
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class Urls {
 	 */
 	public static String decode(String s) {
 		if (Strings.isEmpty(s)) return "";
-		return URLDecoder.decode(s, StandardCharsets.UTF_8);
+		return URLDecoder.decode(s, Chars.UTF8);
 	}
 
 	/**

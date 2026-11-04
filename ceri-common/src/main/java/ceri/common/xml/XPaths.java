@@ -10,6 +10,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import ceri.common.except.ExceptionAdapter;
 
 public class XPaths {
 	private static final XPath XPATH = XPathFactory.newInstance().newXPath();
@@ -17,14 +18,10 @@ public class XPaths {
 	private XPaths() {}
 
 	/**
-	 * Compiles an xpath expression, throwing RuntimeXPathException if an exception occurs.
+	 * Compiles an xpath expression, throwing a runtime exception on failure.
 	 */
 	public static XPathExpression compile(String expression) {
-		try {
-			return XPATH.compile(expression);
-		} catch (XPathExpressionException e) {
-			throw new RuntimeXPathException(e);
-		}
+		return ExceptionAdapter.illegalArg.get(() -> XPATH.compile(expression));
 	}
 
 	public static Node node(String expression, InputSource in) throws XPathExpressionException {

@@ -1,8 +1,8 @@
 package ceri.common.io;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
+import ceri.common.text.Chars;
 
 public class StringPrintStreamBehavior {
 
@@ -24,7 +24,7 @@ public class StringPrintStreamBehavior {
 
 	@Test
 	public void shouldHandleCharsets() {
-		try (StringPrintStream out = StringPrintStream.of(UTF_8)) {
+		try (StringPrintStream out = StringPrintStream.of(Chars.UTF8)) {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
 			Assert.equal(out.toString(), s);
@@ -33,7 +33,7 @@ public class StringPrintStreamBehavior {
 
 	@Test
 	public void shouldClear() {
-		try (StringPrintStream out = StringPrintStream.of(UTF_8)) {
+		try (StringPrintStream out = StringPrintStream.of(Chars.UTF8)) {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
 			out.clear();

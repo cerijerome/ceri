@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import ceri.common.array.Array;
 import ceri.common.except.Exceptions;
+import ceri.common.text.Chars;
 import ceri.common.util.Validate;
 
 /**
@@ -305,7 +306,7 @@ public interface ByteReceiver {
 	 * Encodes string as UTF-8 bytes from index. Returns the index after the written bytes.
 	 */
 	default int setUtf8(int index, String s) {
-		return setString(index, s, StandardCharsets.UTF_8);
+		return setString(index, s, Chars.UTF8);
 	}
 
 	/**

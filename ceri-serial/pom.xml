@@ -27,6 +27,11 @@
 			<artifactId>ceri-jna</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-ffm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

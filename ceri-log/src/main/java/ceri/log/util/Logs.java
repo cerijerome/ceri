@@ -15,6 +15,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.message.Message;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.concurrent.Concurrent;
@@ -93,6 +94,22 @@ public class Logs {
 	public static Config config() {
 		var context = (LoggerContext) LogManager.getContext(false);
 		return new Config(context.getConfiguration());
+	}
+
+	/**
+	 * Generates a message for logging, using the given logger message format. Useful as a lambda
+	 * for parameters with heavy string construction.
+	 */
+	public static Message message(Logger logger, String format, Object... args) {
+		return logger.getMessageFactory().newMessage(format, args);
+	}
+
+	/**
+	 * Generates a message for logging, with parameterized message format. Useful as a lambda for
+	 * parameters with heavy string construction.
+	 */
+	public static Message message(String format, Object... args) {
+		return message(logger, format, args);
 	}
 
 	/**

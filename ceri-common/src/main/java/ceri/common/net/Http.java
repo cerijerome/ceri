@@ -7,12 +7,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.text.Chars;
 
 public class Http {
 
@@ -217,7 +217,7 @@ public class Http {
 		 * Returns a string from a get request.
 		 */
 		default String string(String url) throws IOException {
-			return string(url, StandardCharsets.UTF_8);
+			return string(url, Chars.UTF8);
 		}
 
 		/**
@@ -231,7 +231,7 @@ public class Http {
 		 * Returns a string from a request.
 		 */
 		default String string(HttpRequest request) throws IOException {
-			return string(request, StandardCharsets.UTF_8);
+			return string(request, Chars.UTF8);
 		}
 
 		/**

@@ -5,7 +5,7 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import org.apache.logging.log4j.Level;
 import ceri.common.collect.Lists;
-import ceri.common.io.PathList;
+import ceri.common.io.PathFinder;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
@@ -188,6 +188,6 @@ public class CLibVerifier {
 
 	private static Path serialPath(String path) throws IOException {
 		if (!Strings.isBlank(path)) return Path.of(path);
-		return Lists.at(PathList.of(DEV_DIR).nameFilter(USB_PATTERN).sort().list(), 0);
+		return Lists.at(PathFinder.of(DEV_DIR).nameFilter(USB_PATTERN).sort().list(), 0);
 	}
 }

@@ -18,7 +18,6 @@ import ceri.common.test.Assert;
 
 public class CharsTest {
 	private static final char ch0 = 0;
-	private static final Charset UTF8 = StandardCharsets.UTF_8;
 	private StringBuilder b;
 
 	@AfterEach
@@ -233,45 +232,46 @@ public class CharsTest {
 	@Test
 	public void testEncodeCharset() {
 		var s = "\0A\u00a9\u2103\ud835\udc00";
-		Assert.equals(Chars.encode(UTF8, (CharBuffer) null, (ByteBuffer) null), 0);
-		Assert.equals(Chars.encode(UTF8, Buffers.CHAR.empty(), (ByteBuffer) null), 0);
-		Assert.equals(Chars.encode(UTF8, Buffers.CHAR.empty(), Buffers.BYTE.empty()), 0);
-		Assert.equals(Chars.encode(UTF8, null, 0, 0, Buffers.BYTE.empty()), 0);
-		Assert.equals(Chars.encode(UTF8, "", 0, 0, Buffers.BYTE.empty()), 0);
-		Assert.equals(Chars.encode(UTF8, s, 0, null, 3), 0);
-		Assert.equals(Chars.encode(UTF8, s, (ByteBuffer) null), 0);
-		Assert.equals(Chars.encode(UTF8, s, Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, (CharBuffer) null, (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, Buffers.CHAR.empty(), (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, Buffers.CHAR.empty(), Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, null, 0, 0, Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, "", 0, 0, Buffers.BYTE.empty()), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, s, 0, null, 3), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, s, (ByteBuffer) null), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, s, Buffers.BYTE.empty()), 0);
 		var bytes = new byte[12];
-		Assert.equals(Chars.encode(UTF8, s, 0, 100, bytes, 12, 5), 0);
-		Assert.equals(Chars.encode(UTF8, s, bytes), 11);
+		Assert.equals(Chars.encode(Chars.UTF8, s, 0, 100, bytes, 12, 5), 0);
+		Assert.equals(Chars.encode(Chars.UTF8, s, bytes), 11);
 		Assert.array(bytes, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
 		Array.BYTE.fill(bytes, 0);
-		Assert.equals(Chars.encode(UTF8, s, 0, bytes, 2), 7);
+		Assert.equals(Chars.encode(Chars.UTF8, s, 0, bytes, 2), 7);
 		Assert.array(bytes, 0, 0, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0, 0, 0);
 	}
 
 	@Test
 	public void testEncodeCharsetToBuffer() {
 		var s = "\0A\u00a9\u2103\ud835\udc00";
-		Assert.equal(Chars.encode(UTF8, (String) null), null);
-		Assert.equal(Chars.encode(UTF8, (CharBuffer) null), null);
-		Assert.buffer(Chars.encode(UTF8, Buffers.CHAR.empty()));
-		Assert.buffer(Chars.encode(UTF8, ""));
-		Assert.buffer(Chars.encode(UTF8, s), "\0A\u00a9\u2103\ud835\udc00".getBytes(UTF8));
+		Assert.equal(Chars.encode(Chars.UTF8, (String) null), null);
+		Assert.equal(Chars.encode(Chars.UTF8, (CharBuffer) null), null);
+		Assert.buffer(Chars.encode(Chars.UTF8, Buffers.CHAR.empty()));
+		Assert.buffer(Chars.encode(Chars.UTF8, ""));
+		Assert.buffer(Chars.encode(Chars.UTF8, s),
+			"\0A\u00a9\u2103\ud835\udc00".getBytes(Chars.UTF8));
 	}
 
 	@Test
 	public void testDecodeCharset() {
 		var bytes = Array.BYTE.of(0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80, 0);
-		Assert.string(Chars.decode(UTF8, (byte[]) null), null);
-		Assert.string(Chars.decode(UTF8, (ByteBuffer) null), null);
-		Assert.string(Chars.decode(UTF8, Buffers.BYTE.empty()), "");
-		Assert.string(Chars.decode(UTF8, bytes, 13, 5), "");
-		Assert.string(Chars.decode(UTF8, bytes), "\0A\u00a9\u2103\ud835\udc00\0");
-		Assert.string(Chars.decode(UTF8, bytes, 3), "\ufffd\u2103\ud835\udc00\0");
-		Assert.string(Chars.decode(UTF8, bytes, 5), "\ufffd\ufffd\ud835\udc00\0");
-		Assert.string(Chars.decode(UTF8, bytes, 7), "\ud835\udc00\0");
-		Assert.string(Chars.decode(UTF8, bytes, 7, 3), "\ufffd");
+		Assert.string(Chars.decode(Chars.UTF8, (byte[]) null), null);
+		Assert.string(Chars.decode(Chars.UTF8, (ByteBuffer) null), null);
+		Assert.string(Chars.decode(Chars.UTF8, Buffers.BYTE.empty()), "");
+		Assert.string(Chars.decode(Chars.UTF8, bytes, 13, 5), "");
+		Assert.string(Chars.decode(Chars.UTF8, bytes), "\0A\u00a9\u2103\ud835\udc00\0");
+		Assert.string(Chars.decode(Chars.UTF8, bytes, 3), "\ufffd\u2103\ud835\udc00\0");
+		Assert.string(Chars.decode(Chars.UTF8, bytes, 5), "\ufffd\ufffd\ud835\udc00\0");
+		Assert.string(Chars.decode(Chars.UTF8, bytes, 7), "\ud835\udc00\0");
+		Assert.string(Chars.decode(Chars.UTF8, bytes, 7, 3), "\ufffd");
 	}
 
 	private StringBuilder b(String s) {

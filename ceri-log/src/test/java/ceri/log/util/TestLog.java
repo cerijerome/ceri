@@ -20,6 +20,7 @@ import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Regex;
+import ceri.common.text.Strings;
 import ceri.common.text.Text;
 
 /**
@@ -150,7 +151,7 @@ public class TestLog implements AutoCloseable {
 	private LoggerConfig createLoggerConfig(Configuration config, String name, Appender appender) {
 		var ref = AppenderRef.createAppenderRef(appender.getName(), null, null);
 		var loggerConfig = LoggerConfig.newBuilder().setAdditivity(false).setLevel(Level.ALL)
-			.setLoggerName(name).setIncludeLocation(Boolean.TRUE.toString())
+			.setLoggerName(name).setIncludeLocation(Strings.TRUE)
 			.setRefs(new AppenderRef[] { ref }).setConfig(config).build();
 		loggerConfig.addAppender(appender, null, null);
 		return loggerConfig;

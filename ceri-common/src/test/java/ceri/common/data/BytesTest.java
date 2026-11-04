@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,6 +11,7 @@ import ceri.common.collect.Iterables;
 import ceri.common.stream.IntStream;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
+import ceri.common.text.Chars;
 
 public class BytesTest {
 
@@ -198,12 +198,13 @@ public class BytesTest {
 
 	@Test
 	public void testFromNullTerm() {
-		Assert.equal(Bytes.fromNullTerm(Array.BYTE.of(0, 't', 'e', 's', 't'), UTF_8), "");
-		Assert.equal(Bytes.fromNullTerm(Array.BYTE.of('t', 'e', 's', 't'), UTF_8), "test");
+		Assert.equal(Bytes.fromNullTerm(Array.BYTE.of(0, 't', 'e', 's', 't'), Chars.UTF8), "");
+		Assert.equal(Bytes.fromNullTerm(Array.BYTE.of('t', 'e', 's', 't'), Chars.UTF8), "test");
 		Assert.equal(
-			Bytes.fromNullTerm(Array.BYTE.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8),
+			Bytes.fromNullTerm(Array.BYTE.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), Chars.UTF8),
 			"\t\r\n");
-		Assert.equal(Bytes.fromNullTerm(ByteProvider.of('t', 'e', 's', 't', 0, 0), UTF_8), "test");
+		Assert.equal(Bytes.fromNullTerm(ByteProvider.of('t', 'e', 's', 't', 0, 0), Chars.UTF8),
+			"test");
 	}
 
 	@Test

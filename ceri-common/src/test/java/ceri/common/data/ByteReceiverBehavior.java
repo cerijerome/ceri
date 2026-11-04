@@ -1,20 +1,20 @@
 package ceri.common.data;
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
+import ceri.common.text.Chars;
 
 public class ByteReceiverBehavior {
 	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
-	private static final byte[] ascii = "abcde".getBytes(ISO_8859_1);
-	private static final byte[] utf8 = "abcde".getBytes(UTF_8);
+	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
+	private static final byte[] utf8 = "abcde".getBytes(Chars.UTF8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());
 
 	/* ByteReceiver tests */
@@ -41,14 +41,12 @@ public class ByteReceiverBehavior {
 		assertBytes(3, br -> Assert.equal(br.setShort(1, 0x7ff7), 3),
 			msb ? Array.BYTE.of(0, 0x7f, 0xf7) : Array.BYTE.of(0, 0xf7, 0x7f));
 		assertBytes(4, br -> Assert.equal(br.setInt(0, 0x12345678), 4),
-			msb ? Array.BYTE.of(0x12, 0x34, 0x56, 0x78) :
-				Array.BYTE.of(0x78, 0x56, 0x34, 0x12));
+			msb ? Array.BYTE.of(0x12, 0x34, 0x56, 0x78) : Array.BYTE.of(0x78, 0x56, 0x34, 0x12));
 		assertBytes(8, br -> Assert.equal(br.setLong(0, 0x1234567890L), 8),
 			msb ? Array.BYTE.of(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
 				Array.BYTE.of(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
 		assertBytes(4, br -> Assert.equal(br.setFloat(0, Float.intBitsToFloat(0x12345678)), 4),
-			msb ? Array.BYTE.of(0x12, 0x34, 0x56, 0x78) :
-				Array.BYTE.of(0x78, 0x56, 0x34, 0x12));
+			msb ? Array.BYTE.of(0x12, 0x34, 0x56, 0x78) : Array.BYTE.of(0x78, 0x56, 0x34, 0x12));
 		assertBytes(8,
 			br -> Assert.equal(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), 8),
 			msb ? Array.BYTE.of(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
@@ -150,7 +148,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldWriteString() {
-		assertBytes(5, br -> br.writer(0).writeString("abc", UTF_8), 'a', 'b', 'c', 0, 0);
+		assertBytes(5, br -> br.writer(0).writeString("abc", Chars.UTF8), 'a', 'b', 'c', 0, 0);
 	}
 
 	@Test

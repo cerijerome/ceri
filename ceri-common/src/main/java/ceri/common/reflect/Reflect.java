@@ -27,6 +27,7 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
@@ -143,7 +144,7 @@ public class Reflect {
 	/**
 	 * Get the typed class of an object.
 	 */
-	public static <T> Class<? extends T> getClass(T t) {
+	public static <T> Class<? extends T> classOf(T t) {
 		return t == null ? null : Reflect.unchecked(t.getClass());
 	}
 
@@ -152,44 +153,53 @@ public class Reflect {
 	 */
 	public static int packageLevels(Class<?> cls) {
 		if (cls == null) return 0;
-		return packageLevels(cls.getPackageName());
-	}
-
-	/**
-	 * Return the number of levels in the given package name.
-	 */
-	public static int packageLevels(String packageName) {
-		if (packageName == null || packageName.isEmpty()) return 0;
-		return (int) packageName.chars().filter(ch -> ch == '.').count() + 1;
+		return (int) cls.getPackageName().chars().filter(ch -> ch == '.').count() + 1;
 	}
 
 	/**
 	 * Returns the object's class name without package. Undefined for class names containing '$'.
 	 */
 	public static String className(Object obj) {
-		return name(getClass(obj));
+		return name(classOf(obj));
 	}
 
 	/**
-	 * Returns the simple class name.
+	 * Returns the simple class name. For anonymous classes it returns the class name after '$'.
 	 */
 	public static String simple(Class<?> cls) {
 		if (cls == null) return Strings.NULL;
-		return cls.getSimpleName();
+		var simple = cls.getSimpleName();
+		if (!simple.isEmpty()) return simple;
+		var name = cls.getName();
+		return name.substring(name.lastIndexOf('$') + 1);
 	}
 
 	/**
-	 * Returns the field name with class simple name prefix.
+	 * Returns the class name without package, and qualified by outer classes if present.
 	 */
-	public static String simple(Field field) {
+	public static String name(Class<?> cls) {
+		return qname(cls, -1);
+	}
+
+	/**
+	 * Returns the class name without package, and qualified with its outer class if present.
+	 */
+	public static String qname(Class<?> inner) {
+		return qname(inner, 2);
+	}
+
+	/**
+	 * Returns the field name qualified with the declaring class simple name.
+	 */
+	public static String qname(Field field) {
 		if (field == null) return Strings.NULL;
 		return simple(field.getDeclaringClass()) + "." + field.getName();
 	}
 
 	/**
-	 * Returns the field name with class simple name prefix.
+	 * Returns the method name qualified with the declaring class simple name.
 	 */
-	public static String simple(Executable executable) {
+	public static String qname(Executable executable) {
 		return switch (executable) {
 			case null -> Strings.NULL;
 			case Constructor<?> _ -> "new " + simple(executable.getDeclaringClass());
@@ -198,42 +208,12 @@ public class Reflect {
 	}
 
 	/**
-	 * Returns the class name without package. Inner class names show the hierarchy. '$' is treated
-	 * as a name separator.
+	 * Returns a qualified method/constructor parameter name. This will be of the form
+	 * {@code method.argN} unless names are stored by compiling with {@code -parameters}.
 	 */
-	public static String name(Class<?> cls) {
-		if (cls == null) return Strings.NULL;
-		return localName(cls.getTypeName());
-	}
-
-	/**
-	 * Returns a method/constructor parameter name. This will be of the form {@code method.argN}
-	 * unless names are stored by compiling with {@code -parameters}.
-	 */
-	public static String localName(Parameter param) {
+	public static String qname(Parameter param) {
 		if (param == null) return Strings.NULL;
 		return param.getDeclaringExecutable().getName() + "." + param.getName();
-	}
-
-	/**
-	 * Extracts the class name without package. Inner class names show the hierarchy. '$' is treated
-	 * as a name separator.
-	 */
-	public static String localName(String fullClassName) {
-		if (fullClassName == null) return Strings.NULL;
-		return fullClassName.substring(fullClassName.lastIndexOf(".") + 1).replace('$', '.');
-	}
-
-	/**
-	 * Returns the class name without package and outer class, if nested. Otherwise returns the
-	 * class name without package (same as name()).
-	 */
-	public static String nestedName(Class<?> cls) {
-		if (cls == null) return Strings.NULL;
-		String s = cls.getTypeName();
-		int i = s.indexOf('$');
-		if (i > 0) return s.substring(i + 1).replace('$', '.');
-		return s.substring(s.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
 	/**
@@ -533,8 +513,8 @@ public class Reflect {
 	public static <T> Constructor<T> validConstructor(Class<T> cls, Class<?>... argTypes) {
 		var constructor = constructor(cls, argTypes);
 		if (constructor != null) return constructor;
-		throw new IllegalArgumentException(String.format("constructor %s%s not found",
-			cls.getSimpleName(), Joiner.PARAM.joinAll(Class::getSimpleName, argTypes)));
+		throw Exceptions.illegalArg("Constructor %s%s not found", simple(cls),
+			Joiner.PARAM.joinAll(Reflect::simple, argTypes));
 	}
 
 	/**
@@ -571,7 +551,7 @@ public class Reflect {
 		} catch (InvocationTargetException e) {
 			t = Basics.def(e.getCause(), e);
 		}
-		throw InvocationException.of(t, "%s(%s) failed with args (%s)", simple(constructor),
+		throw InvocationException.of(t, "%s(%s) failed with args (%s)", qname(constructor),
 			types(constructor.getParameterTypes()), args(args));
 	}
 
@@ -587,7 +567,7 @@ public class Reflect {
 		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			t = e;
 		}
-		throw InvocationException.of(t, "%s(%s) failed with args (%s) on %s", simple(method),
+		throw InvocationException.of(t, "%s(%s) failed with args (%s) on %s", qname(method),
 			types(method.getParameterTypes()), args(args), subject);
 	}
 
@@ -652,7 +632,7 @@ public class Reflect {
 	/**
 	 * Returns the public field from the class, including super-types. Returns null if not found.
 	 */
-	public static Field publicField(Class<?> cls, String name) {
+	public static Field field(Class<?> cls, String name) {
 		if (cls == null || name == null) return null;
 		try {
 			return cls.getField(name);
@@ -664,14 +644,14 @@ public class Reflect {
 	/**
 	 * Returns the public field value from the instance. Returns null if not found.
 	 */
-	public static <T> T publicFieldValue(Object obj, Field field) {
-		return publicFieldValue(obj, field, null);
+	public static <T> T fieldValue(Object obj, Field field) {
+		return fieldValue(obj, field, null);
 	}
 
 	/**
 	 * Returns the public field value from the instance. Returns default if not found.
 	 */
-	public static <T> T publicFieldValue(Object obj, Field field, T def) {
+	public static <T> T fieldValue(Object obj, Field field, T def) {
 		try {
 			if (validFieldAccess(obj, field)) return Reflect.unchecked(field.get(obj));
 		} catch (IllegalArgumentException | IllegalAccessException e) {}
@@ -681,39 +661,60 @@ public class Reflect {
 	/**
 	 * Returns the public field value from the instance. Returns null if not found.
 	 */
-	public static <T> T publicValue(Object obj, String name) {
-		return publicValue(obj, name, null);
+	public static <T> T fieldValue(Object obj, String name) {
+		return fieldValue(obj, name, null);
 	}
 
 	/**
 	 * Returns the public field value from the instance. Returns default if not found.
 	 */
-	public static <T> T publicValue(Object obj, String name, T def) {
+	public static <T> T fieldValue(Object obj, String name, T def) {
 		if (obj == null) return def;
-		return publicFieldValue(obj, publicField(obj.getClass(), name), def);
+		return fieldValue(obj, field(obj.getClass(), name), def);
 	}
 
 	/**
 	 * Provide the static fields of given type for a class.
 	 */
 	public static <T> Stream.Rt<T> staticFields(Class<?> source, Class<T> type) {
-		return Stream.of(source.getDeclaredFields()).map(f -> publicFieldValue(null, f))
-			.instances(type);
+		return Stream.of(source.getDeclaredFields()).map(f -> fieldValue(null, f)).instances(type);
 	}
 
 	/**
 	 * Returns the first method matching the name, or null.
 	 */
-	public static Method publicMethod(Class<?> cls, String name) {
+	public static Method firstMethod(Class<?> cls, String name) {
 		if (cls != null && !Strings.isEmpty(name)) for (var method : cls.getMethods())
 			if (method.getName().equals(name)) return method;
 		return null;
 	}
 
 	/**
-	 * Abbreviates package names, e.g. abc.def.MyClass -> a.d.MyClass
+	 * Returns the method matching the name and argument types, or null.
 	 */
-	public static String abbreviatePackages(String stackTrace) {
+	public static Method method(Class<?> cls, String name, Class<?>... argTypes) {
+		if (cls == null || Strings.isEmpty(name) || argTypes == null) return null;
+		try {
+			return cls.getMethod(name, argTypes);
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the method matching the name and argument types, or throws an exception.
+	 */
+	public static Method validMethod(Class<?> cls, String name, Class<?>... argTypes) {
+		var method = method(cls, name, argTypes);
+		if (method != null) return method;
+		throw Exceptions.illegalArg("Method %s.%s%s not found", simple(cls), name,
+			Joiner.PARAM.joinAll(Reflect::simple, argTypes));
+	}
+
+	/**
+	 * Compacts package names, e.g. abc.def.MyClass -> a.d.MyClass
+	 */
+	public static String compactPackages(String stackTrace) {
 		if (stackTrace == null) return null;
 		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(_ -> "$1.");
 	}
@@ -748,7 +749,7 @@ public class Reflect {
 	 */
 	public static <T extends Enum<?>> T fieldToEnum(Field field) {
 		if (field == null || !field.isEnumConstant()) return null;
-		return Reflect.unchecked(Reflect.publicFieldValue(null, field));
+		return Reflect.unchecked(Reflect.fieldValue(null, field));
 	}
 
 	/**
@@ -835,6 +836,23 @@ public class Reflect {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);
 			}));
+	}
+
+	private static String qname(Class<?> cls, int levels) {
+		if (cls == null) return Strings.NULL;
+		return qappend(new StringBuilder(), cls, levels).toString();
+	}
+
+	private static StringBuilder qappend(StringBuilder b, Class<?> cls, int i) {
+		if (cls == null || i == 0) return b;
+		if (cls.isArray()) return qappend(b, cls.getComponentType(), i).append("[]");
+		qappend(b, cls.getEnclosingClass(), i - 1);
+		if (!b.isEmpty()) b.append('.');
+		return b.append(simple(cls));
+	}
+
+	private static String localName(String fullClassName) {
+		return fullClassName.substring(fullClassName.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
 	private static boolean validFieldAccess(Object obj, Field field) {

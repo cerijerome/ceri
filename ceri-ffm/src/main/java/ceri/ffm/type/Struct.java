@@ -300,7 +300,7 @@ public class Struct<T extends Struct<T>> extends Group<T, StructLayout> {
 	 */
 	public static <T extends Struct<T>> MemorySegment alloc(SegmentAllocator allocator, T struct) {
 		if (allocator == null || struct == null) return null;
-		var support = support(Reflect.getClass(struct));
+		var support = support(Reflect.classOf(struct));
 		return support.alloc(allocator, struct);
 	}
 

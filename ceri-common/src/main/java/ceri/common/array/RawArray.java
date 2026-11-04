@@ -511,7 +511,7 @@ public class RawArray {
 	 */
 	public static int dimensions(Object array) {
 		if (array == null) return 0;
-		var cls = Reflect.getClass(array);
+		var cls = Reflect.classOf(array);
 		for (int dims = 0;; dims++) {
 			cls = componentType(cls);
 			if (cls == null) return dims;

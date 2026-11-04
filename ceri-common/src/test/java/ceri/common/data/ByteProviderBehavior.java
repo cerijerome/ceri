@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -13,12 +12,13 @@ import ceri.common.data.ByteReceiverBehavior.Holder;
 import ceri.common.math.Maths;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
+import ceri.common.text.Chars;
 
 public class ByteProviderBehavior {
 	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final ByteProvider bp = provider(0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
-	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);
+	private static final byte[] utf8 = "abcde".getBytes(Chars.UTF8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());
 
 	/* ByteProvider tests */
@@ -124,7 +124,7 @@ public class ByteProviderBehavior {
 		Assert.equal(provider(ascii).getAscii(2, 2), "cd");
 		Assert.equal(provider(utf8).getUtf8(0), "abcde");
 		Assert.equal(provider(utf8).getUtf8(2, 2), "cd");
-		Assert.equal(provider(utf8).getString(0, UTF_8), "abcde");
+		Assert.equal(provider(utf8).getString(0, Chars.UTF8), "abcde");
 		Assert.equal(provider(defCset).getString(0), "abcde");
 	}
 
@@ -278,7 +278,7 @@ public class ByteProviderBehavior {
 		Assert.equal(provider(ascii).reader(2, 2).readAscii(), "cd");
 		Assert.equal(provider(utf8).reader(1).readUtf8(), "bcde");
 		Assert.equal(provider(defCset).reader(0).readString(), "abcde");
-		Assert.equal(provider(utf8).reader(3).readString(UTF_8), "de");
+		Assert.equal(provider(utf8).reader(3).readString(Chars.UTF8), "de");
 	}
 
 	@Test

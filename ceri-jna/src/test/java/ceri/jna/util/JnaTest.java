@@ -1,6 +1,5 @@
 package ceri.jna.util;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import ceri.common.array.Array;
 import ceri.common.data.Bytes;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.test.Assert;
+import ceri.common.text.Chars;
 import ceri.common.util.SystemVars;
 import ceri.jna.test.JnaAssert;
 import ceri.jna.type.IntType;
@@ -186,18 +186,16 @@ public class JnaTest {
 
 	@Test
 	public void testArrayByValForNullPointer() {
-		Assert.array(
-			Jna.arrayByVal(null, TestStruct::new, TestStruct[]::new, 0, TestStruct.SIZE));
-		Assert.array(
-			Jna.arrayByVal(null, TestStruct::new, TestStruct[]::new, 1, TestStruct.SIZE),
+		Assert.array(Jna.arrayByVal(null, TestStruct::new, TestStruct[]::new, 0, TestStruct.SIZE));
+		Assert.array(Jna.arrayByVal(null, TestStruct::new, TestStruct[]::new, 1, TestStruct.SIZE),
 			new TestStruct[1]);
 	}
 
 	@Test
 	public void testArrayByVal() {
 		var p = data.structArrayByValPointer(0);
-		var array = Struct
-			.read(Jna.arrayByVal(p, TestStruct::new, TestStruct[]::new, 4, TestStruct.SIZE));
+		var array =
+			Struct.read(Jna.arrayByVal(p, TestStruct::new, TestStruct[]::new, 4, TestStruct.SIZE));
 		data.assertStruct(array[0], 0);
 		data.assertStruct(array[1], 1);
 		data.assertStruct(array[2], 2);
@@ -325,15 +323,15 @@ public class JnaTest {
 
 	@Test
 	public void testStringFromMemory() {
-		try (Memory m = Jna.mallocBytes("abc\0def".getBytes(UTF_8))) {
-			Assert.equal(Jna.string(UTF_8, m), "abc\0def");
+		try (Memory m = Jna.mallocBytes("abc\0def".getBytes(Chars.UTF8))) {
+			Assert.equal(Jna.string(Chars.UTF8, m), "abc\0def");
 		}
 	}
 
 	@Test
 	public void testStringFromBuffer() {
 		Assert.equal(Jna.string(ByteBuffer.wrap("abc\0def".getBytes())), "abc\0def");
-		Assert.equal(Jna.string(UTF_8, ByteBuffer.wrap("abc\0def".getBytes(UTF_8))),
+		Assert.equal(Jna.string(Chars.UTF8, ByteBuffer.wrap("abc\0def".getBytes(Chars.UTF8))),
 			"abc\0def");
 	}
 

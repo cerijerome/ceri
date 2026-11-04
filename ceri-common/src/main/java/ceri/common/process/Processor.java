@@ -141,17 +141,18 @@ public class Processor {
 		return buffer.immutable().getString(0);
 	}
 
+	// TODO: fix intermittent coverage miss 
 	@SuppressWarnings("resource")
 	private void waitForProcess(Process process, Parameters parameters,
 		Excepts.Consumer<IOException, InputStream> consumer) throws IOException {
 		var in = process.getInputStream();
 		var timer = Timer.of(timeoutMs, TimeSupplier.millis).start();
-		while (true) {
+		while (true) { // coverage = red
 			consumer.accept(in);
 			if (!process.isAlive()) return;
-			if (timer.snapshot().expired())
+			if (timer.snapshot().expired()) // coverage = yellow
 				throw new IOException("Failed to complete in " + timeoutMs + "ms: " + parameters);
-			TimeSupplier.millis.delay(pollMs);
+			TimeSupplier.millis.delay(pollMs); // coverage = red
 		}
 	}
 

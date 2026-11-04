@@ -3,6 +3,7 @@ package ceri.common.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitor;
@@ -12,8 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.Iterator;
+import java.util.Map;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
@@ -47,10 +50,9 @@ public class Paths {
 		 * A filter based on file system pattern syntax, such as glob or regex.
 		 */
 		@SuppressWarnings("resource")
-		public static Functions.Predicate<Path> pattern(FileSystem fs,
-			String format, Object... args) {
-			if (fs == null)
-				fs = FileSystems.getDefault();
+		public static Functions.Predicate<Path> pattern(FileSystem fs, String format,
+			Object... args) {
+			if (fs == null) fs = FileSystems.getDefault();
 			return fs.getPathMatcher(Strings.format(format, args))::matches;
 		}
 
@@ -124,6 +126,14 @@ public class Paths {
 	 */
 	public static FileSystem fs(Path path) {
 		return path == null ? FileSystems.getDefault() : path.getFileSystem();
+	}
+
+	/**
+	 * Returns a file system for the URI scheme.
+	 */
+	public static FileSystem fs(URI uri) {
+		if (uri == null) return FileSystems.getDefault();
+		return ExceptionAdapter.illegalArg.get(() -> FileSystems.newFileSystem(uri, Map.of()));
 	}
 
 	/**

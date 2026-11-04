@@ -56,11 +56,11 @@ public class AnnotationsTest {
 	public static class B {
 		@I(-1)
 		public static class C {
-			private static final Field F = Reflect.publicField(C.class, "f");
-			private static final Method M = Reflect.publicMethod(C.class, "m");
+			private static final Field F = Reflect.field(C.class, "f");
+			private static final Method M = Reflect.firstMethod(C.class, "m");
 			private static final Parameter MP = M.getParameters()[0];
 			private static final RecordComponent RP = R.class.getRecordComponents()[0];
-			private static final Field A = Reflect.publicField(C.class, "a");
+			private static final Field A = Reflect.field(C.class, "a");
 			private static final Generics.Typed FT = Generics.typed(F);
 			private static final Generics.Typed MPT = Generics.typed(MP);
 			private static final Generics.Typed RPT = Generics.typed(RP);

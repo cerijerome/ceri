@@ -19,7 +19,7 @@ public class HandlesTest {
 	private static final Class<?>[] NULL_CS = null;
 
 	public static class C {
-		public static Method M_A = Reflect.publicMethod(C.class, "a");
+		public static Method M_A = Reflect.firstMethod(C.class, "a");
 		public static VarHandle VI = Handles.handle(C.class, "i");
 		public static VarHandle VL = Handles.handle(C.class, "l");
 		public static MethodHandle MVI = Handles.getter(VI);

@@ -9,7 +9,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -358,7 +357,7 @@ public class Testing {
 	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
 	public static String readableString(byte[] array, int offset, int len) {
-		return readableString(array, offset, len, StandardCharsets.UTF_8, '?');
+		return readableString(array, offset, len, Chars.UTF8, '?');
 	}
 
 	/**

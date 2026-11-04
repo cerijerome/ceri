@@ -30,18 +30,18 @@ public class XPathsTest {
 
 	@Test
 	public void testNode() throws XPathException {
-		var in = Xml.input(XML);
+		var in = Xml.Dom.input(XML);
 		var root = XPaths.node("*", in);
 		var node = XPaths.node("//c1/text()", root);
 		Assert.equal(node.getTextContent(), "C11");
-		in = Xml.input(XML);
+		in = Xml.Dom.input(XML);
 		Assert.isNull(XPaths.node("//d0", in));
 		Assert.isNull(XPaths.node("//d0", root));
 	}
 
 	@Test
 	public void testNodeListFromInputSource() throws XPathException {
-		var in = Xml.input(XML);
+		var in = Xml.Dom.input(XML);
 		var nodes = XPaths.nodeList("//*[@n='0']", in);
 		Assert.equal(nodes.size(), 3);
 		Assert.equal(nodes.get(0).getNodeName(), "a0");
@@ -51,7 +51,7 @@ public class XPathsTest {
 
 	@Test
 	public void testNodeListFromNode() throws XPathException {
-		var in = Xml.input(XML);
+		var in = Xml.Dom.input(XML);
 		var root = XPaths.node("*", in);
 		Assert.equal(root.getNodeName(), "a0");
 		var nodes = XPaths.nodeList("//*[text()='B0']/following-sibling::*", root);

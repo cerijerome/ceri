@@ -91,7 +91,10 @@ public class JnaArgs {
 	 * Memory to compact string.
 	 */
 	public static String string(PointerType p) {
-		return String.format("%s(%s)", Reflect.nestedName(p.getClass()), string(p.getPointer()));
+		return String.format("%s(%s)",
+			//Reflect.nestedName(p.getClass()),
+			Reflect.simple(p.getClass()),
+			string(p.getPointer()));
 	}
 
 	/**
@@ -106,7 +109,10 @@ public class JnaArgs {
 	 * Byte buffer to compact string.
 	 */
 	public static String string(ByteBuffer b) {
-		return String.format("%s(p=%d,l=%d,c=%d)", Reflect.nestedName(b.getClass()), b.position(),
+		return String.format("%s(p=%d,l=%d,c=%d)",
+			//Reflect.nestedName(b.getClass()),
+			Reflect.simple(b.getClass()),
+			b.position(),
 			b.limit(), b.capacity());
 	}
 

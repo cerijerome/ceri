@@ -38,7 +38,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Throws;
 import ceri.common.io.Buffers;
-import ceri.common.io.PathList;
+import ceri.common.io.PathFinder;
 import ceri.common.io.Paths;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
@@ -1468,8 +1468,8 @@ public class Assert {
 	 */
 	public static void dir(Path actual, Path expected) throws IOException {
 		if (nullCheck(actual, expected)) return;
-		var actualRelative = PathList.of(actual).relative().sort().list();
-		var expectedRelative = PathList.of(expected).relative().sort().list();
+		var actualRelative = PathFinder.of(actual).relative().sort().list();
+		var expectedRelative = PathFinder.of(expected).relative().sort().list();
 		ordered(actualRelative, expectedRelative);
 		for (var actualPath : actualRelative) {
 			var actualFile = actual.resolve(actualPath);
@@ -1709,7 +1709,7 @@ public class Assert {
 
 	private static String name(Object obj) {
 		if (obj instanceof Class<?> c) return Reflect.name(c);
-		return Reflect.name(Reflect.getClass(obj));
+		return Reflect.name(Reflect.classOf(obj));
 	}
 
 	private static String str(Object s) {

@@ -2,7 +2,6 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +15,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functions;
 import ceri.common.io.Paths;
 import ceri.common.stream.Stream;
+import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 
 /**
@@ -69,7 +69,7 @@ public class FileTestHelper implements Functions.Closeable {
 		 * Add a relative file with given content.
 		 */
 		public Builder file(Path file, String content) {
-			return file(file, content.getBytes(StandardCharsets.UTF_8));
+			return file(file, content.getBytes(Chars.UTF8));
 		}
 
 		/**

@@ -134,7 +134,7 @@ public class Enums {
 	 */
 	public static String shortName(Enum<?> en) {
 		if (en == null) return Strings.NULL;
-		var cls = Reflect.getClass(en);
+		var cls = Reflect.classOf(en);
 		int index = namePrefixLens.computeIfAbsent(cls, _ -> prefixLen(of(cls)));
 		return en.name().substring(index);
 	}
@@ -152,7 +152,7 @@ public class Enums {
 	public static <T extends Enum<T>> Functions.Function<T, Long> valueAccessor(Class<T> cls,
 		String valueFieldName) {
 		var field = valueField(cls, valueFieldName);
-		return t -> Maths.unsigned(Reflect.publicFieldValue(t, field, null));
+		return t -> Maths.unsigned(Reflect.fieldValue(t, field, null));
 	}
 
 	/**
@@ -252,11 +252,11 @@ public class Enums {
 		if (!Reflect.isPublic(cls))
 			throw Exceptions.illegalArg("Class is not public: ", Reflect.name(cls));
 		if (Strings.isEmpty(fieldName)) fieldName = VALUE_FIELD_NAME_DEF;
-		var field = Reflect.publicField(cls, fieldName);
+		var field = Reflect.field(cls, fieldName);
 		if (field != null && Reflect.isNumber(field.getType())) return field;
 		if (field == null)
 			throw Exceptions.illegalArg("No such field: %s.%s", cls.getSimpleName(), fieldName);
-		throw Exceptions.illegalArg("Unsupported type for %s: %s", Reflect.simple(field),
+		throw Exceptions.illegalArg("Unsupported type for %s: %s", Reflect.qname(field),
 			field.getType().getSimpleName());
 	}
 

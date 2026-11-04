@@ -451,7 +451,7 @@ public class CSymbolGen {
 			if (count++ == 0) printType(cls);
 			var ctype = overrides.ctype(field, os);
 			if (ctype.undefined()) lines.add("// Ignore: %s = %s", field.getName(),
-				Reflect.publicFieldValue(null, field));
+				Reflect.fieldValue(null, field));
 			else addField(field, ctype);
 		}
 		return count;
@@ -460,7 +460,7 @@ public class CSymbolGen {
 	private void addField(Field field, CAnnotations.CType.Value ctype) {
 		var fieldName = field.getName();
 		var name = ctype.name(fieldName);
-		var value = Reflect.publicFieldValue(null, field);
+		var value = Reflect.fieldValue(null, field);
 		macros.vsymi(name, longValue(value, ctype.signed()));
 		if (!fieldName.equals(name)) lines.appendComment(fieldName);
 	}
@@ -480,7 +480,7 @@ public class CSymbolGen {
 		for (var en : cls.getEnumConstants()) {
 			var ctype = overrides.ctype(en, os);
 			if (ctype.undefined())
-				lines.add("// Ignore: %s = %s", en.name(), Reflect.publicValue(en, valueField));
+				lines.add("// Ignore: %s = %s", en.name(), Reflect.fieldValue(en, valueField));
 			else addEnum(en, valueField, ctype);
 		}
 	}
@@ -488,7 +488,7 @@ public class CSymbolGen {
 	private void addEnum(Enum<?> en, String valueField, CAnnotations.CType.Value ctype) {
 		var enName = en.name();
 		var name = ctype.name(enName);
-		var value = Reflect.publicValue(en, valueField);
+		var value = Reflect.fieldValue(en, valueField);
 		if (value == null) throw Exceptions.illegalArg("%s.%s.%s not found",
 			en.getClass().getSimpleName(), en, valueField);
 		macros.vsymi(name, longValue(value, ctype.signed()));

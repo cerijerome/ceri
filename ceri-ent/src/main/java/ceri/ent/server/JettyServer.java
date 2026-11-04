@@ -11,11 +11,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.descriptor.DigesterFactory;
-import org.eclipse.jetty.ee10.apache.jsp.JettyJasperInitializer;
-import org.eclipse.jetty.ee10.servlet.DefaultServlet;
-import org.eclipse.jetty.ee10.servlet.ErrorHandler;
-import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.apache.jsp.JettyJasperInitializer;
+import org.eclipse.jetty.ee11.servlet.DefaultServlet;
+import org.eclipse.jetty.ee11.servlet.ErrorHandler;
+import org.eclipse.jetty.ee11.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -38,7 +38,9 @@ import jakarta.servlet.Servlet;
 public class JettyServer implements AutoCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	// Check dependency jar names still match this pattern
-	private static final String JSTL_JAR_PATTERN = ".*/jakarta.*\\.jstl.*\\.jar$";
+	private static final String JSTL_JAR_PATTERN =
+		".*/.*jstl.*\\.jar$|.*/.*taglibs.*\\.jar$";
+		//".*/jakarta.*\\.jstl.*\\.jar$";
 	private static final String DIGESTER_FACTORY_VALIDATING =
 		SystemVars.name(DigesterFactory.class, "validating");
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");

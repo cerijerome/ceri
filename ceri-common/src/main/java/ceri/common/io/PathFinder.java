@@ -19,9 +19,9 @@ import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 
 /**
- * Provides a path list under a directory with optional filters, mapping, and sorting.
+ * Provides paths under a directory with optional filters, mapping, and sorting.
  */
-public class PathList {
+public class PathFinder {
 	private static final Excepts.Operator<IOException, Path> IDENTITY = p -> p;
 	private final Path dir;
 	private final boolean all;
@@ -39,18 +39,18 @@ public class PathList {
 	/**
 	 * Returns an instance that accesses all sub-paths.
 	 */
-	public static PathList all(Path dir) {
-		return new PathList(dir, true);
+	public static PathFinder all(Path dir) {
+		return new PathFinder(dir, true);
 	}
 
 	/**
 	 * Returns an instance that accesses only child paths.
 	 */
-	public static PathList of(Path dir) {
-		return new PathList(dir, false);
+	public static PathFinder of(Path dir) {
+		return new PathFinder(dir, false);
 	}
 
-	private PathList(Path dir, boolean all) {
+	private PathFinder(Path dir, boolean all) {
 		this.dir = dir;
 		this.all = all;
 	}
@@ -58,42 +58,42 @@ public class PathList {
 	/**
 	 * Filter files only; may not work after calling relative().
 	 */
-	public PathList files() {
+	public PathFinder files() {
 		return filter(Paths.Filter.FILE);
 	}
 
 	/**
 	 * Filter path by file system pattern syntax.
 	 */
-	public PathList filter(String format, Object... args) {
+	public PathFinder filter(String format, Object... args) {
 		return filter(pattern(format, args).castEx());
 	}
 
 	/**
 	 * Filter paths based on predicate.
 	 */
-	public PathList filter(Excepts.Predicate<? extends RuntimeException, ? super Path> filter) {
+	public PathFinder filter(Excepts.Predicate<? extends RuntimeException, ? super Path> filter) {
 		return modify(p -> Filters.test(Filters.Nulls.no, p, filter) ? p : null);
 	}
 
 	/**
 	 * Filter paths based on predicate.
 	 */
-	public PathList filterEx(Excepts.Predicate<? extends IOException, ? super Path> filter) {
+	public PathFinder filterEx(Excepts.Predicate<? extends IOException, ? super Path> filter) {
 		return modify(p -> Filters.test(Filters.Nulls.no, p, filter) ? p : null);
 	}
 
 	/**
 	 * Filter final path segment name by file system pattern syntax.
 	 */
-	public PathList nameFilter(String format, Object... args) {
+	public PathFinder nameFilter(String format, Object... args) {
 		return filter(Filters.as(Path::getFileName, pattern(format, args).cast()));
 	}
 
 	/**
 	 * Filter final path segment name based on predicate.
 	 */
-	public PathList
+	public PathFinder
 		nameFilter(Excepts.Predicate<? extends RuntimeException, ? super String> filter) {
 		return filter(Filters.as(Paths::name, filter));
 	}
@@ -101,14 +101,14 @@ public class PathList {
 	/**
 	 * Filter final path segment name based on predicate.
 	 */
-	public PathList nameFilterEx(Excepts.Predicate<? extends IOException, ? super String> filter) {
+	public PathFinder nameFilterEx(Excepts.Predicate<? extends IOException, ? super String> filter) {
 		return filterEx(Filters.asEx(Paths::name, filter));
 	}
 
 	/**
 	 * Modifies paths relative to the dir. Additional filters will apply to the modified paths.
 	 */
-	public PathList relative() {
+	public PathFinder relative() {
 		int levels = Paths.nameCount(dir);
 		return modify(p -> p.startsWith(dir) ? Paths.sub(p, levels) : p);
 	}
@@ -116,7 +116,7 @@ public class PathList {
 	/**
 	 * Sort the final list.
 	 */
-	public PathList sort() {
+	public PathFinder sort() {
 		sort = true;
 		return this;
 	}
@@ -164,7 +164,7 @@ public class PathList {
 		return Paths.Filter.pattern(Paths.fs(dir), format, args);
 	}
 
-	private PathList modify(Excepts.Operator<IOException, Path> modifier) {
+	private PathFinder modify(Excepts.Operator<IOException, Path> modifier) {
 		this.modifier = combine(this.modifier, modifier);
 		return this;
 	}
@@ -181,6 +181,7 @@ public class PathList {
 	}
 
 	private void consumeChildren(Excepts.Consumer<IOException, Path> consumer) throws IOException {
+		if (!Files.isDirectory(dir)) return;
 		try (var dirs = Files.newDirectoryStream(dir)) {
 			stream(dirs).forEach(consumer);
 		}

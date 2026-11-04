@@ -364,8 +364,8 @@ public class StructBehavior {
 		String s = new Outer().toString();
 		Assert.match(s, """
 			(?s)Outer\\(@\\w+\\+\\w+\\) \\{
-			.*%1$s\\[\\] innerVal = \\[%1$s\\(@.*
-			.*%1$s.ByRef\\[\\] innerRef = \\[.*
+			.* %1$s\\[\\] innerVal = \\[%1$s\\(@.*
+			.* ByRef\\[\\] innerRef = \\[.*
 			\\}""", TestStruct.class.getSimpleName());
 	}
 

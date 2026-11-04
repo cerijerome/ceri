@@ -31,9 +31,9 @@ public class RefineBehavior {
 	@Dims({ 1, 2, 3 })
 	@Chars("US-ASCII")
 	public static class C {
-		public static final Field fIn = Reflect.publicField(C.class, "in");
-		public static final Field fOut = Reflect.publicField(C.class, "out");
-		public static final Field fInOut = Reflect.publicField(C.class, "inOut");
+		public static final Field fIn = Reflect.field(C.class, "in");
+		public static final Field fOut = Reflect.field(C.class, "out");
+		public static final Field fInOut = Reflect.field(C.class, "inOut");
 		@In
 		public static final int in = 0;
 		@Out

@@ -39,6 +39,13 @@ Concepts
 - pluginManagement defines plugin settings, shared in current and child poms
 - plugin then only needs groupId+artifactId (can override settings) 
 
+Scopes
+------
+- compile = build, test, jar (default)
+- provided = build, test
+- runtime = test, jar
+- test = test
+
 Troubleshooting
 ---------------
 - When building, remember to also build parent pom

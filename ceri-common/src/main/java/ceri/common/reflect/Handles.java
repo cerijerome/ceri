@@ -96,7 +96,7 @@ public class Handles {
 	 * Returns a var handle for field access.
 	 */
 	public static VarHandle handle(Class<?> cls, String fieldName) {
-		return handle(Reflect.publicField(cls, fieldName));
+		return handle(Reflect.field(cls, fieldName));
 	}
 
 	/**

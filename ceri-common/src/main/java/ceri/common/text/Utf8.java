@@ -1,9 +1,7 @@
 package ceri.common.text;
 
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 
@@ -37,7 +35,7 @@ public class Utf8 {
 	 * Returns the string as UTF8 bytes.
 	 */
 	public static byte[] encode(String s) {
-		return s.getBytes(charset());
+		return s.getBytes(Chars.UTF8);
 	}
 
 	/**
@@ -58,7 +56,7 @@ public class Utf8 {
 	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(byte[] utf8Bytes, int offset, int length) {
-		return new String(utf8Bytes, offset, length, charset());
+		return new String(utf8Bytes, offset, length, Chars.UTF8);
 	}
 
 	/**
@@ -79,21 +77,14 @@ public class Utf8 {
 	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(ByteProvider utf8Bytes, int offset, int length) {
-		return new String(utf8Bytes.copy(offset, length), charset());
-	}
-
-	/**
-	 * Returns the UTF8 charset.
-	 */
-	public static Charset charset() {
-		return StandardCharsets.UTF_8;
+		return new String(utf8Bytes.copy(offset, length), Chars.UTF8);
 	}
 
 	/**
 	 * Returns a configured UTF8 encoder.
 	 */
 	public static CharsetEncoder encoder() {
-		return charset().newEncoder().onMalformedInput(CodingErrorAction.REPLACE)
+		return Chars.UTF8.newEncoder().onMalformedInput(CodingErrorAction.REPLACE)
 			.onUnmappableCharacter(CodingErrorAction.REPLACE);
 	}
 

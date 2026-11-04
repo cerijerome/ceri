@@ -352,7 +352,7 @@ public abstract class Struct extends Structure {
 	 * Provides a compact string suitable for error messages.
 	 */
 	public static String compactString(Structure t) {
-		return String.format("%s(@%x+%x)", Reflect.nestedName(t.getClass()),
+		return String.format("%s(@%x+%x)", Reflect.simple(t.getClass()), //nestedName(t.getClass()),
 			Pointer.nativeValue(t.getPointer()), t.size());
 	}
 
@@ -363,10 +363,10 @@ public abstract class Struct extends Structure {
 		Functions.ToIntFunction<String> fieldOffsetFn) {
 		if (s == null) return Strings.NULL;
 		var cls = s.getClass();
-		var b = StringBuilders.format("%s(%s) {%n", Reflect.nestedName(cls),
+		var b = StringBuilders.format("%s(%s) {%n", Reflect.simple(cls),//nestedName(cls),
 			JnaArgs.string(s.getPointer()));
 		for (String name : fields) {
-			Field f = Objects.requireNonNull(Reflect.publicField(cls, name));
+			Field f = Objects.requireNonNull(Reflect.field(cls, name));
 			int offset = fieldOffsetFn.applyAsInt(name);
 			b.append(INDENT).append(fieldString(s, f, offset));
 		}
@@ -532,7 +532,7 @@ public abstract class Struct extends Structure {
 	 * Convenience method to get the named field type.
 	 */
 	protected Field field(String name) {
-		return Reflect.publicField(getClass(), name);
+		return Reflect.field(getClass(), name);
 	}
 
 	@Override
@@ -558,8 +558,9 @@ public abstract class Struct extends Structure {
 	}
 
 	private static String fieldString(Structure s, Field f, int offset) {
-		String type = Reflect.nestedName(f.getType());
-		String value = ARGS.arg(Reflect.publicFieldValue(s, f));
+		//var type = Reflect.nestedName(f.getType());
+		var type = Reflect.simple(f.getType());
+		var value = ARGS.arg(Reflect.fieldValue(s, f));
 		return String.format("+%02x: %s %s = %s%n", offset, type, f.getName(), prefix(value));
 	}
 

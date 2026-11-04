@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import ceri.common.array.Array;
 import ceri.common.function.Fluent;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Chars;
 import ceri.common.util.Validate;
 
 /**
@@ -175,7 +176,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes the string as UTF-8 bytes.
 	 */
 	default T writeUtf8(String s) {
-		return writeString(s, StandardCharsets.UTF_8);
+		return writeString(s, Chars.UTF8);
 	}
 
 	/**

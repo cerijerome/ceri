@@ -3,6 +3,7 @@ package ceri.common.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,7 +71,8 @@ public class PathsTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testFs() {
-		Assert.same(Paths.fs(null), FileSystems.getDefault());
+		Assert.same(Paths.fs((Path) null), FileSystems.getDefault());
+		Assert.same(Paths.fs((URI) null), FileSystems.getDefault());
 	}
 
 	@SuppressWarnings("resource")
@@ -174,7 +176,7 @@ public class PathsTest {
 	}
 
 	@Test
-	public void testExtend() throws IOException {
+	public void testExtend() {
 		try (var r = Resource.of(String.class)) {
 			Assert.path(Paths.extend(null, "test"), null);
 			Assert.path(Paths.extend(r.path()), r.path().toString());
@@ -402,16 +404,16 @@ public class PathsTest {
 			.file("c.h", "c").dir("d").build();
 	}
 
-	private void assertPathListOf(Excepts.Consumer<? extends IOException, PathList> action,
+	private void assertPathListOf(Excepts.Consumer<? extends IOException, PathFinder> action,
 		String... paths) throws IOException {
-		var pathFinder = PathList.of(helper.root);
+		var pathFinder = PathFinder.of(helper.root);
 		action.accept(pathFinder);
 		helper.assertPaths(pathFinder.list(), paths);
 	}
 
-	private void assertPathListAll(Excepts.Consumer<? extends IOException, PathList> action,
+	private void assertPathListAll(Excepts.Consumer<? extends IOException, PathFinder> action,
 		String... paths) throws IOException {
-		var pathFinder = PathList.all(helper.root);
+		var pathFinder = PathFinder.all(helper.root);
 		action.accept(pathFinder);
 		helper.assertPaths(pathFinder.list(), paths);
 	}

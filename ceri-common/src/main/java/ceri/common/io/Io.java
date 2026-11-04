@@ -8,12 +8,12 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
 import ceri.common.stream.Stream;
+import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 
 /**
@@ -188,7 +188,7 @@ public class Io {
 	 * Reads available bytes as a String, blocking until at least one byte is available.
 	 */
 	public static String readNextString(InputStream in) throws IOException {
-		return readNextString(in, StandardCharsets.UTF_8);
+		return readNextString(in, Chars.UTF8);
 	}
 
 	/**
@@ -258,7 +258,7 @@ public class Io {
 	 * Gets content from input stream as a string.
 	 */
 	public static String readString(InputStream in) throws IOException {
-		return readString(in, StandardCharsets.UTF_8);
+		return readString(in, Chars.UTF8);
 	}
 
 	/**
@@ -272,7 +272,7 @@ public class Io {
 	 * Returns a stream of lines lazily read from input stream.
 	 */
 	public static Stream.Ex<IOException, String> lines(InputStream in) {
-		return lines(in, StandardCharsets.UTF_8);
+		return lines(in, Chars.UTF8);
 	}
 
 	/**

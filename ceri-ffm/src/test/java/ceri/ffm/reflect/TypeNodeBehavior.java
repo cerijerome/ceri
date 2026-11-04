@@ -16,8 +16,8 @@ import ceri.ffm.reflect.Refine.In;
 public class TypeNodeBehavior {
 
 	public static final class Types {
-		public static final Field FIELD_LIST = Reflect.publicField(Types.class, "LIST");
-		public static final Field FIELD_LIST_ANNO = Reflect.publicField(Types.class, "LIST_ANNO");
+		public static final Field FIELD_LIST = Reflect.field(Types.class, "LIST");
+		public static final Field FIELD_LIST_ANNO = Reflect.field(Types.class, "LIST_ANNO");
 		public static final Generics.Token<List<?>> LIST_TOKEN = new Generics.Token<>() {};
 		public static final List<?> LIST = Lists.of();
 		@In

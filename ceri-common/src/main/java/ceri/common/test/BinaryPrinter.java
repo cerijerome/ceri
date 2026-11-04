@@ -13,6 +13,7 @@ import ceri.common.function.Functions;
 import ceri.common.io.Buffers;
 import ceri.common.math.Radix;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Chars;
 import ceri.common.text.Format;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.Strings;
@@ -234,7 +235,7 @@ public class BinaryPrinter {
 	 * Print string as UTF8 bytes.
 	 */
 	public BinaryPrinter print(String s) {
-		return print(s.getBytes(StandardCharsets.UTF_8));
+		return print(s.getBytes(Chars.UTF8));
 	}
 
 	/**

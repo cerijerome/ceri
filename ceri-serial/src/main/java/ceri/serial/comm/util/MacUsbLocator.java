@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.except.ExceptionAdapter;
@@ -32,8 +31,7 @@ public class MacUsbLocator {
 	private static final XPathExpression LOCATION_ID_XPATH =
 		XPaths.compile("parent::dict/parent::dict/parent::dict/"
 			+ "key[text()='locationID']/following-sibling::integer");
-	private static final XPathExpression DEVICE_XPATH =
-		XPaths.compile("following-sibling::string");
+	private static final XPathExpression DEVICE_XPATH = XPaths.compile("following-sibling::string");
 	private static final Parameters IOREG_ARGS = Parameters.of("-arltx", "-c", "IOSerialBSDClient");
 	private final Ioreg ioreg;
 
@@ -79,10 +77,10 @@ public class MacUsbLocator {
 	 */
 	public String port(int locationId) throws IOException {
 		return ExceptionAdapter.io.get(() -> {
-			for (Node usb : usbNodes()) {
+			for (var usb : usbNodes()) {
 				int id = locationId(usb);
 				if (id == 0 || id != locationId) continue;
-				String port = device(usb);
+				var port = device(usb);
 				if (port != null) return port;
 				break;
 			}
@@ -91,9 +89,9 @@ public class MacUsbLocator {
 		});
 	}
 
-	private List<Node> usbNodes() throws XPathException, SAXException, IOException {
+	private List<Node> usbNodes() throws XPathException, IOException {
 		String ioregXml = ioreg.exec(IOREG_ARGS);
-		return XPaths.nodeList(USB_XPATH, Xml.unvalidatedDocument(ioregXml));
+		return XPaths.nodeList(USB_XPATH, Xml.Dom.unvalidatedDocument(ioregXml));
 	}
 
 	private static int locationId(Node usb) throws XPathException {

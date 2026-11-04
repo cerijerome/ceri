@@ -1,4 +1,4 @@
-package ceri.ent.web;
+package ceri.ent.htmlunit;
 
 public record SampleHeader(String userAgent, String accept, String acceptEncoding,
 	String acceptLanguage) {

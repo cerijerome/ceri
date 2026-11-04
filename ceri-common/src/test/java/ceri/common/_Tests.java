@@ -144,7 +144,7 @@ import ceri.common.test.Testing;
 	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.LineReaderBehavior.class, //
 	ceri.common.io.NioTest.class, //
-	ceri.common.io.PathListBehavior.class, //
+	ceri.common.io.PathFinderBehavior.class, //
 	ceri.common.io.PathsTest.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
 	ceri.common.io.PollingInputStreamBehavior.class, //
@@ -285,7 +285,6 @@ import ceri.common.test.Testing;
 	ceri.common.util.ValidateTest.class, //
 	ceri.common.util.VersionBehavior.class, //
 	// xml
-	ceri.common.xml.RuntimeXPathExceptionBehavior.class, //
 	ceri.common.xml.XPathsTest.class, //
 	ceri.common.xml.XmlTest.class, //
 })

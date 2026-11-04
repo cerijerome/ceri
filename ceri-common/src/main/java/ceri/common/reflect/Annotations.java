@@ -419,7 +419,7 @@ public class Annotations {
 	 * 
 	 * &#64;Retention(RetentionPolicy.RUNTIME)
 	 * &#64;Target({ ElementType.TYPE })
-	 * public static @interface Anno {
+	 * public @interface Anno {
 	 * 	public static final Anno DEFAULT = annotationFromClass(() -> {
 	 * 		&#64;Anno
 	 * 		class Default {}
@@ -447,7 +447,7 @@ public class Annotations {
 	 * 
 	 * &#64;Retention(RetentionPolicy.RUNTIME)
 	 * &#64;Target({ ElementType.FIELD })
-	 * public static @interface Anno {
+	 * public @interface Anno {
 	 * 	public static final Anno DEFAULT = annotationFromEnum(() -> {
 	 * 		enum Default {
 	 * 			&#64;Anno

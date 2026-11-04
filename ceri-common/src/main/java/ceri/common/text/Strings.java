@@ -19,6 +19,8 @@ import ceri.common.util.Hasher;
  */
 public class Strings {
 	public static final String NULL = "null";
+	public static final String TRUE = "true";
+	public static final String FALSE = "false";
 	private static final String INTEGRAL_FLOAT = ".0";
 	public static final String EOL = System.lineSeparator();
 

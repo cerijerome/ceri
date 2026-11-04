@@ -39,7 +39,7 @@ public class ResourceBehavior {
 	@Test
 	public void shouldProvideResourceRelativeToRoot() throws IOException {
 		try (var r = Resource.root(String.class)) {
-			var names = PathList.of(r.path()).names();
+			var names = PathFinder.of(r.path()).names();
 			Assert.containsAll(names, "java");
 		}
 	}
@@ -49,7 +49,7 @@ public class ResourceBehavior {
 	public void shouldAccessFile() throws IOException {
 		Assert.equal(Resource.of(null), null);
 		try (var r = Resource.of(getClass(), "res", "test")) {
-			Assert.unordered(PathList.of(r.path()).names(), "A.txt", "BB.txt", "CCC.txt");
+			Assert.unordered(PathFinder.of(r.path()).names(), "A.txt", "BB.txt", "CCC.txt");
 			Assert.equal(Files.readString(r.resolve("A.txt")), "aaa");
 		}
 		try (var r = Resource.of(getClass(), "res", "test", "BB.txt")) {
@@ -61,19 +61,19 @@ public class ResourceBehavior {
 	public void shouldAccessJar() throws IOException {
 		Assert.thrown(() -> Resource.of(Test.class, "\0"));
 		try (var r = Resource.of(Test.class, "function")) {
-			Assert.containsAll(PathList.of(r.path()).names(), "Executable.class");
+			Assert.containsAll(PathFinder.of(r.path()).names(), "Executable.class");
 		}
 	}
 
 	@Test
 	public void shouldAccessModule() throws IOException {
 		try (var r = Resource.of(String.class, "ref")) {
-			Assert.containsAll(PathList.of(r.path()).names(), "Finalizer.class");
+			Assert.containsAll(PathFinder.of(r.path()).names(), "Finalizer.class");
 		}
 	}
 
 	@Test
-	public void shouldProvideString() throws IOException {
+	public void shouldProvideString() {
 		try (var r = Resource.of(getClass(), "res", "test")) {
 			Assert.equal(r.toString(), r.path().toString());
 		}

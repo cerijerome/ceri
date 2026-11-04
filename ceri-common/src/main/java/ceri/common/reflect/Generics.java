@@ -526,7 +526,7 @@ public class Generics {
 	 * Returns an instance for the object's type.
 	 */
 	public static Typed typedClass(Object obj) {
-		return typed(Reflect.getClass(obj));
+		return typed(Reflect.classOf(obj));
 	}
 
 	/**

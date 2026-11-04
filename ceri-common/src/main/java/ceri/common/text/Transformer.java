@@ -19,9 +19,13 @@ import ceri.common.util.Truth;
 public class Transformer implements Functions.Function<Object, String> {
 	private static final Object OVERFLOW = null;
 	private static final String REMAINDER = "..";
-	private static final Joiner ITERABLE_JOINER = joiner(Joiner.ARRAY, 10);
-	private static final Joiner MAP_JOINER = joiner(Joiner.LIST, 10);
+	private static final int MAX_ITEMS = 10;
+	private static final Joiner ITERABLE_JOINER = joiner(Joiner.ARRAY, MAX_ITEMS);
+	private static final Joiner MAP_JOINER = joiner(Joiner.LIST, MAX_ITEMS);
 	public static final Transformer DEFAULT = builder().build();
+	public static final Transformer COMPACT =
+		builder().iterables(joiner(Joiner.ARRAY_COMPACT, MAX_ITEMS))
+			.maps(joiner(Joiner.LIST_COMPACT, MAX_ITEMS), "=").build();
 	private final List<Transform<Object, ?>> transforms;
 	private final Functions.Supplier<?> nullSupplier;
 	private final String remainder;
@@ -322,7 +326,7 @@ public class Transformer implements Functions.Function<Object, String> {
 
 	private Object transform(Context context, Object arg) {
 		if (arg == null) return nullSupplier.get();
-		if (arg instanceof Raw raw) return String.valueOf(raw.obj()); 
+		if (arg instanceof Raw raw) return String.valueOf(raw.obj());
 		for (var transform : transforms) {
 			var result = transform.apply(context, arg);
 			if (result != null) return result;

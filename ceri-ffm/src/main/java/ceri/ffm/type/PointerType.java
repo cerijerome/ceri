@@ -676,7 +676,7 @@ public abstract class PointerType {
 	 * Returns operational support for the pointer type.
 	 */
 	Supporter<?> support() {
-		return support(Reflect.getClass(this));
+		return support(Reflect.classOf(this));
 	}
 
 	Support<?, ?, ?, ?> type() {

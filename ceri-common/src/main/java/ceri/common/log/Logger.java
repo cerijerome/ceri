@@ -238,7 +238,7 @@ public class Logger {
 		if (flag(Logger.FormatFlag.noStackTrace)) return "";
 		var classLine = Reflect.previousClassLine(STACK_OFFSET);
 		if (flag(Logger.FormatFlag.abbreviatePackage))
-			classLine = Reflect.abbreviatePackages(classLine);
+			classLine = Reflect.compactPackages(classLine);
 		return classLine;
 	}
 

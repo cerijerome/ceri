@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import ceri.common.array.Array;
@@ -602,7 +601,7 @@ public class TestIo {
 	 * Creates an input stream based on encoded string.
 	 */
 	public static ByteArrayInputStream inputStream(String format, Object... args) {
-		return inputStream(StandardCharsets.UTF_8, format, args);
+		return inputStream(Chars.UTF8, format, args);
 	}
 
 	/**

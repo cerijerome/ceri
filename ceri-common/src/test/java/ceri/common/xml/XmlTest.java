@@ -1,9 +1,6 @@
 package ceri.common.xml;
 
-import java.io.IOException;
-import javax.xml.parsers.ParserConfigurationException;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 
@@ -17,21 +14,24 @@ public class XmlTest {
 	}
 
 	@Test
-	public void testDocument() throws SAXException {
-		var doc = Xml.document(xml);
+	public void testDocument() {
+		var doc = Xml.Dom.document(xml);
 		Assert.equal(doc.getChildNodes().getLength(), 1);
-		Assert.thrown(() -> Xml.document(null));
+		Assert.thrown(() -> Xml.Dom.document(null));
 	}
 
 	@Test
-	public void testUnvalidatedDocument() throws SAXException {
-		var doc = Xml.unvalidatedDocument(xmlWithDtd);
+	public void testUnvalidatedDocument() {
+		var doc = Xml.Dom.unvalidatedDocument(xmlWithDtd);
 		Assert.equal(doc.getChildNodes().getLength(), 2);
 	}
 
 	@Test
-	public void testExecute() {
-		Assert.thrown(() -> Xml.execute(() -> Assert.throwIt(new ParserConfigurationException())));
-		Assert.thrown(() -> Xml.execute(() -> Assert.throwIt(new IOException())));
+	public void testEncode() {
+		Assert.string(Xml.encode(null), null);
+		Assert.string(Xml.encode(""), "");
+		Assert.same(Xml.encode("test"), "test");
+		Assert.string(Xml.encode("<\0'a' &\t\"b\">"),
+			"&lt;?&apos;a&apos; &amp;\t&quot;b&quot;&gt;");
 	}
 }

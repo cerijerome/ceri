@@ -8,12 +8,13 @@ import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.test.Assert;
+import ceri.common.text.Chars;
 import ceri.common.util.Validate;
 
 public class ByteReaderBehavior {
 	private static final boolean msb = Bytes.IS_BIG_ENDIAN;
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
-	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);
+	private static final byte[] utf8 = "abcde".getBytes(Chars.UTF8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());
 
 	@Test

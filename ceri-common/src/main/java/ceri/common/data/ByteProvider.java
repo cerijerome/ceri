@@ -13,6 +13,7 @@ import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
+import ceri.common.text.Chars;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.util.Validate;
@@ -446,7 +447,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Decodes UTF-8 bytes from index into a string.
 	 */
 	default String getUtf8(int index, int length) {
-		return getString(index, length, StandardCharsets.UTF_8);
+		return getString(index, length, Chars.UTF8);
 	}
 
 	/**
