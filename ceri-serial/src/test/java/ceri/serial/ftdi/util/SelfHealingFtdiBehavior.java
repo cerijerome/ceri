@@ -14,7 +14,7 @@ import ceri.common.function.Closeables;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functional;
 import ceri.common.function.Functions;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.Testing;
@@ -256,16 +256,16 @@ public class SelfHealingFtdiBehavior {
 	public void shouldRetryOnFailure() throws InterruptedException {
 		init();
 		LogModifier.run(() -> {
-			ValueCondition<StateChange> sync = ValueCondition.of();
+			ValueCondition<Device.Change> sync = ValueCondition.of();
 			try (var _ = con.listeners().enclose(sync::signal)) {
 				lib.transferOut.error.setFrom(JnaTesting.LEX);
 				Assert.thrown(con::open);
-				sync.await(StateChange.broken);
+				sync.await(Device.Change.broken);
 				lib.transferOut.awaitAuto();
 				lib.transferOut.awaitAuto();
 				lib.transferOut.awaitAuto();
 				lib.transferOut.error.clear();
-				sync.await(StateChange.fixed);
+				sync.await(Device.Change.fixed);
 			}
 		}, Level.OFF, SelfHealing.class);
 	}

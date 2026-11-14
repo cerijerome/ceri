@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
+import ceri.log.net.SocketListener;
 import ceri.log.util.Logs;
 
 /**

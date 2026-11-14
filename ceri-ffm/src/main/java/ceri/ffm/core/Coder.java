@@ -5,7 +5,7 @@ import java.lang.foreign.SegmentAllocator;
 import java.util.List;
 import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.math.Maths;
 import ceri.ffm.type.Memory;
 
@@ -78,11 +78,11 @@ public class Coder {
 	public static class Out {
 		private final List<Functions.Consumer<MemorySegment>> encodings = Lists.of();
 		private final List<Functions.Consumer<MemorySegment>> updates = Lists.of();
-		private final Direction direction;
+		private final Io.Direction direction;
 		private final long alignment;
 		private long offset = 0;
 
-		private Out(Direction direction, long alignment) {
+		private Out(Io.Direction direction, long alignment) {
 			this.direction = direction;
 			this.alignment = alignment;
 		}
@@ -91,14 +91,14 @@ public class Coder {
 		 * Returns true if the encoder supports type encoding.
 		 */
 		public boolean in() {
-			return Direction.in(direction);
+			return Io.in(direction);
 		}
 
 		/**
 		 * Returns true if the encoder supports type updates after encoding.
 		 */
 		public boolean out() {
-			return Direction.out(direction);
+			return Io.out(direction);
 		}
 
 		/**
@@ -161,7 +161,7 @@ public class Coder {
 	/**
 	 * Creates a new encoder with given alignment.
 	 */
-	public static Out encoder(Direction direction, long alignment) {
+	public static Out encoder(Io.Direction direction, long alignment) {
 		return new Out(direction, alignment);
 	}
 }

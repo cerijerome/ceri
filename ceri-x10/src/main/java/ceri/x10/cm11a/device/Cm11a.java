@@ -2,13 +2,13 @@ package ceri.x10.cm11a.device;
 
 import java.io.Closeable;
 import ceri.common.concurrent.Listenable;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.serial.comm.SerialParams;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.util.X10Controller;
 
-public interface Cm11a extends X10Controller, Listenable.Indirect<StateChange>, Closeable {
+public interface Cm11a extends X10Controller, Listenable.Indirect<Device.Change>, Closeable {
 	/** A stateless, no-op instance. */
 	Cm11a NULL = new Null() {};
 	/** Serial port settings. */
@@ -24,7 +24,7 @@ public interface Cm11a extends X10Controller, Listenable.Indirect<StateChange>, 
 	 */
 	interface Null extends Cm11a {
 		@Override
-		default Listenable<StateChange> listeners() {
+		default Listenable<Device.Change> listeners() {
 			return Listenable.ofNull();
 		}
 

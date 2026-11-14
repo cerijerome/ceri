@@ -23,7 +23,7 @@ import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConcurrent;
 import ceri.common.test.TestProcess;
 import ceri.common.text.Strings;
-import ceri.log.io.LogPrintStream;
+import ceri.log.io.LogStream;
 
 public class LogsTest {
 	private static final Object OBJ = new Object() {};
@@ -63,6 +63,27 @@ public class LogsTest {
 	}
 
 	@Test
+	public void testConfigRootMax() {
+		var config = Logs.config();
+		var level = config.logger().getLevel();
+		Assert.equal(config.max(null), level);
+		Assert.equal(config.max(Level.INFO), level);
+		Assert.equal(config.max(Level.ERROR), Level.ERROR);
+		Configurator.setRootLevel(level);
+	}
+
+	@Test
+	public void testConfigFile() {
+		var config = Logs.config();
+		Assert.path(config.file().getFileName(), "log4j2-test.json");
+	}
+
+	@Test
+	public void testMessage() {
+		Assert.equal(Logs.message("{}={}", "x", 1).getFormattedMessage(), "x=1");
+	}
+
+	@Test
 	public void testLoggerName() {
 		Assert.equal(Logs.loggerName(getClass()), getClass().getName());
 		Assert.equal(Logs.loggerName(OBJ.getClass()), getClass().getName() + "$1");
@@ -85,7 +106,7 @@ public class LogsTest {
 	public void testBinaryLogger() {
 		var bp = Logs.binaryLogger();
 		bp.print(1, 2, 3);
-		try (var stream = LogPrintStream.of(logger)) {
+		try (var stream = LogStream.of(logger)) {
 			bp = Logs.binaryLogger(BinaryPrinter.ASCII, stream);
 			bp.print("abc").flush();
 			testLog.assertFind("DEBUG .* 61 62 63 abc");

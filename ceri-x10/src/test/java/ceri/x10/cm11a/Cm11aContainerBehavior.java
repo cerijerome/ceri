@@ -2,7 +2,7 @@ package ceri.x10.cm11a;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
-import ceri.common.io.DeviceMode;
+import ceri.common.io.Device;
 import ceri.common.test.Assert;
 import ceri.common.test.TestIo;
 import ceri.serial.comm.Serial;
@@ -26,10 +26,10 @@ public class Cm11aContainerBehavior {
 			Cm11aContainer.Type.connectorRef);
 		Assert.equal(Cm11aContainer.Config.of("com").type(Cm11a.NULL, null),
 			Cm11aContainer.Type.cm11aRef);
-		Assert.equal(Cm11aContainer.Config.builder().mode(DeviceMode.test).build().type(null, null),
+		Assert.equal(Cm11aContainer.Config.builder().mode(Device.Mode.test).build().type(null, null),
 			Cm11aContainer.Type.test);
 		Assert.equal(
-			Cm11aContainer.Config.builder().mode(DeviceMode.disabled).build().type(null, null),
+			Cm11aContainer.Config.builder().mode(Device.Mode.disabled).build().type(null, null),
 			Cm11aContainer.Type.noOp);
 	}
 
@@ -59,7 +59,7 @@ public class Cm11aContainerBehavior {
 	@Test
 	public void shouldCreateFromTestConfig() throws IOException {
 		try (var con = Cm11aContainer.of(
-			Cm11aContainer.Config.builder().mode(DeviceMode.test).device(cm11aConfig).build())) {
+			Cm11aContainer.Config.builder().mode(Device.Mode.test).device(cm11aConfig).build())) {
 			con.cm11a.command(Command.allLightsOff(House.A));
 		}
 	}
@@ -67,7 +67,7 @@ public class Cm11aContainerBehavior {
 	@Test
 	public void shouldCreateFromDisabledConfig() throws IOException {
 		try (var con =
-			Cm11aContainer.of(Cm11aContainer.Config.builder().mode(DeviceMode.disabled).build())) {
+			Cm11aContainer.of(Cm11aContainer.Config.builder().mode(Device.Mode.disabled).build())) {
 			con.cm11a.command(Command.allLightsOff(House.A));
 			Assert.find(con, "noOp");
 		}

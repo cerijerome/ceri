@@ -28,7 +28,6 @@ import ceri.common.net.Net;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Stream;
 import ceri.common.text.Regex;
-import ceri.common.util.SystemVars;
 import ceri.log.util.Logs;
 import jakarta.servlet.Servlet;
 
@@ -42,7 +41,7 @@ public class JettyServer implements AutoCloseable {
 		".*/.*jstl.*\\.jar$|.*/.*taglibs.*\\.jar$";
 		//".*/jakarta.*\\.jstl.*\\.jar$";
 	private static final String DIGESTER_FACTORY_VALIDATING =
-		SystemVars.name(DigesterFactory.class, "validating");
+		DigesterFactory.class.getName() + ".validating";
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
 	private static final Pattern PROTOCOL_NAME_REGEX = Pattern.compile("^(\\w+)");
 	private static final String ROOT_PATH = "/";

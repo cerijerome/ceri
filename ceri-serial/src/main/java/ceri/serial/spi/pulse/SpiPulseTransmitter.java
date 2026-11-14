@@ -11,7 +11,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.except.ExceptionTracker;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
@@ -40,7 +40,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		this.id = id;
 		this.config = config;
 		buffer = config.buffer();
-		xfer = spi.transfer(Direction.out, buffer.storageSize());
+		xfer = spi.transfer(Io.Direction.out, buffer.storageSize());
 		xfer.delayMicros(config.delayMicros());
 		start();
 	}

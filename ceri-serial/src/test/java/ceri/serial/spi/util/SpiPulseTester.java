@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.Level;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.math.Maths;
 import ceri.common.util.StartupValues;
 import ceri.log.util.Logs;
@@ -35,7 +35,7 @@ public class SpiPulseTester {
 		SpiPulseConfig config = SpiPulseConfig.builder(size)
 			.cycle(PulseCycle.of(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
 			.delayMicros(delayMicros).build();
-		try (var fd = SpiDevice.Config.of(bus, chip, Direction.out).open()) {
+		try (var fd = SpiDevice.Config.of(bus, chip, Io.Direction.out).open()) {
 			Spi spi = SpiDevice.of(fd);
 			spi.mode(mode);
 			spi.maxSpeedHz(speed);

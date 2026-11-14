@@ -4,14 +4,14 @@ import java.io.IOException;
 import ceri.common.concurrent.Listenable;
 import ceri.common.concurrent.Listeners;
 import ceri.common.function.Enclosure;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.Logs;
 import ceri.x10.command.Command;
 import ceri.x10.util.X10Controller;
 
 public class Cm17aEmulator implements Cm17a {
-	public final Listeners<StateChange> listeners = Listeners.of();
+	public final Listeners<Device.Change> listeners = Listeners.of();
 	private final Dispatcher<Command.Listener, Command> dispatcher;
 
 	public static Cm17aEmulator of(int queuePollTimeoutMs) {
@@ -23,7 +23,7 @@ public class Cm17aEmulator implements Cm17a {
 	}
 
 	@Override
-	public Listenable<StateChange> listeners() {
+	public Listenable<Device.Change> listeners() {
 		return listeners;
 	}
 

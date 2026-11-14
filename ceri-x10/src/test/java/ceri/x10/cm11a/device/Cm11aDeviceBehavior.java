@@ -9,7 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestIo;
@@ -53,10 +53,10 @@ public class Cm11aDeviceBehavior {
 	@Test
 	public void shouldListenForConnectionChanges() throws InterruptedException, IOException {
 		init();
-		ValueCondition<StateChange> sync = ValueCondition.of();
+		ValueCondition<Device.Change> sync = ValueCondition.of();
 		try (var _ = cm11a.listeners().enclose(sync::signal)) {
-			con.listeners.accept(StateChange.broken);
-			Assert.equal(sync.await(), StateChange.broken);
+			con.listeners.accept(Device.Change.broken);
+			Assert.equal(sync.await(), Device.Change.broken);
 		}
 	}
 

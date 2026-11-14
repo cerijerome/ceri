@@ -1,7 +1,7 @@
 package ceri.serial.ftdi;
 
 import org.junit.jupiter.api.Test;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.serial.ftdi.jna.LibFtdi;
@@ -12,10 +12,10 @@ public class FtdiBitModeBehavior {
 	public void shouldNotBreachEqualsContract() {
 		var t = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).mask(0xa5).build();
 		var eq0 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).mask(0xa5).build();
-		var eq1 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).allLines(Direction.in)
-			.line(Direction.out, 0, 2, 5, 7, 8).build();
+		var eq1 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).allLines(Io.Direction.in)
+			.line(Io.Direction.out, 0, 2, 5, 7, 8).build();
 		var eq2 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284)
-			.allLines(Direction.out).line(Direction.in, 1, 3, 4, 6).build();
+			.allLines(Io.Direction.out).line(Io.Direction.in, 1, 3, 4, 6).build();
 		var ne0 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_CBUS).mask(0xa5).build();
 		var ne1 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).mask(0xa4).build();
 		Testing.exerciseEquals(t, eq0, eq1, eq2);

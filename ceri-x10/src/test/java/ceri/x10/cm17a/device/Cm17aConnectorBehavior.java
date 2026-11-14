@@ -2,7 +2,7 @@ package ceri.x10.cm17a.device;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.CallSync;
 import ceri.serial.comm.test.TestSerial;
 
@@ -25,10 +25,10 @@ public class Cm17aConnectorBehavior {
 			serial.dtr.assertAuto(false);
 			con.rts(true);
 			serial.rts.assertAuto(true);
-			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
+			CallSync.Consumer<Device.Change> sync = CallSync.consumer(null, true);
 			try (var _ = con.listeners().enclose(sync::accept)) {
 				con.broken();
-				sync.assertCall(StateChange.broken);
+				sync.assertCall(Device.Change.broken);
 			}
 		}
 	}

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Lambdas;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
@@ -97,24 +97,24 @@ public class SelfHealingFdBehavior {
 	@Test
 	public void shouldListenForStateChanges() {
 		init();
-		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
+		CallSync.Consumer<Device.Change> listener = CallSync.consumer(null, false);
 		shf.listeners().listen(listener::accept);
 		try (var _ = TestConcurrent.threadRun(shf::broken)) {
-			listener.assertCall(StateChange.broken);
-			listener.assertCall(StateChange.fixed);
+			listener.assertCall(Device.Change.broken);
+			listener.assertCall(Device.Change.fixed);
 		}
 	}
 
 	@Test
 	public void shouldHandleBadListeners() {
 		init();
-		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
+		CallSync.Consumer<Device.Change> listener = CallSync.consumer(null, false);
 		listener.error.setFrom(ErrorGen.RTX, ErrorGen.RIX);
 		shf.listeners().listen(listener::accept);
 		LogModifier.run(() -> {
 			try (var _ = TestConcurrent.threadRun(shf::broken)) {
-				listener.assertCall(StateChange.broken);
-				listener.assertCall(StateChange.fixed);
+				listener.assertCall(Device.Change.broken);
+				listener.assertCall(Device.Change.fixed);
 				shf.close();
 			}
 		}, Level.OFF, SelfHealing.class);

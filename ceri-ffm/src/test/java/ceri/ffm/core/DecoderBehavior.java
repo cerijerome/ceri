@@ -2,7 +2,7 @@ package ceri.ffm.core;
 
 import java.lang.foreign.MemorySegment;
 import org.junit.jupiter.api.Test;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.ffm.type.Primitive;
 import ceri.ffm.type.Support;
@@ -49,7 +49,7 @@ public class DecoderBehavior {
 	}
 
 	private static <T> MemorySegment encode(OfArray<T> support, T value) {
-		var r = support.encode(Direction.in, value);
+		var r = support.encode(Io.Direction.in, value);
 		//FfmTesting.bin(r.value());
 		//System.out.println("Encode: " + RawArray.toString(value));
 		var decoded = support.decode(r.value());

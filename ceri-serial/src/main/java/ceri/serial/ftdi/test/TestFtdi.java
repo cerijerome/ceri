@@ -3,7 +3,7 @@ package ceri.serial.ftdi.test;
 import java.io.IOException;
 import com.sun.jna.Pointer;
 import ceri.common.except.ExceptionAdapter;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestIo;
@@ -44,7 +44,7 @@ public class TestFtdi extends TestIo.Connector implements Ftdi.Fixable {
 	/**
 	 * Transfer control parameters.
 	 */
-	public static record Submit(Direction direction, Pointer buffer, int len) {}
+	public static record Submit(Io.Direction direction, Pointer buffer, int len) {}
 
 	/**
 	 * Read stream parameters.
@@ -217,15 +217,15 @@ public class TestFtdi extends TestIo.Connector implements Ftdi.Fixable {
 
 	@Override
 	public FtdiTransferControl readSubmit(Pointer buffer, int len) throws IOException {
-		return submit(Direction.in, buffer, len);
+		return submit(Io.Direction.in, buffer, len);
 	}
 
 	@Override
 	public FtdiTransferControl writeSubmit(Pointer buffer, int len) throws IOException {
-		return submit(Direction.out, buffer, len);
+		return submit(Io.Direction.out, buffer, len);
 	}
 
-	private FtdiTransferControl submit(Direction direction, Pointer buffer, int len)
+	private FtdiTransferControl submit(Io.Direction direction, Pointer buffer, int len)
 		throws IOException {
 		var xfer = submit.apply(new Submit(direction, buffer, len), ExceptionAdapter.io);
 		verifyConnected();

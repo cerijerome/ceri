@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.test.Assert;
 
-public class BufferedOutputStreamBehavior {
+public class BufferedOutBehavior {
 	private final ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
 	@BeforeEach
@@ -17,7 +17,7 @@ public class BufferedOutputStreamBehavior {
 
 	@Test
 	public void shouldWriteOnFlush() throws IOException {
-		try (var out = new BufferedOutputStream(bout)) {
+		try (var out = new BufferedOut(bout)) {
 			out.write(Array.BYTE.of(1, 2, 3));
 			assertBytes();
 			out.flush();
@@ -27,7 +27,7 @@ public class BufferedOutputStreamBehavior {
 
 	@Test
 	public void shouldBypassBufferIfLargeWrite() throws IOException {
-		try (var out = new BufferedOutputStream(bout, 5)) {
+		try (var out = new BufferedOut(bout, 5)) {
 			out.write(Array.BYTE.of(1, 2, 3, 4, 5, 6, 7, 8));
 			assertBytes(1, 2, 3, 4, 5, 6, 7, 8);
 		}
@@ -35,7 +35,7 @@ public class BufferedOutputStreamBehavior {
 
 	@Test
 	public void shouldFlushBufferOnSingleWriteIfBufferExceeded() throws IOException {
-		try (var out = new BufferedOutputStream(bout, 3)) {
+		try (var out = new BufferedOut(bout, 3)) {
 			out.write(1);
 			out.write(2);
 			out.write(3);
@@ -47,7 +47,7 @@ public class BufferedOutputStreamBehavior {
 
 	@Test
 	public void shouldFlushBufferIfBufferExceeded() throws IOException {
-		try (var out = new BufferedOutputStream(bout, 5)) {
+		try (var out = new BufferedOut(bout, 5)) {
 			out.write(Array.BYTE.of(1, 2, 3));
 			assertBytes();
 			out.write(Array.BYTE.of(4, 5, 6));

@@ -13,7 +13,7 @@ import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.property.Parser;
 import ceri.common.stream.Stream;
-import ceri.common.text.Joiner;
+import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 
 /**
@@ -30,12 +30,30 @@ public class SystemVars {
 	private SystemVars() {}
 
 	/**
-	 * Returns a property name with full class name and dot extensions.
+	 * Sanitizes variable name chars.
 	 */
-	public static String name(Class<?> base, String... extensions) {
-		var ext = Joiner.DOT.joinAll(extensions);
-		if (Strings.isEmpty(ext)) return base == null ? "" : base.getName();
-		return base == null ? ext : base.getName() + "." + ext;
+	private interface Sanitizer {
+		Sanitizer UPPER = (b, c, s) -> appendUpper(b, c, s);
+		Sanitizer LOWER = (b, c, s) -> appendLower(b, c, s);
+
+		StringBuilder append(StringBuilder b, char c, char separator);
+	}
+
+	/**
+	 * Returns a sanitized system property name, splitting camel-case strings, shifting to lower
+	 * case, and joining with dot separators. Class arguments are converted to simple names first.
+	 */
+	public static String sysName(Object... parts) {
+		return join(Sanitizer.LOWER, '.', parts);
+	}
+
+	/**
+	 * Returns a sanitized environment property name, splitting camel-case strings, shifting to
+	 * upper case, and joining with underscore separators. Class arguments are converted to simple
+	 * names first.
+	 */
+	public static String envName(Object... parts) {
+		return join(Sanitizer.UPPER, '_', parts);
 	}
 
 	/**
@@ -203,5 +221,36 @@ public class SystemVars {
 			else map.put(k, v.get());
 		});
 		return map;
+	}
+
+	private static String join(Sanitizer sanitizer, char separator, Object... parts) {
+		if (parts == null) return "";
+		var b = new StringBuilder();
+		for (var part : parts) {
+			if (part == null) continue;
+			if (!b.isEmpty()) b.append(separator);
+			switch (part) {
+				case Class<?> c -> append(sanitizer, b, c.getSimpleName(), separator);
+				default -> append(sanitizer, b, String.valueOf(part), separator);
+			}
+		}
+		return b.toString();
+	}
+
+	private static void append(Sanitizer sanitizer, StringBuilder b, CharSequence chars,
+		char separator) {
+		chars.chars().forEach(c -> sanitizer.append(b, (char) c, separator));
+	}
+
+	private static StringBuilder appendLower(StringBuilder b, char c, char separator) {
+		if (!Character.isUpperCase(c)) return b.append(c);
+		if (Chars.last(b, separator) != separator) b.append(separator);
+		return b.append(Character.toLowerCase(c));
+	}
+
+	private static StringBuilder appendUpper(StringBuilder b, char c, char separator) {
+		if (!Character.isUpperCase(c)) return b.append(Character.toUpperCase(c));
+		if (Chars.last(b, separator) != separator) b.append(separator);
+		return b.append(c);
 	}
 }

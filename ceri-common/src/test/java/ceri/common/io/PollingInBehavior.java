@@ -6,12 +6,12 @@ import java.io.InputStream;
 import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 
-public class PollingInputStreamBehavior {
+public class PollingInBehavior {
 
 	@Test
 	public void shouldTimeoutIfNoData() throws IOException {
 		try (InputStream in0 = IoStream.in((_, _, _) -> 0)) {
-			try (PollingInputStream in = new PollingInputStream(in0, 1, 1)) {
+			try (PollingIn in = new PollingIn(in0, 1, 1)) {
 				Assert.thrown(IoExceptions.Timeout.class, in::read);
 			}
 		}
@@ -20,7 +20,7 @@ public class PollingInputStreamBehavior {
 	@Test
 	public void shouldReadData() throws IOException {
 		byte[] data = { Byte.MIN_VALUE, Byte.MAX_VALUE };
-		try (PollingInputStream in = new PollingInputStream(new ByteArrayInputStream(data), 1)) {
+		try (PollingIn in = new PollingIn(new ByteArrayInputStream(data), 1)) {
 			Assert.equal((byte) in.read(), Byte.MIN_VALUE);
 			Assert.equal((byte) in.read(), Byte.MAX_VALUE);
 		}
@@ -29,7 +29,7 @@ public class PollingInputStreamBehavior {
 	@Test
 	public void shouldNotWaitIfClosed() throws Exception {
 		byte[] data = { Byte.MIN_VALUE, Byte.MAX_VALUE };
-		try (PollingInputStream in = new PollingInputStream(new ByteArrayInputStream(data), 1, 1)) {
+		try (PollingIn in = new PollingIn(new ByteArrayInputStream(data), 1, 1)) {
 			in.close();
 			byte[] read = new byte[2];
 			in.read(read, 0, 0);

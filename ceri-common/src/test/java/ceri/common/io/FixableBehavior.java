@@ -20,14 +20,14 @@ public class FixableBehavior {
 	public void shouldWrapDelegate() throws IOException {
 		var f = TestIo.fixable();
 		var w = new Fixable.Wrapper<>(f);
-		var c = Captor.<StateChange>of();
+		var c = Captor.<Device.Change>of();
 		w.listeners().listen(c);
 		Assert.equal(w.name(), f.name());
 		w.open();
 		f.open.assertCall(true);
 		w.broken();
 		f.broken.assertCall(true);
-		c.verify(StateChange.broken);
+		c.verify(Device.Change.broken);
 		w.close();
 		f.close.assertCalls(1);
 	}

@@ -2,7 +2,7 @@ package ceri.serial.spi.jna;
 
 import org.junit.jupiter.api.Test;
 import com.sun.jna.Pointer;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.jna.util.GcMemory;
 
@@ -12,13 +12,13 @@ public class SpiDevUtilTest {
 	public void testDirectionFromTransfer() {
 		var m = GcMemory.malloc(1);
 		var xfer = new SpiDev.spi_ioc_transfer();
-		Assert.equal(SpiDevUtil.direction(xfer), Direction.out);
+		Assert.equal(SpiDevUtil.direction(xfer), Io.Direction.out);
 		xfer.len = 1;
 		Assert.thrown(() -> SpiDevUtil.direction(xfer));
 		xfer.rx_buf = Pointer.nativeValue(m.m);
-		Assert.equal(SpiDevUtil.direction(xfer), Direction.in);
+		Assert.equal(SpiDevUtil.direction(xfer), Io.Direction.in);
 		xfer.tx_buf = Pointer.nativeValue(m.m);
-		Assert.equal(SpiDevUtil.direction(xfer), Direction.duplex);
+		Assert.equal(SpiDevUtil.direction(xfer), Io.Direction.duplex);
 	}
 
 	@Test

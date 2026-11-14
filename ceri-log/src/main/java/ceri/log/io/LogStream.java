@@ -4,35 +4,35 @@ import java.nio.charset.Charset;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.io.StringPrintStream;
+import ceri.common.io.StringStream;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
 /**
  * Collects output, writes compacted lines to logger on flush().
  */
-public class LogPrintStream extends StringPrintStream {
+public class LogStream extends StringStream {
 	private static final Logger defaultLogger = LogManager.getLogger();
 	private final Logger logger;
 	private Level level;
 
-	public static LogPrintStream of() {
+	public static LogStream of() {
 		return of(Level.DEBUG);
 	}
 
-	public static LogPrintStream of(Level level) {
+	public static LogStream of(Level level) {
 		return of(defaultLogger, level);
 	}
 
-	public static LogPrintStream of(Logger logger) {
+	public static LogStream of(Logger logger) {
 		return of(logger, Level.DEBUG);
 	}
 
-	public static LogPrintStream of(Logger logger, Level level) {
-		return new LogPrintStream(level, logger);
+	public static LogStream of(Logger logger, Level level) {
+		return new LogStream(level, logger);
 	}
 
-	private LogPrintStream(Level level, Logger logger) {
+	private LogStream(Level level, Logger logger) {
 		super(Charset.defaultCharset());
 		this.level = level;
 		this.logger = logger;

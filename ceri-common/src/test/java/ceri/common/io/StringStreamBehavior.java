@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 import ceri.common.test.Assert;
 import ceri.common.text.Chars;
 
-public class StringPrintStreamBehavior {
+public class StringStreamBehavior {
 
 	@Test
 	public void shouldCaptureStrings() {
-		try (StringPrintStream out = StringPrintStream.of()) {
+		try (StringStream out = StringStream.of()) {
 			out.print(false);
 			out.print('a');
 			out.print(new char[] { 'b', 'c' });
@@ -24,7 +24,7 @@ public class StringPrintStreamBehavior {
 
 	@Test
 	public void shouldHandleCharsets() {
-		try (StringPrintStream out = StringPrintStream.of(Chars.UTF8)) {
+		try (StringStream out = StringStream.of(Chars.UTF8)) {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
 			Assert.equal(out.toString(), s);
@@ -33,7 +33,7 @@ public class StringPrintStreamBehavior {
 
 	@Test
 	public void shouldClear() {
-		try (StringPrintStream out = StringPrintStream.of(Chars.UTF8)) {
+		try (StringStream out = StringStream.of(Chars.UTF8)) {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
 			out.clear();

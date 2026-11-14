@@ -9,7 +9,6 @@ import ceri.common.function.Lambdas;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
-import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.Logs;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiBitMode;
@@ -27,7 +26,7 @@ import ceri.serial.libusb.jna.LibUsbFinder;
  * A self-healing ftdi device. It will automatically reconnect if the cable is removed and
  * reinserted.
  */
-public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.Fixable {
+public class SelfHealingFtdi extends SelfHealing.Connector<Ftdi> implements Ftdi.Fixable {
 	private final Config config;
 	private final FtdiConfig.Builder ftdiConfig;
 

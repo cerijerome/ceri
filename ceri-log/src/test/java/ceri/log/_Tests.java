@@ -14,9 +14,9 @@ import ceri.common.test.Testing;
 	ceri.log.concurrent.DispatcherBehavior.class, //
 	ceri.log.concurrent.LoopingExecutorBehavior.class, //
 	ceri.log.concurrent.ShutdownListenerBehavior.class, //
-	ceri.log.concurrent.SocketListenerBehavior.class, //
+	ceri.log.net.SocketListenerBehavior.class, //
 	// io
-	ceri.log.io.LogPrintStreamBehavior.class, //
+	ceri.log.io.LogStreamBehavior.class, //
 	ceri.log.io.SelfHealingBehavior.class, //
 	// net
 	ceri.log.net.SelfHealingTcpSocketBehavior.class, //

@@ -5,13 +5,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.spi.SelectorProvider;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
@@ -24,6 +32,10 @@ import ceri.common.util.SystemVars;
 
 public class IoTest {
 	private static FileTestHelper helper = null;
+	private TestSelector selector;
+	private TestKey key0;
+	private TestKey key1;
+	private TestKey key2;
 
 	@BeforeAll
 	public static void createFiles() throws IOException {
@@ -36,9 +48,55 @@ public class IoTest {
 		helper.close();
 	}
 
+	@AfterEach
+	public void afterEach() {
+
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		Assert.privateConstructor(Io.class);
+	}
+
+	@Test
+	public void testIn() {
+		Assert.equal(Io.in(null), false);
+		Assert.equal(Io.in(Io.Direction.none), false);
+		Assert.equal(Io.in(Io.Direction.in), true);
+		Assert.equal(Io.in(Io.Direction.out), false);
+		Assert.equal(Io.in(Io.Direction.duplex), true);
+	}
+
+	@Test
+	public void testOut() {
+		Assert.equal(Io.out(null), false);
+		Assert.equal(Io.out(Io.Direction.none), false);
+		Assert.equal(Io.out(Io.Direction.in), false);
+		Assert.equal(Io.out(Io.Direction.out), true);
+		Assert.equal(Io.out(Io.Direction.duplex), true);
+	}
+
+	@Test
+	public void shouldGetDirectionFromBoolean() {
+		Assert.equal(Io.direction(null), Io.Direction.none);
+		Assert.equal(Io.direction(true), Io.Direction.out);
+		Assert.equal(Io.direction(false), Io.Direction.in);
+	}
+
+	@Test
+	public void testSelectKeys() throws IOException, InterruptedException {
+		var keys = initKeys();
+		selector.selectedKeys.autoResponses(keys);
+		var consumer = CallSync.<SelectionKey>consumer(null, true);
+		Io.selectKeys(selector, k -> consumer.accept(k, ExceptionAdapter.io));
+		consumer.assertValues(key0, key1, key2);
+		Assert.equal(keys.isEmpty(), true);
+	}
+
+	@Test
+	public void testClearKeys() {
+		var keys = initKeys();
+		Io.clearKeys(keys);
 	}
 
 	@Test
@@ -243,4 +301,133 @@ public class IoTest {
 		}
 	}
 
+	private TestKeySet initKeys() {
+		selector = new TestSelector(null, Set.of());
+		key0 = new TestKey(selector, null).interestOps(1);
+		key1 = new TestKey(selector, null).interestOps(2);
+		key2 = new TestKey(selector, null).interestOps(4);
+		return new TestKeySet(key0, key1, key2);
+	}
+
+	@SuppressWarnings("serial")
+	public static class TestKeySet extends LinkedHashSet<SelectionKey> {
+		@SafeVarargs
+		public TestKeySet(SelectionKey... keys) {
+			for (var key : keys)
+				add(key);
+		}
+
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public static class TestKey extends SelectionKey {
+		private final Selector selector;
+		private final SelectableChannel channel;
+		public final CallSync.Supplier<Integer> readyOps = CallSync.supplier(0);
+		private int interestOps = 0;
+
+		public TestKey(Selector selector, SelectableChannel channel) {
+			this.selector = selector;
+			this.channel = channel;
+		}
+
+		@Override
+		public void cancel() {}
+
+		@Override
+		public SelectableChannel channel() {
+			return channel;
+		}
+
+		@Override
+		public int interestOps() {
+			return interestOps;
+		}
+
+		@Override
+		public TestKey interestOps(int ops) {
+			this.interestOps = ops;
+			return this;
+		}
+
+		@Override
+		public boolean isValid() {
+			return true;
+		}
+
+		@Override
+		public int readyOps() {
+			return readyOps.get();
+		}
+
+		@Override
+		public Selector selector() {
+			return selector;
+		}
+	}
+
+	public static class TestSelector extends Selector {
+		private final SelectorProvider provider;
+		private final Set<SelectionKey> keys;
+		public final CallSync.Runnable wakeUp = CallSync.runnable(true);
+		public final CallSync.Function<Long, Integer> select = CallSync.function(0L, 0);
+		public final CallSync.Supplier<Integer> selectNow = CallSync.supplier(0);
+		public final CallSync.Supplier<Set<SelectionKey>> selectedKeys =
+			CallSync.supplier(Set.of());
+		public boolean open = true;
+
+		public TestSelector(SelectorProvider provider, Set<SelectionKey> keys) {
+			this.provider = provider;
+			this.keys = keys;
+		}
+
+		@Override
+		public int select() throws IOException {
+			return select.apply(0L, ExceptionAdapter.io);
+		}
+
+		@Override
+		public int select(long timeout) throws IOException {
+			return select.apply(timeout, ExceptionAdapter.io);
+		}
+
+		@Override
+		public int selectNow() throws IOException {
+			return selectNow.get(ExceptionAdapter.io);
+		}
+
+		@Override
+		public Set<SelectionKey> selectedKeys() {
+			return selectedKeys.get();
+		}
+
+		@Override
+		public Set<SelectionKey> keys() {
+			return keys;
+		}
+
+		@Override
+		public SelectorProvider provider() {
+			return provider;
+		}
+
+		@Override
+		public TestSelector wakeup() {
+			wakeUp.run();
+			return this;
+		}
+
+		@Override
+		public boolean isOpen() {
+			return open;
+		}
+
+		@Override
+		public void close() throws IOException {
+			open = false;
+		}
+	}
 }

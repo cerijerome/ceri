@@ -134,5 +134,4 @@ public class PulsePrinter {
 		if (!lsbFirst) bit = bits - bit - 1;
 		return (value & (1 << bit)) != 0;
 	}
-
 }

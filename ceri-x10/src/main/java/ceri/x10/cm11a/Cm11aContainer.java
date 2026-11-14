@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.Functions;
 import ceri.common.io.Connector;
-import ceri.common.io.DeviceMode;
+import ceri.common.io.Device;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
 import ceri.common.util.Basics;
@@ -39,7 +39,7 @@ public class Cm11aContainer implements Functions.Closeable {
 
 	public static class Config {
 		public final int id;
-		public final DeviceMode mode;
+		public final Device.Mode mode;
 		public final Cm11aDevice.Config device;
 		public final SelfHealingSerial.Config serial;
 
@@ -53,7 +53,7 @@ public class Cm11aContainer implements Functions.Closeable {
 
 		public static class Builder {
 			int id = 1;
-			DeviceMode mode = DeviceMode.enabled;
+			Device.Mode mode = Device.Mode.enabled;
 			Cm11aDevice.Config device = Cm11aDevice.Config.DEFAULT;
 			SelfHealingSerial.Config serial = SelfHealingSerial.Config.NULL;
 
@@ -64,7 +64,7 @@ public class Cm11aContainer implements Functions.Closeable {
 				return this;
 			}
 
-			public Builder mode(DeviceMode mode) {
+			public Builder mode(Device.Mode mode) {
 				this.mode = mode;
 				return this;
 			}
@@ -98,8 +98,8 @@ public class Cm11aContainer implements Functions.Closeable {
 		public Type type(Cm11a cm11aRef, Connector.Fixable connectorRef) {
 			if (cm11aRef != null) return Type.cm11aRef;
 			if (connectorRef != null) return Type.connectorRef;
-			if (mode == DeviceMode.enabled && serial.enabled()) return Type.connector;
-			if (mode == DeviceMode.test) return Type.test;
+			if (mode == Device.Mode.enabled && serial.enabled()) return Type.connector;
+			if (mode == Device.Mode.test) return Type.test;
 			return Type.noOp;
 		}
 

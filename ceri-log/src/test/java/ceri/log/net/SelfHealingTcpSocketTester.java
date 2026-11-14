@@ -2,8 +2,8 @@ package ceri.log.net;
 
 import java.io.IOException;
 import ceri.common.net.HostPort;
-import ceri.common.net.ReplaceableTcpSocket;
 import ceri.common.net.TcpServerSocket;
+import ceri.common.net.TcpSocket;
 import ceri.common.test.ManualTester;
 import ceri.common.test.TcpSocketTester;
 
@@ -26,7 +26,7 @@ public class SelfHealingTcpSocketTester {
 	}
 
 	public static void testPair() throws IOException {
-		try (var pair1 = ReplaceableTcpSocket.of()) {
+		try (var pair1 = TcpSocket.replaceable()) {
 			try (var ss = TcpServerSocket.of()) {
 				ss.listen(pair1::replace);
 				var config = SelfHealingTcpSocket.Config.of(HostPort.localhost(ss.port()));
@@ -36,5 +36,4 @@ public class SelfHealingTcpSocketTester {
 			}
 		}
 	}
-
 }

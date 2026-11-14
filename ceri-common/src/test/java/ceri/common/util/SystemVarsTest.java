@@ -14,12 +14,19 @@ public class SystemVarsTest {
 	}
 
 	@Test
-	public void testName() {
-		Assert.string(SystemVars.name(null), "");
-		Assert.string(SystemVars.name(null, "test", "2"), "test.2");
-		Assert.string(SystemVars.name(SystemVars.class), SystemVars.class.getName());
-		Assert.string(SystemVars.name(SystemVars.class, "test", "2"), "%s.test.2",
-			SystemVars.class.getName());
+	public void testSysName() {
+		Assert.string(SystemVars.sysName((Object[]) null), "");
+		Assert.string(SystemVars.sysName(null, "test", 2), "test.2");
+		Assert.string(SystemVars.sysName(SystemVars.class), "system.vars");
+		Assert.string(SystemVars.sysName(SystemVars.class, "test", 2), "system.vars.test.2");
+	}
+
+	@Test
+	public void testEnvName() {
+		Assert.string(SystemVars.envName((Object[]) null), "");
+		Assert.string(SystemVars.envName(null, "test", 2), "TEST_2");
+		Assert.string(SystemVars.envName(SystemVars.class), "SYSTEM_VARS");
+		Assert.string(SystemVars.envName(SystemVars.class, "test", 2), "SYSTEM_VARS_TEST_2");
 	}
 
 	@Test

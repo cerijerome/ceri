@@ -16,7 +16,7 @@ import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;
 import ceri.common.data.Bytes;
 import ceri.common.except.Exceptions;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
@@ -31,7 +31,7 @@ public class Refine {
 	public static final int UNSPECIFIED = -1;
 
 	private Refine() {}
-	
+
 	/**
 	 * Method marker to capture last error number.
 	 */
@@ -264,14 +264,14 @@ public class Refine {
 		/**
 		 * Gets direction, returning duplex if unspecified.
 		 */
-		default Direction direction() {
-			return direction(Direction.duplex);
+		default Io.Direction direction() {
+			return direction(Io.Direction.duplex);
 		}
 
 		/**
 		 * Gets direction, returning default if unspecified.
 		 */
-		Direction direction(Direction def);
+		Io.Direction direction(Io.Direction def);
 	}
 
 	/**
@@ -346,7 +346,7 @@ public class Refine {
 		 * Gets direction from the element directly.
 		 */
 		@Override
-		public Direction direction(Direction def) {
+		public Io.Direction direction(Io.Direction def) {
 			return Refine.direction(element(), def); // Don't resolve to parent
 		}
 
@@ -422,7 +422,7 @@ public class Refine {
 		}
 
 		@Override
-		public Direction direction(Direction def) {
+		public Io.Direction direction(Io.Direction def) {
 			return get(Value.direction, def);
 		}
 
@@ -551,20 +551,20 @@ public class Refine {
 		 * Override direction.
 		 */
 		public Customizer in() {
-			return direction(Direction.in);
+			return direction(Io.Direction.in);
 		}
 
 		/**
 		 * Override direction.
 		 */
 		public Customizer out() {
-			return direction(Direction.out);
+			return direction(Io.Direction.out);
 		}
 
 		/**
 		 * Override direction.
 		 */
-		public Customizer direction(Direction direction) {
+		public Customizer direction(Io.Direction direction) {
 			return put(Value.direction, direction);
 		}
 
@@ -698,14 +698,14 @@ public class Refine {
 		return Charset.forName(anno.value());
 	}
 
-	private static Direction direction(AnnotatedElement element, Direction def) {
+	private static Io.Direction direction(AnnotatedElement element, Io.Direction def) {
 		// Look for annotations to the left of arrays
 		element = Annotations.component(element);
 		boolean in = Annotations.has(element, In.class);
 		boolean out = Annotations.has(element, Out.class);
-		if (in && out) return Direction.duplex;
-		if (in) return Direction.in;
-		if (out) return Direction.out;
+		if (in && out) return Io.Direction.duplex;
+		if (in) return Io.Direction.in;
+		if (out) return Io.Direction.out;
 		return def;
 	}
 

@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import ceri.common.io.Connector;
-import ceri.common.net.ReplaceableTcpSocket;
 import ceri.common.net.TcpServerSocket;
 import ceri.common.net.TcpSocket;
-import ceri.common.net.TcpSocketOption;
 import ceri.common.test.ManualTester.Parse;
 
 /**
@@ -35,7 +33,7 @@ public class TcpSocketTester {
 	 * Test a socket and its current peer.
 	 */
 	public static void testPair() throws IOException {
-		try (var pair1 = ReplaceableTcpSocket.of()) {
+		try (var pair1 = TcpSocket.replaceable()) {
 			try (var ss = TcpServerSocket.of()) {
 				ss.listen(pair1::replace);
 				try (var pair0 = TcpSocket.connect(ss.hostPort())) {
@@ -93,42 +91,42 @@ public class TcpSocketTester {
 	private static void buildCommands(ManualTester.Builder b) {
 		b.command(TcpSocket.class, "O", (t, _, s) -> options(s, t), "O = show all options");
 		b.command(TcpSocket.class, "Ot(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soTimeout, Parse.i(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soTimeout, Parse.i(m)),
 			"Ot[N] = SO_TIMEOUT: timeout in milliseconds");
 		b.command(TcpSocket.class, "Ol(\\-1|\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soLinger, Parse.i(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soLinger, Parse.i(m)),
 			"Ol[N] = SO_LINGER: linger-on-close in seconds; -1 to disable");
 		b.command(TcpSocket.class, "Oc(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.ipTos, Parse.i(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.ipTos, Parse.i(m)),
 			"Oc[N] = IP_TOS: traffic class");
 		b.command(TcpSocket.class, "Os(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soSndBuf, Parse.i(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soSndBuf, Parse.i(m)),
 			"Os[N] = SO_SNDBUF: send buffer size");
 		b.command(TcpSocket.class, "Or(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soRcvBuf, Parse.i(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soRcvBuf, Parse.i(m)),
 			"Or[N] = SO_RCVBUF: receive buffer size");
 		b.command(TcpSocket.class, "Ok(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soKeepAlive, Parse.b(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soKeepAlive, Parse.b(m)),
 			"Ok[0|1] = SO_KEEPALIVE: keep-alive off/on");
 		b.command(TcpSocket.class, "Oa(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soReuseAddr, Parse.b(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soReuseAddr, Parse.b(m)),
 			"Oa[0|1] = SO_REUSEADDR: re-use address off/on");
 		b.command(TcpSocket.class, "Ou(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soOobInline, Parse.b(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.soOobInline, Parse.b(m)),
 			"Ou[0|1] = SO_OOBINLINE: inline urgent data off/on");
 		b.command(TcpSocket.class, "Od(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.tcpNoDelay, Parse.b(m)),
+			(t, m, s) -> option(s, t, TcpSocket.Option.tcpNoDelay, Parse.b(m)),
 			"Od[0|1] = TCP_NODELAY: no-delay off/on");
 	}
 
-	private static <T> void option(TcpSocket socket, ManualTester tester, TcpSocketOption<T> option,
-		T value) throws IOException {
+	private static <T> void option(TcpSocket socket, ManualTester tester,
+		TcpSocket.Option<T> option, T value) throws IOException {
 		if (value != null) socket.option(option, value);
 		tester.out(option + " = " + socket.option(option));
 	}
 
 	private static void options(TcpSocket socket, ManualTester tester) throws IOException {
-		for (var option : TcpSocketOption.all)
+		for (var option : TcpSocket.Option.all)
 			tester.out(option + " = " + socket.option(option));
 	}
 }

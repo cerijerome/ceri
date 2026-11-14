@@ -2,7 +2,7 @@ package ceri.jna.clib;
 
 import static ceri.jna.clib.jna.CTermios.TCSANOW;
 import java.io.IOException;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTermios.tcflag_t;
 import ceri.jna.clib.jna.CTermios.termios;
@@ -138,7 +138,7 @@ public class Termios {
 	/**
 	 * Discards data from input/output streams.
 	 */
-	public Termios flush(Direction direction) throws IOException {
+	public Termios flush(Io.Direction direction) throws IOException {
 		switch (direction) {
 			case in -> CTermios.tcflush(fd, CTermios.TCIFLUSH);
 			case out -> CTermios.tcflush(fd, CTermios.TCOFLUSH);
@@ -151,11 +151,11 @@ public class Termios {
 	/**
 	 * Suspends or restarts data flow.
 	 */
-	public Termios flow(Direction direction, boolean on) throws IOException {
+	public Termios flow(Io.Direction direction, boolean on) throws IOException {
 		switch (direction) {
 			case in -> CTermios.tcflow(fd, on ? CTermios.TCION : CTermios.TCIOFF);
 			case out -> CTermios.tcflow(fd, on ? CTermios.TCOON : CTermios.TCOOFF);
-			case duplex -> flow(Direction.in, on).flow(Direction.out, on);
+			case duplex -> flow(Io.Direction.in, on).flow(Io.Direction.out, on);
 			default -> {} // do nothing
 		}
 		return this;

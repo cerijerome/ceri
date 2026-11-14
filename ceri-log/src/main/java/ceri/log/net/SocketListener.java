@@ -1,4 +1,4 @@
-package ceri.log.concurrent;
+package ceri.log.net;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,6 +12,7 @@ import ceri.common.concurrent.Listeners;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
+import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.Logs;
 
 /**
@@ -35,11 +36,7 @@ public class SocketListener extends LoopingExecutor {
 
 	private static void notifyIfMatch(ByteProvider data, Predicate<String> tester,
 		Runnable listenable) {
-		if (tester != null) {
-			String s = data.getUtf8(0);
-			if (!tester.test(s)) return;
-		}
-		listenable.run();
+		if (tester == null || tester.test(data.getUtf8(0))) listenable.run();
 	}
 
 	public static SocketListener of(int port) throws IOException {
@@ -67,7 +64,7 @@ public class SocketListener extends LoopingExecutor {
 
 	@Override
 	protected void loop() throws Exception {
-		try (Socket socket = serverSocket.accept()) {
+		try (var socket = serverSocket.accept()) {
 			process(socket);
 		} catch (SocketException e) {
 			logger.info(e.getMessage());
@@ -80,5 +77,4 @@ public class SocketListener extends LoopingExecutor {
 		byte[] data = socket.getInputStream().readAllBytes();
 		listeners.accept(Immutable.wrap(data));
 	}
-
 }

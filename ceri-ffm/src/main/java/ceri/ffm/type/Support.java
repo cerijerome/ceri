@@ -9,7 +9,7 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
@@ -368,7 +368,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 		 */
 		@SafeVarargs
-		public final Native.Adapted<MemorySegment> encodeAll(Direction direction, boolean nul,
+		public final Native.Adapted<MemorySegment> encodeAll(Io.Direction direction, boolean nul,
 			T... array) {
 			return encodeAll(direction, Memory.auto(), nul, array);
 		}
@@ -377,7 +377,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 		 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 		 */
 		@SafeVarargs
-		public final Native.Adapted<MemorySegment> encodeAll(Direction direction,
+		public final Native.Adapted<MemorySegment> encodeAll(Io.Direction direction,
 			SegmentAllocator allocator, boolean nul, T... array) {
 			return encodeArray(direction, allocator, array, nul);
 		}
@@ -994,14 +994,14 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	/**
 	 * Encodes the value to allocated memory without padding.
 	 */
-	public Native.Adapted<MemorySegment> encode(Direction direction, T value) {
+	public Native.Adapted<MemorySegment> encode(Io.Direction direction, T value) {
 		return encode(direction, Memory.auto(), value);
 	}
 
 	/**
 	 * Encodes the value to allocated memory without padding.
 	 */
-	public Native.Adapted<MemorySegment> encode(Direction direction, SegmentAllocator allocator,
+	public Native.Adapted<MemorySegment> encode(Io.Direction direction, SegmentAllocator allocator,
 		T value) {
 		var encoder = Coder.encoder(direction, layout().byteAlignment());
 		if (value != null) encode(encoder, value);
@@ -1034,14 +1034,14 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	/**
 	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Native.Adapted<MemorySegment> encodeArray(Direction direction, A array, boolean nul) {
+	public Native.Adapted<MemorySegment> encodeArray(Io.Direction direction, A array, boolean nul) {
 		return encodeArray(direction, array, 0, nul);
 	}
 
 	/**
 	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Native.Adapted<MemorySegment> encodeArray(Direction direction, A array, int index,
+	public Native.Adapted<MemorySegment> encodeArray(Io.Direction direction, A array, int index,
 		boolean nul) {
 		return encodeArray(direction, array, index, Integer.MAX_VALUE, nul);
 	}
@@ -1050,7 +1050,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 * Encodes the array to allocated memory with optional nul-termination, and no padding. The
 	 * count does not include the nul-terminator if specified.
 	 */
-	public Native.Adapted<MemorySegment> encodeArray(Direction direction, A array, int index,
+	public Native.Adapted<MemorySegment> encodeArray(Io.Direction direction, A array, int index,
 		int count, boolean nul) {
 		return encodeArray(direction, Memory.auto(), array, index, count, nul);
 	}
@@ -1058,7 +1058,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	/**
 	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Native.Adapted<MemorySegment> encodeArray(Direction direction,
+	public Native.Adapted<MemorySegment> encodeArray(Io.Direction direction,
 		SegmentAllocator allocator, A array, boolean nul) {
 		return encodeArray(direction, allocator, array, 0, nul);
 	}
@@ -1066,7 +1066,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	/**
 	 * Encodes the array to allocated memory with optional nul-termination, and no padding.
 	 */
-	public Native.Adapted<MemorySegment> encodeArray(Direction direction,
+	public Native.Adapted<MemorySegment> encodeArray(Io.Direction direction,
 		SegmentAllocator allocator, A array, int index, boolean nul) {
 		return encodeArray(direction, allocator, array, index, Integer.MAX_VALUE, nul);
 	}
@@ -1075,7 +1075,7 @@ public abstract sealed class Support<T, A, P extends PointerType.Raw, L extends 
 	 * Encodes the array to allocated memory with optional nul-termination, and no padding. The
 	 * count does not include the nul-terminator if specified.
 	 */
-	public Native.Adapted<MemorySegment> encodeArray(Direction direction,
+	public Native.Adapted<MemorySegment> encodeArray(Io.Direction direction,
 		SegmentAllocator allocator, A array, int index, int count, boolean nul) {
 		if (array == null) return null;
 		var encoder = Coder.encoder(direction, layout().byteAlignment());

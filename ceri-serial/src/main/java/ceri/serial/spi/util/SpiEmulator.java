@@ -7,7 +7,7 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.io.Buffers;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.PulsePrinter;
 import ceri.common.util.Validate;
 import ceri.jna.util.Jna;
@@ -129,8 +129,8 @@ public class SpiEmulator implements Spi {
 	}
 
 	@Override
-	public SpiTransfer transfer(Direction direction, int size) {
-		Validate.equalNoneOf(direction, null, Direction.none);
+	public SpiTransfer transfer(Io.Direction direction, int size) {
+		Validate.equalNoneOf(direction, null, Io.Direction.none);
 		Validate.min(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

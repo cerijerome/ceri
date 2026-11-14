@@ -2,7 +2,7 @@ package ceri.ffm.type;
 
 import java.lang.foreign.MemorySegment;
 import ceri.common.array.RawArray;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.ffm.test.FfmTesting;
 import ceri.ffm.type.Support.OfArray;
 
@@ -45,7 +45,7 @@ public class SupportTester {
 	}
 
 	private static <T> MemorySegment encode(OfArray<T> support, T value) {
-		var r = support.encode(Direction.in, value);
+		var r = support.encode(Io.Direction.in, value);
 		System.out.println(support);
 		FfmTesting.bin(r.value());
 		System.out.println("Encode: " + RawArray.toString(value));

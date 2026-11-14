@@ -10,7 +10,7 @@ import ceri.common.array.Array;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteStream;
 import ceri.common.data.Bytes;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.io.SystemIo;
 import ceri.common.net.HostPort;
 import ceri.common.reflect.Reflect;
@@ -230,10 +230,10 @@ public class TestIoTest {
 	public void shouldBreakConnector() throws InterruptedException {
 		con = TestIo.connector();
 		con.in.to.writeBytes(1, 2, 3);
-		ValueCondition<StateChange> sync = ValueCondition.of();
+		ValueCondition<Device.Change> sync = ValueCondition.of();
 		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.broken();
-			Assert.equal(sync.await(), StateChange.broken);
+			Assert.equal(sync.await(), Device.Change.broken);
 			Assert.thrown(() -> con.in().read());
 			con.broken();
 			Assert.isNull(sync.value());
@@ -247,10 +247,10 @@ public class TestIoTest {
 		con = TestIo.connector();
 		con.in.to.writeBytes(1, 2, 3);
 		con.broken();
-		ValueCondition<StateChange> sync = ValueCondition.of();
+		ValueCondition<Device.Change> sync = ValueCondition.of();
 		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.fixed();
-			Assert.equal(sync.await(), StateChange.fixed);
+			Assert.equal(sync.await(), Device.Change.fixed);
 			con.fixed();
 			Assert.isNull(sync.value());
 			Assert.read(con.in(), 1, 2, 3);

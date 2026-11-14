@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.Array;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.serial.ftdi.Ftdi;
@@ -15,7 +15,7 @@ public class TestFtdiBehavior {
 
 	@Test
 	public void shouldEncapsulateParameters() {
-		Testing.exerciseRecord(new TestFtdi.Submit(Direction.duplex, Pointer.NULL, 0));
+		Testing.exerciseRecord(new TestFtdi.Submit(Io.Direction.duplex, Pointer.NULL, 0));
 		Testing.exerciseRecord(new TestFtdi.Stream((_, _) -> true, 0, 0, 0));
 	}
 
@@ -110,8 +110,8 @@ public class TestFtdiBehavior {
 			ftdi.open();
 			ftdi.readSubmit(m, 2);
 			ftdi.writeSubmit(m, 3);
-			ftdi.submit.assertValues(new TestFtdi.Submit(Direction.in, m, 2),
-				new TestFtdi.Submit(Direction.out, m, 3));
+			ftdi.submit.assertValues(new TestFtdi.Submit(Io.Direction.in, m, 2),
+				new TestFtdi.Submit(Io.Direction.out, m, 3));
 		}
 	}
 

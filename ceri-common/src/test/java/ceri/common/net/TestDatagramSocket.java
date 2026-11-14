@@ -33,5 +33,4 @@ public class TestDatagramSocket extends DatagramSocket {
 	public void receive(DatagramPacket p) throws IOException {
 		receive.accept(p, ExceptionAdapter.io);
 	}
-
 }

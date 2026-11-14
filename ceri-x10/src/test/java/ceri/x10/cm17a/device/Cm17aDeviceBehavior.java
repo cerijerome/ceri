@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
@@ -88,10 +88,10 @@ public class Cm17aDeviceBehavior {
 	@Test
 	public void shouldListenForConnectorStateChange() {
 		init();
-		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<Device.Change> sync = CallSync.consumer(null, true);
 		try (var _ = cm17a.listeners().enclose(sync::accept)) {
-			con.listeners.accept(StateChange.broken);
-			sync.assertCall(StateChange.broken);
+			con.listeners.accept(Device.Change.broken);
+			sync.assertCall(Device.Change.broken);
 		}
 	}
 

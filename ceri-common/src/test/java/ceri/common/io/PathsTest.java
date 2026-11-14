@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Iterator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import ceri.common.data.ByteProvider;
@@ -15,20 +19,44 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestCollection;
 import ceri.common.test.Testing;
 import ceri.common.util.SystemVars;
 
 public class PathsTest {
-	private static final Functions.Predicate<String> NAME_TXT = s -> s.endsWith(".txt");
-	private static final Excepts.Predicate<IOException, String> NAME_TXT_EX = NAME_TXT.castEx();
-	private static final Functions.Predicate<Path> TXT = Paths.Filter.name(NAME_TXT);
-	private static final Excepts.Predicate<IOException, Path> TXT_EX =
-		Paths.Filter.nameEx(NAME_TXT_EX);
-	private static final Functions.Predicate<Path> EXT_TXT = Paths.Filter.ext("txt"::equals);
-	private static final Excepts.Predicate<IOException, Path> EXT_TXT_EX =
+	private static final Functions.Predicate<Object> nullFilter = null;
+	private static final Excepts.Predicate<IOException, Object> nullFilterEx = null;
+	private static final Functions.Predicate<String> nameTxt = s -> s.endsWith(".txt");
+	private static final Excepts.Predicate<IOException, String> nameTxtEx = nameTxt.castEx();
+	private static final Functions.Predicate<Path> txt = Paths.Filter.name(nameTxt);
+	private static final Excepts.Predicate<IOException, Path> txtEx =
+		Paths.Filter.nameEx(nameTxtEx);
+	private static final Functions.Predicate<Path> extTxt = Paths.Filter.ext("txt"::equals);
+	private static final Excepts.Predicate<IOException, Path> extTxtEx =
 		Paths.Filter.extEx("txt"::equals);
 	private FileTestHelper helper;
 	private FileTestHelper deleter;
+
+	private static class TestDirStream<T> implements DirectoryStream<T> {
+		public final TestCollection.Iterator<T> iterator;
+
+		@SafeVarargs
+		public static <T> TestDirStream<T> of(T... ts) {
+			return new TestDirStream<>(Arrays.asList(ts));
+		}
+
+		public TestDirStream(Iterable<T> iterable) {
+			this.iterator = TestCollection.iterator(iterable);
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return iterator;
+		}
+
+		@Override
+		public void close() {}
+	}
 
 	@AfterEach
 	public void after() {
@@ -51,21 +79,108 @@ public class PathsTest {
 		assertPathListAll(p -> p.filter(Paths.Filter.DIR), "a", "a/a", "b", "d");
 		assertPathListAll(p -> p.filter(Paths.Filter.pattern(null, "glob:**/*.txt")), "a/a/a.txt",
 			"b/b.txt");
-		assertPathListAll(p -> p.filter(TXT), "a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filterEx(TXT_EX), "a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filter(EXT_TXT), "a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filterEx(EXT_TXT_EX), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(txt), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(txtEx), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(extTxt), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(extTxtEx), "a/a/a.txt", "b/b.txt");
 		var now = Instant.now();
 		assertPathListOf(p -> p.filterEx(Paths.Filter.lastModified(d -> d.isBefore(now))), "a", "b",
 			"c.h", "d");
 		assertPathListOf(p -> p.filterEx(Paths.Filter.lastModified(d -> d.isAfter(now))));
 		assertPathListOf(p -> p.filterEx(Paths.Filter.size(s -> s == 0)));
 		assertPathListOf(p -> p.filterEx(Paths.Filter.size(s -> s < 2)), "c.h");
-		assertPathListAll(p -> p.filter(Paths.Filter.namePath(TXT)), "a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filterEx(Paths.Filter.namePathEx(TXT_EX)), "a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filter(Paths.Filter.name(NAME_TXT)), "a/a/a.txt", "b/b.txt");
-		assertPathListAll(p -> p.filterEx(Paths.Filter.nameEx(NAME_TXT_EX)), "a/a/a.txt",
+		assertPathListAll(p -> p.filter(Paths.Filter.namePath(txt)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(Paths.Filter.namePathEx(txtEx)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(Paths.Filter.name(nameTxt)), "a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filterEx(Paths.Filter.nameEx(nameTxtEx)), "a/a/a.txt", "b/b.txt");
+	}
+
+	@Test
+	public void testFinderStreamExceptions() {
+		try (var dirs = TestDirStream.of("a", "b", "c")) {
+			var ioe = new IOException("test");
+			dirs.iterator.next.set(new IllegalStateException("test"),
+				new DirectoryIteratorException(ioe));
+			Assert.thrown(IllegalStateException.class, () -> Paths.stream(dirs).toList());
+			Assert.thrown(e -> Assert.same(e, ioe), () -> Paths.stream(dirs).toList());
+		}
+	}
+
+	@Test
+	public void shouldNotFailForFinderFileAsRoot() throws IOException {
+		helper = FileTestHelper.builder().file("a.txt", "aaa").build();
+		assertPaths(Paths.findIn(helper.path("a.txt")));
+		assertPaths(Paths.find(helper.path("a.txt")));
+	}
+
+	@Test
+	public void shouldAllowFinderNullDir() throws IOException {
+		Assert.ordered(Paths.findIn(null).list());
+	}
+
+	@Test
+	public void shouldListFinderPaths() throws IOException {
+		initFiles();
+		assertPaths(Paths.findIn(helper.root), "a", "b", "c.h", "d");
+		assertPaths(Paths.find(helper.root), "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.h", "d");
+	}
+
+	@Test
+	public void shouldFilterByFinderPath() throws IOException {
+		initFiles();
+		assertPaths(Paths.find(helper.root).files(), "a/a/a.txt", "b/b.txt", "c.h");
+		assertPaths(Paths.find(helper.root).filter("glob:*.txt"));
+		assertPaths(Paths.find(helper.root).filter("glob:**/*.txt"), "a/a/a.txt", "b/b.txt");
+		assertPaths(Paths.find(helper.root).filter("regex:[^/]*\\.txt"));
+		assertPaths(Paths.find(helper.root).filter("regex:.*/[^/]*\\.txt"), "a/a/a.txt", "b/b.txt");
+		assertPaths(Paths.findIn(helper.root).filter(nullFilter));
+		assertPaths(Paths.findIn(helper.root).filterEx(nullFilterEx));
+	}
+
+	@Test
+	public void shouldFilterByFinderName() throws IOException {
+		initFiles();
+		assertPaths(Paths.find(helper.root).files(), "a/a/a.txt", "b/b.txt", "c.h");
+		assertPaths(Paths.find(helper.root).nameFilter("glob:*.txt"), "a/a/a.txt", "b/b.txt");
+		assertPaths(Paths.find(helper.root).nameFilter("glob:**/*.txt"));
+		assertPaths(Paths.find(helper.root).nameFilter("regex:[^/]*\\.txt"), "a/a/a.txt",
 			"b/b.txt");
+		assertPaths(Paths.find(helper.root).nameFilter("regex:.*/[^/]*\\.txt"));
+		assertPaths(Paths.find(helper.root).nameFilter(s -> s.endsWith("txt")), "a/a/a.txt",
+			"b/b.txt");
+		assertPaths(Paths.findIn(helper.root).nameFilter(nullFilter));
+		assertPaths(Paths.findIn(helper.root).nameFilterEx(nullFilterEx));
+	}
+
+	@Test
+	public void shouldConvertToRelativeFinderPaths() throws IOException {
+		initFiles();
+		Assert.paths(Paths.find(helper.root).relative().list(), "a", "a/a", "a/a/a.txt", "b",
+			"b/b.txt", "c.h", "d");
+		Assert.paths(Paths.find(helper.root).relative().relative().list(), "a", "a/a", "a/a/a.txt",
+			"b", "b/b.txt", "c.h", "d");
+		Assert.paths(Paths.find(helper.root).files().relative().list(), "a/a/a.txt", "b/b.txt",
+			"c.h");
+		Assert.paths(Paths.find(helper.root).relative().filter("glob:*.*").list(), "c.h");
+		Assert.paths(Paths.find(helper.root).relative().files().list()); // no file match
+		Assert.paths(Paths.findIn(helper.root).relative().list(), "a", "b", "c.h", "d");
+		Assert.paths(Paths.findIn(helper.root).relative().relative().list(), "a", "b", "c.h", "d");
+	}
+
+	@Test
+	public void shouldSortFinderPaths() throws IOException {
+		initFiles();
+		Assert.ordered(Paths.find(helper.root).files().relative().sort().strings(), "a/a/a.txt",
+			"b/b.txt", "c.h");
+		Assert.ordered(Paths.find(helper.root).files().sort().names(), "a.txt", "b.txt", "c.h");
+		Assert.ordered(Paths.findIn(helper.root).sort().names(), "a", "b", "c.h", "d");
+	}
+
+	@Test
+	public void shouldStreamFinderPaths() throws IOException {
+		initFiles();
+		Assert.stream(Paths.find(helper.root).files().sort().stream().map(Paths::name), "a.txt",
+			"b.txt", "c.h");
 	}
 
 	@SuppressWarnings("resource")
@@ -97,6 +212,12 @@ public class PathsTest {
 		Assert.equal(Paths.isEmpty(null), true);
 		Assert.equal(Paths.isEmpty(Path.of("")), false);
 		Assert.equal(Paths.isEmpty(Path.of("").getRoot()), true);
+	}
+
+	@Test
+	public void testPathFromFile() {
+		Assert.equal(Paths.path(null), null);
+		Assert.path(Paths.path(new File("abc/test.c")), "abc/test.c");
 	}
 
 	@Test
@@ -404,17 +525,21 @@ public class PathsTest {
 			.file("c.h", "c").dir("d").build();
 	}
 
-	private void assertPathListOf(Excepts.Consumer<? extends IOException, PathFinder> action,
-		String... paths) throws IOException {
-		var pathFinder = PathFinder.of(helper.root);
-		action.accept(pathFinder);
-		helper.assertPaths(pathFinder.list(), paths);
+	private void assertPaths(Paths.Finder finder, String... paths) throws IOException {
+		helper.assertPaths(finder.list(), paths);
 	}
 
-	private void assertPathListAll(Excepts.Consumer<? extends IOException, PathFinder> action,
+	private void assertPathListOf(Excepts.Consumer<? extends IOException, Paths.Finder> action,
 		String... paths) throws IOException {
-		var pathFinder = PathFinder.all(helper.root);
-		action.accept(pathFinder);
-		helper.assertPaths(pathFinder.list(), paths);
+		var finder = Paths.findIn(helper.root);
+		action.accept(finder);
+		helper.assertPaths(finder.list(), paths);
+	}
+
+	private void assertPathListAll(Excepts.Consumer<? extends IOException, Paths.Finder> action,
+		String... paths) throws IOException {
+		var finder = Paths.find(helper.root);
+		action.accept(finder);
+		helper.assertPaths(finder.list(), paths);
 	}
 }

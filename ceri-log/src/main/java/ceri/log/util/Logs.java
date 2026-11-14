@@ -1,5 +1,6 @@
 package ceri.log.util;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,12 +25,14 @@ import ceri.common.data.Bytes;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.io.Paths;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
+import ceri.common.util.Basics;
 import ceri.common.util.StartupValues;
-import ceri.log.io.LogPrintStream;
+import ceri.log.io.LogStream;
 
 /**
  * Utility methods to assist with logging.
@@ -56,10 +59,17 @@ public class Logs {
 	 */
 	public record Config(Configuration config) {
 		/**
+		 * Returns the root logger configuration.
+		 */
+		public LoggerConfig logger() {
+			return config.getRootLogger();
+		}
+
+		/**
 		 * Returns the configuration for a specific logger.
 		 */
 		public LoggerConfig logger(String name) {
-			return Strings.isEmpty(name) ? config.getRootLogger() : config.getLoggerConfig(name);
+			return Strings.isEmpty(name) ? logger() : config.getLoggerConfig(name);
 		}
 
 		/**
@@ -73,8 +83,7 @@ public class Logs {
 		 * Sets the logger level if currently lower than the given level.
 		 */
 		public Level max(String name, Level level) {
-			var logger = logger(name);
-			var current = logger.getLevel();
+			var current = logger(name).getLevel();
 			if (level == null || current.compareTo(level) <= 0) return current;
 			Configurator.setLevel(name, level);
 			return level;
@@ -85,6 +94,21 @@ public class Logs {
 		 */
 		public Level max(Class<?> cls, Level level) {
 			return max(loggerName(cls), level);
+		}
+
+		/**
+		 * Sets the root logger level if currently lower than the given level.
+		 */
+		public Level max(Level level) {
+			return max("", level);
+		}
+
+		/**
+		 * Returns the configuration file source if present, otherwise null.
+		 */
+		public Path file() {
+			var source = config().getConfigurationSource();
+			return Paths.path(source.getFile());
 		}
 	}
 
@@ -101,6 +125,7 @@ public class Logs {
 	 * for parameters with heavy string construction.
 	 */
 	public static Message message(Logger logger, String format, Object... args) {
+		logger = Basics.def(logger, Logs.logger);
 		return logger.getMessageFactory().newMessage(format, args);
 	}
 
@@ -109,7 +134,7 @@ public class Logs {
 	 * parameters with heavy string construction.
 	 */
 	public static Message message(String format, Object... args) {
-		return message(logger, format, args);
+		return message((Logger) null, format, args);
 	}
 
 	/**
@@ -149,13 +174,13 @@ public class Logs {
 	 */
 	@SuppressWarnings("resource")
 	public static BinaryPrinter binaryLogger(BinaryPrinter printer) {
-		return binaryLogger(printer, LogPrintStream.of());
+		return binaryLogger(printer, LogStream.of());
 	}
 
 	/**
 	 * Copies a binary printer, that writes output to the logger.
 	 */
-	public static BinaryPrinter binaryLogger(BinaryPrinter printer, LogPrintStream stream) {
+	public static BinaryPrinter binaryLogger(BinaryPrinter printer, LogStream stream) {
 		return BinaryPrinter.builder(printer).out(stream).build();
 	}
 

@@ -2,7 +2,7 @@ package ceri.x10.cm17a.device;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.CallSync;
 import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
@@ -23,10 +23,10 @@ public class Cm17aEmulatorBehavior {
 	@Test
 	public void shouldNotifyOfStateChange() {
 		try (var emu = Cm17aEmulator.of(0)) {
-			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
+			CallSync.Consumer<Device.Change> sync = CallSync.consumer(null, true);
 			try (var _ = emu.listeners().enclose(sync::accept)) {
-				emu.listeners.accept(StateChange.broken);
-				sync.assertCall(StateChange.broken);
+				emu.listeners.accept(Device.Change.broken);
+				sync.assertCall(Device.Change.broken);
 			}
 		}
 	}

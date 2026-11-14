@@ -2,7 +2,7 @@ package ceri.serial.spi;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 
 public class SpiBehavior {
@@ -22,6 +22,6 @@ public class SpiBehavior {
 
 	@Test
 	public void shouldProvideNoOpTransfer() throws IOException {
-		Spi.NULL.transfer(Direction.out, 3).execute();
+		Spi.NULL.transfer(Io.Direction.out, 3).execute();
 	}
 }

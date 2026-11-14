@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import ceri.common.array.Dimensions;
 import ceri.common.data.Bytes;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
@@ -78,13 +78,13 @@ public class RefineBehavior {
 			Charset.defaultCharset());
 		Assert.equal(Refine.custom((Refine.Context) null).context().dims(), Dimensions.NONE);
 		var context = Refine.custom(C.class).size(null).nul().constant(false).unsigned()
-			.direction(Direction.in).context();
+			.direction(Io.Direction.in).context();
 		Assert.equal(context.align(), 4L);
 		Assert.equal(context.size(), 0);
 		Assert.equal(context.nul(), true);
 		Assert.equal(context.constant(), false);
 		Assert.equal(context.unsigned(), true);
-		Assert.equal(context.direction(), Direction.in);
+		Assert.equal(context.direction(), Io.Direction.in);
 		Testing.exerciseEquals(context, context);
 		var copy = Refine.custom(context).context();
 		Assert.equal(context, copy);
@@ -109,9 +109,9 @@ public class RefineBehavior {
 
 	@Test
 	public void shouldSpecifyDirection() {
-		Assert.equal(Refine.custom().context().direction(), Direction.duplex);
-		Assert.equal(Refine.custom().in().context().direction(), Direction.in);
-		Assert.equal(Refine.custom().out().context().direction(), Direction.out);
+		Assert.equal(Refine.custom().context().direction(), Io.Direction.duplex);
+		Assert.equal(Refine.custom().in().context().direction(), Io.Direction.in);
+		Assert.equal(Refine.custom().out().context().direction(), Io.Direction.out);
 	}
 
 	@Test
@@ -148,9 +148,9 @@ public class RefineBehavior {
 
 	@Test
 	public void shouldProvideDirection() {
-		Assert.equal(Refine.context(C.fIn).direction(), Direction.in);
-		Assert.equal(Refine.context(C.fOut).direction(), Direction.out);
-		Assert.equal(Refine.context(C.fInOut).direction(), Direction.duplex);
+		Assert.equal(Refine.context(C.fIn).direction(), Io.Direction.in);
+		Assert.equal(Refine.context(C.fOut).direction(), Io.Direction.out);
+		Assert.equal(Refine.context(C.fInOut).direction(), Io.Direction.duplex);
 	}
 
 	@Test

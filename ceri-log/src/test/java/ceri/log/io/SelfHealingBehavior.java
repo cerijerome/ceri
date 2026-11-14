@@ -4,7 +4,6 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConcurrent;
@@ -36,9 +35,8 @@ public class SelfHealingBehavior {
 
 	@AfterEach
 	public void after() {
-		Closeables.close(device, fixable);
-		device = null;
-		fixable = null;
+		device = Testing.close(device);
+		fixable = Testing.close(fixable);
 	}
 
 	@Test
@@ -47,7 +45,6 @@ public class SelfHealingBehavior {
 			.brokenPredicate(_ -> true).apply(SelfHealing.Config.DEFAULT).build();
 		Assert.equal(conf.fixRetryDelayMs, SelfHealing.Config.DEFAULT.fixRetryDelayMs);
 		Assert.equal(conf.recoveryDelayMs, SelfHealing.Config.DEFAULT.recoveryDelayMs);
-		Assert.yes(conf.hasBrokenPredicate());
 		Assert.yes(conf.broken(null));
 	}
 

@@ -2,7 +2,7 @@ package ceri.serial.spi.jna;
 
 import static ceri.common.math.Maths.ushort;
 import java.util.concurrent.TimeUnit;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class SpiDevUtil {
@@ -12,12 +12,12 @@ public class SpiDevUtil {
 	/**
 	 * Determines transfer direction from structure values.
 	 */
-	public static Direction direction(spi_ioc_transfer xfer) {
+	public static Io.Direction direction(spi_ioc_transfer xfer) {
 		if (xfer.tx_buf == 0L && xfer.rx_buf == 0L && xfer.len > 0)
 			throw new IllegalArgumentException("Tx and Rx buffers are null");
-		if (xfer.rx_buf == 0L) return Direction.out;
-		if (xfer.tx_buf == 0L) return Direction.in;
-		return Direction.duplex;
+		if (xfer.rx_buf == 0L) return Io.Direction.out;
+		if (xfer.tx_buf == 0L) return Io.Direction.in;
+		return Io.Direction.duplex;
 	}
 
 	/**

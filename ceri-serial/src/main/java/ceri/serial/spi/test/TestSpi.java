@@ -4,7 +4,7 @@ import java.io.IOException;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.serial.spi.SpiMode;
@@ -118,7 +118,7 @@ public class TestSpi extends SpiEmulator {
 	}
 
 	@Override
-	public SpiTransfer transfer(Direction direction, int size) {
+	public SpiTransfer transfer(Io.Direction direction, int size) {
 		error.call();
 		return super.transfer(direction, size);
 	}

@@ -9,7 +9,7 @@ import ceri.common.util.Capability;
 /**
  * A general fixable hardware device.
  */
-public interface Fixable extends Closeable, Capability.Name, Listenable.Indirect<StateChange> {
+public interface Fixable extends Closeable, Capability.Name, Listenable.Indirect<Device.Change> {
 
 	/**
 	 * Notify the device that it is broken. For when the device itself cannot determine it is
@@ -42,7 +42,7 @@ public interface Fixable extends Closeable, Capability.Name, Listenable.Indirect
 	 */
 	interface Null extends Fixable {
 		@Override
-		default Listenable<StateChange> listeners() {
+		default Listenable<Device.Change> listeners() {
 			return Listenable.ofNull();
 		}
 
@@ -64,7 +64,7 @@ public interface Fixable extends Closeable, Capability.Name, Listenable.Indirect
 		}
 
 		@Override
-		public Listenable<StateChange> listeners() {
+		public Listenable<Device.Change> listeners() {
 			return delegate.listeners();
 		}
 

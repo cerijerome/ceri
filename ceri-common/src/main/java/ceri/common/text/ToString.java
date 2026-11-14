@@ -70,7 +70,7 @@ public class ToString {
 	 */
 	public static String forClass(Object obj, Object... values) {
 		Objects.requireNonNull(obj);
-		return forName(Reflect.className(obj), values);
+		return forName(Reflect.nameOf(obj), values);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class ToString {
 	 */
 	public static ToString ofClass(Object obj, Object... values) {
 		Objects.requireNonNull(obj);
-		return ofName(Reflect.className(obj), values);
+		return ofName(Reflect.nameOf(obj), values);
 	}
 
 	private ToString(String name) {

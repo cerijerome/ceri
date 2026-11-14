@@ -8,25 +8,25 @@ import java.nio.charset.Charset;
  * A PrintStream that captures bytes written in given character set. Captured text is retrieved with
  * toString(). The stream is auto-flushed.
  */
-public class StringPrintStream extends PrintStream {
+public class StringStream extends PrintStream {
 	private final Charset charset;
 	private final ByteArrayOutputStream baos;
 
 	/**
 	 * Constructor using default character set.
 	 */
-	public static StringPrintStream of() {
+	public static StringStream of() {
 		return of(Charset.defaultCharset());
 	}
 
 	/**
 	 * Constructor using given character set.
 	 */
-	public static StringPrintStream of(Charset charset) {
-		return new StringPrintStream(charset);
+	public static StringStream of(Charset charset) {
+		return new StringStream(charset);
 	}
 
-	protected StringPrintStream(Charset charset) {
+	protected StringStream(Charset charset) {
 		super(new ByteArrayOutputStream(), true, charset);
 		baos = (ByteArrayOutputStream) out;
 		this.charset = charset;
@@ -43,5 +43,4 @@ public class StringPrintStream extends PrintStream {
 	public String toString() {
 		return baos.toString(charset);
 	}
-
 }

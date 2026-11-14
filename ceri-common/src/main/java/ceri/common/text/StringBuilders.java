@@ -37,10 +37,18 @@ public class StringBuilders {
 		}
 
 		/**
-		 * Returns the char at index, or NUL if out of range.
+		 * Returns the original char at index, or NUL if out of range.
 		 */
 		public char at(int i) {
 			return Chars.at(s, i, Chars.NUL);
+		}
+
+		/**
+		 * Returns the last char, including appended chars, or NUL if none.
+		 */
+		public char last() {
+			if (b != null) return Chars.last(b, Chars.NUL);
+			return at(index - 1);
 		}
 
 		/**

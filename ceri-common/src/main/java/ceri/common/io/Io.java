@@ -7,14 +7,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.charset.Charset;
+import java.util.Set;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
 import ceri.common.stream.Stream;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
+import ceri.common.util.Basics;
 
 /**
  * I/O utility functions.
@@ -26,6 +31,79 @@ public class Io {
 	public static final ByteProvider EOL_BYTES = ByteProvider.of(Strings.EOL.getBytes());
 
 	private Io() {}
+
+	/**
+	 * I/O direction; used for in/out or read/write.
+	 */
+	public enum Direction {
+		none(0),
+		/** Input or read. */
+		in(1),
+		/** Output or write. */
+		out(2),
+		/** Input and output, or read and write. */
+		duplex(3);
+
+		public static final Xcoder.Type<Direction> xcoder = Xcoder.type(Direction.class);
+		public final int value;
+
+		private Direction(int value) {
+			this.value = value;
+		}
+
+		/**
+		 * Returns true if the direction includes in.
+		 */
+		public boolean in() {
+			return this == in || this == duplex;
+		}
+
+		/**
+		 * Returns true if the direction includes out.
+		 */
+		public boolean out() {
+			return this == out || this == duplex;
+		}
+	}
+	
+	/**
+	 * Returns the direction type from boolean out value.
+	 */
+	public static Io.Direction direction(Boolean isOut) {
+		return Basics.ternary(isOut, Direction.out, Direction.in, Direction.none);
+	}
+
+	/**
+	 * Returns true if the direction includes in.
+	 */
+	public static boolean in(Io.Direction direction) {
+		return direction != null && direction.in();
+	}
+
+	/**
+	 * Returns true if the direction includes out.
+	 */
+	public static boolean out(Io.Direction direction) {
+		return direction != null && direction.out();
+	}
+
+	/**
+	 * Iterates selected keys, calling consumer.
+	 */
+	public static <E extends Exception> void selectKeys(Selector selector,
+		Excepts.Consumer<E, SelectionKey> consumer) throws E, InterruptedException {
+		Concurrent.checkInterrupted();
+		for (var i = selector.selectedKeys().iterator(); i.hasNext(); i.remove())
+			consumer.accept(i.next());
+	}
+
+	/**
+	 * Clears selected keys.
+	 */
+	public static void clearKeys(Set<SelectionKey> selectedKeys) {
+		for (var i = selectedKeys.iterator(); i.hasNext(); i.remove())
+			i.next();
+	}
 
 	/**
 	 * System line separator as encoded bytes.

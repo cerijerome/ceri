@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.test.TestSpi.Request;
@@ -27,7 +27,7 @@ public class TestSpiBehavior {
 	@Test
 	public void shouldCaptureOutput() throws IOException {
 		var spi = TestSpi.of();
-		var xfer = spi.transfer(Direction.out, 10);
+		var xfer = spi.transfer(Io.Direction.out, 10);
 		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		spi.xfer.assertAuto(Request.out(1, 2, 3, 4, 5));
@@ -36,7 +36,7 @@ public class TestSpiBehavior {
 	@Test
 	public void shouldProvideInput() throws IOException {
 		var spi = TestSpi.of();
-		var xfer = spi.transfer(Direction.in, 10);
+		var xfer = spi.transfer(Io.Direction.in, 10);
 		spi.xfer.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read(), 1, 2, 3, 4, 5, 0, 0, 0, 0, 0);
@@ -45,7 +45,7 @@ public class TestSpiBehavior {
 	@Test
 	public void shouldHandleDuplexIo() throws IOException {
 		var spi = TestSpi.of();
-		var xfer = spi.transfer(Direction.duplex, 10);
+		var xfer = spi.transfer(Io.Direction.duplex, 10);
 		spi.xfer.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
 		xfer.write(Array.BYTE.of(6, 7, 8, 9));
 		xfer.execute();

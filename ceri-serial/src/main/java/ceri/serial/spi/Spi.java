@@ -1,7 +1,7 @@
 package ceri.serial.spi;
 
 import java.io.IOException;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 
 public interface Spi {
 	/** A stateless, no-op instance. */
@@ -28,7 +28,7 @@ public interface Spi {
 
 	void maxSpeedHz(int maxSpeedHz) throws IOException;
 
-	SpiTransfer transfer(Direction direction, int size);
+	SpiTransfer transfer(Io.Direction direction, int size);
 
 	default int speedHz(SpiTransfer xfer) throws IOException {
 		int speedHz = xfer.speedHz();
@@ -80,7 +80,7 @@ public interface Spi {
 		default void maxSpeedHz(int maxSpeedHz) throws IOException {}
 
 		@Override
-		default SpiTransfer transfer(Direction direction, int size) {
+		default SpiTransfer transfer(Io.Direction direction, int size) {
 			return SpiTransfer.of(_ -> {}, direction, size);
 		}
 	}

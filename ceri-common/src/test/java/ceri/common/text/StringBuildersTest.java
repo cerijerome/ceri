@@ -64,6 +64,17 @@ public class StringBuildersTest {
 	}
 
 	@Test
+	public void testStateLastChar() {
+		var s = "abc";
+		Assert.equal(state(s, null).last(), Chars.NUL);
+		Assert.equal(state(s, null).append('a').last(), 'a');
+		Assert.equal(state(s, null).append('A').last(), 'A');
+		Assert.equal(state(s, "").last(), Chars.NUL);
+		Assert.equal(state(s, "A").last(), 'A');
+		Assert.equal(state(s, "A").append('a').last(), 'a');
+	}
+
+	@Test
 	public void testSafe() {
 		Assert.string(StringBuilders.safe(null), "");
 		Assert.string(StringBuilders.safe(new StringBuilder("abc")), "abc");

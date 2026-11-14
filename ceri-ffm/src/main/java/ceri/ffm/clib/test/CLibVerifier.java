@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import ceri.common.collect.Lists;
-import ceri.common.io.PathFinder;
+import ceri.common.io.Paths;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
@@ -176,6 +176,6 @@ public class CLibVerifier {
 
 	private static Path serialPath(String path) throws IOException {
 		if (!Strings.isBlank(path)) return Path.of(path);
-		return Lists.at(PathFinder.of(DEV_DIR).nameFilter(USB_PATTERN).sort().list(), 0);
+		return Lists.at(Paths.findIn(DEV_DIR).nameFilter(USB_PATTERN).sort().list(), 0);
 	}
 }

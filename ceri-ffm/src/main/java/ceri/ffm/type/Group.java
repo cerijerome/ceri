@@ -21,7 +21,7 @@ import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Handles;
 import ceri.common.reflect.Reflect;
@@ -63,14 +63,14 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		private final MemoryLayout layout;
 		private final VarHandle accessor;
 		private final Support<?, ?, ?, ?> support; // for element if flex array
-		private final Direction direction;
+		private final Io.Direction direction;
 
 		static class Builder {
 			private final String name;
 			private final TypeNode node;
 			private final VarHandle accessor;
 			private Support<?, ?, ?, ?> support;
-			private Direction direction;
+			private Io.Direction direction;
 			private Boolean flexNul;
 			MemoryLayout layout;
 
@@ -101,14 +101,14 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 				return this;
 			}
 
-			private Builder direction(Direction direction) {
+			private Builder direction(Io.Direction direction) {
 				this.direction = direction;
 				return this;
 			}
 		}
 
 		private Member(String name, long offset, MemoryLayout layout, VarHandle accessor,
-			Support<?, ?, ?, ?> support, Direction direction) {
+			Support<?, ?, ?, ?> support, Io.Direction direction) {
 			this.name = name;
 			this.offset = offset;
 			this.layout = layout;
@@ -233,7 +233,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 	public static class NonFlex<T> extends Member<T> {
 
 		private NonFlex(String name, long offset, MemoryLayout layout, VarHandle accessor,
-			Support<?, ?, ?, ?> support, Direction direction) {
+			Support<?, ?, ?, ?> support, Io.Direction direction) {
 			super(name, offset, layout, accessor, support, direction);
 		}
 
@@ -272,7 +272,7 @@ public abstract class Group<T extends Group<T, L>, L extends GroupLayout> {
 		private final boolean nul;
 
 		private Flex(String name, long offset, MemoryLayout layout, VarHandle accessor,
-			Support<?, ?, ?, ?> support, Direction direction, Boolean nul) {
+			Support<?, ?, ?, ?> support, Io.Direction direction, Boolean nul) {
 			super(name, offset, layout, accessor, support, direction);
 			this.nul = nul;
 		}

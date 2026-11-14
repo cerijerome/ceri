@@ -128,31 +128,25 @@ import ceri.common.test.Testing;
 	ceri.common.geom.Spheroid3dBehavior.class, //
 	ceri.common.geom.TruncatedRadial3dBehavior.class, //
 	// io
-	ceri.common.io.BufferedOutputStreamBehavior.class, //
+	ceri.common.io.BufferedOutBehavior.class, //
 	ceri.common.io.BuffersBehavior.class, //
 	ceri.common.io.ConnectorBehavior.class, //
-	ceri.common.io.ConsoleInputBehavior.class, //
-	ceri.common.io.DeviceModeBehavior.class, //
-	ceri.common.io.DirectionBehavior.class, //
-	ceri.common.io.EdgeBehavior.class, //
+	ceri.common.io.ConsoleInBehavior.class, //
+	ceri.common.io.DeviceBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitorsTest.class, //
 	ceri.common.io.FixableBehavior.class, //
 	ceri.common.io.IoExceptionsBehavior.class, //
 	ceri.common.io.IoStreamTest.class, //
 	ceri.common.io.IoTest.class, //
-	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.LineReaderBehavior.class, //
-	ceri.common.io.NioTest.class, //
-	ceri.common.io.PathFinderBehavior.class, //
 	ceri.common.io.PathsTest.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
-	ceri.common.io.PollingInputStreamBehavior.class, //
+	ceri.common.io.PollingInBehavior.class, //
 	ceri.common.io.ReplaceableBehavior.class, //
-	ceri.common.io.ReplaceableStreamBehavior.class, //
 	ceri.common.io.ResourceBehavior.class, //
-	ceri.common.io.StateChangeBehavior.class, //
-	ceri.common.io.StringPrintStreamBehavior.class, //
+	ceri.common.io.SignalBehavior.class, //
+	ceri.common.io.StringStreamBehavior.class, //
 	// log
 	ceri.common.log.LevelBehavior.class, //
 	ceri.common.log.LoggerBehavior.class, //
@@ -172,11 +166,8 @@ import ceri.common.test.Testing;
 	ceri.common.net.HostPortBehavior.class, //
 	ceri.common.net.HttpTest.class, //
 	ceri.common.net.NetTest.class, //
-	ceri.common.net.ReplaceableTcpSocketBehavior.class, //
 	ceri.common.net.TcpServerSocketBehavior.class, //
 	ceri.common.net.TcpSocketBehavior.class, //
-	ceri.common.net.TcpSocketOptionBehavior.class, //
-	ceri.common.net.TcpSocketOptionsBehavior.class, //
 	ceri.common.net.UdpChannelBehavior.class, //
 	ceri.common.net.UdpTest.class, //
 	ceri.common.net.UrlsTest.class, //

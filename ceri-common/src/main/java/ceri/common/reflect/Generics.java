@@ -15,11 +15,16 @@ import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
+import ceri.common.collect.Sets;
+import ceri.common.function.Excepts;
 import ceri.common.text.Joiner;
 
 /**
@@ -144,6 +149,7 @@ public class Generics {
 		private static final List<Typed> UPPER = List.of(OBJECT);
 		private static final List<Typed> NO_TYPES = List.of();
 		private final Class<?> cls;
+		private volatile List<Typed> ifaces = null;
 		private volatile List<Typed> types = null;
 		private volatile List<Typed> upper = null;
 		private volatile List<Typed> lower = null;
@@ -223,6 +229,62 @@ public class Generics {
 		public boolean isArray() {
 			if (raw() instanceof GenericArrayType) return true;
 			return cls != null && cls.getComponentType() != null;
+		}
+
+		/**
+		 * Returns the super class type if this is a class type, otherwise null instance.
+		 */
+		public Typed superClass() {
+			return cls == null ? NULL : typed(cls.getAnnotatedSuperclass());
+		}
+
+		/**
+		 * Returns the parameterized direct interface type at given index, or null instance.
+		 */
+		public Typed iface(int index) {
+			return Lists.at(ifaces(), index, NULL);
+		}
+
+		/**
+		 * Returns the parameterized direct interface types, or empty list.
+		 */
+		public List<Typed> ifaces() {
+			var ifaces = this.ifaces;
+			if (ifaces == null) {
+				ifaces = cls == null ? Typed.NO_TYPES : listOf(cls.getAnnotatedInterfaces());
+				this.ifaces = ifaces;
+			}
+			return ifaces;
+		}
+
+		/**
+		 * Iterates over parameterized super classes and interfaces, stopping when the predicate
+		 * returns true. The matched parameterized type is returned, or null instance. Object type
+		 * is ignored.
+		 */
+		public <E extends Exception> Typed forEachTyped(Excepts.Predicate<E, Typed> predicate)
+			throws E {
+			if (nullOrObj(this)) return Typed.NULL;
+			if (predicate.test(this)) return this;
+			var queue = new ArrayDeque<Typed>();
+			queue.add(this);
+			while (!queue.isEmpty()) {
+				for (int n = queue.size(); n > 0; n--) {
+					var typed = nextEntry(queue, predicate);
+					if (typed != null) return typed;
+				}
+			}
+			return Typed.NULL;
+		}
+
+		/**
+		 * Returns all the parameterized interface types, or empty list. This is calculated each
+		 * call without being cached.
+		 */
+		public Set<Typed> allIfaces() {
+			var set = Sets.<Typed>of();
+			addIfaces(set, cls);
+			return set;
 		}
 
 		/**
@@ -314,6 +376,13 @@ public class Generics {
 		 */
 		public boolean isType(Type type) {
 			return Objects.equals(raw(), type);
+		}
+
+		/**
+		 * Returns true if the type class is the same as the given class.
+		 */
+		public boolean isClass(Class<?> cls) {
+			return Objects.equals(cls(), cls);
 		}
 
 		@Override
@@ -546,12 +615,12 @@ public class Generics {
 	 * Returns the class from the type if a class or class-based parameterized type, or null.
 	 */
 	public static Class<?> classFrom(Type type) {
-		if (type == null) return null;
-		if (type instanceof Class<?> c) return c;
-		if (type instanceof ParameterizedType p) return classFrom(p.getRawType());
-		if (type instanceof GenericArrayType a)
-			return RawArray.arrayType(classFrom(a.getGenericComponentType()));
-		return null;
+		return switch (type) {
+			case Class<?> c -> c;
+			case ParameterizedType p -> classFrom(p.getRawType());
+			case GenericArrayType a -> RawArray.arrayType(classFrom(a.getGenericComponentType()));
+			case null, default -> null;
+		};
 	}
 
 	/**
@@ -559,6 +628,16 @@ public class Generics {
 	 */
 	public static Class<?> classFrom(AnnotatedType type) {
 		return type == null ? null : classFrom(type.getType());
+	}
+
+	/**
+	 * Iterates over parameterized super classes, interfaces and array components, stopping when the
+	 * predicate returns true. The matched parameterized type is returned, or null instance. Object
+	 * type is ignored.
+	 */
+	public static <E extends Exception> Typed forEachTyped(Class<?> cls,
+		Excepts.Predicate<E, Typed> predicate) throws E {
+		return typed(cls).forEachTyped(predicate);
 	}
 
 	/**
@@ -625,6 +704,36 @@ public class Generics {
 
 	private static boolean hasUpper(List<Typed> upper) {
 		return !upper.isEmpty() && !upper.equals(Typed.UPPER);
+	}
+
+	private static boolean nullOrObj(Typed typed) {
+		return typed.isNull() || Object.class.equals(typed.cls());
+	}
+
+	private static void addIfaces(Set<Typed> ifaces, Class<?> cls) {
+		if (cls == null) return;
+		addIfaces(ifaces, cls.getSuperclass());
+		for (var iface : cls.getAnnotatedInterfaces()) {
+			var typed = typed(iface);
+			ifaces.add(typed);
+			addIfaces(ifaces, typed.cls());
+		}
+	}
+
+	private static <E extends Exception> Typed nextEntry(Deque<Typed> queue,
+		Excepts.Predicate<E, Typed> predicate) throws E {
+		var entry = queue.poll();
+		var typed = entry.superClass();
+		if (!nullOrObj(typed)) {
+			if (predicate.test(typed)) return typed;
+			queue.add(typed);
+		}
+		for (var iface : entry.cls().getAnnotatedInterfaces()) {
+			typed = typed(iface);
+			if (predicate.test(typed)) return typed;
+			queue.add(typed);
+		}
+		return null;
 	}
 
 	private static List<Typed> listOf(Type... types) {

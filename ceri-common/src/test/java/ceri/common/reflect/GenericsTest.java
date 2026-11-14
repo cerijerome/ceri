@@ -7,11 +7,16 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.SequencedCollection;
 import org.junit.jupiter.api.Test;
 import ceri.common.reflect.Generics.Typed;
+import ceri.common.stream.Stream;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.common.test.Testing.I;
@@ -194,6 +199,28 @@ public class GenericsTest {
 	}
 
 	@Test
+	public void testTypeSuperClass() {
+		Assert.equal(Generics.Typed.NULL.superClass(), Generics.Typed.NULL);
+		Assert.equal(Generics.typed(list).superClass(), Generics.Typed.NULL);
+		Assert.equal(Generics.typed(ArrayList.class).superClass().cls(), AbstractList.class);
+	}
+
+	@Test
+	public void testTypedIfaces() {
+		var typed = Generics.typed(list);
+		assertType(Generics.Typed.NULL.iface(0), NULL);
+		Assert.equal(typed.iface(0).cls(), SequencedCollection.class);
+		Assert.equal(typed.iface(0).type(0).varName(), "E");
+	}
+
+	@Test
+	public void testTypedAllIfaces() {
+		assertClasses(Generics.Typed.NULL.allIfaces());
+		assertClasses(Generics.typed(list).allIfaces(), SequencedCollection.class, Collection.class,
+			Iterable.class);
+	}
+
+	@Test
 	public void testTypedIsUnbounded() {
 		Assert.equal(Generics.Typed.NULL.isUnbounded(), false);
 		Assert.equal(Generics.typed(list).isUnbounded(), false);
@@ -329,6 +356,18 @@ public class GenericsTest {
 	}
 
 	@Test
+	public void testForEachTyped() {
+		Assert.equal(Generics.Typed.NULL.forEachTyped(_ -> false), Generics.Typed.NULL);
+		Assert.equal(Generics.forEachTyped(null, _ -> true), Generics.Typed.NULL);
+		Assert.equal(Generics.forEachTyped(ArrayList.class, _ -> true).cls(), ArrayList.class);
+		Assert.equal(Generics.forEachTyped(ArrayList.class, _ -> false), Generics.Typed.NULL);
+		Assert.equal(Generics.forEachTyped(ArrayList.class, //
+			t -> t.isClass(Iterable.class)).type(0).varName(), "E");
+		Assert.equal(Generics.forEachTyped(ArrayList.class, //
+			t -> t.isClass(AbstractCollection.class)).type(0).varName(), "E");
+	}
+
+	@Test
 	public void testFullString() {
 		Assert.string(Generics.fullString(null), "null");
 		Assert.string(Generics.fullString(List.class),
@@ -352,6 +391,11 @@ public class GenericsTest {
 	 */
 	private static Generics.Typed d(Generics.Typed typed) {
 		return Generics.typed(typed.raw());
+	}
+
+	private static void assertClasses(Iterable<Generics.Typed> typeds, Class<?>... classes) {
+		Assert.unordered(Reflect.<Collection<Class<?>>>unchecked(
+			Stream.from(typeds).map(t -> (Class<?>) t.cls()).toSet()), classes);
 	}
 
 	private static void assertType(Generics.Typed typed, Type type) {

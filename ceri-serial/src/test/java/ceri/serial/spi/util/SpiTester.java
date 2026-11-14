@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.apache.logging.log4j.Level;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.util.StartupValues;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiDevice;
@@ -16,7 +16,7 @@ public class SpiTester {
 
 	public static void main(String[] args) throws IOException {
 		StartupValues v = startupValues(Level.WARN, args);
-		Direction direction = v.next("direction", p -> p.toEnum(Direction.out));
+		Io.Direction direction = v.next("direction", p -> p.toEnum(Io.Direction.out));
 		int size = v.next("size", p -> p.toInt(8));
 		int speedHz = v.next("speedHz", p -> p.toInt(100000));
 		int delay = v.next("delay", p -> p.toInt(50));
@@ -34,7 +34,7 @@ public class SpiTester {
 			spi.maxSpeedHz(speedHz);
 			print(spi);
 
-			SpiTransfer xfer = spi.transfer(Direction.out, size).delayMicros(delay);
+			SpiTransfer xfer = spi.transfer(Io.Direction.out, size).delayMicros(delay);
 
 			System.out.printf("Fill: 0x%02x x %d%n", fill, xfer.size());
 			xfer.write(fill(xfer.size(), fill));

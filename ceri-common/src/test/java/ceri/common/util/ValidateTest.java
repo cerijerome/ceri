@@ -25,7 +25,7 @@ public class ValidateTest {
 	}
 
 	@Test
-	public void testcondition() {
+	public void testCondition() {
 		assertInvalid(() -> Validate.condition(false));
 		assertInvalid(() -> Validate.condition(false, TEST));
 		Assert.equal(Validate.condition(true), true);
@@ -80,6 +80,14 @@ public class ValidateTest {
 		assertInvalid(() -> Validate.equalNoneOf(OBJ, null, OBJ, ""));
 		Assert.equal(Validate.equalNoneOf(null), null);
 		Assert.equal(Validate.equalNoneOf(OBJ, null, ""), OBJ);
+	}
+
+	@Test
+	public void testNonEmptyString() {
+		assertInvalid(() -> Validate.nonEmpty((CharSequence) null));
+		assertInvalid(() -> Validate.nonEmpty(""));
+		var b = new StringBuilder("\0");
+		Assert.same(Validate.nonEmpty(b), b);
 	}
 
 	@Test

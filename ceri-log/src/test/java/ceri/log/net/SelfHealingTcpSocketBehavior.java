@@ -7,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.net.HostPort;
-import ceri.common.net.TcpSocketOption;
-import ceri.common.net.TcpSocketOptions;
+import ceri.common.net.TcpSocket;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
@@ -42,10 +41,10 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldCopySettings() {
 		var config0 = SelfHealingTcpSocket.Config.builder(hostPort)
-			.option(TcpSocketOption.soTimeout, 123).build();
+			.option(TcpSocket.Option.soTimeout, 123).build();
 		var config = SelfHealingTcpSocket.Config.builder(config0).build();
 		Assert.equal(config.hostPort, hostPort);
-		Assert.equal(config.options.get(TcpSocketOption.soTimeout), 123);
+		Assert.equal(config.options.get(TcpSocket.Option.soTimeout), 123);
 	}
 
 	@Test
@@ -67,15 +66,15 @@ public class SelfHealingTcpSocketBehavior {
 			new SelfHealingTcpSocket.Properties(Testing.properties("self-healing-tcp-socket"),
 				"socket").config();
 		Assert.equal(config.hostPort, HostPort.of("test", 123));
-		Assert.equal(config.options.get(TcpSocketOption.soTimeout), 111);
-		Assert.equal(config.options.get(TcpSocketOption.soLinger), 222);
-		Assert.equal(config.options.get(TcpSocketOption.soKeepAlive), true);
-		Assert.equal(config.options.get(TcpSocketOption.soReuseAddr), false);
-		Assert.equal(config.options.get(TcpSocketOption.soOobInline), true);
-		Assert.equal(config.options.get(TcpSocketOption.tcpNoDelay), false);
-		Assert.equal(config.options.get(TcpSocketOption.ipTos), 333);
-		Assert.equal(config.options.get(TcpSocketOption.soSndBuf), 444);
-		Assert.equal(config.options.get(TcpSocketOption.soRcvBuf), 555);
+		Assert.equal(config.options.get(TcpSocket.Option.soTimeout), 111);
+		Assert.equal(config.options.get(TcpSocket.Option.soLinger), 222);
+		Assert.equal(config.options.get(TcpSocket.Option.soKeepAlive), true);
+		Assert.equal(config.options.get(TcpSocket.Option.soReuseAddr), false);
+		Assert.equal(config.options.get(TcpSocket.Option.soOobInline), true);
+		Assert.equal(config.options.get(TcpSocket.Option.tcpNoDelay), false);
+		Assert.equal(config.options.get(TcpSocket.Option.ipTos), 333);
+		Assert.equal(config.options.get(TcpSocket.Option.soSndBuf), 444);
+		Assert.equal(config.options.get(TcpSocket.Option.soRcvBuf), 555);
 		Assert.equal(config.selfHealing.fixRetryDelayMs, 666);
 		Assert.equal(config.selfHealing.recoveryDelayMs, 777);
 	}
@@ -83,7 +82,7 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		config = SelfHealingTcpSocket.Config.builder(hostPort)
-			.option(TcpSocketOption.soTimeout, 123).build();
+			.option(TcpSocket.Option.soTimeout, 123).build();
 		Assert.find(config, "test:123.*SO_TIMEOUT=123");
 		init();
 		Assert.find(shs.toString(), "\\btest:123\\b");
@@ -116,10 +115,10 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldNotifyListenersOnFix() throws InterruptedException {
 		init();
-		ValueCondition<StateChange> sync = ValueCondition.of();
+		ValueCondition<Device.Change> sync = ValueCondition.of();
 		try (var _ = shs.listeners().enclose(sync::signal)) {
 			shs.broken();
-			sync.await(StateChange.fixed);
+			sync.await(Device.Change.fixed);
 		}
 	}
 
@@ -127,7 +126,7 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldLogOnNotifyError() {
 		init();
 		LogModifier.run(() -> {
-			var sync = CallSync.<StateChange>consumer(null, true);
+			var sync = CallSync.<Device.Change>consumer(null, true);
 			sync.error.setFrom(ErrorGen.RTX);
 			try (var _ = shs.listeners().enclose(sync::accept)) {
 				shs.broken(); // error logged
@@ -139,7 +138,7 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldStopOnNotifyInterrupt() {
 		init();
-		var sync = CallSync.<StateChange>consumer(null, true);
+		var sync = CallSync.<Device.Change>consumer(null, true);
 		sync.error.setFrom(ErrorGen.RIX);
 		try (var _ = shs.listeners().enclose(sync::accept)) {
 			Assert.thrown(RuntimeInterruptedException.class, shs::broken);
@@ -150,7 +149,7 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldFailToOpenIfOptionFails() throws IOException {
 		init();
-		shs.options(TcpSocketOptions.of().set(TcpSocketOption.soKeepAlive, true));
+		shs.options(TcpSocket.Options.of().set(TcpSocket.Option.soKeepAlive, true));
 		socket.optionSync.error.setFrom(ErrorGen.IOX, null);
 		Assert.thrown(shs::open);
 		socket.open.await();
@@ -159,13 +158,13 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldProvideOptionIfOpen() throws IOException {
 		init();
-		Assert.isNull(shs.option(TcpSocketOption.soLinger));
-		shs.option(TcpSocketOption.soLinger, 123);
-		Assert.isNull(shs.option(TcpSocketOption.soLinger));
+		Assert.isNull(shs.option(TcpSocket.Option.soLinger));
+		shs.option(TcpSocket.Option.soLinger, 123);
+		Assert.isNull(shs.option(TcpSocket.Option.soLinger));
 		shs.open();
-		Assert.equal(shs.option(TcpSocketOption.soLinger), 123);
-		shs.option(TcpSocketOption.soLinger, 456);
-		Assert.equal(shs.option(TcpSocketOption.soLinger), 456);
+		Assert.equal(shs.option(TcpSocket.Option.soLinger), 123);
+		shs.option(TcpSocket.Option.soLinger, 456);
+		Assert.equal(shs.option(TcpSocket.Option.soLinger), 456);
 	}
 
 	private void init() {

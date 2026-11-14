@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.Listenable;
 import ceri.common.function.Enclosure;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.text.ToString;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.Logs;
@@ -129,7 +129,7 @@ public class Cm17aDevice implements Cm17a {
 	}
 
 	@Override
-	public Listenable<StateChange> listeners() {
+	public Listenable<Device.Change> listeners() {
 		return connector.listeners();
 	}
 

@@ -11,7 +11,6 @@ import ceri.common.io.Io;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
-import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.Logs;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
@@ -23,7 +22,7 @@ import ceri.serial.comm.SerialPort;
  * is removed and replaced. USB-to-serial connector device names can change after disconnecting and
  * reconnecting. The PortSupplier interface can be used to provide handling logic in this case.
  */
-public class SelfHealingSerial extends SelfHealingConnector<Serial> implements Serial.Fixable {
+public class SelfHealingSerial extends SelfHealing.Connector<Serial> implements Serial.Fixable {
 	private final Config config;
 	private final SerialConfig.Builder serialConfig;
 

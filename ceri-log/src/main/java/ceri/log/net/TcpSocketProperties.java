@@ -1,8 +1,7 @@
 package ceri.log.net;
 
 import ceri.common.net.HostPort;
-import ceri.common.net.TcpSocketOption;
-import ceri.common.net.TcpSocketOptions;
+import ceri.common.net.TcpSocket;
 import ceri.common.property.TypedProperties;
 
 public class TcpSocketProperties extends TypedProperties.Ref {
@@ -26,17 +25,17 @@ public class TcpSocketProperties extends TypedProperties.Ref {
 		return HostPort.parse(parse(HOST_PORT_KEY).get());
 	}
 
-	public TcpSocketOptions options() {
-		var options = TcpSocketOptions.of();
-		options.set(TcpSocketOption.soTimeout, parse(OPTION_KEY, SO_TIMEOUT_KEY).toInt());
-		options.set(TcpSocketOption.soLinger, parse(OPTION_KEY, SO_LINGER_KEY).toInt());
-		options.set(TcpSocketOption.soKeepAlive, parse(OPTION_KEY, SO_KEEPALIVE_KEY).toBool());
-		options.set(TcpSocketOption.soReuseAddr, parse(OPTION_KEY, SO_REUSEADDR_KEY).toBool());
-		options.set(TcpSocketOption.soOobInline, parse(OPTION_KEY, SO_OOBINLINE_KEY).toBool());
-		options.set(TcpSocketOption.tcpNoDelay, parse(OPTION_KEY, TCP_NODELAY_KEY).toBool());
-		options.set(TcpSocketOption.ipTos, parse(OPTION_KEY, IP_TOS_KEY).toInt());
-		options.set(TcpSocketOption.soSndBuf, parse(OPTION_KEY, SO_SNDBUF_KEY).toInt());
-		options.set(TcpSocketOption.soRcvBuf, parse(OPTION_KEY, SO_RCVBUF_KEY).toInt());
+	public TcpSocket.Options options() {
+		var options = TcpSocket.Options.of();
+		options.set(TcpSocket.Option.soTimeout, parse(OPTION_KEY, SO_TIMEOUT_KEY).toInt());
+		options.set(TcpSocket.Option.soLinger, parse(OPTION_KEY, SO_LINGER_KEY).toInt());
+		options.set(TcpSocket.Option.soKeepAlive, parse(OPTION_KEY, SO_KEEPALIVE_KEY).toBool());
+		options.set(TcpSocket.Option.soReuseAddr, parse(OPTION_KEY, SO_REUSEADDR_KEY).toBool());
+		options.set(TcpSocket.Option.soOobInline, parse(OPTION_KEY, SO_OOBINLINE_KEY).toBool());
+		options.set(TcpSocket.Option.tcpNoDelay, parse(OPTION_KEY, TCP_NODELAY_KEY).toBool());
+		options.set(TcpSocket.Option.ipTos, parse(OPTION_KEY, IP_TOS_KEY).toInt());
+		options.set(TcpSocket.Option.soSndBuf, parse(OPTION_KEY, SO_SNDBUF_KEY).toInt());
+		options.set(TcpSocket.Option.soRcvBuf, parse(OPTION_KEY, SO_RCVBUF_KEY).toInt());
 		return options.immutable();
 	}
 }

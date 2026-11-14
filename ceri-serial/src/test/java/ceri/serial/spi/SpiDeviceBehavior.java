@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.jna.clib.FileDescriptor;
@@ -34,7 +34,7 @@ public class SpiDeviceBehavior {
 		var eq1 = SpiDevice.Config.builder().bus(1).chip(1).build();
 		var ne0 = SpiDevice.Config.of(0, 1);
 		var ne1 = SpiDevice.Config.of(1, 0);
-		var ne2 = SpiDevice.Config.of(1, 1, Direction.in);
+		var ne2 = SpiDevice.Config.of(1, 1, Io.Direction.in);
 		Testing.exerciseEquals(t, eq0, eq1);
 		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
@@ -42,15 +42,15 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldCreateConfigFromProperties() {
 		Assert.equal(new SpiDevice.Properties(Testing.properties("spi", "spi")).config(),
-			SpiDevice.Config.of(1, 2, Direction.in));
+			SpiDevice.Config.of(1, 2, Io.Direction.in));
 	}
 
 	@Test
 	public void shouldOpenDevice() throws IOException {
 		var lib = ref.init();
 		Assert.thrown(() -> SpiDevice.Config.of(0, 0, null));
-		try (var _ = SpiDevice.Config.of(0, 1, Direction.in).open()) {}
-		try (var _ = SpiDevice.Config.of(1, 1, Direction.out).open()) {}
+		try (var _ = SpiDevice.Config.of(0, 1, Io.Direction.in).open()) {}
+		try (var _ = SpiDevice.Config.of(1, 1, Io.Direction.out).open()) {}
 		try (var _ = SpiDevice.Config.of(1, 0).open()) {}
 		lib.open.assertValues( //
 			new OpenArgs("/dev/spidev0.1", 0, 0), //
@@ -101,7 +101,7 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldTransferOut() throws IOException {
 		var lib = initSpi();
-		var xfer = spi.transfer(Direction.out, 5);
+		var xfer = spi.transfer(Io.Direction.out, 5);
 		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read());
@@ -113,7 +113,7 @@ public class SpiDeviceBehavior {
 	public void shouldTransferIn() throws IOException {
 		var lib = initSpi();
 		lib.ioctlSpiMsg.autoResponses(ByteProvider.of(5, 4, 3, 2, 1));
-		var xfer = spi.transfer(Direction.in, 5);
+		var xfer = spi.transfer(Io.Direction.in, 5);
 		xfer.write(Array.BYTE.of(1, 2, 3)); // ignored
 		xfer.execute();
 		Assert.array(xfer.read(), 5, 4, 3, 2, 1);
@@ -125,7 +125,7 @@ public class SpiDeviceBehavior {
 	public void shouldTransferDuplex() throws IOException {
 		var lib = initSpi();
 		lib.ioctlSpiMsg.autoResponses(ByteProvider.of(5, 4, 3, 2, 1));
-		var xfer = spi.transfer(Direction.duplex, 5);
+		var xfer = spi.transfer(Io.Direction.duplex, 5);
 		xfer.write(Array.BYTE.of(5, 6, 7, 8, 9));
 		xfer.execute();
 		Assert.array(xfer.read(), 5, 4, 3, 2, 1);
@@ -136,11 +136,11 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldConfigureTransfer() throws IOException {
 		initSpi();
-		var xfer = spi.transfer(Direction.duplex, 5).limit(4).speedHz(200).delayMicros(10)
+		var xfer = spi.transfer(Io.Direction.duplex, 5).limit(4).speedHz(200).delayMicros(10)
 			.bitsPerWord(3).csChange(true).txNbits(1).rxNbits(2);
 		Assert.equal(xfer.size(), 4);
 		Assert.equal(xfer.sizeMax(), 5);
-		Assert.equal(xfer.direction(), Direction.duplex);
+		Assert.equal(xfer.direction(), Io.Direction.duplex);
 		Assert.equal(xfer.speedHz(), 200);
 		Assert.equal(xfer.delayMicros(), 10);
 		Assert.equal(xfer.bitsPerWord(), 3);
@@ -155,7 +155,7 @@ public class SpiDeviceBehavior {
 	public void shouldDetermineSpeed() throws IOException {
 		var lib = initSpi();
 		lib.ioctlSpiInt.autoResponses(0, 200);
-		var xfer = spi.transfer(Direction.out, 3);
+		var xfer = spi.transfer(Io.Direction.out, 3);
 		Assert.equal(spi.speedHz(xfer), 0); // 0 from spi, 0 from xfer
 		Assert.equal(spi.speedHz(xfer), 200); // 200 from spi, 0 from xfer
 		Assert.equal(spi.speedHz(xfer.speedHz(100)), 100); // 200 from spi, 100 from xfer
@@ -166,7 +166,7 @@ public class SpiDeviceBehavior {
 	public void shouldDetermineBitsPerWord() throws IOException {
 		var lib = initSpi();
 		lib.ioctlSpiInt.autoResponses(0, 7);
-		var xfer = spi.transfer(Direction.out, 3);
+		var xfer = spi.transfer(Io.Direction.out, 3);
 		Assert.equal(spi.bitsPerWord(xfer), 8); // 0 from spi, 0 from xfer
 		Assert.equal(spi.bitsPerWord(xfer), 7); // 7 from spi, 0 from xfer
 		Assert.equal(spi.bitsPerWord(xfer.bitsPerWord(6)), 6); // 7 from spi, 6 from xfer

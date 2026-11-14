@@ -10,16 +10,16 @@ import ceri.common.util.Validate;
  * emptied if an exception occurs during flushing. This prevents data from accumulating when the
  * wrapped stream is in a bad state.
  */
-public class BufferedOutputStream extends FilterOutputStream {
+public class BufferedOut extends FilterOutputStream {
 	private static final int BUFFER_SIZE_DEF = 8192;
 	private byte buffer[];
 	private int count;
 
-	public BufferedOutputStream(OutputStream out) {
+	public BufferedOut(OutputStream out) {
 		this(out, BUFFER_SIZE_DEF);
 	}
 
-	public BufferedOutputStream(OutputStream out, int size) {
+	public BufferedOut(OutputStream out, int size) {
 		super(out);
 		Validate.min(size, 0);
 		buffer = new byte[size];

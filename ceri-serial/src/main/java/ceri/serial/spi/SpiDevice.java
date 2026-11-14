@@ -3,7 +3,7 @@ package ceri.serial.spi;
 import java.io.IOException;
 import java.util.Objects;
 import ceri.common.function.Excepts;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.common.util.Validate;
@@ -27,13 +27,13 @@ public class SpiDevice implements Spi {
 		private final Excepts.Function<IOException, Config, FileDescriptor> openFn;
 		public final int bus;
 		public final int chip;
-		public final Direction direction;
+		public final Io.Direction direction;
 
 		public static Config of(int bus, int chip) {
 			return builder().bus(bus).chip(chip).build();
 		}
 
-		public static Config of(int bus, int chip, Direction direction) {
+		public static Config of(int bus, int chip, Io.Direction direction) {
 			return builder().bus(bus).chip(chip).direction(direction).build();
 		}
 
@@ -41,7 +41,7 @@ public class SpiDevice implements Spi {
 			Excepts.Function<IOException, Config, FileDescriptor> openFn = SpiDevice::open;
 			int bus = 0;
 			int chip = 0;
-			Direction direction = Direction.duplex;
+			Io.Direction direction = Io.Direction.duplex;
 
 			Builder() {}
 
@@ -62,8 +62,8 @@ public class SpiDevice implements Spi {
 				return this;
 			}
 
-			public Builder direction(Direction direction) {
-				Validate.equalNoneOf(direction, null, Direction.none);
+			public Builder direction(Io.Direction direction) {
+				Validate.equalNoneOf(direction, null, Io.Direction.none);
 				this.direction = direction;
 				return this;
 			}
@@ -125,7 +125,7 @@ public class SpiDevice implements Spi {
 			var b = Config.builder();
 			parse(BUS_KEY).asInt().accept(b::bus);
 			parse(CHIP_KEY).asInt().accept(b::chip);
-			parse(DIRECTION_KEY).asEnum(Direction.class).accept(b::direction);
+			parse(DIRECTION_KEY).asEnum(Io.Direction.class).accept(b::direction);
 			return b.build();
 		}
 	}
@@ -140,8 +140,9 @@ public class SpiDevice implements Spi {
 	/**
 	 * Opens the SPI file descriptor.
 	 */
-	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
-		Validate.equalNoneOf(direction, null, Direction.none);
+	public static CFileDescriptor open(int bus, int chip, Io.Direction direction)
+		throws IOException {
+		Validate.equalNoneOf(direction, null, Io.Direction.none);
 		Validate.min(bus, 0, "Bus number");
 		Validate.min(chip, 0, "Chip number");
 		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
@@ -202,8 +203,8 @@ public class SpiDevice implements Spi {
 	}
 
 	@Override
-	public SpiTransfer transfer(Direction direction, int size) {
-		Validate.equalNoneOf(direction, null, Direction.none);
+	public SpiTransfer transfer(Io.Direction direction, int size) {
+		Validate.equalNoneOf(direction, null, Io.Direction.none);
 		Validate.min(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}
@@ -212,9 +213,9 @@ public class SpiDevice implements Spi {
 		fd.accept(fd -> SpiDev.message(fd, transfer));
 	}
 
-	private static Open openFlag(Direction direction) {
-		if (direction == Direction.out) return Open.WRONLY;
-		if (direction == Direction.in) return Open.RDONLY;
+	private static Open openFlag(Io.Direction direction) {
+		if (direction == Io.Direction.out) return Open.WRONLY;
+		if (direction == Io.Direction.in) return Open.RDONLY;
 		return Open.RDWR;
 	}
 }

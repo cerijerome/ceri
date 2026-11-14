@@ -14,9 +14,8 @@ import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Mode;
 import ceri.log.io.SelfHealing;
-import ceri.log.io.SelfHealingConnector;
 
-public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
+public class SelfHealingFd extends SelfHealing.Connector<FileDescriptor>
 	implements FileDescriptor.Fixable {
 	private final Config config;
 

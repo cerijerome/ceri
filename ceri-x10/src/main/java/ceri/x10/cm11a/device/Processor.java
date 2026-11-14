@@ -15,7 +15,7 @@ import ceri.common.except.ExceptionTracker;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.io.Connector;
-import ceri.common.io.PollingInputStream;
+import ceri.common.io.PollingIn;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.cm11a.protocol.Clock;
 import ceri.x10.cm11a.protocol.Entry;
@@ -47,7 +47,7 @@ public class Processor extends LoopingExecutor {
 		try {
 			this.config = config;
 			taskQueue = TaskQueue.of(config.queueSize);
-			PollingInputStream pollIn = new PollingInputStream(
+			PollingIn pollIn = new PollingIn(
 				new BufferedInputStream(connector.in()), config.readPollMs, config.readTimeoutMs);
 			in = ByteStream.reader(pollIn);
 			out = ByteStream.writer(new BufferedOutputStream(connector.out()));

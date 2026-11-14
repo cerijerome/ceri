@@ -314,6 +314,13 @@ public class ReflectTest {
 	}
 
 	@Test
+	public void testFullName() {
+		Assert.string(Reflect.fullName(null), "null");
+		Assert.string(Reflect.fullNameOf(null), "null");
+		Assert.string(Reflect.fullNameOf("test"), "java.lang.String");
+	}
+
+	@Test
 	public void testName() {
 		Assert.string(Reflect.name((Class<?>) null), "null");
 		Assert.string(Reflect.name(int.class), "int");
@@ -359,7 +366,7 @@ public class ReflectTest {
 		}.cls();
 		Assert.string(Reflect.simple(c1), "1");
 		Assert.string(Reflect.qname(c1), "1.1");
-		Assert.string(Reflect.name(c1), "%s.1.1", Reflect.className(this));
+		Assert.string(Reflect.name(c1), "%s.1.1", Reflect.nameOf(this));
 	}
 
 	@Test

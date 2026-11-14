@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.common.array.Array;
 import ceri.common.function.Excepts;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.util.Validate;
 import ceri.jna.util.GcMemory;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
@@ -22,19 +22,19 @@ public class SpiTransfer {
 	private final int sizeMax;
 	private final ByteBuffer out;
 	private final ByteBuffer in;
-	private final Direction direction;
+	private final Io.Direction direction;
 	private final spi_ioc_transfer transfer;
 
 	public static SpiTransfer of(Excepts.Consumer<IOException, spi_ioc_transfer> executor,
-		Direction direction, int size) {
-		Validate.equalNoneOf(direction, null, Direction.none);
-		var outMem = direction == Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
-		var inMem = direction == Direction.out ? GcMemory.NULL : GcMemory.malloc(size).clear();
+		Io.Direction direction, int size) {
+		Validate.equalNoneOf(direction, null, Io.Direction.none);
+		var outMem = direction == Io.Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
+		var inMem = direction == Io.Direction.out ? GcMemory.NULL : GcMemory.malloc(size).clear();
 		return new SpiTransfer(executor, outMem.m, inMem.m, direction, size);
 	}
 
 	private SpiTransfer(Excepts.Consumer<IOException, spi_ioc_transfer> executor, Memory outMem,
-		Memory inMem, Direction direction, int size) {
+		Memory inMem, Io.Direction direction, int size) {
 		this.executor = executor;
 		transfer = new spi_ioc_transfer();
 		transfer.tx_buf = nativeValue(outMem);
@@ -72,7 +72,7 @@ public class SpiTransfer {
 		return in;
 	}
 
-	public Direction direction() {
+	public Io.Direction direction() {
 		return direction;
 	}
 

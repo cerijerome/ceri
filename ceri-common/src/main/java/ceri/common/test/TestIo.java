@@ -15,14 +15,12 @@ import ceri.common.data.ByteStream;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functional;
+import ceri.common.io.Device;
 import ceri.common.io.Io;
 import ceri.common.io.IoStream;
 import ceri.common.io.IoStream.Write;
 import ceri.common.io.PipedStream;
-import ceri.common.io.StateChange;
 import ceri.common.net.HostPort;
-import ceri.common.net.TcpSocketOption;
-import ceri.common.net.TcpSocketOptions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
@@ -233,7 +231,7 @@ public class TestIo {
 	 * A connector implementation for tests, using piped streams.
 	 */
 	public static class Fixable implements ceri.common.io.Fixable {
-		public final Listeners<StateChange> listeners = Listeners.of();
+		public final Listeners<Device.Change> listeners = Listeners.of();
 		public final CallSync.Consumer<Boolean> open = CallSync.consumer(false, true);
 		public final CallSync.Consumer<Boolean> broken = CallSync.consumer(false, true);
 		public final CallSync.Runnable close = CallSync.runnable(true);
@@ -260,13 +258,13 @@ public class TestIo {
 		}
 
 		@Override
-		public Listenable<StateChange> listeners() {
+		public Listenable<Device.Change> listeners() {
 			return listeners;
 		}
 
 		@Override
 		public void broken() {
-			if (!broken.value()) listeners.accept(StateChange.broken);
+			if (!broken.value()) listeners.accept(Device.Change.broken);
 			broken.accept(true);
 			open.value(false);
 		}
@@ -276,7 +274,7 @@ public class TestIo {
 		 */
 		public void fixed() {
 			open.value(true); // don't signal call
-			if (broken.value()) listeners.accept(StateChange.fixed);
+			if (broken.value()) listeners.accept(Device.Change.fixed);
 			broken.accept(false);
 		}
 
@@ -506,7 +504,8 @@ public class TestIo {
 		public final CallSync.Supplier<HostPort> hostPort;
 		public final CallSync.Supplier<Integer> localPort;
 		public final CallSync.Runnable optionSync = CallSync.runnable(true);
-		public final TcpSocketOptions.Mutable options = TcpSocketOptions.of(ConcurrentHashMap::new);
+		public final TcpSocket.Options.Mutable options =
+			TcpSocket.Options.of(ConcurrentHashMap::new);
 
 		/**
 		 * Provide a test socket that echoes output to input.
@@ -548,13 +547,13 @@ public class TestIo {
 		}
 
 		@Override
-		public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
+		public <T> void option(TcpSocket.Option<T> option, T value) throws IOException {
 			options.set(option, value);
 			optionSync.run(ExceptionAdapter.io);
 		}
 
 		@Override
-		public <T> T option(TcpSocketOption<T> option) throws IOException {
+		public <T> T option(TcpSocket.Option<T> option) throws IOException {
 			optionSync.run(ExceptionAdapter.io);
 			return options.get(option);
 		}

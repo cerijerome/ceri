@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.util.Arrays;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
-import ceri.common.io.ConsoleInput;
+import ceri.common.io.ConsoleIn;
 import ceri.common.io.LineReader;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
@@ -23,7 +23,7 @@ import ceri.log.util.Logs;
 public class TtyInput implements LineReader, Functions.Closeable {
 	private final FileDescriptor fd;
 	private final Reader reader;
-	private final ConsoleInput consoleInput;
+	private final ConsoleIn consoleInput;
 	private final Termios termios;
 
 	/**
@@ -36,19 +36,19 @@ public class TtyInput implements LineReader, Functions.Closeable {
 	}
 
 	public static TtyInput of() throws IOException {
-		return of(ConsoleInput.Config.BLOCK);
+		return of(ConsoleIn.Config.BLOCK);
 	}
 
-	public static TtyInput of(ConsoleInput.Config config, String... history) throws IOException {
+	public static TtyInput of(ConsoleIn.Config config, String... history) throws IOException {
 		return new TtyInput(config, Arrays.asList(history));
 	}
 
-	private TtyInput(ConsoleInput.Config config, Iterable<String> history) throws IOException {
+	private TtyInput(ConsoleIn.Config config, Iterable<String> history) throws IOException {
 		fd = CFileDescriptor.of(CUnistd.STDIN_FILENO);
 		termios = Termios.get(fd);
 		configureTty(fd);
 		reader = new InputStreamReader(System.in);
-		consoleInput = ConsoleInput.of(reader, System.out, config, history);
+		consoleInput = ConsoleIn.of(reader, System.out, config, history);
 	}
 
 	@Override

@@ -3,8 +3,8 @@ package ceri.serial.spi.util;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import ceri.common.array.Array;
-import ceri.common.io.Direction;
-import ceri.common.io.StringPrintStream;
+import ceri.common.io.Io;
+import ceri.common.io.StringStream;
 import ceri.common.test.Assert;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
@@ -29,7 +29,7 @@ public class SpiEmulatorBehavior {
 	@Test
 	public void shouldIgnoreOutput() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
-		var xfer = spi.transfer(Direction.out, 5);
+		var xfer = spi.transfer(Io.Direction.out, 5);
 		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read());
@@ -38,7 +38,7 @@ public class SpiEmulatorBehavior {
 	@Test
 	public void shouldProvideBlankInput() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
-		var xfer = spi.transfer(Direction.in, 5);
+		var xfer = spi.transfer(Io.Direction.in, 5);
 		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5)); // ignored
 		xfer.execute();
 		Assert.array(xfer.read(), 0, 0, 0, 0, 0);
@@ -47,7 +47,7 @@ public class SpiEmulatorBehavior {
 	@Test
 	public void shouldEcho() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
-		var xfer = spi.transfer(Direction.duplex, 5);
+		var xfer = spi.transfer(Io.Direction.duplex, 5);
 		xfer.write(Array.BYTE.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		Assert.array(xfer.read(), 1, 2, 3, 4, 5);
@@ -56,7 +56,7 @@ public class SpiEmulatorBehavior {
 	@Test
 	public void shouldDelayForTransferTime() throws IOException {
 		var spi = SpiEmulator.echo();
-		var xfer = spi.transfer(Direction.duplex, 3).speedHz(25000000);
+		var xfer = spi.transfer(Io.Direction.duplex, 3).speedHz(25000000);
 		xfer.write(Array.BYTE.of(1, 2, 3));
 		xfer.execute(); // < 1us
 		Assert.array(xfer.read(), 1, 2, 3);
@@ -64,7 +64,7 @@ public class SpiEmulatorBehavior {
 
 	@Test
 	public void shouldPrintPulsesWithSpacing() throws IOException {
-		try (var out = StringPrintStream.of()) {
+		try (var out = StringStream.of()) {
 			var config = SpiPulseConfig.of(2);
 			var buffer = config.buffer();
 			var spi = SpiEmulator.pulsePrinter(out, config.cycle()).delay(false);
@@ -75,7 +75,7 @@ public class SpiEmulatorBehavior {
 
 	@Test
 	public void shouldPrintPulses() throws IOException {
-		try (var out = StringPrintStream.of()) {
+		try (var out = StringStream.of()) {
 			var buffer = SpiPulseConfig.of(2).buffer();
 			var spi = SpiEmulator.pulsePrinter(out).delay(false);
 			sendPulses(spi, buffer, 0x85, 0xf3);
@@ -84,7 +84,7 @@ public class SpiEmulatorBehavior {
 	}
 
 	private static void sendPulses(Spi spi, PulseBuffer buffer, int... bytes) throws IOException {
-		var xfer = spi.transfer(Direction.out, buffer.storageSize());
+		var xfer = spi.transfer(Io.Direction.out, buffer.storageSize());
 		buffer.setBytes(0, bytes);
 		buffer.writePulseTo(xfer.out());
 		xfer.execute();

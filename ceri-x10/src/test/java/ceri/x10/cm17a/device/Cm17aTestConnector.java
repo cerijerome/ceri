@@ -5,7 +5,7 @@ import ceri.common.concurrent.Listenable;
 import ceri.common.data.Bytes;
 import ceri.common.data.IntArray;
 import ceri.common.except.ExceptionAdapter;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestIo;
@@ -48,7 +48,7 @@ public class Cm17aTestConnector extends TestIo.Fixable implements Cm17aConnector
 	}
 
 	@Override
-	public Listenable<StateChange> listeners() {
+	public Listenable<Device.Change> listeners() {
 		return listeners;
 	}
 

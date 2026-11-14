@@ -22,7 +22,7 @@ import ceri.common.text.Strings;
  * A console input and display utility for char-based input. Attempts to copy functionality of
  * terminal line-based input, and provides line history recall/editing.
  */
-public class ConsoleInput implements LineReader {
+public class ConsoleIn implements LineReader {
 	private static final Pattern SPACE_REGEX = Pattern.compile("^ ");
 	private static final int ESC_END_MIN = 0x40;
 	private static final int ESC_END_MAX = 0x7e;
@@ -70,7 +70,7 @@ public class ConsoleInput implements LineReader {
 	/**
 	 * Creates an instance for input and output streams with blocking configuration.
 	 */
-	public static ConsoleInput of(Reader in, PrintStream out) {
+	public static ConsoleIn of(Reader in, PrintStream out) {
 		return of(in, out, Config.BLOCK);
 	}
 
@@ -78,20 +78,20 @@ public class ConsoleInput implements LineReader {
 	 * Creates an instance for input and output streams with given configuration and pre-set
 	 * history.
 	 */
-	public static ConsoleInput of(Reader in, PrintStream out, Config config, String... history) {
-		return new ConsoleInput(in, out, config, Arrays.asList(history));
+	public static ConsoleIn of(Reader in, PrintStream out, Config config, String... history) {
+		return new ConsoleIn(in, out, config, Arrays.asList(history));
 	}
 
 	/**
 	 * Creates an instance for input and output streams with given configuration and pre-set
 	 * history.
 	 */
-	public static ConsoleInput of(Reader in, PrintStream out, Config config,
+	public static ConsoleIn of(Reader in, PrintStream out, Config config,
 		Iterable<String> history) {
-		return new ConsoleInput(in, out, config, history);
+		return new ConsoleIn(in, out, config, history);
 	}
 
-	private ConsoleInput(Reader in, PrintStream out, Config config, Iterable<String> history) {
+	private ConsoleIn(Reader in, PrintStream out, Config config, Iterable<String> history) {
 		this.in = in;
 		this.out = out;
 		this.config = config;

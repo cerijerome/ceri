@@ -3,17 +3,17 @@ package ceri.x10.cm17a.device;
 import java.io.Closeable;
 import ceri.common.concurrent.Listenable;
 import ceri.common.function.Enclosure;
-import ceri.common.io.StateChange;
+import ceri.common.io.Device;
 import ceri.x10.command.Command;
 import ceri.x10.util.X10Controller;
 
-public interface Cm17a extends X10Controller, Listenable.Indirect<StateChange>, Closeable {
+public interface Cm17a extends X10Controller, Listenable.Indirect<Device.Change>, Closeable {
 	/**
 	 * A stateless, no-op instance.
 	 */
 	Cm17a NULL = new Cm17a() {
 		@Override
-		public Listenable<StateChange> listeners() {
+		public Listenable<Device.Change> listeners() {
 			return Listenable.ofNull();
 		}
 

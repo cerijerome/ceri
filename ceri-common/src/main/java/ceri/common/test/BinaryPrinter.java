@@ -185,7 +185,7 @@ public class BinaryPrinter {
 	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		return ToString.forClass(this, Reflect.className(out()), bufferSize, bytesPerColumn,
+		return ToString.forClass(this, Reflect.nameOf(out()), bufferSize, bytesPerColumn,
 			columns, columnSpace, showBinary, showHex, showChar, upper, printableSpace,
 			unprintable);
 	}

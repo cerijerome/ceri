@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import ceri.common.collect.Immutable;
 import ceri.common.io.Buffers;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.ToString;
@@ -151,7 +151,7 @@ public class BufferType<B extends Buffer, T, A, L extends ValueLayout>
 		}
 
 		@Override
-		public Native.Adapted<MemorySegment> encode(Direction direction, SegmentAllocator allocator,
+		public Native.Adapted<MemorySegment> encode(Io.Direction direction, SegmentAllocator allocator,
 			B value) {
 			if (nul() || !Buffers.isDirect(value)) return super.encode(direction, allocator, value);
 			return Native.Adapted.of(ofBuffer(value, count()));

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitor;
@@ -11,15 +13,23 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.array.Array;
+import ceri.common.collect.Collectable;
+import ceri.common.collect.Lists;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
+import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 
@@ -27,6 +37,7 @@ import ceri.common.util.Basics;
  * Support for file system paths.
  */
 public class Paths {
+	private static final Excepts.Operator<IOException, Path> IDENTITY = p -> p;
 	private static final String GLOB_SYNTAX = "glob:";
 	private static final String REGEX_SYNTAX = "regex:";
 	private static final LinkOption[] NO_LINK_OPTIONS = new LinkOption[0];
@@ -122,6 +133,158 @@ public class Paths {
 	}
 
 	/**
+	 * Provides paths under a directory with optional filters, mapping, and sorting.
+	 */
+	public static class Finder {
+		private final Path dir;
+		private final boolean all;
+		private boolean sort = false;
+		private Excepts.Operator<IOException, Path> modifier = IDENTITY; // filters and modifiers
+
+		private Finder(Path dir, boolean all) {
+			this.dir = dir;
+			this.all = all;
+		}
+
+		/**
+		 * Filter files only; may not work after calling relative().
+		 */
+		public Finder files() {
+			return filter(Paths.Filter.FILE);
+		}
+
+		/**
+		 * Filter path by file system pattern syntax.
+		 */
+		public Finder filter(String format, Object... args) {
+			return filter(pattern(format, args).castEx());
+		}
+
+		/**
+		 * Filter paths based on predicate.
+		 */
+		public Finder filter(Excepts.Predicate<? extends RuntimeException, ? super Path> filter) {
+			return modify(p -> Filters.test(Filters.Nulls.no, p, filter) ? p : null);
+		}
+
+		/**
+		 * Filter paths based on predicate.
+		 */
+		public Finder filterEx(Excepts.Predicate<? extends IOException, ? super Path> filter) {
+			return modify(p -> Filters.test(Filters.Nulls.no, p, filter) ? p : null);
+		}
+
+		/**
+		 * Filter final path segment name by file system pattern syntax.
+		 */
+		public Finder nameFilter(String format, Object... args) {
+			return filter(Filters.as(Path::getFileName, pattern(format, args).cast()));
+		}
+
+		/**
+		 * Filter final path segment name based on predicate.
+		 */
+		public Finder
+			nameFilter(Excepts.Predicate<? extends RuntimeException, ? super String> filter) {
+			return filter(Filters.as(Paths::name, filter));
+		}
+
+		/**
+		 * Filter final path segment name based on predicate.
+		 */
+		public Finder nameFilterEx(Excepts.Predicate<? extends IOException, ? super String> filter) {
+			return filterEx(Filters.asEx(Paths::name, filter));
+		}
+
+		/**
+		 * Modifies paths relative to the dir. Additional filters will apply to the modified paths.
+		 */
+		public Finder relative() {
+			int levels = Paths.nameCount(dir);
+			return modify(p -> p.startsWith(dir) ? Paths.sub(p, levels) : p);
+		}
+
+		/**
+		 * Sort the final list.
+		 */
+		public Finder sort() {
+			sort = true;
+			return this;
+		}
+
+		/**
+		 * Returns the filtered paths as a mutable list.
+		 */
+		public List<Path> list() throws IOException {
+			return list(p -> p);
+		}
+
+		/**
+		 * Returns the filtered path strings as a mutable list.
+		 */
+		public List<String> strings() throws IOException {
+			return list(Strings::safe);
+		}
+
+		/**
+		 * Returns the filtered path final segment names as a mutable list.
+		 */
+		public List<String> names() throws IOException {
+			return list(Paths::name);
+		}
+
+		/**
+		 * Returns a stream of the filtered paths.
+		 */
+		public Stream.Rt<Path> stream() throws IOException {
+			return Stream.from(list());
+		}
+
+		// support
+
+		private <T extends Comparable<? super T>> List<T>
+			list(Excepts.Function<IOException, Path, ? extends T> mapper) throws IOException {
+			var list = Lists.<T>of();
+			consume(p -> Collectable.safeAdd(list, Functional.apply(mapper, apply(p))));
+			if (sort) Lists.sort(list, Compares.of());
+			return list;
+		}
+
+		@SuppressWarnings("resource")
+		private Functions.Predicate<Path> pattern(String format, Object... args) {
+			return Paths.Filter.pattern(Paths.fs(dir), format, args);
+		}
+
+		private Finder modify(Excepts.Operator<IOException, Path> modifier) {
+			this.modifier = combine(this.modifier, modifier);
+			return this;
+		}
+
+		private void consume(Excepts.Consumer<IOException, Path> consumer) throws IOException {
+			if (dir == null) return;
+			if (all) consumeAll(consumer);
+			else consumeChildren(consumer);
+		}
+
+		private void consumeAll(Excepts.Consumer<IOException, Path> consumer) throws IOException {
+			var visitFn = FileVisitors.<Path, BasicFileAttributes>adaptConsumer(consumer);
+			Files.walkFileTree(dir, FileVisitors.of(visitFn, null, visitFn));
+		}
+
+		private void consumeChildren(Excepts.Consumer<IOException, Path> consumer) throws IOException {
+			if (!Files.isDirectory(dir)) return;
+			try (var dirs = Files.newDirectoryStream(dir)) {
+				Paths.stream(dirs).forEach(consumer);
+			}
+		}
+
+		private Path apply(Path path) throws IOException {
+			if (Objects.equals(dir, path)) return null;
+			return Functional.apply(modifier, path);
+		}
+	}
+	
+	/**
 	 * Return the file system associated with the path, or default if null.
 	 */
 	public static FileSystem fs(Path path) {
@@ -160,6 +323,13 @@ public class Paths {
 	}
 
 	/**
+	 * Returns the file as a path, or null.
+	 */
+	public static Path path(File file) {
+		return file == null ? null : file.toPath();
+	}
+	
+	/**
 	 * Returns the pattern with file system glob syntax.
 	 */
 	public static String glob(String format, Object... args) {
@@ -171,6 +341,20 @@ public class Paths {
 	 */
 	public static String regex(String format, Object... args) {
 		return REGEX_SYNTAX + Strings.format(format, args);
+	}
+
+	/**
+	 * Returns a finder instance that accesses all sub-paths.
+	 */
+	public static Finder find(Path dir) {
+		return new Finder(dir, true);
+	}
+
+	/**
+	 * Returns a finder instance that accesses only child paths.
+	 */
+	public static Finder findIn(Path dir) {
+		return new Finder(dir, false);
 	}
 
 	/**
@@ -399,6 +583,14 @@ public class Paths {
 	}
 
 	/**
+	 * Converts a directory stream, unpacking iterator runtime exceptions.
+	 */
+	public static <T> Stream.Ex<IOException, T> stream(DirectoryStream<T> dirs) {
+		return Stream.from(dirs,
+			e -> (e instanceof DirectoryIteratorException die) ? die.getCause() : null);
+	}
+
+	/**
 	 * Copies file contents from one file to another, creating the destination directories if
 	 * necessary. Returns the destination path. Removes created directories on failure.
 	 */
@@ -448,5 +640,12 @@ public class Paths {
 			tracker.delete();
 			throw e;
 		}
+	}
+	
+	// support
+	
+	private static Excepts.Operator<IOException, Path> combine(
+		Excepts.Operator<IOException, Path> mapper, Excepts.Operator<IOException, Path> next) {
+		return p -> Functional.apply(next, Functional.apply(mapper, p));
 	}
 }

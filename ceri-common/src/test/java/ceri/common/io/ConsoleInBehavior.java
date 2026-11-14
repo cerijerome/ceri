@@ -13,8 +13,8 @@ import ceri.common.test.Assert;
 import ceri.common.test.TestIo;
 import ceri.common.text.StringBuilders;
 
-public class ConsoleInputBehavior {
-	private static final ConsoleInput.Config CONF = new ConsoleInput.Config(0, false, null, null);
+public class ConsoleInBehavior {
+	private static final ConsoleIn.Config CONF = new ConsoleIn.Config(0, false, null, null);
 	private static final String U = "\u001b[A";
 	private static final String D = "\u001b[B";
 	private static final String R = "\u001b[C";
@@ -26,7 +26,7 @@ public class ConsoleInputBehavior {
 	private Reader in;
 	private PrintStream ps;
 	private StringBuilder out;
-	private ConsoleInput con;
+	private ConsoleIn con;
 
 	@AfterEach
 	public void after() {
@@ -39,7 +39,7 @@ public class ConsoleInputBehavior {
 	@Test
 	public void shouldCreateWithDefaultConfig() throws IOException {
 		init(CONF, List.of(), "test\n");
-		con = ConsoleInput.of(in, ps);
+		con = ConsoleIn.of(in, ps);
 		Assert.equal(con.ready(), true);
 		Assert.equal(con.readLine(), "test");
 	}
@@ -52,7 +52,7 @@ public class ConsoleInputBehavior {
 		tin.to.writeString("abc\n");
 		var out = IoStream.nullPrint();
 		in = new InputStreamReader(tin);
-		con = ConsoleInput.of(in, out, new ConsoleInput.Config(0, false, null, 0));
+		con = ConsoleIn.of(in, out, new ConsoleIn.Config(0, false, null, 0));
 		Assert.equal(con.readLine(), "abc");
 	}
 
@@ -89,14 +89,14 @@ public class ConsoleInputBehavior {
 
 	@Test
 	public void shouldEditHistory() throws IOException {
-		init(ConsoleInput.Config.BLOCK, List.of("abc", "d"), U, U, "d", D, "e\n");
+		init(ConsoleIn.Config.BLOCK, List.of("abc", "d"), U, U, "d", D, "e\n");
 		Assert.equal(con.readLine(), "de");
 		Assert.ordered(con.history(), "abcd", "d", "de");
 	}
 
 	@Test
 	public void shouldAddToHistory() throws IOException {
-		init(ConsoleInput.Config.BLOCK, List.of(), " abc\n\nabc\n");
+		init(ConsoleIn.Config.BLOCK, List.of(), " abc\n\nabc\n");
 		Assert.equal(con.readLine(), " abc"); // not added
 		Assert.equal(con.readLine(), ""); // not added
 		Assert.equal(con.readLine(), "abc");
@@ -105,7 +105,7 @@ public class ConsoleInputBehavior {
 
 	@Test
 	public void shouldLimitHistorySize() throws IOException {
-		init(new ConsoleInput.Config(3, false, null, null), List.of(), "a\nb\nc\nd\n");
+		init(new ConsoleIn.Config(3, false, null, null), List.of(), "a\nb\nc\nd\n");
 		Assert.equal(con.readLine(), "a");
 		Assert.equal(con.readLine(), "b");
 		Assert.equal(con.readLine(), "c");
@@ -119,10 +119,10 @@ public class ConsoleInputBehavior {
 		Assert.equal(con.readLine(), "abc");
 	}
 
-	private void init(ConsoleInput.Config config, List<String> history, String... inputs) {
+	private void init(ConsoleIn.Config config, List<String> history, String... inputs) {
 		in = new StringReader(String.join("", inputs));
 		out = new StringBuilder();
 		ps = StringBuilders.printStream(out);
-		con = ConsoleInput.of(in, ps, config, history);
+		con = ConsoleIn.of(in, ps, config, history);
 	}
 }

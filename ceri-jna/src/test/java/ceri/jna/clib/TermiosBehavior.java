@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import ceri.common.function.Closeables;
-import ceri.common.io.Direction;
+import ceri.common.io.Io;
 import ceri.common.test.Assert;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.jna.CTermios;
@@ -83,12 +83,12 @@ public class TermiosBehavior {
 	public void shouldFlush() throws IOException {
 		var lib = initTermios();
 		tm = Termios.get(fd);
-		tm.flush(Direction.none); // does nothing
-		tm.flush(Direction.in);
+		tm.flush(Io.Direction.none); // does nothing
+		tm.flush(Io.Direction.in);
 		lib.tc.assertAuto(TcArgs.of("tcflush", fd.fd(), CTermios.TCIFLUSH));
-		tm.flush(Direction.out);
+		tm.flush(Io.Direction.out);
 		lib.tc.assertAuto(TcArgs.of("tcflush", fd.fd(), CTermios.TCOFLUSH));
-		tm.flush(Direction.duplex);
+		tm.flush(Io.Direction.duplex);
 		lib.tc.assertAuto(TcArgs.of("tcflush", fd.fd(), CTermios.TCIOFLUSH));
 	}
 
@@ -96,13 +96,13 @@ public class TermiosBehavior {
 	public void shouldFlow() throws IOException {
 		var lib = initTermios();
 		tm = Termios.get(fd);
-		tm.flow(Direction.none, true); // does nothing
-		tm.flow(Direction.in, false);
+		tm.flow(Io.Direction.none, true); // does nothing
+		tm.flow(Io.Direction.in, false);
 		lib.tc.assertAuto(TcArgs.of("tcflow", fd.fd(), CTermios.TCIOFF));
-		tm.flow(Direction.out, false);
+		tm.flow(Io.Direction.out, false);
 		lib.tc.assertAuto(TcArgs.of("tcflow", fd.fd(), CTermios.TCOOFF));
 		lib.tc.clearCalls();
-		tm.flow(Direction.duplex, true);
+		tm.flow(Io.Direction.duplex, true);
 		lib.tc.assertValues(TcArgs.of("tcflow", fd.fd(), CTermios.TCION),
 			TcArgs.of("tcflow", fd.fd(), CTermios.TCOON));
 	}

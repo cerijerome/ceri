@@ -155,7 +155,7 @@ public class ErrorGen {
 	}
 
 	private static String name(Exception e) {
-		var s = Reflect.className(e);
+		var s = Reflect.nameOf(e);
 		return !s.endsWith(EXCEPTION) ? s : s.substring(0, s.length() - EXCEPTION.length());
 	}
 }

@@ -53,7 +53,7 @@ public class Validate {
 		if (cls.isInstance(obj)) return Reflect.unchecked(obj);
 		throw failed("Must be %s: %s", Reflect.name(cls), obj);
 	}
-	
+
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */
@@ -148,6 +148,23 @@ public class Validate {
 			if (Objects.equals(actual, value)) throw failed("%s must not equal any of %s: %s",
 				f(format, args), join(values), actual);
 		return actual;
+	}
+
+	// strings
+
+	/**
+	 * Fails if the char sequence is null or empty.
+	 */
+	public static <T extends CharSequence> T nonEmpty(T str) {
+		return nonEmpty(str, "");
+	}
+
+	/**
+	 * Fails if the char sequence is null or empty.
+	 */
+	public static <T extends CharSequence> T nonEmpty(T str, String format, Object... args) {
+		if (Strings.nonEmpty(str)) return str;
+		throw failed("%s is empty", f(format, args));
 	}
 
 	// arrays

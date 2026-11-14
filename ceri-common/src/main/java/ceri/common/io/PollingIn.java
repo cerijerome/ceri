@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * An input stream that polls the underlying stream until data is available. This allows I/O to
  * always be interruptible, but at the expense of performance due to polling.
  */
-public class PollingInputStream extends FilterInputStream {
+public class PollingIn extends FilterInputStream {
 	private final long pollingMs;
 	private final long timeoutMs;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -17,7 +17,7 @@ public class PollingInputStream extends FilterInputStream {
 	/**
 	 * Constructor with given polling interval and unlimited wait time for data to be available.
 	 */
-	public PollingInputStream(InputStream in, long pollingMs) {
+	public PollingIn(InputStream in, long pollingMs) {
 		this(in, pollingMs, 0);
 	}
 
@@ -25,7 +25,7 @@ public class PollingInputStream extends FilterInputStream {
 	 * Constructor with given polling interval and maximum wait time for data to be available. Use
 	 * timeout of 0 for unlimited wait.
 	 */
-	public PollingInputStream(InputStream in, long pollingMs, long timeoutMs) {
+	public PollingIn(InputStream in, long pollingMs, long timeoutMs) {
 		super(in);
 		this.pollingMs = pollingMs;
 		this.timeoutMs = timeoutMs;

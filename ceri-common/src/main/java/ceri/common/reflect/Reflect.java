@@ -157,13 +157,6 @@ public class Reflect {
 	}
 
 	/**
-	 * Returns the object's class name without package. Undefined for class names containing '$'.
-	 */
-	public static String className(Object obj) {
-		return name(classOf(obj));
-	}
-
-	/**
 	 * Returns the simple class name. For anonymous classes it returns the class name after '$'.
 	 */
 	public static String simple(Class<?> cls) {
@@ -175,10 +168,31 @@ public class Reflect {
 	}
 
 	/**
+	 * Returns the class full name.
+	 */
+	public static String fullName(Class<?> cls) {
+		return cls == null ? Strings.NULL : cls.getName();
+	}
+
+	/**
+	 * Returns the object's full class name.
+	 */
+	public static String fullNameOf(Object obj) {
+		return fullName(classOf(obj));
+	}
+
+	/**
 	 * Returns the class name without package, and qualified by outer classes if present.
 	 */
 	public static String name(Class<?> cls) {
 		return qname(cls, -1);
+	}
+
+	/**
+	 * Returns the object's class name without package. Undefined for class names containing '$'.
+	 */
+	public static String nameOf(Object obj) {
+		return name(classOf(obj));
 	}
 
 	/**
@@ -229,7 +243,7 @@ public class Reflect {
 	 */
 	public static String nameHash(Object obj) {
 		if (obj == null) return Strings.NULL;
-		return className(obj) + hashId(obj);
+		return nameOf(obj) + hashId(obj);
 	}
 
 	/**
