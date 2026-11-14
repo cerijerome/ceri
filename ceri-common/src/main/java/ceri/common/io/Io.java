@@ -65,7 +65,7 @@ public class Io {
 			return this == out || this == duplex;
 		}
 	}
-	
+
 	/**
 	 * Returns the direction type from boolean out value.
 	 */

@@ -192,7 +192,8 @@ public class Paths {
 		/**
 		 * Filter final path segment name based on predicate.
 		 */
-		public Finder nameFilterEx(Excepts.Predicate<? extends IOException, ? super String> filter) {
+		public Finder
+			nameFilterEx(Excepts.Predicate<? extends IOException, ? super String> filter) {
 			return filterEx(Filters.asEx(Paths::name, filter));
 		}
 
@@ -271,7 +272,8 @@ public class Paths {
 			Files.walkFileTree(dir, FileVisitors.of(visitFn, null, visitFn));
 		}
 
-		private void consumeChildren(Excepts.Consumer<IOException, Path> consumer) throws IOException {
+		private void consumeChildren(Excepts.Consumer<IOException, Path> consumer)
+			throws IOException {
 			if (!Files.isDirectory(dir)) return;
 			try (var dirs = Files.newDirectoryStream(dir)) {
 				Paths.stream(dirs).forEach(consumer);
@@ -283,7 +285,7 @@ public class Paths {
 			return Functional.apply(modifier, path);
 		}
 	}
-	
+
 	/**
 	 * Return the file system associated with the path, or default if null.
 	 */
@@ -328,7 +330,7 @@ public class Paths {
 	public static Path path(File file) {
 		return file == null ? null : file.toPath();
 	}
-	
+
 	/**
 	 * Returns the pattern with file system glob syntax.
 	 */
@@ -641,9 +643,9 @@ public class Paths {
 			throw e;
 		}
 	}
-	
+
 	// support
-	
+
 	private static Excepts.Operator<IOException, Path> combine(
 		Excepts.Operator<IOException, Path> mapper, Excepts.Operator<IOException, Path> next) {
 		return p -> Functional.apply(next, Functional.apply(mapper, p));
